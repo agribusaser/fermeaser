@@ -1,1 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ferme Asher ERP - Dashboard</title>
+
+<link rel="stylesheet" href="css/dashboard.css">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<!-- ========================= -->
+<!-- SIDEBAR -->
+<!-- ========================= -->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+<img src="images/logo.png" alt="Logo">
+
+<h2>Ferme Asher</h2>
+
+<p>ERP Agricole</p>
+
+</div>
+
+<ul class="menu">
+
+<li class="active">
+<a href="#">
+<i class="fa-solid fa-house"></i>
+<span>Tableau de bord</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-cart-shopping"></i>
+<span>Ventes</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-users"></i>
+<span>Clients</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-egg"></i>
+<span>Élevage</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-seedling"></i>
+<span>Agriculture</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-boxes-stacked"></i>
+<span>Stocks</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-tractor"></i>
+<span>Machines</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-user-group"></i>
+<span>Employés</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-wallet"></i>
+<span>Finances</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-chart-column"></i>
+<span>Rapports</span>
+</a>
+</li>
+
+<li>
+<a href="#">
+<i class="fa-solid fa-gear"></i>
+<span>Paramètres</span>
+</a>
+</li>
+
+</ul>
+
+</aside>
+
+<!-- ========================= -->
+<!-- CONTENU -->
+<!-- ========================= -->
+
+<main class="main">
+
+<header class="topbar">
+
+<div>
+
+<h1>Bienvenue Cedrick 👋</h1>
+
+<p>Tableau de bord Ferme Asher ERP</p>
+
+</div>
+
+<div class="top-icons">
+
+<i class="fa-solid fa-bell"></i>
+
+<i class="fa-solid fa-envelope"></i>
+
+<img src="images/logo.png" class="avatar">
+
+</div>
+
+</header>
+
+  <!-- ========================= -->
+<!-- CARTES KPI -->
+<!-- ========================= -->
+
+<section class="cards">
+
+<div class="card">
+
+<div>
+
+<h3>Cailles</h3>
+
+<h2 id="quails-count">120</h2>
+
+</div>
+
+<i class="fa-solid fa-dove"></i>
+
+</div>
+
+<div class="card">
+
+<div>
+
+<h3>Œufs Aujourd'hui</h3>
+
+<h2 id="eggs-count">95</h2>
+
+</div>
+
+<i class="fa-solid fa-egg"></i>
+
+</div>
+
+<div class="card">
+
+<div>
+
+<h3>Ventes du Jour</h3>
+
+<h2 id="sales-count">45 000 FC</h2>
+
+</div>
+
+<i class="fa-solid fa-coins"></i>
+
+</div>
+
+<div class="card">
+
+<div>
+
+<h3>Stock</h3>
+
+<h2 id="stock-count">82%</h2>
+
+</div>
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- CONTENU PRINCIPAL -->
+<!-- ========================= -->
+
+<section class="dashboard-content">
+
+<div class="left-panel">
+
+<div class="panel">
+
+<h2>
+
+Production Journalière
+
+</h2>
+
+<div class="chart-placeholder">
+
+Graphique Chart.js
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<h2>
+
+Ventes
+
+</h2>
+
+<div class="chart-placeholder">
+
+Graphique des ventes
+
+</div>
+
+</div>
+
+</div>
+
+<div class="right-panel">
+
+<div class="panel">
+
+<h2>
+
+Alertes
+
+</h2>
+
+<ul>
+
+<li>🟢 Incubateur en marche</li>
+
+<li>🟡 Aliment faible</li>
+
+<li>🔴 Vaccination prévue demain</li>
+
+<li>🟢 Pompe opérationnelle</li>
+
+</ul>
+
+</div>
+
+<div class="panel">
+
+<h2>
+
+Activités Récentes
+
+</h2>
+
+<ul>
+
+<li>08:00 - 95 œufs enregistrés</li>
+
+<li>09:20 - Vente de 3 plateaux</li>
+
+<li>10:15 - Nourrissage terminé</li>
+
+<li>11:40 - Stock aliment mis à jour</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</section>
