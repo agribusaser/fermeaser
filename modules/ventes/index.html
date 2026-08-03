@@ -478,3 +478,172 @@ En attente
 </div>
 
 </section>
+
+  <!-- ===================================== -->
+<!-- TABLEAU DE BORD DES VENTES -->
+<!-- ===================================== -->
+
+<section class="dashboard-content">
+
+    <!-- Colonne gauche -->
+    <div class="left-panel">
+
+        <div class="panel">
+
+            <h2>
+                <i class="fa-solid fa-chart-line"></i>
+                Évolution des ventes
+            </h2>
+
+            <canvas id="salesChart"></canvas>
+
+        </div>
+
+        <div class="panel">
+
+            <h2>
+                <i class="fa-solid fa-fire"></i>
+                Produits les plus vendus
+            </h2>
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Produit</th>
+
+                        <th>Ventes</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>🥚 Plateau de 15 œufs</td>
+
+                        <td>425</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>🐦 Cailles vivantes</td>
+
+                        <td>190</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>🌽 Maïs</td>
+
+                        <td>160</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>🌱 Soja</td>
+
+                        <td>110</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Colonne droite -->
+
+    <div class="right-panel">
+
+        <div class="panel">
+
+            <h2>
+
+                <i class="fa-solid fa-calendar-days"></i>
+
+                Résumé mensuel
+
+            </h2>
+
+            <ul>
+
+                <li>Janvier : <strong>1 250 000 FC</strong></li>
+
+                <li>Février : <strong>1 480 000 FC</strong></li>
+
+                <li>Mars : <strong>1 930 000 FC</strong></li>
+
+                <li>Avril : <strong>2 100 000 FC</strong></li>
+
+                <li>Mai : <strong>2 450 000 FC</strong></li>
+
+                <li>Juin : <strong>2 910 000 FC</strong></li>
+
+            </ul>
+
+        </div>
+
+        <div class="panel">
+
+            <h2>
+
+                <i class="fa-solid fa-bell"></i>
+
+                Notifications
+
+            </h2>
+
+            <ul>
+
+                <li>🟢 Nouvelle vente enregistrée.</li>
+
+                <li>🟡 Le stock des œufs diminue.</li>
+
+                <li>🟢 Paiement Mobile Money reçu.</li>
+
+                <li>🔴 Vérifier les produits en rupture.</li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</section>
+
+<footer style="margin-top:40px;text-align:center;color:#777;">
+
+    <hr>
+
+    <p>
+
+        © 2026 Ferme Asher ERP
+
+        | Version 1.0
+
+    </p>
+
+</footer>
+
+</main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="../../js/ventes.js"></script>
+
+</body>
+
+</html>
