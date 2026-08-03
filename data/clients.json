@@ -1,1 +1,23 @@
-
+[
+    {
+        "id": 1,
+        "nom": "Restaurant ABC",
+        "telephone": "+243990000001",
+        "adresse": "Lubumbashi",
+        "type": "Restaurant"
+    },
+    {
+        "id": 2,
+        "nom": "Supermarché Espoir",
+        "telephone": "+243990000002",
+        "adresse": "Fungurume",
+        "type": "Supermarché"
+    },
+    {
+        "id": 3,
+        "nom": "Jean Mukendi",
+        "telephone": "+243990000003",
+        "adresse": "Kolwezi",
+        "type": "Particulier"
+    }
+]
