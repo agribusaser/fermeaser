@@ -1,42 +1,173 @@
-/*=========================================
-FERME ASHER ERP
-Dashboard JS Version 1
-=========================================*/
+document.addEventListener("DOMContentLoaded", function () {
 
-document.addEventListener("DOMContentLoaded", () => {
+    // ===== KPI =====
 
-    console.log("Ferme Asher ERP chargé.");
+    document.getElementById("quails-count").textContent = "120";
 
-    // Données temporaires
-    const dashboardData = {
-        quails: 120,
-        eggs: 95,
-        sales: "45 000 FC",
-        stock: "82%"
-    };
+    document.getElementById("eggs-count").textContent = "95";
 
-    // Mise à jour des cartes
-    document.getElementById("quails-count").textContent = dashboardData.quails;
-    document.getElementById("eggs-count").textContent = dashboardData.eggs;
-    document.getElementById("sales-count").textContent = dashboardData.sales;
-    document.getElementById("stock-count").textContent = dashboardData.stock;
+    document.getElementById("sales-count").textContent = "45 000 FC";
 
-    // Animation simple des cartes
-    const cards = document.querySelectorAll(".card");
+    document.getElementById("stock-count").textContent = "82%";
 
-    cards.forEach((card, index) => {
 
-        card.style.opacity = "0";
-        card.style.transform = "translateY(30px)";
+    // ===========================
+    // Production
+    // ===========================
 
-        setTimeout(() => {
+    new Chart(
 
-            card.style.transition = "0.6s";
-            card.style.opacity = "1";
-            card.style.transform = "translateY(0)";
+        document.getElementById('productionChart'),
 
-        }, index * 200);
+        {
 
-    });
+            type: 'line',
+
+            data: {
+
+                labels: [
+
+                    'Lun',
+
+                    'Mar',
+
+                    'Mer',
+
+                    'Jeu',
+
+                    'Ven',
+
+                    'Sam',
+
+                    'Dim'
+
+                ],
+
+                datasets: [
+
+                    {
+
+                        label: 'Œufs',
+
+                        data: [
+
+                            85,
+
+                            92,
+
+                            88,
+
+                            101,
+
+                            96,
+
+                            110,
+
+                            105
+
+                        ],
+
+                        borderWidth:3,
+
+                        tension:0.4,
+
+                        fill:true
+
+                    }
+
+                ]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                plugins:{
+
+                    legend:{
+
+                        display:true
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+    // ===========================
+    // Ventes
+    // ===========================
+
+    new Chart(
+
+        document.getElementById('salesChart'),
+
+        {
+
+            type:'bar',
+
+            data:{
+
+                labels:[
+
+                    'Jan',
+
+                    'Fev',
+
+                    'Mar',
+
+                    'Avr',
+
+                    'Mai',
+
+                    'Juin'
+
+                ],
+
+                datasets:[
+
+                    {
+
+                        label:'Ventes (FC)',
+
+                        data:[
+
+                            120000,
+
+                            180000,
+
+                            150000,
+
+                            240000,
+
+                            210000,
+
+                            290000
+
+                        ],
+
+                        borderWidth:1
+
+                    }
+
+                ]
+
+            },
+
+            options:{
+
+                responsive:true
+
+            }
+
+        }
+
+    );
 
 });
