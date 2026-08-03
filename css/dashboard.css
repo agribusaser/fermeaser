@@ -272,3 +272,15 @@ gap:20px;
 }
 
 }
+
+/* =======================
+CHARTS
+======================= */
+
+canvas{
+
+width:100% !important;
+
+height:320px !important;
+
+}
