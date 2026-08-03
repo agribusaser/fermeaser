@@ -1,1 +1,38 @@
-
+[
+    {
+        "id": 1,
+        "date": "2026-08-03",
+        "facture": "FA-000001",
+        "client": "Restaurant ABC",
+        "produit": "Plateau de 15 œufs",
+        "quantite": 5,
+        "prix": 9000,
+        "total": 45000,
+        "paiement": "Cash",
+        "statut": "Payée"
+    },
+    {
+        "id": 2,
+        "date": "2026-08-03",
+        "facture": "FA-000002",
+        "client": "Supermarché Espoir",
+        "produit": "Cailles vivantes",
+        "quantite": 30,
+        "prix": 6000,
+        "total": 180000,
+        "paiement": "Mobile Money",
+        "statut": "Payée"
+    },
+    {
+        "id": 3,
+        "date": "2026-08-02",
+        "facture": "FA-000003",
+        "client": "Jean Mukendi",
+        "produit": "Œufs de cailles",
+        "quantite": 10,
+        "prix": 9000,
+        "total": 90000,
+        "paiement": "Banque",
+        "statut": "En attente"
+    }
+]
