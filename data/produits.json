@@ -1,1 +1,23 @@
-
+[
+    {
+        "id": 1,
+        "nom": "Plateau de 15 œufs",
+        "categorie": "Œufs",
+        "prix": 9000,
+        "stock": 120
+    },
+    {
+        "id": 2,
+        "nom": "Cailles vivantes",
+        "categorie": "Élevage",
+        "prix": 6000,
+        "stock": 250
+    },
+    {
+        "id": 3,
+        "nom": "Œufs de cailles",
+        "categorie": "Œufs",
+        "prix": 9000,
+        "stock": 320
+    }
+]
