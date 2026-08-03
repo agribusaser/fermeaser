@@ -1,1 +1,20 @@
-
+[
+    {
+        "id": 1,
+        "produit": "Plateau de 15 œufs",
+        "quantite": 120,
+        "unite": "Plateaux"
+    },
+    {
+        "id": 2,
+        "produit": "Cailles vivantes",
+        "quantite": 250,
+        "unite": "Unités"
+    },
+    {
+        "id": 3,
+        "produit": "Œufs de cailles",
+        "quantite": 320,
+        "unite": "Plateaux"
+    }
+]
