@@ -74,57 +74,58 @@ STATISTIQUES
 
 function chargerStatistiques(){
 
-    const ventes=
+    const ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+    const clients = JSON.parse(localStorage.getItem("clients")) || [];
+    const produits = JSON.parse(localStorage.getItem("produits")) || [];
+    const stocks = JSON.parse(localStorage.getItem("stocks")) || [];
 
-    JSON.parse(
+    let chiffreAffaires = 0;
 
-        localStorage.getItem("ventes")
+    ventes.forEach(vente => {
 
-    )||[];
-
-    const clients=
-
-    JSON.parse(
-
-        localStorage.getItem("clients")
-
-    )||[];
-
-    let chiffreAffaires=0;
-
-    ventes.forEach(v=>{
-
-        chiffreAffaires+=Number(v.total);
+        chiffreAffaires += Number(vente.total || 0);
 
     });
 
-    document.getElementById("kpiVentes").innerHTML=
+    document.getElementById("kpiVentes").textContent = ventes.length;
 
-    ventes.length;
+    document.getElementById("kpiClients").textContent = clients.length;
 
-    document.getElementById("kpiClients").innerHTML=
+    document.getElementById("kpiStock").textContent = produits.length;
 
-    clients.length;
-
-    document.getElementById("kpiCA").innerHTML=
-
-    chiffreAffaires.toLocaleString()
-
-    +" FC";
+    document.getElementById("kpiCA").textContent =
+        chiffreAffaires.toLocaleString("fr-FR") + " FC";
 
 }
+
 
 /*==================================================
 NOTIFICATIONS
 ==================================================*/
 
+
 function chargerNotifications(){
 
-console.log(
+    const ventes =
+    JSON.parse(localStorage.getItem("ventes")) || [];
 
-"Notifications chargées."
+    if(ventes.length==0){
 
-);
+        console.log("Aucune vente.");
+
+    }
+
+    else{
+
+        console.log(
+
+            ventes.length+
+
+            " ventes enregistrées."
+
+        );
+
+    }
 
 }
 
@@ -150,23 +151,13 @@ GRAPHIQUES
 
 function initialiserGraphiques(){
 
-const ventesCanvas=
+const ventes = JSON.parse(
 
-document.getElementById("salesChart");
+localStorage.getItem("ventes")
 
-if(ventesCanvas){
+)||[];
 
-new Chart(
-
-ventesCanvas,
-
-{
-
-type:"line",
-
-data:{
-
-labels:[
+const mois = [
 
 "Jan",
 
@@ -178,105 +169,59 @@ labels:[
 
 "Mai",
 
-"Juin"
+"Juin",
 
-],
+"Juil",
 
-datasets:[{
+"Août",
 
-label:"Ventes",
+"Sep",
 
-data:[
+"Oct",
 
-12,
+"Nov",
 
-18,
+"Déc"
 
-10,
+];
 
-25,
+let totalMois =
 
-22,
+Array(12).fill(0);
 
-30
+ventes.forEach(v=>{
 
-],
+let d = new Date(v.date);
 
-fill:true,
+if(!isNaN(d)){
 
-borderWidth:3,
+totalMois[d.getMonth()] +=
 
-tension:.4
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-
-legend:{
-
-display:true
+Number(v.total);
 
 }
 
-}
+});
 
-}
+const canvas =
 
-}
+document.getElementById("salesChart");
 
-);
+if(canvas){
 
-}
+new Chart(canvas,{
 
-
-
-const produitsCanvas=
-
-document.getElementById("productChart");
-
-if(produitsCanvas){
-
-new Chart(
-
-produitsCanvas,
-
-{
-
-type:"doughnut",
+type:"bar",
 
 data:{
 
-labels:[
-
-"Œufs",
-
-"Cailles",
-
-"Soja",
-
-"Farine"
-
-],
+labels:mois,
 
 datasets:[{
 
-data:[
+label:"Chiffre d'affaires",
 
-45,
-
-20,
-
-18,
-
-17
-
-]
+data:totalMois
 
 }]
 
@@ -288,15 +233,11 @@ responsive:true
 
 }
 
-}
-
-);
+});
 
 }
 
 }
-
-
 
 /*==================================================
 DECONNEXION
@@ -313,6 +254,48 @@ localStorage.removeItem(
 window.location.href=
 
 "login.html";
+
+}
+
+/*==================================================
+ACTIVITES RECENTES
+==================================================*/
+
+function chargerActivites(){
+
+    const tbody = document.getElementById("recentActivities");
+
+    if(!tbody) return;
+
+    const ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+
+    tbody.innerHTML="";
+
+    ventes
+    .slice()
+    .reverse()
+    .slice(0,5)
+    .forEach(vente=>{
+
+        tbody.innerHTML += `
+
+<tr>
+
+<td>${vente.date}</td>
+
+<td>${vente.client}</td>
+
+<td>
+
+Vente de ${vente.produit}
+
+</td>
+
+</tr>
+
+`;
+
+    });
 
 }
 
