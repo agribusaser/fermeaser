@@ -1,1 +1,765 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nouvelle vente - Ferme Asher ERP</title>
+
+
+<link rel="stylesheet"
+href="../../css/dashboard.css">
+
+<link rel="stylesheet"
+href="../../css/ventes.css">
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+</head>
+
+
+<body>
+
+
+<div class="wrapper">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+
+<div class="logo">
+
+<img src="../../images/logo.png">
+
+<h2>Ferme Asher</h2>
+
+<p>ERP Agricole</p>
+
+</div>
+
+
+<ul class="menu">
+
+
+<li>
+
+<a href="../../dashboard.html">
+
+<i class="fa-solid fa-house"></i>
+
+Tableau de bord
+
+</a>
+
+</li>
+
+
+<li class="active">
+
+<a href="index.html">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Ventes
+
+</a>
+
+</li>
+
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-users"></i>
+
+Clients
+
+</a>
+
+</li>
+
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-box"></i>
+
+Stocks
+
+</a>
+
+</li>
+
+
+</ul>
+
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+
+<main class="main">
+
+
+<header class="topbar">
+
+
+<div>
+
+
+<h1>
+
+Nouvelle vente
+
+</h1>
+
+
+<p>
+
+Enregistrer une nouvelle transaction
+
+</p>
+
+
+</div>
+
+
+
+<div class="top-icons">
+
+
+<i class="fa-solid fa-bell"></i>
+
+
+<img src="../../images/logo.png"
+class="avatar">
+
+
+</div>
+
+
+</header>
+
+  <!-- ================================= -->
+<!-- FORMULAIRE NOUVELLE VENTE -->
+<!-- ================================= -->
+
+<section class="panel">
+
+
+<h2>
+
+<i class="fa-solid fa-cart-plus"></i>
+
+Informations de la vente
+
+</h2>
+
+
+
+<form id="formVente">
+
+
+
+<div class="row g-4">
+
+
+
+<!-- CLIENT -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Client
+
+</label>
+
+
+<select 
+class="form-select"
+id="client">
+
+
+<option value="">
+
+Sélectionner un client
+
+</option>
+
+
+<option>
+
+Restaurant ABC
+
+</option>
+
+
+<option>
+
+Supermarché Espoir
+
+</option>
+
+
+<option>
+
+Client particulier
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<!-- DATE -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Date de vente
+
+</label>
+
+
+<input
+
+type="date"
+
+class="form-control"
+
+id="dateVente"
+
+>
+
+
+</div>
+
+
+
+
+
+<!-- PRODUIT -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Produit
+
+</label>
+
+
+<select
+
+class="form-select"
+
+id="produit"
+
+
+onchange="calculerTotal()"
+
+>
+
+
+<option value="">
+
+Choisir un produit
+
+</option>
+
+
+<option 
+
+data-prix="9000">
+
+Plateau de 15 œufs
+
+</option>
+
+
+<option
+
+data-prix="6000">
+
+Cailles vivantes
+
+</option>
+
+
+<option
+
+data-prix="9000">
+
+Œufs de cailles
+
+</option>
+
+
+<option
+
+data-prix="50000">
+
+Sac de soja
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<!-- QUANTITE -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Quantité
+
+</label>
+
+
+<input
+
+type="number"
+
+class="form-control"
+
+id="quantite"
+
+value="1"
+
+min="1"
+
+oninput="calculerTotal()"
+
+>
+
+
+</div>
+
+
+
+
+
+<!-- PRIX -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Prix unitaire
+
+</label>
+
+
+<input
+
+type="number"
+
+class="form-control"
+
+id="prix"
+
+readonly
+
+>
+
+
+</div>
+
+
+
+
+
+<!-- TOTAL -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Montant total
+
+</label>
+
+
+<input
+
+type="number"
+
+class="form-control"
+
+id="total"
+
+readonly
+
+>
+
+
+</div>
+
+
+
+
+
+<!-- PAIEMENT -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Mode de paiement
+
+</label>
+
+
+<select
+
+class="form-select"
+
+id="paiement"
+
+>
+
+
+<option>
+
+Cash
+
+</option>
+
+
+<option>
+
+Mobile Money
+
+</option>
+
+
+<option>
+
+Banque
+
+</option>
+
+
+<option>
+
+Crédit
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<!-- STATUT -->
+
+<div class="col-lg-6">
+
+
+<label class="form-label">
+
+Statut
+
+</label>
+
+
+<select
+
+class="form-select"
+
+id="statut"
+
+>
+
+
+<option>
+
+Payée
+
+</option>
+
+
+<option>
+
+En attente
+
+</option>
+
+
+<option>
+
+Annulée
+
+</option>
+
+
+</select>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<hr class="my-4">
+
+
+
+
+
+<div class="d-flex gap-3">
+
+
+<button
+
+type="submit"
+
+class="btn btn-success btn-lg"
+
+>
+
+
+<i class="fa-solid fa-check"></i>
+
+Enregistrer la vente
+
+
+</button>
+
+
+
+
+<a
+
+href="index.html"
+
+class="btn btn-secondary btn-lg"
+
+>
+
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+
+</a>
+
+
+</div>
+
+
+
+</form>
+
+
+
+</section>
+
+  <script>
+
+// =====================================
+// Date du jour
+// =====================================
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const date = document.getElementById("dateVente");
+
+    if(date){
+
+        date.value = new Date().toISOString().split("T")[0];
+
+    }
+
+});
+
+
+// =====================================
+// Calcul automatique
+// =====================================
+
+function calculerTotal(){
+
+    const produit = document.getElementById("produit");
+
+    const prix = document.getElementById("prix");
+
+    const quantite = document.getElementById("quantite");
+
+    const total = document.getElementById("total");
+
+    if(produit.selectedIndex <= 0){
+
+        prix.value="";
+
+        total.value="";
+
+        return;
+
+    }
+
+    const prixUnitaire =
+    Number(
+        produit.options[
+            produit.selectedIndex
+        ].dataset.prix
+    );
+
+    prix.value = prixUnitaire;
+
+    total.value =
+        prixUnitaire *
+        Number(quantite.value);
+
+}
+
+
+// =====================================
+// Générer un numéro de facture
+// =====================================
+
+function genererFacture(){
+
+    const numero =
+        Math.floor(
+            Math.random()*900000
+        )+100000;
+
+    return "FA-"+numero;
+
+}
+
+
+// =====================================
+// Enregistrer la vente
+// =====================================
+
+document
+.getElementById("formVente")
+.addEventListener("submit",
+
+function(e){
+
+    e.preventDefault();
+
+    const vente = {
+
+        facture:genererFacture(),
+
+        date:
+        document.getElementById("dateVente").value,
+
+        client:
+        document.getElementById("client").value,
+
+        produit:
+        document.getElementById("produit").value,
+
+        quantite:
+        Number(
+            document.getElementById("quantite").value
+        ),
+
+        prix:
+        Number(
+            document.getElementById("prix").value
+        ),
+
+        total:
+        Number(
+            document.getElementById("total").value
+        ),
+
+        paiement:
+        document.getElementById("paiement").value,
+
+        statut:
+        document.getElementById("statut").value
+
+    };
+
+
+    console.table(vente);
+
+    alert(
+
+        "Vente enregistrée !\n\n"
+
+        +
+
+        vente.facture
+
+    );
+
+
+    // Future Version :
+    // Enregistrement dans ventes.json
+    // Mise à jour Dashboard
+    // Mise à jour Stock
+    // Mise à jour Finances
+
+
+    this.reset();
+
+});
+
+
+</script>
+
+</main>
+
+</div>
+
+</body>
+
+</html>
