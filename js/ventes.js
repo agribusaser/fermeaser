@@ -1022,3 +1022,294 @@ JSON.stringify(ventes)
 
 });
 }
+
+/*=====================================================
+CHARGER LES VENTES
+=====================================================*/
+
+function chargerVentes(){
+
+let ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+
+const table = document.getElementById("tableVentes");
+
+const compteur = document.getElementById("nombreVentes");
+
+if(!table) return;
+
+table.innerHTML="";
+
+compteur.textContent = ventes.length;
+
+ventes.forEach((vente,index)=>{
+
+table.innerHTML += `
+
+<tr>
+
+<td>${index+1}</td>
+
+<td>${vente.date}</td>
+
+<td>${vente.client}</td>
+
+<td>${vente.produit}</td>
+
+<td>${vente.quantite}</td>
+
+<td>${vente.total.toLocaleString()} FC</td>
+
+<td>${vente.paiement}</td>
+
+<td>
+
+<span class="badge bg-success">
+
+${vente.statut}
+
+</span>
+
+</td>
+
+<td>
+
+<button
+class="btn btn-sm btn-primary"
+onclick="voirVente(${vente.id})">
+
+<i class="fa-solid fa-eye"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-warning"
+onclick="modifierVente(${vente.id})">
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-info"
+onclick="imprimerFacture(${vente.id})">
+
+<i class="fa-solid fa-print"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="supprimerVente(${vente.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+/*=====================================================
+CHARGER LES VENTES
+=====================================================*/
+
+function chargerVentes(){
+
+let ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+
+const table = document.getElementById("tableVentes");
+
+const compteur = document.getElementById("nombreVentes");
+
+if(!table) return;
+
+table.innerHTML="";
+
+compteur.textContent = ventes.length;
+
+ventes.forEach((vente,index)=>{
+
+table.innerHTML += `
+
+<tr>
+
+<td>${index+1}</td>
+
+<td>${vente.date}</td>
+
+<td>${vente.client}</td>
+
+<td>${vente.produit}</td>
+
+<td>${vente.quantite}</td>
+
+<td>${vente.total.toLocaleString()} FC</td>
+
+<td>${vente.paiement}</td>
+
+<td>
+
+<span class="badge bg-success">
+
+${vente.statut}
+
+</span>
+
+</td>
+
+<td>
+
+<button
+class="btn btn-sm btn-primary"
+onclick="voirVente(${vente.id})">
+
+<i class="fa-solid fa-eye"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-warning"
+onclick="modifierVente(${vente.id})">
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-info"
+onclick="imprimerFacture(${vente.id})">
+
+<i class="fa-solid fa-print"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="supprimerVente(${vente.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+/*=====================================================
+CHARGER LES VENTES
+=====================================================*/
+
+function chargerVentes(){
+
+let ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+
+const table = document.getElementById("tableVentes");
+
+const compteur = document.getElementById("nombreVentes");
+
+if(!table) return;
+
+table.innerHTML="";
+
+compteur.textContent = ventes.length;
+
+ventes.forEach((vente,index)=>{
+
+table.innerHTML += `
+
+<tr>
+
+<td>${index+1}</td>
+
+<td>${vente.date}</td>
+
+<td>${vente.client}</td>
+
+<td>${vente.produit}</td>
+
+<td>${vente.quantite}</td>
+
+<td>${vente.total.toLocaleString()} FC</td>
+
+<td>${vente.paiement}</td>
+
+<td>
+
+<span class="badge bg-success">
+
+${vente.statut}
+
+</span>
+
+</td>
+
+<td>
+
+<button
+class="btn btn-sm btn-primary"
+onclick="voirVente(${vente.id})">
+
+<i class="fa-solid fa-eye"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-warning"
+onclick="modifierVente(${vente.id})">
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-info"
+onclick="imprimerFacture(${vente.id})">
+
+<i class="fa-solid fa-print"></i>
+
+</button>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="supprimerVente(${vente.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+ /*=====================================================
+SUPPRIMER UNE VENTE
+=====================================================*/
+
+function supprimerVente(id){
+
+if(!confirm("Supprimer cette vente ?")) return;
+
+let ventes = JSON.parse(localStorage.getItem("ventes")) || [];
+
+ventes = ventes.filter(v => v.id !== id);
+
+localStorage.setItem("ventes", JSON.stringify(ventes));
+
+chargerVentes();
+
+}
