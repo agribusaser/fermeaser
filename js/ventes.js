@@ -880,3 +880,145 @@ function actualiserVentes(){
 
 
 }
+
+/*=====================================================
+NOUVELLE VENTE
+=====================================================*/
+
+const formulaire = document.getElementById("venteForm");
+
+if(formulaire){
+
+    const quantite = document.getElementById("quantite");
+    const prix = document.getElementById("prix");
+    const remise = document.getElementById("remise");
+    const total = document.getElementById("total");
+
+    function calculerTotal(){
+
+        let q = parseFloat(quantite.value)||0;
+
+        let p = parseFloat(prix.value)||0;
+
+        let r = parseFloat(remise.value)||0;
+
+        let montant = (q*p)-r;
+
+        if(montant<0){
+
+            montant=0;
+
+        }
+
+        total.innerHTML =
+        montant.toLocaleString("fr-FR")+" FC";
+
+    }
+
+    quantite.addEventListener("input",calculerTotal);
+
+    prix.addEventListener("input",calculerTotal);
+
+    remise.addEventListener("input",calculerTotal);
+
+    calculerTotal();
+
+}
+
+/*=====================================================
+ENREGISTRER UNE VENTE
+=====================================================*/
+
+if(formulaire){
+
+formulaire.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+const vente={
+
+id:Date.now(),
+
+date:document.getElementById("date").value,
+
+client:document.getElementById("client").value,
+
+telephone:document.getElementById("telephone").value,
+
+produit:document.getElementById("produit").value,
+
+quantite:Number(document.getElementById("quantite").value),
+
+prix:Number(document.getElementById("prix").value),
+
+remise:Number(document.getElementById("remise").value),
+
+paiement:document.getElementById("paiement").value
+
+};
+
+vente.total=(vente.quantite*vente.prix)-vente.remise;
+
+vente.statut="Payée";
+
+console.log(vente);
+
+alert("Vente enregistrée avec succès.");
+
+});
+}
+
+/*=====================================================
+SAUVEGARDE LOCALE
+=====================================================*/
+
+if(formulaire){
+
+formulaire.addEventListener("submit",function(){
+
+let ventes=
+
+JSON.parse(
+
+localStorage.getItem("ventes")
+
+)||[];
+
+const vente={
+
+id:Date.now(),
+
+date:document.getElementById("date").value,
+
+client:document.getElementById("client").value,
+
+telephone:document.getElementById("telephone").value,
+
+produit:document.getElementById("produit").value,
+
+quantite:Number(document.getElementById("quantite").value),
+
+prix:Number(document.getElementById("prix").value),
+
+remise:Number(document.getElementById("remise").value),
+
+paiement:document.getElementById("paiement").value
+
+};
+
+vente.total=(vente.quantite*vente.prix)-vente.remise;
+
+vente.statut="Payée";
+
+ventes.push(vente);
+
+localStorage.setItem(
+
+"ventes",
+
+JSON.stringify(ventes)
+
+);
+
+});
+}
