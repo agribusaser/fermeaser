@@ -345,3 +345,155 @@ console.log(
 "Module Stocks chargé."
 
 );
+
+/*==================================================
+CHARGER LA LISTE DES PRODUITS
+==================================================*/
+
+function chargerListeProduits() {
+
+    const select = document.getElementById("produit");
+
+    if (!select) return;
+
+    const produits = JSON.parse(localStorage.getItem("produits")) || [];
+
+    select.innerHTML = '<option value="">Sélectionner un produit</option>';
+
+    produits.forEach(produit => {
+
+        select.innerHTML += `
+            <option value="${produit.id}">
+                ${produit.code} - ${produit.nom}
+            </option>
+        `;
+
+    });
+
+}
+
+/*==================================================
+DATE D'AUJOURD'HUI
+==================================================*/
+
+function dateAujourdhui() {
+
+    const champ = document.getElementById("date");
+
+    if (!champ) return;
+
+    champ.value = new Date().toISOString().split("T")[0];
+
+}
+
+/*==================================================
+CALCUL AUTOMATIQUE DU MONTANT
+==================================================*/
+
+function calculerMontant() {
+
+    const quantite = document.getElementById("quantite");
+    const prix = document.getElementById("prix");
+    const montant = document.getElementById("montant");
+
+    if (!quantite || !prix || !montant) return;
+
+    function calcul() {
+
+        const qte = Number(quantite.value) || 0;
+        const pu = Number(prix.value) || 0;
+
+        montant.value = qte * pu;
+
+    }
+
+    quantite.addEventListener("input", calcul);
+    prix.addEventListener("input", calcul);
+
+}
+
+/*==================================================
+ENREGISTRER UNE ENTREE DE STOCK
+==================================================*/
+
+const entreeForm = document.getElementById("entreeForm");
+
+if (entreeForm) {
+
+    entreeForm.addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const produits = JSON.parse(localStorage.getItem("produits")) || [];
+        const mouvements = JSON.parse(localStorage.getItem("mouvementsStock")) || [];
+
+        const idProduit = Number(document.getElementById("produit").value);
+        const quantite = Number(document.getElementById("quantite").value);
+        const prix = Number(document.getElementById("prix").value);
+
+        const produit = produits.find(p => p.id === idProduit);
+
+        if (!produit) {
+
+            alert("Produit introuvable.");
+
+            return;
+
+        }
+
+        produit.stock += quantite;
+
+        mouvements.push({
+
+            id: Date.now(),
+
+            date: document.getElementById("date").value,
+
+            produitId: produit.id,
+
+            produit: produit.nom,
+
+            type: "Entrée",
+
+            nature: document.getElementById("type").value,
+
+            quantite: quantite,
+
+            prix: prix,
+
+            montant: quantite * prix,
+
+            reference: document.getElementById("reference").value,
+
+            observation: document.getElementById("observation").value,
+
+            utilisateur: "Administrateur"
+
+        });
+
+        localStorage.setItem("produits", JSON.stringify(produits));
+        localStorage.setItem("mouvementsStock", JSON.stringify(mouvements));
+
+        alert("Entrée de stock enregistrée avec succès.");
+
+        window.location.href = "index.html";
+
+    });
+
+}
+
+/*==================================================
+INITIALISATION PAGE ENTREE
+==================================================*/
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    chargerListeProduits();
+
+    dateAujourdhui();
+
+    calculerMontant();
+
+});
+
+console.log("Gestion des entrées de stock prête.");
