@@ -462,3 +462,109 @@ document.addEventListener(
 genererCodeProduit();
 
 });
+
+/*==================================================
+CHARGER PRODUIT A MODIFIER
+==================================================*/
+
+function chargerProduitModification(){
+
+    const formulaire = document.getElementById("editProductForm");
+
+    if(!formulaire) return;
+
+    const params = new URLSearchParams(window.location.search);
+
+    const id = Number(params.get("id"));
+
+    let produits = JSON.parse(localStorage.getItem("produits")) || [];
+
+    const produit = produits.find(p => p.id === id);
+
+    if(!produit){
+
+        alert("Produit introuvable.");
+
+        window.location.href = "index.html";
+
+        return;
+
+    }
+
+    document.getElementById("productId").value = produit.id;
+    document.getElementById("code").value = produit.code;
+    document.getElementById("nom").value = produit.nom;
+    document.getElementById("categorie").value = produit.categorie;
+    document.getElementById("prixAchat").value = produit.prixAchat;
+    document.getElementById("prixVente").value = produit.prixVente;
+    document.getElementById("stock").value = produit.stock;
+    document.getElementById("stockMinimum").value = produit.stockMinimum;
+    document.getElementById("statut").value = produit.statut;
+    document.getElementById("description").value = produit.description;
+
+}
+
+/*==================================================
+ENREGISTRER MODIFICATION
+==================================================*/
+
+const editProductForm = document.getElementById("editProductForm");
+
+if(editProductForm){
+
+editProductForm.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+let produits = JSON.parse(localStorage.getItem("produits")) || [];
+
+const id = Number(document.getElementById("productId").value);
+
+const index = produits.findIndex(p => p.id === id);
+
+if(index === -1){
+
+alert("Produit introuvable.");
+
+return;
+
+}
+
+produits[index].nom = document.getElementById("nom").value;
+produits[index].categorie = document.getElementById("categorie").value;
+produits[index].prixAchat = Number(document.getElementById("prixAchat").value);
+produits[index].prixVente = Number(document.getElementById("prixVente").value);
+produits[index].stock = Number(document.getElementById("stock").value);
+produits[index].stockMinimum = Number(document.getElementById("stockMinimum").value);
+produits[index].statut = document.getElementById("statut").value;
+produits[index].description = document.getElementById("description").value;
+
+                                 localStorage.setItem(
+
+"produits",
+
+JSON.stringify(produits)
+
+);
+
+alert(
+
+"Produit modifié avec succès."
+
+);
+
+window.location.href="index.html";
+
+});
+
+}
+
+/*==================================================
+FIN MODIFICATION
+==================================================*/
+
+console.log(
+
+"Modification produit prête."
+
+);
