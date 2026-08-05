@@ -661,3 +661,222 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 console.log("Gestion des sorties de stock prête.");
+
+/*==================================================
+CHARGER INVENTAIRE
+==================================================*/
+
+function chargerInventaire() {
+
+    const table = document.getElementById("inventaireTable");
+
+    if (!table) return;
+
+    const produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
+
+    table.innerHTML = "";
+
+    let nbEcarts = 0;
+    let nbConformes = 0;
+
+    produits.forEach(produit => {
+
+        table.innerHTML += `
+
+<tr>
+
+<td>${produit.code}</td>
+
+<td>${produit.nom}</td>
+
+<td>${produit.categorie}</td>
+
+<td>${produit.stock}</td>
+
+<td>
+
+<input
+type="number"
+class="form-control stockPhysique"
+data-id="${produit.id}"
+value="${produit.stock}"
+min="0">
+
+</td>
+
+<td>
+
+<span
+class="badge bg-success"
+id="ecart-${produit.id}">
+
+0
+
+</span>
+
+</td>
+
+</tr>
+
+`;
+
+        nbConformes++;
+
+    });
+
+    document.getElementById("nbProduitsInventaire").textContent =
+        produits.length;
+
+    document.getElementById("nbEcarts").textContent =
+        nbEcarts;
+
+    document.getElementById("nbConformes").textContent =
+        nbConformes;
+
+    calculerEcartsInventaire();
+
+}
+
+/*==================================================
+CALCUL DES ECARTS
+==================================================*/
+
+function calculerEcartsInventaire(){
+
+    const produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
+
+    const champs = document.querySelectorAll(".stockPhysique");
+
+    champs.forEach(champ=>{
+
+        champ.addEventListener("input",function(){
+
+            const id = Number(this.dataset.id);
+
+            const produit = produits.find(
+                p=>p.id===id
+            );
+
+            if(!produit) return;
+
+            const ecart =
+                Number(this.value)-produit.stock;
+
+            const badge =
+                document.getElementById(
+                    "ecart-"+id
+                );
+
+            badge.textContent = ecart;
+
+            badge.className =
+                ecart===0
+                ? "badge bg-success"
+                : "badge bg-danger";
+
+            mettreAJourStatistiquesInventaire();
+
+        });
+
+    });
+
+}
+
+/*==================================================
+STATISTIQUES INVENTAIRE
+==================================================*/
+
+function mettreAJourStatistiquesInventaire(){
+
+    let ecarts = 0;
+
+    let conformes = 0;
+
+    document
+    .querySelectorAll(".stockPhysique")
+    .forEach(champ=>{
+
+        const id = Number(champ.dataset.id);
+
+        const badge =
+        document.getElementById(
+            "ecart-"+id
+        );
+
+        if(Number(badge.textContent)===0){
+
+            conformes++;
+
+        }else{
+
+            ecarts++;
+
+        }
+
+    });
+
+    document.getElementById("nbEcarts").textContent =
+        ecarts;
+
+    document.getElementById("nbConformes").textContent =
+        conformes;
+
+}
+
+/*==================================================
+ENREGISTRER INVENTAIRE
+==================================================*/
+
+const btnInventaire =
+document.getElementById(
+    "btnEnregistrerInventaire"
+);
+
+if(btnInventaire){
+
+btnInventaire.addEventListener("click",()=>{
+
+    const produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
+
+    document
+    .querySelectorAll(".stockPhysique")
+    .forEach(champ=>{
+
+        const id = Number(champ.dataset.id);
+
+        const produit = produits.find(
+            p=>p.id===id
+        );
+
+        if(produit){
+
+            produit.stock =
+                Number(champ.value);
+
+        }
+
+    });
+
+    localStorage.setItem(
+        "produits",
+        JSON.stringify(produits)
+    );
+
+    alert(
+        "Inventaire enregistré avec succès."
+    );
+
+    window.location.href="index.html";
+
+});
+
+}
+
+console.log("Inventaire prêt.");
+
