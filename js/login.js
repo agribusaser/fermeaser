@@ -1,10 +1,14 @@
 /*====================================================
- FERME ASHER ERP
- LOGIN.JS
- VERSION 1.0
+    FERME ASHER ERP
+    LOGIN.JS
+    Version 3.0
 ====================================================*/
 
-document.addEventListener("DOMContentLoaded", function () {
+/*====================================================
+    INITIALISATION
+====================================================*/
+
+document.addEventListener("DOMContentLoaded", () => {
 
     verifierSession();
 
@@ -13,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /*====================================================
- CONNEXION
+    CONNEXION
 ====================================================*/
 
 function initialiserConnexion() {
@@ -30,15 +34,27 @@ function initialiserConnexion() {
 
         const motdepasse = document.getElementById("password").value.trim();
 
+        if (utilisateur === "" || motdepasse === "") {
+
+            alert("Veuillez remplir tous les champs.");
+
+            return;
+
+        }
+
+        //==========================================
+        // UTILISATEUR PAR DEFAUT
+        //==========================================
+
         if (utilisateur === "admin" && motdepasse === "admin123") {
 
             const session = {
 
-                utilisateur: utilisateur,
+                utilisateur: "admin",
 
                 nom: "Administrateur",
 
-                role: "Admin",
+                role: "Administrateur",
 
                 connexion: new Date().toISOString()
 
@@ -52,22 +68,23 @@ function initialiserConnexion() {
 
             );
 
-            alert("Connexion réussie");
+            console.log("Connexion réussie.");
 
-window.location.href = "./dashboard.html";
+            // Redirection
+            window.location.replace("dashboard.html");
 
-        }
-
-        else {
-
-            alert("Nom d'utilisateur ou mot de passe incorrect.");
+            return;
 
         }
+
+        alert("Nom d'utilisateur ou mot de passe incorrect.");
 
     });
 
-  /*====================================================
- VERIFIER SESSION
+}
+
+/*====================================================
+    VERIFIER SESSION
 ====================================================*/
 
 function verifierSession() {
@@ -78,21 +95,25 @@ function verifierSession() {
 
     );
 
-    if (session && window.location.pathname.includes("login.html")) {
+    if (!session) return;
 
-        console.log("Utilisateur déjà connecté.");
+    const page = window.location.pathname.toLowerCase();
+
+    if (page.endsWith("login.html")) {
+
+        window.location.replace("dashboard.html");
 
     }
 
 }
 
-  /*====================================================
- DECONNEXION
+/*====================================================
+    DECONNEXION
 ====================================================*/
 
 function deconnexion() {
 
-    if (!confirm("Voulez-vous vous déconnecter ?")) {
+    if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
 
         return;
 
@@ -100,14 +121,26 @@ function deconnexion() {
 
     localStorage.removeItem("sessionERP");
 
-    window.location.href = "login.html";
+    window.location.replace("login.html");
 
 }
 
 /*====================================================
- FIN
+    UTILISATEUR CONNECTE
 ====================================================*/
 
-console.log("Login.js chargé.");
+function utilisateurConnecte() {
+
+    return JSON.parse(
+
+        localStorage.getItem("sessionERP")
+
+    );
 
 }
+
+/*====================================================
+    FIN
+====================================================*/
+
+console.log("Ferme Asher ERP - Login.js Version 3.0 chargé.");
