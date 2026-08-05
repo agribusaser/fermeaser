@@ -880,3 +880,121 @@ btnInventaire.addEventListener("click",()=>{
 
 console.log("Inventaire prêt.");
 
+/*==================================================
+HISTORIQUE
+==================================================*/
+
+function chargerHistorique(){
+
+const table=
+
+document.getElementById(
+
+"historiqueMouvements"
+
+);
+
+if(!table) return;
+
+const mouvements=
+
+JSON.parse(
+
+localStorage.getItem(
+
+"mouvementsStock"
+
+)
+
+)||[];
+
+table.innerHTML="";
+
+let entrees=0;
+
+let sorties=0;
+
+mouvements.forEach(m=>{
+
+if(m.type==="Entrée") entrees++;
+
+if(m.type==="Sortie") sorties++;
+
+table.innerHTML+=`
+
+<tr>
+
+<td>${m.date}</td>
+
+<td>${m.produit}</td>
+
+<td>${m.type}</td>
+
+<td>${m.nature}</td>
+
+<td>${m.quantite}</td>
+
+<td>${Number(m.prix).toLocaleString()} FC</td>
+
+<td>${Number(m.montant).toLocaleString()} FC</td>
+
+<td>${m.utilisateur}</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("nbMouvements").textContent=mouvements.length;
+
+document.getElementById("totalEntrees").textContent=entrees;
+
+document.getElementById("totalSorties").textContent=sorties;
+
+}
+
+/*==================================================
+FILTRES HISTORIQUE
+==================================================*/
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const produit=document.getElementById("filtreProduit");
+
+if(produit){
+
+produit.addEventListener("keyup",chargerHistorique);
+
+}
+
+const type=document.getElementById("filtreType");
+
+if(type){
+
+type.addEventListener("change",chargerHistorique);
+
+}
+
+});
+
+/*==================================================
+FIN HISTORIQUE
+==================================================*/
+
+console.log(
+
+"Historique prêt."
+
+);
+
+/*==================================================
+FIN MODULE STOCKS
+==================================================*/
+
+console.log(
+
+"Module Stocks Version 1.0 terminé."
+
+);
+
