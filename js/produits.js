@@ -568,3 +568,63 @@ console.log(
 "Modification produit prête."
 
 );
+
+/*==================================================
+DETAIL PRODUIT
+==================================================*/
+
+function chargerDetailProduit(){
+
+const code=document.getElementById("detailCode");
+
+if(!code) return;
+
+const params=new URLSearchParams(window.location.search);
+
+const id=Number(params.get("id"));
+
+const produits=JSON.parse(localStorage.getItem("produits"))||[];
+
+const produit=produits.find(p=>p.id===id);
+
+if(!produit){
+
+alert("Produit introuvable.");
+
+window.location.href="index.html";
+
+return;
+
+}
+
+document.getElementById("detailImage").src=produit.image;
+document.getElementById("detailCode").textContent=produit.code;
+document.getElementById("detailNom").textContent=produit.nom;
+document.getElementById("detailCategorie").textContent=produit.categorie;
+document.getElementById("detailPrixAchat").textContent=produit.prixAchat.toLocaleString()+" FC";
+document.getElementById("detailPrixVente").textContent=produit.prixVente.toLocaleString()+" FC";
+document.getElementById("detailStock").textContent=produit.stock;
+document.getElementById("detailStockMinimum").textContent=produit.stockMinimum;
+document.getElementById("detailUnite").textContent=produit.unite;
+document.getElementById("detailStatut").textContent=produit.statut;
+document.getElementById("detailDescription").textContent=produit.description;
+
+document.getElementById("btnModifier").onclick=function(){
+
+window.location.href="modifier.html?id="+id;
+
+};
+
+document.getElementById("btnSupprimer").onclick=function(){
+
+supprimerProduit(id);
+
+};
+
+}
+
+console.log(
+
+"Fiche produit prête."
+
+);
