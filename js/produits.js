@@ -305,3 +305,160 @@ console.log(
 "Module Produits chargé."
 
 );
+
+/*==================================================
+GENERER CODE PRODUIT
+==================================================*/
+
+function genererCodeProduit(){
+
+    const champ = document.getElementById("code");
+
+    if(!champ) return;
+
+    let produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
+
+    let numero = produits.length + 1;
+
+    champ.value =
+        "PRD" +
+        String(numero).padStart(6,"0");
+
+}
+
+/*==================================================
+ENREGISTREMENT PRODUIT
+==================================================*/
+
+const productForm =
+document.getElementById("productForm");
+
+if(productForm){
+
+productForm.addEventListener(
+
+"submit",
+
+function(e){
+
+e.preventDefault();
+
+let produits=
+
+JSON.parse(
+
+localStorage.getItem("produits")
+
+)||[];
+
+const imageInput=
+
+document.getElementById("image");
+
+let image="";
+
+if(
+
+imageInput.files.length>0
+
+){
+
+image=
+
+"images/"+
+
+imageInput.files[0].name;
+
+}
+
+else{
+
+image=
+
+"../../images/no-image.png";
+
+}
+
+const produit={
+
+id:Date.now(),
+
+code:document.getElementById("code").value,
+
+nom:document.getElementById("nom").value,
+
+categorie:document.getElementById("categorie").value,
+
+prixAchat:Number(
+
+document.getElementById("prixAchat").value
+
+),
+
+prixVente:Number(
+
+document.getElementById("prixVente").value
+
+),
+
+stock:Number(
+
+document.getElementById("stock").value
+
+),
+
+stockMinimum:Number(
+
+document.getElementById("stockMinimum").value
+
+),
+
+unite:document.getElementById("unite").value,
+
+statut:document.getElementById("statut").value,
+
+description:document.getElementById("description").value,
+
+image:image
+
+};
+
+produits.push(produit);
+
+localStorage.setItem(
+
+"produits",
+
+JSON.stringify(produits)
+
+);
+
+    alert(
+
+"Produit enregistré avec succès."
+
+);
+
+window.location.href=
+
+"index.html";
+
+});
+
+}
+
+/*==================================================
+INITIALISATION
+==================================================*/
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+()=>{
+
+genererCodeProduit();
+
+});
