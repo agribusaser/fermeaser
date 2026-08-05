@@ -1,1 +1,320 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Produits | Ferme Asher ERP</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/produits.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container-fluid py-4">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-box"></i>
+
+Gestion des Produits
+
+</h2>
+
+<p class="text-muted">
+
+Catalogue des produits de Ferme Asher
+
+</p>
+
+</div>
+
+<div>
+
+<a href="../../dashboard.html" class="btn btn-secondary">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a href="nouveau.html" class="btn btn-success">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouveau produit
+
+</a>
+
+</div>
+
+</div>
+
+  <div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+<div class="row mb-4">
+
+<div class="col-lg-4">
+
+<input
+
+type="text"
+
+id="searchProduct"
+
+class="form-control"
+
+placeholder="Rechercher un produit...">
+
+</div>
+
+<div class="col-lg-3">
+
+<select
+
+class="form-select"
+
+id="filterCategory">
+
+<option value="">
+
+Toutes les catégories
+
+</option>
+
+<option>Œufs</option>
+
+<option>Cailles</option>
+
+<option>Poules</option>
+
+<option>Soja</option>
+
+<option>Maïs</option>
+
+<option>Farine</option>
+
+<option>Huile</option>
+
+</select>
+
+</div>
+
+<div class="col-lg-3">
+
+<select
+
+class="form-select"
+
+id="filterStatus">
+
+<option>
+
+Tous les statuts
+
+</option>
+
+<option>
+
+Actif
+
+</option>
+
+<option>
+
+Inactif
+
+</option>
+
+</select>
+
+</div>
+
+<div class="col-lg-2">
+
+<button
+
+class="btn btn-success w-100"
+
+onclick="chargerProduits()">
+
+Actualiser
+
+</button>
+
+</div>
+
+</div>
+
+  <div class="table-responsive">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Image</th>
+
+<th>Code</th>
+
+<th>Nom</th>
+
+<th>Catégorie</th>
+
+<th>Prix Vente</th>
+
+<th>Stock</th>
+
+<th>Statut</th>
+
+<th width="220">
+
+Actions
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="productsTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+  <div class="row mt-4">
+
+<div class="col-md-3">
+
+<div class="card text-center">
+
+<div class="card-body">
+
+<h3 id="totalProducts">
+
+0
+
+</h3>
+
+<p>
+
+Produits
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card text-center">
+
+<div class="card-body">
+
+<h3 id="stockAlert">
+
+0
+
+</h3>
+
+<p>
+
+Stock faible
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card text-center">
+
+<div class="card-body">
+
+<h3 id="activeProducts">
+
+0
+
+</h3>
+
+<p>
+
+Produits actifs
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card text-center">
+
+<div class="card-body">
+
+<h3 id="inactiveProducts">
+
+0
+
+</h3>
+
+<p>
+
+Produits inactifs
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+  <script src="../../js/produits.js"></script>
+
+<script>
+
+chargerProduits();
+
+</script>
+
+</body>
+
+</html>
