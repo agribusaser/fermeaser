@@ -1,1 +1,290 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Entrée de Stock | Ferme Asher ERP</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/stocks.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+<div class="card shadow-lg">
+
+<div class="card-header bg-success text-white">
+
+<h3>
+
+<i class="fa-solid fa-arrow-down"></i>
+
+Nouvelle entrée de stock
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<form id="entreeForm">
+
+  <div class="row">
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Produit
+
+</label>
+
+<select
+
+id="produit"
+
+class="form-select"
+
+required>
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Date
+
+</label>
+
+<input
+
+type="date"
+
+id="date"
+
+class="form-control"
+
+required>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>
+
+Quantité
+
+</label>
+
+<input
+
+type="number"
+
+id="quantite"
+
+class="form-control"
+
+min="1"
+
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>
+
+Prix unitaire
+
+</label>
+
+<input
+
+type="number"
+
+id="prix"
+
+class="form-control"
+
+min="0"
+
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>
+
+Montant
+
+</label>
+
+<input
+
+type="number"
+
+id="montant"
+
+class="form-control"
+
+readonly>
+
+</div>
+
+</div>
+
+  <br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>
+
+Type d'entrée
+
+</label>
+
+<select
+
+id="type"
+
+class="form-select">
+
+<option>Achat</option>
+
+<option>Production</option>
+
+<option>Retour client</option>
+
+<option>Correction</option>
+
+<option>Autre</option>
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label>
+
+Référence
+
+</label>
+
+<input
+
+type="text"
+
+id="reference"
+
+class="form-control"
+
+placeholder="Facture, Bon de livraison...">
+
+</div>
+
+</div>
+
+<br>
+
+<label>
+
+Observation
+
+</label>
+
+<textarea
+
+id="observation"
+
+class="form-control"
+
+rows="4">
+
+</textarea>
+
+  <br>
+
+<div class="text-end">
+
+<a
+
+href="index.html"
+
+class="btn btn-secondary">
+
+Retour
+
+</a>
+
+<button
+
+type="reset"
+
+class="btn btn-warning">
+
+Annuler
+
+</button>
+
+<button
+
+type="submit"
+
+class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer
+
+</button>
+
+</div>
+
+</form>
+
+  </div>
+
+</div>
+
+</div>
+
+<script src="../../js/stocks.js"></script>
+
+<script>
+
+chargerListeProduits();
+
+dateAujourdhui();
+
+calculerMontant();
+
+</script>
+
+  </body>
+
+</html>
