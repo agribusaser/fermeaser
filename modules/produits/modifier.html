@@ -1,1 +1,266 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Modifier un produit | Ferme Asher ERP</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/produits.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+<div class="card shadow-lg">
+
+<div class="card-header bg-warning">
+
+<h3>
+
+<i class="fa-solid fa-pen"></i>
+
+Modifier le produit
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<form id="editProductForm">
+
+<input type="hidden" id="productId">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Code</label>
+
+<input
+
+type="text"
+
+id="code"
+
+class="form-control"
+
+readonly>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Nom</label>
+
+<input
+
+type="text"
+
+id="nom"
+
+class="form-control"
+
+required>
+
+</div>
+
+</div>
+
+<br>
+
+  <div class="row">
+
+<div class="col-md-4">
+
+<label>Catégorie</label>
+
+<select id="categorie" class="form-select">
+
+<option>Œufs</option>
+
+<option>Cailles</option>
+
+<option>Poules</option>
+
+<option>Poussins</option>
+
+<option>Soja</option>
+
+<option>Maïs</option>
+
+<option>Haricots</option>
+
+<option>Arachides</option>
+
+<option>Farine</option>
+
+<option>Huile</option>
+
+<option>Semences</option>
+
+<option>Engrais</option>
+
+<option>Autres</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Prix d'achat</label>
+
+<input
+
+type="number"
+
+id="prixAchat"
+
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Prix de vente</label>
+
+<input
+
+type="number"
+
+id="prixVente"
+
+class="form-control">
+
+</div>
+
+</div>
+
+<br>
+
+  <div class="row">
+
+<div class="col-md-4">
+
+<label>Stock</label>
+
+<input
+
+type="number"
+
+id="stock"
+
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Stock minimum</label>
+
+<input
+
+type="number"
+
+id="stockMinimum"
+
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Statut</label>
+
+<select
+
+id="statut"
+
+class="form-select">
+
+<option>Actif</option>
+
+<option>Inactif</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<div>
+
+<label>Description</label>
+
+<textarea
+
+id="description"
+
+rows="4"
+
+class="form-control">
+
+</textarea>
+
+</div>
+
+<br>
+
+  <div class="text-end">
+
+<a
+
+href="index.html"
+
+class="btn btn-secondary">
+
+Retour
+
+</a>
+
+<button
+
+type="submit"
+
+class="btn btn-success">
+
+Enregistrer les modifications
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+  <script src="../../js/produits.js"></script>
+
+<script>
+
+chargerProduitModification();
+
+</script>
+
+</body>
+
+</html>
