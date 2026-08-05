@@ -52,7 +52,9 @@ function initialiserConnexion() {
 
             );
 
-            window.location.href = "dashboard.html";
+            alert("Connexion réussie");
+
+window.location.href = "./dashboard.html";
 
         }
 
