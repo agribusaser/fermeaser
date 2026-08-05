@@ -497,3 +497,167 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 console.log("Gestion des entrées de stock prête.");
+
+/*==================================================
+CHARGER INFORMATIONS PRODUIT
+==================================================*/
+
+function chargerInformationsProduit() {
+
+    const select = document.getElementById("produit");
+
+    if (!select) return;
+
+    const stockDisponible = document.getElementById("stockDisponible");
+    const prix = document.getElementById("prix");
+
+    const produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
+
+    function mettreAJour() {
+
+        const id = Number(select.value);
+
+        const produit = produits.find(p => p.id === id);
+
+        if (!produit) {
+
+            stockDisponible.value = "";
+
+            prix.value = "";
+
+            return;
+
+        }
+
+        stockDisponible.value = produit.stock;
+
+        prix.value = produit.prixVente;
+
+    }
+
+    select.addEventListener("change", mettreAJour);
+
+    mettreAJour();
+
+}
+
+/*==================================================
+ENREGISTRER SORTIE DE STOCK
+==================================================*/
+
+const sortieForm = document.getElementById("sortieForm");
+
+if (sortieForm) {
+
+    sortieForm.addEventListener("submit", function(e){
+
+        e.preventDefault();
+
+        let produits = JSON.parse(
+            localStorage.getItem("produits")
+        ) || [];
+
+        let mouvements = JSON.parse(
+            localStorage.getItem("mouvementsStock")
+        ) || [];
+
+        const idProduit = Number(
+            document.getElementById("produit").value
+        );
+
+        const quantite = Number(
+            document.getElementById("quantite").value
+        );
+
+        const produit = produits.find(
+            p => p.id === idProduit
+        );
+
+        if(!produit){
+
+            alert("Produit introuvable.");
+
+            return;
+
+        }
+
+        if(quantite > produit.stock){
+
+            alert("Stock insuffisant.");
+
+            return;
+
+        }
+
+        produit.stock -= quantite;
+
+
+                                        mouvements.push({
+
+            id: Date.now(),
+
+            date: document.getElementById("date").value,
+
+            produitId: produit.id,
+
+            produit: produit.nom,
+
+            type: "Sortie",
+
+            nature: document.getElementById("type").value,
+
+            quantite: quantite,
+
+            prix: produit.prixVente,
+
+            montant: quantite * produit.prixVente,
+
+            reference: document.getElementById("reference").value,
+
+            observation: document.getElementById("observation").value,
+
+            utilisateur: "Administrateur"
+
+        });
+
+        localStorage.setItem(
+
+            "produits",
+
+            JSON.stringify(produits)
+
+        );
+
+        localStorage.setItem(
+
+            "mouvementsStock",
+
+            JSON.stringify(mouvements)
+
+        );
+
+        alert(
+
+            "Sortie enregistrée avec succès."
+
+        );
+
+        window.location.href = "index.html";
+
+    });
+
+}
+
+/*==================================================
+INITIALISATION PAGE SORTIE
+==================================================*/
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    chargerInformationsProduit();
+
+});
+
+console.log("Gestion des sorties de stock prête.");
