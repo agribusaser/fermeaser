@@ -1,1 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Clients | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/clients.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container-fluid py-4">
+
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-users"></i>
+
+Gestion des Clients
+
+</h2>
+
+<p class="text-muted">
+
+Clients, comptes et commandes
+
+</p>
+
+</div>
+
+<div>
+
+<a
+href="../../dashboard.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a
+href="nouveau.html"
+class="btn btn-success">
+
+<i class="fa-solid fa-user-plus"></i>
+
+Nouveau client
+
+</a>
+
+</div>
+
+</div>
+
+  <!-- =========================================
+     STATISTIQUES
+========================================= -->
+
+<div class="row mb-4">
+
+<div class="col-lg-3 col-md-6">
+
+<div class="client-card">
+
+<div>
+
+<h3 id="totalClients">
+0
+</h3>
+
+<p>Total clients</p>
+
+</div>
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+</div>
+
+
+<div class="col-lg-3 col-md-6">
+
+<div class="client-card">
+
+<div>
+
+<h3 id="clientsActifs">
+0
+</h3>
+
+<p>Clients actifs</p>
+
+</div>
+
+<i class="fa-solid fa-user-check"></i>
+
+</div>
+
+</div>
+
+
+<div class="col-lg-3 col-md-6">
+
+<div class="client-card">
+
+<div>
+
+<h3 id="nouveauxClients">
+0
+</h3>
+
+<p>Nouveaux clients</p>
+
+</div>
+
+<i class="fa-solid fa-user-plus"></i>
+
+</div>
+
+</div>
+
+
+<div class="col-lg-3 col-md-6">
+
+<div class="client-card">
+
+<div>
+
+<h3 id="clientsCommandes">
+0
+</h3>
+
+<p>Clients ayant commandé</p>
+
+</div>
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+</div>
+
+</div>
+
+</div>
+
+  <!-- =========================================
+     RECHERCHE ET FILTRES
+========================================= -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+<div class="card-body">
+
+<div class="row">
+
+<div class="col-lg-4">
+
+<input
+
+type="text"
+
+id="rechercheClient"
+
+class="form-control"
+
+placeholder="Rechercher par nom, téléphone ou numéro client...">
+
+</div>
+
+
+<div class="col-lg-3">
+
+<select
+
+id="filtreStatut"
+
+class="form-select">
+
+<option value="">
+
+Tous les statuts
+
+</option>
+
+<option value="Actif">
+
+Actif
+
+</option>
+
+<option value="Inactif">
+
+Inactif
+
+</option>
+
+</select>
+
+</div>
+
+
+<div class="col-lg-3">
+
+<select
+
+id="filtreInscription"
+
+class="form-select">
+
+<option value="">
+
+Tous les clients
+
+</option>
+
+<option value="ERP">
+
+Inscription ERP
+
+</option>
+
+<option value="Mobile">
+
+Inscription mobile
+
+</option>
+
+</select>
+
+</div>
+
+
+<div class="col-lg-2">
+
+<button
+
+class="btn btn-success w-100"
+
+onclick="chargerClients()">
+
+<i class="fa-solid fa-rotate"></i>
+
+Actualiser
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+  <!-- =========================================
+     TABLEAU CLIENTS
+========================================= -->
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Numéro client</th>
+
+<th>Nom</th>
+
+<th>Téléphone</th>
+
+<th>Inscription</th>
+
+<th>Commandes</th>
+
+<th>Total achats</th>
+
+<th>Statut</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="clientsTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+  <!-- =========================================
+     INFORMATIONS CLIENT
+========================================= -->
+
+<div class="row mt-4">
+
+<div class="col-lg-6">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+<h5>
+
+<i class="fa-solid fa-mobile-screen-button"></i>
+
+Espace client
+
+</h5>
+
+<p>
+
+Les clients pourront utiliser leur
+
+<strong>numéro client</strong>
+
+pour accéder à leur compte depuis notre future application mobile.
+
+</p>
+
+<div class="alert alert-success">
+
+<i class="fa-solid fa-circle-check"></i>
+
+Inscription par nom et numéro de téléphone activée.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="col-lg-6">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+<h5>
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Commandes en ligne
+
+</h5>
+
+<p>
+
+Les clients pourront consulter les produits disponibles et passer leurs commandes directement depuis leur espace client.
+
+</p>
+
+<div class="alert alert-info">
+
+Fonction prévue pour l'application mobile.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+  <!-- =========================================
+     PIED DE PAGE
+========================================= -->
+
+<div class="text-center mt-5 text-muted">
+
+<small>
+
+Ferme Asher ERP —
+
+Gestion des clients
+
+</small>
+
+</div>
+
+</div>
+
+  <script src="../../js/clients.js"></script>
+
+<script>
+
+chargerClients();
+
+</script>
+
+</body>
+
+</html>
 
