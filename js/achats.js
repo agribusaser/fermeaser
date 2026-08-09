@@ -1609,3 +1609,648 @@ window.annulerAchat =
 console.log(
     "Module Achats chargé."
 );
+
+/*====================================================
+ FORMULAIRE NOUVEL ACHAT
+====================================================*/
+
+function initialiserFormulaireAchat() {
+
+    const formulaire =
+        document.getElementById("achatForm");
+
+    if (!formulaire) return;
+
+
+    /*==============================================
+    DATE PAR DEFAUT
+    ==============================================*/
+
+    const champDate =
+        document.getElementById("date");
+
+    if (champDate && !champDate.value) {
+
+        const aujourdHui =
+            new Date();
+
+        const annee =
+            aujourdHui.getFullYear();
+
+        const mois =
+            String(
+                aujourdHui.getMonth() + 1
+            ).padStart(2, "0");
+
+        const jour =
+            String(
+                aujourdHui.getDate()
+            ).padStart(2, "0");
+
+        champDate.value =
+            `${annee}-${mois}-${jour}`;
+
+    }
+
+
+    /*==============================================
+    CHARGER FOURNISSEURS
+    ==============================================*/
+
+    chargerFournisseursAchat();
+
+
+    /*==============================================
+    CHARGER PRODUITS
+    ==============================================*/
+
+    chargerProduitsAchat();
+
+
+    /*==============================================
+    CALCUL MONTANT
+    ==============================================*/
+
+    const quantite =
+        document.getElementById("quantite");
+
+    const prix =
+        document.getElementById(
+            "prixUnitaire"
+        );
+
+
+    if (quantite) {
+
+        quantite.addEventListener(
+            "input",
+            calculerMontantAchat
+        );
+
+    }
+
+
+    if (prix) {
+
+        prix.addEventListener(
+            "input",
+            calculerMontantAchat
+        );
+
+    }
+
+
+    /*==============================================
+    CHANGEMENT PRODUIT
+    ==============================================*/
+
+    const produit =
+        document.getElementById("produitId");
+
+
+    if (produit) {
+
+        produit.addEventListener(
+            "change",
+            afficherStockProduitAchat
+        );
+
+    }
+
+
+    /*==============================================
+    ENREGISTREMENT
+    ==============================================*/
+
+    formulaire.addEventListener(
+        "submit",
+        enregistrerNouvelAchat
+    );
+
+}
+
+
+/*====================================================
+ CHARGER FOURNISSEURS
+====================================================*/
+
+function chargerFournisseursAchat() {
+
+    const select =
+        document.getElementById(
+            "fournisseurId"
+        );
+
+    if (!select) return;
+
+
+    const fournisseurs =
+        JSON.parse(
+            localStorage.getItem(
+                "fournisseurs"
+            )
+        ) || [];
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un fournisseur
+
+        </option>
+
+    `;
+
+
+    if (fournisseurs.length === 0) {
+
+        select.innerHTML += `
+
+            <option value="" disabled>
+
+                Aucun fournisseur disponible
+
+            </option>
+
+        `;
+
+        return;
+
+    }
+
+
+    fournisseurs.forEach(
+        fournisseur => {
+
+            select.innerHTML += `
+
+                <option
+                    value="${fournisseur.id}"
+                >
+
+                    ${
+                        fournisseur.numeroFournisseur
+                        || ""
+                    }
+
+                    -
+
+                    ${
+                        fournisseur.nom
+                        || ""
+                    }
+
+                </option>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ CHARGER PRODUITS
+====================================================*/
+
+function chargerProduitsAchat() {
+
+    const select =
+        document.getElementById(
+            "produitId"
+        );
+
+    if (!select) return;
+
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem(
+                "produits"
+            )
+        ) || [];
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un produit
+
+        </option>
+
+    `;
+
+
+    if (produits.length === 0) {
+
+        select.innerHTML += `
+
+            <option value="" disabled>
+
+                Aucun produit disponible
+
+            </option>
+
+        `;
+
+        return;
+
+    }
+
+
+    produits.forEach(
+        produit => {
+
+            select.innerHTML += `
+
+                <option
+                    value="${produit.id}"
+                >
+
+                    ${
+                        produit.code
+                        ? produit.code + " - "
+                        : ""
+                    }
+
+                    ${
+                        produit.nom
+                        || "-"
+                    }
+
+                </option>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ AFFICHER STOCK PRODUIT
+====================================================*/
+
+function afficherStockProduitAchat() {
+
+    const select =
+        document.getElementById(
+            "produitId"
+        );
+
+
+    const affichage =
+        document.getElementById(
+            "stockActuel"
+        );
+
+
+    if (!select || !affichage) return;
+
+
+    const produitId =
+        Number(
+            select.value
+        );
+
+
+    if (!produitId) {
+
+        affichage.textContent =
+            "-";
+
+        return;
+
+    }
+
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem(
+                "produits"
+            )
+        ) || [];
+
+
+    const produit =
+        produits.find(
+            p =>
+            Number(p.id) ===
+            produitId
+        );
+
+
+    if (!produit) {
+
+        affichage.textContent =
+            "-";
+
+        return;
+
+    }
+
+
+    const stock =
+        Number(
+            produit.stock || 0
+        );
+
+
+    const unite =
+        produit.unite ||
+        "";
+
+
+    affichage.textContent =
+        stock.toLocaleString(
+            "fr-FR"
+        ) +
+        (unite ? " " + unite : "");
+
+}
+
+
+/*====================================================
+ CALCULER MONTANT
+====================================================*/
+
+function calculerMontantAchat() {
+
+    const quantite =
+        Number(
+            document.getElementById(
+                "quantite"
+            )?.value || 0
+        );
+
+
+    const prix =
+        Number(
+            document.getElementById(
+                "prixUnitaire"
+            )?.value || 0
+        );
+
+
+    const montant =
+        quantite *
+        prix;
+
+
+    const affichage =
+        document.getElementById(
+            "montantTotal"
+        );
+
+
+    if (!affichage) return;
+
+
+    affichage.textContent =
+
+        montant.toLocaleString(
+            "fr-FR",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        )
+
+        + " FC";
+
+}
+
+
+/*====================================================
+ ENREGISTRER NOUVEL ACHAT
+====================================================*/
+
+function enregistrerNouvelAchat(e) {
+
+    e.preventDefault();
+
+
+    /*==============================================
+    RECUPERATION
+    ==============================================*/
+
+    const date =
+        document.getElementById(
+            "date"
+        ).value;
+
+
+    const fournisseurId =
+        document.getElementById(
+            "fournisseurId"
+        ).value;
+
+
+    const produitId =
+        document.getElementById(
+            "produitId"
+        ).value;
+
+
+    const quantite =
+        Number(
+            document.getElementById(
+                "quantite"
+            ).value
+        );
+
+
+    const prixUnitaire =
+        Number(
+            document.getElementById(
+                "prixUnitaire"
+            ).value
+        );
+
+
+    const statut =
+        document.getElementById(
+            "statut"
+        ).value;
+
+
+    const notes =
+        document.getElementById(
+            "notes"
+        ).value.trim();
+
+
+    /*==============================================
+    VALIDATION
+    ==============================================*/
+
+    if (!date) {
+
+        alert(
+            "Veuillez sélectionner la date de l'achat."
+        );
+
+        return;
+
+    }
+
+
+    if (!fournisseurId) {
+
+        alert(
+            "Veuillez sélectionner un fournisseur."
+        );
+
+        return;
+
+    }
+
+
+    if (!produitId) {
+
+        alert(
+            "Veuillez sélectionner un produit."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(quantite) ||
+        quantite <= 0
+    ) {
+
+        alert(
+            "La quantité doit être supérieure à zéro."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(prixUnitaire) ||
+        prixUnitaire < 0
+    ) {
+
+        alert(
+            "Le prix unitaire est invalide."
+        );
+
+        return;
+
+    }
+
+
+    /*==============================================
+    CREER ACHAT
+    ==============================================*/
+
+    const achat =
+        creerAchat({
+
+            date:
+                date,
+
+            fournisseurId:
+                fournisseurId,
+
+            produitId:
+                produitId,
+
+            quantite:
+                quantite,
+
+            prixUnitaire:
+                prixUnitaire,
+
+            statut:
+                statut,
+
+            notes:
+                notes,
+
+            utilisateur:
+                "Administrateur"
+
+        });
+
+
+    if (!achat) {
+
+        return;
+
+    }
+
+
+    /*==============================================
+    CONFIRMATION
+    ==============================================*/
+
+    alert(
+
+        "Achat enregistré avec succès.\n\n" +
+
+        "Référence : " +
+        achat.reference +
+
+        "\nMontant : " +
+
+        Number(
+            achat.montant
+        ).toLocaleString(
+            "fr-FR"
+        ) +
+
+        " FC"
+
+    );
+
+
+    /*==============================================
+    RETOUR
+    ==============================================*/
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/*====================================================
+ EXPORT
+====================================================*/
+
+window.initialiserFormulaireAchat =
+    initialiserFormulaireAchat;
+
+window.chargerFournisseursAchat =
+    chargerFournisseursAchat;
+
+window.chargerProduitsAchat =
+    chargerProduitsAchat;
+
+window.afficherStockProduitAchat =
+    afficherStockProduitAchat;
+
+window.calculerMontantAchat =
+    calculerMontantAchat;
+
+window.enregistrerNouvelAchat =
+    enregistrerNouvelAchat;
+
+
+/*====================================================
+ FIN
+====================================================*/
+
+console.log(
+    "Formulaire nouvel achat prêt."
+);
