@@ -1,1 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Modifier Fournisseur | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/fournisseurs.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container-fluid py-4">
+
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-building-circle-check"></i>
+
+Modifier le fournisseur
+
+</h2>
+
+<p class="text-muted">
+
+Modifier les informations du fournisseur
+
+</p>
+
+</div>
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+<!-- =========================================
+     FORMULAIRE
+========================================= -->
+
+<div class="row justify-content-center">
+
+<div class="col-xl-9 col-lg-10">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-warning">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-pen"></i>
+
+Informations du fournisseur
+
+</h5>
+
+</div>
+
+<div class="card-body">
+
+<form id="modifierFournisseurForm">
+
+<input
+type="hidden"
+id="fournisseurId">
+
+
+<!-- =====================================
+     NUMERO FOURNISSEUR
+===================================== -->
+
+<div class="alert alert-success">
+
+<i class="fa-solid fa-id-card"></i>
+
+<strong>Numéro fournisseur :</strong>
+
+<span id="numeroFournisseur">
+
+-
+
+</span>
+
+<br>
+
+<small>
+
+Ce numéro est permanent et ne peut pas être modifié.
+
+</small>
+
+</div>
+
+
+<!-- =====================================
+     IDENTIFICATION
+===================================== -->
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="nom"
+class="form-label">
+
+Nom / Entreprise *
+
+</label>
+
+<input
+type="text"
+id="nom"
+class="form-control"
+required>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label
+for="type"
+class="form-label">
+
+Type de fournisseur
+
+</label>
+
+<select
+id="type"
+class="form-select">
+
+<option value="Entreprise">
+Entreprise
+</option>
+
+<option value="Particulier">
+Particulier
+</option>
+
+<option value="Producteur">
+Producteur
+</option>
+
+<option value="Grossiste">
+Grossiste
+</option>
+
+<option value="Distributeur">
+Distributeur
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     CONTACT
+===================================== -->
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="telephone"
+class="form-label">
+
+Téléphone *
+
+</label>
+
+<input
+type="tel"
+id="telephone"
+class="form-control"
+required>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label
+for="email"
+class="form-label">
+
+Email
+
+</label>
+
+<input
+type="email"
+id="email"
+class="form-control">
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     LOCALISATION
+===================================== -->
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="adresse"
+class="form-label">
+
+Adresse
+
+</label>
+
+<input
+type="text"
+id="adresse"
+class="form-control">
+
+</div>
+
+
+<div class="col-md-3 mb-3">
+
+<label
+for="ville"
+class="form-label">
+
+Ville
+
+</label>
+
+<input
+type="text"
+id="ville"
+class="form-control">
+
+</div>
+
+
+<div class="col-md-3 mb-3">
+
+<label
+for="pays"
+class="form-label">
+
+Pays
+
+</label>
+
+<input
+type="text"
+id="pays"
+class="form-control">
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     STATUT
+===================================== -->
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="statut"
+class="form-label">
+
+Statut
+
+</label>
+
+<select
+id="statut"
+class="form-select">
+
+<option value="Actif">
+Actif
+</option>
+
+<option value="Inactif">
+Inactif
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     NOTES
+===================================== -->
+
+<div class="mb-4">
+
+<label
+for="notes"
+class="form-label">
+
+Notes
+
+</label>
+
+<textarea
+id="notes"
+class="form-control"
+rows="4"></textarea>
+
+</div>
+
+
+<!-- =====================================
+     INFORMATIONS COMMERCIALES
+===================================== -->
+
+<div class="card mb-4">
+
+<div class="card-body">
+
+<h5>
+
+<i class="fa-solid fa-chart-line"></i>
+
+Informations commerciales
+
+</h5>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<strong>Achats</strong>
+
+<div id="nombreAchats">
+0
+</div>
+
+</div>
+
+
+<div class="col-md-4">
+
+<strong>Total achats</strong>
+
+<div id="totalAchats">
+0 FC
+</div>
+
+</div>
+
+
+<div class="col-md-4">
+
+<strong>Création</strong>
+
+<div id="dateCreation">
+-
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     ACTIONS
+===================================== -->
+
+<div class="d-flex justify-content-end gap-2">
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-xmark"></i>
+
+Annuler
+
+</a>
+
+<button
+type="submit"
+class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer les modifications
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="../../js/fournisseurs.js"></script>
+
+<script>
+
+chargerFournisseurModification();
+
+</script>
+
+</body>
+
+</html>
