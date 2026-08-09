@@ -1452,3 +1452,538 @@ console.log(
     "Modification fournisseur prête."
 );
 
+/*====================================================
+ DETAIL FOURNISSEUR
+====================================================*/
+
+function chargerDetailFournisseur() {
+
+    const element =
+        document.getElementById(
+            "detailNom"
+        );
+
+    if (!element) return;
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const id =
+        Number(
+            params.get("id")
+        );
+
+
+    const fournisseurs =
+        obtenirFournisseurs();
+
+
+    const fournisseur =
+        fournisseurs.find(
+            f => f.id === id
+        );
+
+
+    if (!fournisseur) {
+
+        alert(
+            "Fournisseur introuvable."
+        );
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*==============================================
+    IDENTITE
+    ==============================================*/
+
+    document.getElementById(
+        "detailNom"
+    ).textContent =
+        fournisseur.nom || "-";
+
+
+    document.getElementById(
+        "detailNumero"
+    ).textContent =
+        fournisseur.numeroFournisseur || "-";
+
+
+    document.getElementById(
+        "infoNumero"
+    ).textContent =
+        fournisseur.numeroFournisseur || "-";
+
+
+    document.getElementById(
+        "infoNom"
+    ).textContent =
+        fournisseur.nom || "-";
+
+
+    document.getElementById(
+        "infoType"
+    ).textContent =
+        fournisseur.type || "-";
+
+
+    document.getElementById(
+        "infoTelephone"
+    ).textContent =
+        fournisseur.telephone || "-";
+
+
+    document.getElementById(
+        "infoEmail"
+    ).textContent =
+        fournisseur.email || "-";
+
+
+    document.getElementById(
+        "infoVille"
+    ).textContent =
+        fournisseur.ville || "-";
+
+
+    document.getElementById(
+        "infoAdresse"
+    ).textContent =
+        fournisseur.adresse || "-";
+
+
+    document.getElementById(
+        "infoPays"
+    ).textContent =
+        fournisseur.pays || "-";
+
+
+    /*==============================================
+    STATUT
+    ==============================================*/
+
+    const statut =
+        fournisseur.statut || "Actif";
+
+
+    const statutElement =
+        document.getElementById(
+            "detailStatut"
+        );
+
+
+    statutElement.textContent =
+        statut;
+
+
+    statutElement.className =
+        statut === "Actif"
+
+        ? "badge bg-success"
+
+        : "badge bg-secondary";
+
+
+    /*==============================================
+    STATISTIQUES
+    ==============================================*/
+
+    const nombreAchats =
+        Number(
+            fournisseur.nombreAchats || 0
+        );
+
+
+    const totalAchats =
+        Number(
+            fournisseur.totalAchats || 0
+        );
+
+
+    const nombreProduits =
+        Number(
+            fournisseur.nombreProduits || 0
+        );
+
+
+    document.getElementById(
+        "detailAchats"
+    ).textContent =
+        nombreAchats;
+
+
+    document.getElementById(
+        "detailTotalAchats"
+    ).textContent =
+        totalAchats.toLocaleString(
+            "fr-FR"
+        ) + " FC";
+
+
+    document.getElementById(
+        "detailProduits"
+    ).textContent =
+        nombreProduits;
+
+
+    /*==============================================
+    PRODUITS
+    ==============================================*/
+
+    afficherProduitsFournisseur(
+        fournisseur
+    );
+
+
+    /*==============================================
+    HISTORIQUE ACHATS
+    ==============================================*/
+
+    afficherHistoriqueAchatsFournisseur(
+        fournisseur
+    );
+
+
+    /*==============================================
+    NOTES
+    ==============================================*/
+
+    document.getElementById(
+        "detailNotes"
+    ).textContent =
+        fournisseur.notes ||
+        "Aucune note.";
+
+
+    /*==============================================
+    DATE CREATION
+    ==============================================*/
+
+    document.getElementById(
+        "detailDateCreation"
+    ).textContent =
+
+        fournisseur.dateCreation
+
+        ? new Date(
+            fournisseur.dateCreation
+        ).toLocaleDateString(
+            "fr-FR"
+        )
+
+        : "-";
+
+
+    /*==============================================
+    MODIFIER
+    ==============================================*/
+
+    const btnModifier =
+        document.getElementById(
+            "btnModifier"
+        );
+
+
+    if (btnModifier) {
+
+        btnModifier.onclick =
+            function () {
+
+                window.location.href =
+                    "modifier.html?id=" +
+                    id;
+
+            };
+
+    }
+
+
+    /*==============================================
+    SUPPRIMER
+    ==============================================*/
+
+    const btnSupprimer =
+        document.getElementById(
+            "btnSupprimer"
+        );
+
+
+    if (btnSupprimer) {
+
+        btnSupprimer.onclick =
+            function () {
+
+                supprimerFournisseur(
+                    id
+                );
+
+            };
+
+    }
+
+}
+
+
+/*====================================================
+ PRODUITS FOURNIS
+====================================================*/
+
+function afficherProduitsFournisseur(
+    fournisseur
+) {
+
+    const conteneur =
+        document.getElementById(
+            "listeProduitsFournisseur"
+        );
+
+
+    if (!conteneur) return;
+
+
+    const produits =
+        fournisseur.produits || [];
+
+
+    if (produits.length === 0) {
+
+        conteneur.innerHTML = `
+
+            <div class="text-muted">
+
+                Aucun produit enregistré.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    conteneur.innerHTML = "";
+
+
+    produits.forEach(
+        produit => {
+
+            conteneur.innerHTML += `
+
+                <span
+                    class="badge bg-success me-2 mb-2"
+                >
+
+                    ${
+                        typeof produit === "string"
+                        ? produit
+                        : produit.nom || "-"
+                    }
+
+                </span>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ HISTORIQUE ACHATS FOURNISSEUR
+====================================================*/
+
+function afficherHistoriqueAchatsFournisseur(
+    fournisseur
+) {
+
+    const conteneur =
+        document.getElementById(
+            "historiqueAchatsFournisseur"
+        );
+
+
+    if (!conteneur) return;
+
+
+    const achats =
+        JSON.parse(
+            localStorage.getItem("achats")
+        ) || [];
+
+
+    const achatsFournisseur =
+        achats.filter(
+            achat =>
+
+            Number(
+                achat.fournisseurId
+            ) === Number(
+                fournisseur.id
+            )
+        );
+
+
+    if (achatsFournisseur.length === 0) {
+
+        conteneur.innerHTML = `
+
+            <div class="text-muted">
+
+                Aucun achat enregistré.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="table-responsive">
+
+            <table class="table table-hover">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>Date</th>
+
+                        <th>Référence</th>
+
+                        <th>Produit</th>
+
+                        <th>Quantité</th>
+
+                        <th>Montant</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    achatsFournisseur.forEach(
+        achat => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        ${
+                            achat.date
+
+                            ? new Date(
+                                achat.date
+                            ).toLocaleDateString(
+                                "fr-FR"
+                            )
+
+                            : "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            achat.reference || "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            achat.produitNom || "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            achat.quantite || 0
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            Number(
+                                achat.montant || 0
+                            ).toLocaleString(
+                                "fr-FR"
+                            )
+                        }
+
+                        FC
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    conteneur.innerHTML =
+        html;
+
+}
+
+
+/*====================================================
+ EXPORT
+====================================================*/
+
+window.chargerDetailFournisseur =
+    chargerDetailFournisseur;
+
+window.afficherProduitsFournisseur =
+    afficherProduitsFournisseur;
+
+window.afficherHistoriqueAchatsFournisseur =
+    afficherHistoriqueAchatsFournisseur;
+
+
+/*====================================================
+ FIN
+====================================================*/
+
+console.log(
+    "Fiche fournisseur prête."
+);
+
