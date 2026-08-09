@@ -1,1 +1,358 @@
+/*==================================================
+FERME ASHER ERP
+CLIENTS.CSS
+VERSION 1.0
+==================================================*/
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root{
+
+    --primary:#1B5E20;
+    --secondary:#2E7D32;
+    --success:#43A047;
+    --warning:#F9A825;
+    --danger:#E53935;
+    --info:#039BE5;
+
+    --light:#F4F7FB;
+    --white:#FFFFFF;
+    --dark:#1F2937;
+
+    --radius:18px;
+
+    --shadow:
+    0 10px 30px rgba(0,0,0,.08);
+
+}
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:"Poppins",sans-serif;
+
+    background:var(--light);
+
+    color:#333;
+
+}
+
+.container-fluid{
+
+    padding:35px;
+
+}
+
+/*==================================================
+HEADER
+==================================================*/
+
+h2{
+
+    font-weight:700;
+
+    color:var(--primary);
+
+    margin-bottom:5px;
+
+}
+
+.text-muted{
+
+    color:#64748B!important;
+
+}
+
+.btn{
+
+    border-radius:12px;
+
+    font-weight:600;
+
+    padding:10px 18px;
+
+    transition:.30s;
+
+}
+
+.btn:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.btn-success{
+
+    background:var(--primary);
+
+    border-color:var(--primary);
+
+}
+
+.btn-success:hover{
+
+    background:var(--secondary);
+
+    border-color:var(--secondary);
+
+}
+
+.card{
+
+    border:none;
+
+    border-radius:20px;
+
+    box-shadow:var(--shadow);
+
+    overflow:hidden;
+
+}
+
+.card-body{
+
+    padding:25px;
+
+}
+
+/*==================================================
+CARTES CLIENTS
+==================================================*/
+
+.client-card{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    background:var(--white);
+
+    box-shadow:var(--shadow);
+
+    transition:.30s;
+
+    margin-bottom:25px;
+
+}
+
+.client-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.client-card h3{
+
+    font-size:32px;
+
+    font-weight:700;
+
+    color:var(--primary);
+
+    margin:0;
+
+}
+
+.client-card p{
+
+    margin:5px 0 0;
+
+    color:#64748B;
+
+    font-size:14px;
+
+}
+
+.client-card i{
+
+    font-size:40px;
+
+    color:var(--primary);
+
+    opacity:.8;
+
+}
+
+/*==================================================
+TABLEAU CLIENTS
+==================================================*/
+
+.table{
+
+    margin-bottom:0;
+
+}
+
+.table thead{
+
+    background:#E8F5E9;
+
+}
+
+.table th{
+
+    padding:16px;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    white-space:nowrap;
+
+}
+
+.table td{
+
+    padding:16px;
+
+    vertical-align:middle;
+
+}
+
+.table tbody tr{
+
+    transition:.25s;
+
+}
+
+.table tbody tr:hover{
+
+    background:#F8FAFC;
+
+}
+
+.table .badge{
+
+    padding:7px 12px;
+
+    border-radius:20px;
+
+    font-weight:600;
+
+}
+
+/*==================================================
+FORMULAIRES
+==================================================*/
+
+.form-control,
+
+.form-select{
+
+    border-radius:12px;
+
+    padding:12px 14px;
+
+    border:1px solid #CBD5E1;
+
+}
+
+.form-control:focus,
+
+.form-select:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:
+
+    0 0 0 .2rem
+
+    rgba(27,94,32,.15);
+
+}
+
+.form-label{
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+
+
+/*==================================================
+ALERTES
+==================================================*/
+
+.alert{
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:15px;
+
+}
+
+.alert-success{
+
+    border-left:5px solid var(--success);
+
+}
+
+.alert-info{
+
+    border-left:5px solid var(--info);
+
+}
+
+/*==================================================
+RESPONSIVE
+==================================================*/
+
+@media(max-width:992px){
+
+    .client-card{
+
+        margin-bottom:20px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .container-fluid{
+
+        padding:20px;
+
+    }
+
+    .client-card{
+
+        flex-direction:column;
+
+        text-align:center;
+
+        gap:15px;
+
+    }
+
+    .table-responsive{
+
+        overflow-x:auto;
+
+    }
+
+    .btn{
+
+        width:100%;
+
+        margin-top:10px;
+
+    }
+
+}
