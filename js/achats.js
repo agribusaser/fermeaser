@@ -1165,35 +1165,410 @@ function retirerStockApresAnnulation(
 
 
 /*
-====================================================
+/*====================================================
  CREER ACHAT
 ====================================================*/
 
-function creerAchat(
-    donnees
-) {
+function creerAchat(donnees) {
 
     const achats =
         obtenirAchats();
 
-
     const produits =
         JSON.parse(
-            localStorage.getItem(
-                "produits"
-            )
+            localStorage.getItem("produits")
         ) || [];
-
 
     const fournisseurs =
         JSON.parse(
-            localStorage.getItem(
-                "fournisseurs"
-            )
+            localStorage.getItem("fournisseurs")
         ) || [];
 
 
+    /*================================================
+    VERIFICATION FOURNISSEUR
+    =================================================*/
+
+    const fournisseur =
+        fournisseurs.find(
+            f =>
+                Number(f.id) ===
+                Number(donnees.fournisseurId)
+        );
+
+
+    if (!fournisseur) {
+
+        alert(
+            "Fournisseur introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    /*================================================
+    VERIFICATION PRODUIT
+    =================================================*/
+
+    const produit =
+        produits.find(
+            p =>
+                Number(p.id) ===
+                Number(donnees.produitId)
+        );
+
+
+    if (!produit) {
+
+        alert(
+            "Produit introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    /*================================================
+    QUANTITE
+    =================================================*/
+
+    const quantite =
+        Number(
+            donnees.quantite
+        );
+
+
+    if (
+        !Number.isFinite(quantite) ||
+        quantite <= 0
+    ) {
+
+        alert(
+            "La quantité doit être supérieure à zéro."
+        );
+
+        return false;
+
+    }
+
+
+    /*================================================
+    PRIX UNITAIRE
+    =================================================*/
+
+    const prixUnitaire =
+        Number(
+            donnees.prixUnitaire
+        );
+
+
+    if (
+        !Number.isFinite(prixUnitaire) ||
+        prixUnitaire < 0
+    ) {
+
+        alert(
+            "Le prix d'achat est invalide."
+        );
+
+        return false;
+
+    }
+
+
+    /*================================================
+    MONTANT
+    =================================================*/
+
+    const montant =
+        quantite *
+        prixUnitaire;
+
+
+    /*================================================
+    STATUT
+    =================================================*/
+
+    const statut =
+        donnees.statut ||
+        "Validé";
+
+
+    /*================================================
+    CREATION ACHAT
+    =================================================*/
+
+    const achat = {
+
+        id:
+            Date.now(),
+
+        reference:
+            genererReferenceAchat(),
+
+        date:
+            donnees.date ||
+            new Date()
+                .toISOString()
+                .split("T")[0],
+
+        fournisseurId:
+            fournisseur.id,
+
+        fournisseurNom:
+            fournisseur.nom,
+
+        produitId:
+            produit.id,
+
+        produitNom:
+            produit.nom,
+
+        quantite:
+            quantite,
+
+        prixUnitaire:
+            prixUnitaire,
+
+        montant:
+            montant,
+
+        statut:
+            statut,
+
+        notes:
+            donnees.notes || "",
+
+        utilisateur:
+            donnees.utilisateur ||
+            "Administrateur",
+
+        dateCreation:
+            new Date().toISOString()
+
+    };
+
+
+    /*================================================
+    ENREGISTRER ACHAT
+    =================================================*/
+
+    achats.push(
+        achat
+    );
+
+
+    sauvegarderAchats(
+        achats
+    );
+
+
+    /*================================================
+    MISE A JOUR DU STOCK
+    UNIQUEMENT SI ACHAT VALIDE
+    =================================================*/
+
+    if (
+        statut === "Validé"
+    ) {
+
+        const produitIndex =
+            produits.findIndex(
+                p =>
+                    Number(p.id) ===
+                    Number(produit.id)
+            );
+
+
+        if (
+            produitIndex !== -1
+        ) {
+
+            const stockActuel =
+                Number(
+                    produits[
+                        produitIndex
+                    ].stock || 0
+                );
+
+
+            produits[
+                produitIndex
+            ].stock =
+                stockActuel +
+                quantite;
+
+
+            localStorage.setItem(
+
+                "produits",
+
+                JSON.stringify(
+                    produits
+                )
+
+            );
+
+        }
+
+    }
+
+
     /*
+    ================================================
+    MISE A JOUR DU FOURNISSEUR
+    UNIQUEMENT SI ACHAT VALIDE
+    =================================================*/
+
+    if (
+        statut === "Validé"
+    ) {
+
+        const fournisseurIndex =
+            fournisseurs.findIndex(
+                f =>
+                    Number(f.id) ===
+                    Number(fournisseur.id)
+            );
+
+
+        if (
+            fournisseurIndex !== -1
+        ) {
+
+            fournisseurs[
+                fournisseurIndex
+            ].nombreAchats =
+
+                Number(
+                    fournisseurs[
+                        fournisseurIndex
+                    ].nombreAchats || 0
+                ) + 1;
+
+
+            fournisseurs[
+                fournisseurIndex
+            ].totalAchats =
+
+                Number(
+                    fournisseurs[
+                        fournisseurIndex
+                    ].totalAchats || 0
+                ) + montant;
+
+
+            fournisseurs[
+                fournisseurIndex
+            ].derniereCommande =
+                achat.date;
+
+
+            /*
+            ========================================
+            PRODUITS DU FOURNISSEUR
+            ========================================*/
+
+            if (
+                !Array.isArray(
+                    fournisseurs[
+                        fournisseurIndex
+                    ].produits
+                )
+            ) {
+
+                fournisseurs[
+                    fournisseurIndex
+                ].produits = [];
+
+            }
+
+
+            const produitExiste =
+
+                fournisseurs[
+                    fournisseurIndex
+                ].produits.some(
+
+                    p => {
+
+                        if (
+                            typeof p ===
+                            "string"
+                        ) {
+
+                            return (
+                                p ===
+                                produit.nom
+                            );
+
+                        }
+
+
+                        return (
+                            Number(p.id) ===
+                            Number(produit.id)
+                        );
+
+                    }
+
+                );
+
+
+            if (
+                !produitExiste
+            ) {
+
+                fournisseurs[
+                    fournisseurIndex
+                ].produits.push({
+
+                    id:
+                        produit.id,
+
+                    nom:
+                        produit.nom
+
+                });
+
+            }
+
+
+            fournisseurs[
+                fournisseurIndex
+            ].nombreProduits =
+
+                fournisseurs[
+                    fournisseurIndex
+                ].produits.length;
+
+
+            localStorage.setItem(
+
+                "fournisseurs",
+
+                JSON.stringify(
+                    fournisseurs
+                )
+
+            );
+
+        }
+
+    }
+
+
+    /*
+    ================================================
+    RETOURNER ACHAT
+    =================================================*/
+
+    return achat;
+
+}
     ================================================
     VERIFICATION FOURNISSEUR
     ================================================
