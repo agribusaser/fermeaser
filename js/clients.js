@@ -784,3 +784,235 @@ FIN CREATION CLIENT
 console.log(
     "Création client prête."
 );
+
+/*==================================================
+CHARGER CLIENT A MODIFIER
+==================================================*/
+
+function chargerClientModification(){
+
+    const formulaire =
+        document.getElementById("editClientForm");
+
+    if(!formulaire) return;
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const id =
+        Number(params.get("id"));
+
+    const clients =
+        JSON.parse(
+            localStorage.getItem("clients")
+        ) || [];
+
+    const client =
+        clients.find(
+            c => c.id === id
+        );
+
+    if(!client){
+
+        alert("Client introuvable.");
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+    document.getElementById("clientId").value =
+        client.id;
+
+    document.getElementById("numeroClient").textContent =
+        client.numeroClient;
+
+    document.getElementById("nom").value =
+        client.nom || "";
+
+    document.getElementById("telephone").value =
+        client.telephone || "";
+
+    document.getElementById("adresse").value =
+        client.adresse || "";
+
+    document.getElementById("email").value =
+        client.email || "";
+
+    document.getElementById("statut").value =
+        client.statut || "Actif";
+
+    document.getElementById("source").value =
+        client.source || "ERP";
+
+    document.getElementById("notes").value =
+        client.notes || "";
+
+    document.getElementById("nombreCommandes").textContent =
+        Number(client.nombreCommandes || 0);
+
+    document.getElementById("totalAchats").textContent =
+        Number(client.totalAchats || 0)
+        .toLocaleString("fr-FR") + " FC";
+
+    document.getElementById("dateInscription").textContent =
+        client.dateInscription
+        ? new Date(client.dateInscription)
+            .toLocaleDateString("fr-FR")
+        : "-";
+
+}
+
+/*==================================================
+MODIFICATION CLIENT
+==================================================*/
+
+const editClientForm =
+    document.getElementById("editClientForm");
+
+if(editClientForm){
+
+    editClientForm.addEventListener(
+        "submit",
+        function(e){
+
+            e.preventDefault();
+
+            let clients =
+                JSON.parse(
+                    localStorage.getItem("clients")
+                ) || [];
+
+            const id =
+                Number(
+                    document.getElementById(
+                        "clientId"
+                    ).value
+                );
+
+            const index =
+                clients.findIndex(
+                    client =>
+                    client.id === id
+                );
+
+            if(index === -1){
+
+                alert("Client introuvable.");
+
+                return;
+
+            }
+
+            const telephone =
+                document
+                .getElementById("telephone")
+                .value
+                .trim();
+
+            /*
+            ========================================
+            VERIFICATION TELEPHONE
+            ========================================
+            */
+
+            const telephoneExiste =
+                clients.some(
+                    client =>
+                    client.telephone === telephone &&
+                    client.id !== id
+                );
+
+            if(telephoneExiste){
+
+                alert(
+                    "Ce numéro de téléphone appartient déjà à un autre client."
+                );
+
+                return;
+
+            }
+
+            /*
+            ========================================
+            MODIFICATION
+            ========================================
+            */
+
+            clients[index].nom =
+                document
+                .getElementById("nom")
+                .value
+                .trim();
+
+            clients[index].telephone =
+                telephone;
+
+            clients[index].adresse =
+                document
+                .getElementById("adresse")
+                .value
+                .trim();
+
+            clients[index].email =
+                document
+                .getElementById("email")
+                .value
+                .trim();
+
+            clients[index].statut =
+                document
+                .getElementById("statut")
+                .value;
+
+            clients[index].source =
+                document
+                .getElementById("source")
+                .value;
+
+            clients[index].notes =
+                document
+                .getElementById("notes")
+                .value
+                .trim();
+
+            /*
+            ========================================
+            CONSERVATION DES DONNEES COMMERCIALES
+            ========================================
+            */
+
+            // Le numéro client ne change pas.
+            // Les commandes ne changent pas.
+            // Le total des achats ne change pas.
+            // La date d'inscription ne change pas.
+
+            localStorage.setItem(
+                "clients",
+                JSON.stringify(clients)
+            );
+
+            alert(
+                "Client modifié avec succès."
+            );
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
+
+}
+
+/*==================================================
+FIN MODIFICATION CLIENT
+==================================================*/
+
+console.log(
+    "Modification client prête."
+);
+
