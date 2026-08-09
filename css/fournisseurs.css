@@ -577,4 +577,52 @@ PETITS TELEPHONES
 
 }
 
+/*==================================================
+PROFIL FOURNISSEUR
+==================================================*/
 
+.fournisseur-profile-icon {
+
+    width: 100px;
+
+    height: 100px;
+
+    margin: 0 auto 20px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #E8F5E9;
+
+    color: var(--primary);
+
+    font-size: 45px;
+
+}
+
+
+/*==================================================
+LISTE PRODUITS
+==================================================*/
+
+#listeProduitsFournisseur {
+
+    min-height: 50px;
+
+}
+
+
+/*==================================================
+HISTORIQUE
+==================================================*/
+
+#historiqueAchatsFournisseur {
+
+    min-height: 50px;
+
+}
