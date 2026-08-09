@@ -1115,3 +1115,340 @@ window.initialiserFormulaireFournisseur =
 console.log(
     "Création fournisseur prête."
 );
+
+/*====================================================
+ CHARGER FOURNISSEUR A MODIFIER
+====================================================*/
+
+function chargerFournisseurModification() {
+
+    const formulaire =
+        document.getElementById(
+            "modifierFournisseurForm"
+        );
+
+    if (!formulaire) return;
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const id =
+        Number(
+            params.get("id")
+        );
+
+
+    const fournisseurs =
+        obtenirFournisseurs();
+
+
+    const fournisseur =
+        fournisseurs.find(
+            f => f.id === id
+        );
+
+
+    if (!fournisseur) {
+
+        alert(
+            "Fournisseur introuvable."
+        );
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*==============================================
+    IDENTIFICATION
+    ==============================================*/
+
+    document.getElementById(
+        "fournisseurId"
+    ).value =
+        fournisseur.id;
+
+
+    document.getElementById(
+        "numeroFournisseur"
+    ).textContent =
+        fournisseur.numeroFournisseur;
+
+
+    document.getElementById(
+        "nom"
+    ).value =
+        fournisseur.nom || "";
+
+
+    document.getElementById(
+        "type"
+    ).value =
+        fournisseur.type || "Entreprise";
+
+
+    document.getElementById(
+        "telephone"
+    ).value =
+        fournisseur.telephone || "";
+
+
+    document.getElementById(
+        "email"
+    ).value =
+        fournisseur.email || "";
+
+
+    document.getElementById(
+        "adresse"
+    ).value =
+        fournisseur.adresse || "";
+
+
+    document.getElementById(
+        "ville"
+    ).value =
+        fournisseur.ville || "";
+
+
+    document.getElementById(
+        "pays"
+    ).value =
+        fournisseur.pays || "RDC";
+
+
+    document.getElementById(
+        "statut"
+    ).value =
+        fournisseur.statut || "Actif";
+
+
+    document.getElementById(
+        "notes"
+    ).value =
+        fournisseur.notes || "";
+
+
+    /*==============================================
+    INFORMATIONS COMMERCIALES
+    ==============================================*/
+
+    document.getElementById(
+        "nombreAchats"
+    ).textContent =
+        Number(
+            fournisseur.nombreAchats || 0
+        );
+
+
+    document.getElementById(
+        "totalAchats"
+    ).textContent =
+        Number(
+            fournisseur.totalAchats || 0
+        ).toLocaleString("fr-FR")
+        + " FC";
+
+
+    document.getElementById(
+        "dateCreation"
+    ).textContent =
+        fournisseur.dateCreation
+
+        ? new Date(
+            fournisseur.dateCreation
+        ).toLocaleDateString("fr-FR")
+
+        : "-";
+
+}
+
+
+/*====================================================
+ ENREGISTRER MODIFICATION
+====================================================*/
+
+const modifierFournisseurForm =
+    document.getElementById(
+        "modifierFournisseurForm"
+    );
+
+
+if (modifierFournisseurForm) {
+
+    modifierFournisseurForm.addEventListener(
+        "submit",
+        function (e) {
+
+            e.preventDefault();
+
+
+            const fournisseurs =
+                obtenirFournisseurs();
+
+
+            const id =
+                Number(
+                    document.getElementById(
+                        "fournisseurId"
+                    ).value
+                );
+
+
+            const index =
+                fournisseurs.findIndex(
+                    fournisseur =>
+                    fournisseur.id === id
+                );
+
+
+            if (index === -1) {
+
+                alert(
+                    "Fournisseur introuvable."
+                );
+
+                return;
+
+            }
+
+
+            const telephone =
+                document
+                .getElementById("telephone")
+                .value
+                .trim();
+
+
+            /*======================================
+            TELEPHONE UNIQUE
+            ======================================*/
+
+            const telephoneExiste =
+                fournisseurs.some(
+                    fournisseur =>
+
+                    fournisseur.telephone ===
+                    telephone &&
+
+                    fournisseur.id !== id
+
+                );
+
+
+            if (telephoneExiste) {
+
+                alert(
+                    "Ce numéro de téléphone " +
+                    "est déjà utilisé par un autre fournisseur."
+                );
+
+                return;
+
+            }
+
+
+            /*======================================
+            MODIFICATION
+            ======================================*/
+
+            fournisseurs[index].nom =
+                document
+                .getElementById("nom")
+                .value
+                .trim();
+
+
+            fournisseurs[index].type =
+                document
+                .getElementById("type")
+                .value;
+
+
+            fournisseurs[index].telephone =
+                telephone;
+
+
+            fournisseurs[index].email =
+                document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+            fournisseurs[index].adresse =
+                document
+                .getElementById("adresse")
+                .value
+                .trim();
+
+
+            fournisseurs[index].ville =
+                document
+                .getElementById("ville")
+                .value
+                .trim();
+
+
+            fournisseurs[index].pays =
+                document
+                .getElementById("pays")
+                .value
+                .trim();
+
+
+            fournisseurs[index].statut =
+                document
+                .getElementById("statut")
+                .value;
+
+
+            fournisseurs[index].notes =
+                document
+                .getElementById("notes")
+                .value
+                .trim();
+
+
+            /*======================================
+            SAUVEGARDE
+            ======================================*/
+
+            sauvegarderFournisseurs(
+                fournisseurs
+            );
+
+
+            alert(
+                "Fournisseur modifié avec succès."
+            );
+
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ EXPORT
+====================================================*/
+
+window.chargerFournisseurModification =
+    chargerFournisseurModification;
+
+
+console.log(
+    "Modification fournisseur prête."
+);
+
