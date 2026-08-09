@@ -136,152 +136,123 @@ function genererReferenceAchat() {
  AFFICHER STATISTIQUES
 ====================================================*/
 
-function afficherStatistiquesAchats(
-    achats
-) {
+/*====================================================
+ ANNULER L'IMPACT STOCK D'UN ACHAT
+====================================================*/
 
-    const total =
-        achats.length;
+function retirerStockApresAnnulation(achat) {
 
+    // Un achat brouillon n'a jamais ajouté
+    // de stock. Il ne faut donc rien retirer.
+    if (achat.statut !== "Validé") {
 
-    const montantTotal =
-        achats.reduce(
-            (
-                somme,
-                achat
-            ) => {
-
-                return somme +
-                    Number(
-                        achat.montant || 0
-                    );
-
-            },
-            0
-        );
-
-
-    const maintenant =
-        new Date();
-
-
-    const moisActuel =
-        maintenant.getMonth();
-
-
-    const anneeActuelle =
-        maintenant.getFullYear();
-
-
-    const achatsMois =
-        achats.filter(
-            achat => {
-
-                if (!achat.date) {
-                    return false;
-                }
-
-
-                const date =
-                    new Date(
-                        achat.date
-                    );
-
-
-                return (
-
-                    date.getMonth() ===
-                    moisActuel
-
-                    &&
-
-                    date.getFullYear() ===
-                    anneeActuelle
-
-                );
-
-            }
-        ).length;
-
-
-    const quantiteAchetee =
-        achats.reduce(
-            (
-                somme,
-                achat
-            ) => {
-
-                return somme +
-                    Number(
-                        achat.quantite || 0
-                    );
-
-            },
-            0
-        );
-
-
-    const elementTotal =
-        document.getElementById(
-            "totalAchats"
-        );
-
-
-    const elementMontant =
-        document.getElementById(
-            "montantTotalAchats"
-        );
-
-
-    const elementMois =
-        document.getElementById(
-            "achatsMois"
-        );
-
-
-    const elementQuantite =
-        document.getElementById(
-            "quantiteAchetee"
-        );
-
-
-    if (elementTotal) {
-
-        elementTotal.textContent =
-            total;
+        return true;
 
     }
 
+    const produits =
+        JSON.parse(
+            localStorage.getItem(
+                "produits"
+            )
+        ) || [];
 
-    if (elementMontant) {
+    const index =
+        produits.findIndex(
+            produit =>
+                Number(produit.id) ===
+                Number(achat.produitId)
+        );
 
-        elementMontant.textContent =
-            montantTotal.toLocaleString(
-                "fr-FR"
-            ) + " FC";
+    if (index === -1) {
+
+        alert(
+            "Produit introuvable. " +
+            "L'annulation est impossible."
+        );
+
+        return false;
+
+    }
+
+    const quantite =
+        Number(
+            achat.quantite || 0
+        );
+
+    const stockActuel =
+        Number(
+            produits[index].stock || 0
+        );
+
+    /*
+    ================================================
+    PROTECTION STOCK
+    ================================================
+    */
+
+    if (stockActuel < quantite) {
+
+        alert(
+
+            "Annulation impossible.\n\n" +
+
+            "Stock actuel : " +
+            stockActuel +
+
+            "\nQuantité de l'achat : " +
+            quantite +
+
+            "\n\nUne partie de cet achat " +
+            "a probablement déjà été vendue " +
+            "ou sortie du stock."
+
+        );
+
+        return false;
 
     }
 
+    /*
+    ================================================
+    RETIRER DU STOCK
+    ================================================
+    */
 
-    if (elementMois) {
+    produits[index].stock =
+        stockActuel -
+        quantite;
 
-        elementMois.textContent =
-            achatsMois;
+    localStorage.setItem(
+        "produits",
+        JSON.stringify(
+            produits
+        )
+    );
 
-    }
+    /*
+    ================================================
+    ENREGISTRER LE MOUVEMENT
+    ================================================
+    */
 
+    enregistrerMouvementStock({
 
-    if (elementQuantite) {
+        achat: achat,
 
-        elementQuantite.textContent =
-            quantiteAchetee.toLocaleString(
-                "fr-FR"
-            );
+        type: "Sortie",
 
-    }
+        nature: "Annulation achat",
+
+        observation:
+            "Annulation de l'achat " +
+            achat.reference
+
+    });
+
+    return true;
 
 }
-
 
 /*====================================================
  CHARGER FOURNISSEURS DANS LE FILTRE
