@@ -24,7 +24,8 @@ function chargerStocks(){
         localStorage.getItem("produits")
     ) || [];
 
-    const table = document.getElementById("stocksTable");
+    const table =
+        document.getElementById("stocksTable");
 
     if(!table) return;
 
@@ -34,17 +35,18 @@ function chargerStocks(){
     let stockFaible = 0;
     let rupture = 0;
 
-    produits.forEach(produit=>{
+    produits.forEach(produit => {
 
         const valeur =
-            produit.stock * produit.prixAchat;
+            Number(produit.stock || 0) *
+            Number(produit.prixAchat || 0);
 
         valeurTotale += valeur;
 
         let etat = "Disponible";
         let badge = "success";
 
-        if(produit.stock <= 0){
+        if(Number(produit.stock || 0) <= 0){
 
             etat = "Rupture";
             badge = "danger";
@@ -52,7 +54,10 @@ function chargerStocks(){
 
         }
 
-        else if(produit.stock <= produit.stockMinimum){
+        else if(
+            Number(produit.stock || 0) <=
+            Number(produit.stockMinimum || 0)
+        ){
 
             etat = "Stock faible";
             badge = "warning";
@@ -61,55 +66,54 @@ function chargerStocks(){
         }
 
         table.innerHTML += `
-<tr>
 
-<td>${produit.code}</td>
+        <tr>
 
-<td>${produit.nom}</td>
+            <td>${produit.code}</td>
 
-<td>${produit.categorie}</td>
+            <td>${produit.nom}</td>
 
-<td>${produit.stock}</td>
+            <td>${produit.categorie}</td>
 
-<td>${produit.stockMinimum}</td>
+            <td>${produit.stock}</td>
 
-<td>${produit.unite}</td>
+            <td>${produit.stockMinimum}</td>
 
-<td>${valeur.toLocaleString()} FC</td>
+            <td>${produit.unite}</td>
 
-<td>
+            <td>
+                ${valeur.toLocaleString()} FC
+            </td>
 
-<span class="badge bg-${badge}">
+            <td>
+                <span class="badge bg-${badge}">
+                    ${etat}
+                </span>
+            </td>
 
-${etat}
+            <td>
 
-</span>
+                <button
+                    class="btn btn-success btn-sm"
+                    onclick="entreeStock(${produit.id})">
 
-</td>
+                    <i class="fa fa-plus"></i>
 
-<td>
+                </button>
 
-<button
-class="btn btn-success btn-sm"
-onclick="entreeStock(${produit.id})">
+                <button
+                    class="btn btn-danger btn-sm"
+                    onclick="sortieStock(${produit.id})">
 
-<i class="fa fa-plus"></i>
+                    <i class="fa fa-minus"></i>
 
-</button>
+                </button>
 
-<button
-class="btn btn-danger btn-sm"
-onclick="sortieStock(${produit.id})">
+            </td>
 
-<i class="fa fa-minus"></i>
+        </tr>
 
-</button>
-
-</td>
-
-</tr>
-
-`;
+        `;
 
     });
 
@@ -121,6 +125,10 @@ onclick="sortieStock(${produit.id})">
     );
 
     afficherAlertes(produits);
+
+    chargerHistorique();
+
+    chargerStatistiquesMensuelles();
 
 }
 
