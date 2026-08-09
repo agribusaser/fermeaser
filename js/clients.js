@@ -539,3 +539,248 @@ FIN
 console.log(
     "Module Clients chargé."
 );
+
+/*==================================================
+GENERER NUMERO CLIENT
+==================================================*/
+
+function genererNumeroClient(){
+
+    const clients =
+        JSON.parse(
+            localStorage.getItem("clients")
+        ) || [];
+
+    let numero = clients.length + 1;
+
+    let numeroClient =
+        "CLI" +
+        String(numero).padStart(6, "0");
+
+    // Sécurité : éviter un doublon
+    while(
+        clients.some(
+            client =>
+            client.numeroClient === numeroClient
+        )
+    ){
+
+        numero++;
+
+        numeroClient =
+            "CLI" +
+            String(numero).padStart(6, "0");
+
+    }
+
+    return numeroClient;
+
+}
+
+/*==================================================
+PREVISUALISER NUMERO CLIENT
+==================================================*/
+
+function previsualiserNumeroClient(){
+
+    const preview =
+        document.getElementById(
+            "numeroClientPreview"
+        );
+
+    if(!preview) return;
+
+    preview.textContent =
+        genererNumeroClient();
+
+}
+
+/*==================================================
+CREATION CLIENT
+==================================================*/
+
+const clientForm =
+    document.getElementById("clientForm");
+
+if(clientForm){
+
+    clientForm.addEventListener(
+        "submit",
+        function(e){
+
+            e.preventDefault();
+
+            let clients =
+                JSON.parse(
+                    localStorage.getItem("clients")
+                ) || [];
+
+            const nom =
+                document
+                .getElementById("nom")
+                .value
+                .trim();
+
+            const telephone =
+                document
+                .getElementById("telephone")
+                .value
+                .trim();
+
+            const adresse =
+                document
+                .getElementById("adresse")
+                .value
+                .trim();
+
+            const email =
+                document
+                .getElementById("email")
+                .value
+                .trim();
+
+            const source =
+                document
+                .getElementById("source")
+                .value;
+
+            const statut =
+                document
+                .getElementById("statut")
+                .value;
+
+            const notes =
+                document
+                .getElementById("notes")
+                .value
+                .trim();
+
+
+            /*======================================
+            VERIFICATION TELEPHONE
+            ======================================*/
+
+            const telephoneExiste =
+                clients.some(
+                    client =>
+                    client.telephone === telephone
+                );
+
+            if(telephoneExiste){
+
+                alert(
+                    "Ce numéro de téléphone est déjà enregistré."
+                );
+
+                return;
+
+            }
+
+
+            /*======================================
+            NUMERO CLIENT
+            ======================================*/
+
+            const numeroClient =
+                genererNumeroClient();
+
+
+            /*======================================
+            CREATION
+            ======================================*/
+
+            const client = {
+
+                id: Date.now(),
+
+                numeroClient: numeroClient,
+
+                nom: nom,
+
+                telephone: telephone,
+
+                adresse: adresse,
+
+                email: email,
+
+                source: source,
+
+                statut: statut,
+
+                dateInscription:
+                    new Date().toISOString(),
+
+                nombreCommandes: 0,
+
+                totalAchats: 0,
+
+                derniereCommande: null,
+
+                notes: notes
+
+            };
+
+
+            /*======================================
+            ENREGISTREMENT
+            ======================================*/
+
+            clients.push(client);
+
+            localStorage.setItem(
+
+                "clients",
+
+                JSON.stringify(clients)
+
+            );
+
+
+            /*======================================
+            CONFIRMATION
+            ======================================*/
+
+            alert(
+
+                "Client créé avec succès.\n\n" +
+
+                "Numéro client : " +
+
+                numeroClient
+
+            );
+
+
+            /*======================================
+            RETOUR
+            ======================================*/
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
+
+}
+
+/*==================================================
+INITIALISATION NUMERO CLIENT
+==================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        previsualiserNumeroClient();
+
+    }
+);
+
+
+/*==================================================
+FIN CREATION CLIENT
+==================================================*/
+
+console.log(
+    "Création client prête."
+);
