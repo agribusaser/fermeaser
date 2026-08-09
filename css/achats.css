@@ -1,1 +1,625 @@
+/*==================================================
+FERME ASHER ERP
+ACHATS.CSS
+VERSION 1.0
+==================================================*/
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+
+/*==================================================
+VARIABLES
+==================================================*/
+
+:root {
+
+    --primary: #1B5E20;
+
+    --secondary: #2E7D32;
+
+    --success: #43A047;
+
+    --warning: #F9A825;
+
+    --danger: #E53935;
+
+    --info: #039BE5;
+
+    --light: #F4F7FB;
+
+    --white: #FFFFFF;
+
+    --dark: #1F2937;
+
+    --border: #E2E8F0;
+
+    --shadow:
+        0 10px 30px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/*==================================================
+RESET
+==================================================*/
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+/*==================================================
+BODY
+==================================================*/
+
+body {
+
+    font-family: "Poppins", sans-serif;
+
+    background: var(--light);
+
+    color: #333;
+
+    min-height: 100vh;
+
+}
+
+
+/*==================================================
+CONTENEUR
+==================================================*/
+
+.container-fluid {
+
+    padding: 35px;
+
+}
+
+
+/*==================================================
+TITRES
+==================================================*/
+
+h2 {
+
+    font-weight: 700;
+
+    color: var(--primary);
+
+    margin-bottom: 5px;
+
+}
+
+h3 {
+
+    font-weight: 700;
+
+}
+
+h5 {
+
+    font-weight: 600;
+
+}
+
+.text-muted {
+
+    color: #64748B !important;
+
+}
+
+
+/*==================================================
+BOUTONS
+==================================================*/
+
+.btn {
+
+    border-radius: 12px;
+
+    font-weight: 600;
+
+    padding: 10px 18px;
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        background .25s ease;
+
+}
+
+.btn:hover {
+
+    transform: translateY(-2px);
+
+}
+
+.btn-success {
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+.btn-success:hover {
+
+    background: var(--secondary);
+
+    border-color: var(--secondary);
+
+}
+
+.btn-secondary {
+
+    background: #64748B;
+
+    border-color: #64748B;
+
+}
+
+.btn-outline-success {
+
+    color: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+.btn-outline-success:hover {
+
+    color: #FFFFFF;
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+
+/*==================================================
+CARTES
+==================================================*/
+
+.card {
+
+    border: none;
+
+    border-radius: 20px;
+
+    background: var(--white);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+
+}
+
+.card-body {
+
+    padding: 25px;
+
+}
+
+.card-header {
+
+    border: none;
+
+    padding: 18px 25px;
+
+}
+
+
+/*==================================================
+CARTES STATISTIQUES
+==================================================*/
+
+.achat-card {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 25px;
+
+    background: var(--white);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+
+    transition: .30s;
+
+    margin-bottom: 25px;
+
+    min-height: 130px;
+
+}
+
+.achat-card:hover {
+
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, .12);
+
+}
+
+.achat-card h3 {
+
+    font-size: 30px;
+
+    color: var(--primary);
+
+    margin: 0;
+
+    font-weight: 700;
+
+}
+
+.achat-card p {
+
+    margin: 6px 0 0;
+
+    color: #64748B;
+
+    font-size: 14px;
+
+}
+
+.achat-card > i {
+
+    width: 60px;
+
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #E8F5E9;
+
+    color: var(--primary);
+
+    font-size: 27px;
+
+}
+
+
+/*==================================================
+FORMULAIRES
+==================================================*/
+
+.form-control,
+
+.form-select {
+
+    border-radius: 12px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #CBD5E1;
+
+    min-height: 46px;
+
+    transition: .25s;
+
+}
+
+.form-control:focus,
+
+.form-select:focus {
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(27, 94, 32, .15);
+
+}
+
+.form-label {
+
+    font-weight: 600;
+
+    margin-bottom: 8px;
+
+}
+
+
+/*==================================================
+TABLEAU
+==================================================*/
+
+.table {
+
+    margin-bottom: 0;
+
+}
+
+.table thead {
+
+    background: #E8F5E9;
+
+}
+
+.table th {
+
+    padding: 16px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #1F2937;
+
+    white-space: nowrap;
+
+    border-bottom: none;
+
+}
+
+.table td {
+
+    padding: 16px;
+
+    vertical-align: middle;
+
+    font-size: 14px;
+
+}
+
+.table tbody tr {
+
+    transition: .20s;
+
+}
+
+.table tbody tr:hover {
+
+    background: #F8FAFC;
+
+}
+
+
+/*==================================================
+BADGES
+==================================================*/
+
+.badge {
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-weight: 600;
+
+}
+
+.badge.bg-success {
+
+    background: #2E7D32 !important;
+
+}
+
+.badge.bg-warning {
+
+    color: #212529 !important;
+
+}
+
+.badge.bg-secondary {
+
+    background: #64748B !important;
+
+}
+
+.badge.bg-danger {
+
+    background: #E53935 !important;
+
+}
+
+
+/*==================================================
+BOUTONS ACTIONS TABLEAU
+==================================================*/
+
+.table .btn {
+
+    width: 38px;
+
+    height: 38px;
+
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-right: 4px;
+
+}
+
+.table .btn:last-child {
+
+    margin-right: 0;
+
+}
+
+
+/*==================================================
+ALERTES
+==================================================*/
+
+.alert {
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 15px 18px;
+
+}
+
+.alert-success {
+
+    border-left: 5px solid var(--success);
+
+}
+
+.alert-info {
+
+    border-left: 5px solid var(--info);
+
+}
+
+.alert-warning {
+
+    border-left: 5px solid var(--warning);
+
+}
+
+.alert-danger {
+
+    border-left: 5px solid var(--danger);
+
+}
+
+
+/*==================================================
+MONTANTS
+==================================================*/
+
+.montant {
+
+    font-weight: 700;
+
+    color: var(--primary);
+
+}
+
+.quantite {
+
+    font-weight: 600;
+
+}
+
+
+/*==================================================
+RESPONSIVE
+==================================================*/
+
+@media (max-width: 992px) {
+
+    .container-fluid {
+
+        padding: 25px;
+
+    }
+
+    .achat-card {
+
+        margin-bottom: 20px;
+
+    }
+
+}
+
+
+/*==================================================
+TABLETTE / MOBILE
+==================================================*/
+
+@media (max-width: 768px) {
+
+    .container-fluid {
+
+        padding: 18px;
+
+    }
+
+    .achat-card {
+
+        min-height: 110px;
+
+    }
+
+    .achat-card h3 {
+
+        font-size: 25px;
+
+    }
+
+    .achat-card > i {
+
+        width: 50px;
+
+        height: 50px;
+
+        font-size: 22px;
+
+    }
+
+    .table-responsive {
+
+        overflow-x: auto;
+
+        -webkit-overflow-scrolling: touch;
+
+    }
+
+    .btn {
+
+        margin-bottom: 5px;
+
+    }
+
+}
+
+
+/*==================================================
+PETITS TELEPHONES
+==================================================*/
+
+@media (max-width: 576px) {
+
+    .container-fluid {
+
+        padding: 12px;
+
+    }
+
+    h2 {
+
+        font-size: 22px;
+
+    }
+
+    .card-body {
+
+        padding: 18px;
+
+    }
+
+    .achat-card {
+
+        padding: 20px;
+
+    }
+
+}
