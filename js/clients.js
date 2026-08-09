@@ -1016,3 +1016,254 @@ console.log(
     "Modification client prête."
 );
 
+/*==================================================
+DETAIL CLIENT
+==================================================*/
+
+function chargerDetailClient(){
+
+    const element =
+        document.getElementById("detailNom");
+
+    if(!element) return;
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const id =
+        Number(params.get("id"));
+
+    const clients =
+        JSON.parse(
+            localStorage.getItem("clients")
+        ) || [];
+
+    const client =
+        clients.find(
+            c => c.id === id
+        );
+
+    if(!client){
+
+        alert("Client introuvable.");
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*==============================================
+    IDENTITE
+    ==============================================*/
+
+    document.getElementById(
+        "detailNom"
+    ).textContent =
+        client.nom || "-";
+
+    document.getElementById(
+        "detailNumero"
+    ).textContent =
+        client.numeroClient || "-";
+
+    document.getElementById(
+        "infoNumero"
+    ).textContent =
+        client.numeroClient || "-";
+
+    document.getElementById(
+        "infoNom"
+    ).textContent =
+        client.nom || "-";
+
+    document.getElementById(
+        "infoTelephone"
+    ).textContent =
+        client.telephone || "-";
+
+    document.getElementById(
+        "infoEmail"
+    ).textContent =
+        client.email || "-";
+
+    document.getElementById(
+        "infoAdresse"
+    ).textContent =
+        client.adresse || "-";
+
+    document.getElementById(
+        "infoSource"
+    ).textContent =
+        client.source || "ERP";
+
+
+    /*==============================================
+    STATUT
+    ==============================================*/
+
+    const statut =
+        client.statut || "Actif";
+
+    const statutElement =
+        document.getElementById(
+            "detailStatut"
+        );
+
+    statutElement.textContent =
+        statut;
+
+    statutElement.className =
+        statut === "Actif"
+        ? "badge bg-success"
+        : "badge bg-secondary";
+
+
+    /*==============================================
+    STATISTIQUES
+    ==============================================*/
+
+    const commandes =
+        Number(
+            client.nombreCommandes || 0
+        );
+
+    const achats =
+        Number(
+            client.totalAchats || 0
+        );
+
+    document.getElementById(
+        "detailCommandes"
+    ).textContent =
+        commandes;
+
+    document.getElementById(
+        "detailAchats"
+    ).textContent =
+        achats.toLocaleString("fr-FR")
+        + " FC";
+
+
+    /*==============================================
+    DERNIERE COMMANDE
+    ==============================================*/
+
+    document.getElementById(
+        "detailDerniereCommande"
+    ).textContent =
+        client.derniereCommande
+        ? new Date(
+            client.derniereCommande
+        ).toLocaleDateString("fr-FR")
+        : "-";
+
+
+    /*==============================================
+    DATE INSCRIPTION
+    ==============================================*/
+
+    document.getElementById(
+        "detailInscription"
+    ).textContent =
+        client.dateInscription
+        ? new Date(
+            client.dateInscription
+        ).toLocaleDateString("fr-FR")
+        : "-";
+
+
+    /*==============================================
+    ACCES CLIENT
+    ==============================================*/
+
+    document.getElementById(
+        "accesNumero"
+    ).textContent =
+        client.numeroClient || "-";
+
+    document.getElementById(
+        "accesTelephone"
+    ).textContent =
+        client.telephone || "-";
+
+
+    /*==============================================
+    NOTES
+    ==============================================*/
+
+    document.getElementById(
+        "detailNotes"
+    ).textContent =
+        client.notes || "Aucune note.";
+
+
+    /*==============================================
+    MESSAGE COMMANDES
+    ==============================================*/
+
+    const commandeMessage =
+        document.getElementById(
+            "commandeMessage"
+        );
+
+    if(commandes > 0){
+
+        commandeMessage.textContent =
+            commandes +
+            " commande(s) enregistrée(s).";
+
+    }
+    else{
+
+        commandeMessage.textContent =
+            "Aucune commande enregistrée.";
+
+    }
+
+
+    /*==============================================
+    BOUTON MODIFIER
+    ==============================================*/
+
+    const btnModifier =
+        document.getElementById(
+            "btnModifier"
+        );
+
+    if(btnModifier){
+
+        btnModifier.onclick = function(){
+
+            window.location.href =
+                "modifier.html?id=" + id;
+
+        };
+
+    }
+
+
+    /*==============================================
+    BOUTON SUPPRIMER
+    ==============================================*/
+
+    const btnSupprimer =
+        document.getElementById(
+            "btnSupprimer"
+        );
+
+    if(btnSupprimer){
+
+        btnSupprimer.onclick = function(){
+
+            supprimerClient(id);
+
+        };
+
+    }
+
+}
