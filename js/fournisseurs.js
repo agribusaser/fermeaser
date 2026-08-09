@@ -915,3 +915,203 @@ window.supprimerFournisseur =
 console.log(
     "Module Fournisseurs chargé."
 );
+
+/*====================================================
+ CREATION FOURNISSEUR
+====================================================*/
+
+function initialiserFormulaireFournisseur() {
+
+    const formulaire =
+        document.getElementById(
+            "fournisseurForm"
+        );
+
+    if (!formulaire) return;
+
+
+    formulaire.addEventListener(
+        "submit",
+        function (e) {
+
+            e.preventDefault();
+
+
+            /*========================================
+            RECUPERATION DES DONNEES
+            ========================================*/
+
+            const nom =
+                document
+                .getElementById("nom")
+                .value
+                .trim();
+
+
+            const type =
+                document
+                .getElementById("type")
+                .value;
+
+
+            const telephone =
+                document
+                .getElementById("telephone")
+                .value
+                .trim();
+
+
+            const email =
+                document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+            const adresse =
+                document
+                .getElementById("adresse")
+                .value
+                .trim();
+
+
+            const ville =
+                document
+                .getElementById("ville")
+                .value
+                .trim();
+
+
+            const pays =
+                document
+                .getElementById("pays")
+                .value
+                .trim();
+
+
+            const statut =
+                document
+                .getElementById("statut")
+                .value;
+
+
+            const notes =
+                document
+                .getElementById("notes")
+                .value
+                .trim();
+
+
+            /*========================================
+            VALIDATION
+            ========================================*/
+
+            if (!nom) {
+
+                alert(
+                    "Veuillez saisir le nom du fournisseur."
+                );
+
+                return;
+
+            }
+
+
+            if (!telephone) {
+
+                alert(
+                    "Veuillez saisir le numéro de téléphone."
+                );
+
+                return;
+
+            }
+
+
+            /*========================================
+            CREATION
+            ========================================*/
+
+            const fournisseur =
+                creerFournisseur({
+
+                    nom:
+                        nom,
+
+                    type:
+                        type,
+
+                    telephone:
+                        telephone,
+
+                    email:
+                        email,
+
+                    adresse:
+                        adresse,
+
+                    ville:
+                        ville,
+
+                    pays:
+                        pays,
+
+                    statut:
+                        statut,
+
+                    notes:
+                        notes
+
+                });
+
+
+            /*========================================
+            ECHEC
+            ========================================*/
+
+            if (!fournisseur) {
+
+                return;
+
+            }
+
+
+            /*========================================
+            CONFIRMATION
+            ========================================*/
+
+            alert(
+
+                "Fournisseur créé avec succès.\n\n" +
+
+                "Numéro fournisseur : " +
+
+                fournisseur.numeroFournisseur
+
+            );
+
+
+            /*========================================
+            RETOUR
+            ========================================*/
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ FIN CREATION FOURNISSEUR
+====================================================*/
+
+window.initialiserFormulaireFournisseur =
+    initialiserFormulaireFournisseur;
+
+
+console.log(
+    "Création fournisseur prête."
+);
