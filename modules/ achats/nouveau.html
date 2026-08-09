@@ -1,1 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Nouvel Achat | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/achats.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container-fluid py-4">
+
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-cart-plus"></i>
+
+Nouvel achat
+
+</h2>
+
+<p class="text-muted">
+
+Enregistrer un nouvel approvisionnement
+
+</p>
+
+</div>
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+<!-- =========================================
+     FORMULAIRE
+========================================= -->
+
+<div class="row justify-content-center">
+
+<div class="col-xl-10 col-lg-11">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-success text-white">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-cart-shopping"></i>
+
+Informations de l'achat
+
+</h5>
+
+</div>
+
+
+<div class="card-body">
+
+<form id="achatForm">
+
+
+<!-- =====================================
+     REFERENCE ET DATE
+===================================== -->
+
+<div class="alert alert-success">
+
+<i class="fa-solid fa-circle-info"></i>
+
+<strong>Référence :</strong>
+
+<span id="referenceAchatPreview">
+
+Génération automatique
+
+</span>
+
+</div>
+
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="date"
+class="form-label">
+
+Date de l'achat *
+
+</label>
+
+<input
+type="date"
+id="date"
+class="form-control"
+required>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label
+for="statut"
+class="form-label">
+
+Statut
+
+</label>
+
+<select
+id="statut"
+class="form-select">
+
+<option value="Validé">
+
+Validé
+
+</option>
+
+<option value="Brouillon">
+
+Brouillon
+
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     FOURNISSEUR
+===================================== -->
+
+<div class="card mb-4">
+
+<div class="card-body">
+
+<h5 class="mb-3">
+
+<i class="fa-solid fa-truck-field"></i>
+
+Fournisseur
+
+</h5>
+
+
+<div class="row">
+
+<div class="col-md-8">
+
+<label
+for="fournisseurId"
+class="form-label">
+
+Sélectionner le fournisseur *
+
+</label>
+
+<select
+id="fournisseurId"
+class="form-select"
+required>
+
+<option value="">
+
+Chargement des fournisseurs...
+
+</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-4 d-flex align-items-end">
+
+<a
+href="../fournisseurs/nouveau.html"
+class="btn btn-outline-success w-100">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouveau fournisseur
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     PRODUIT
+===================================== -->
+
+<div class="card mb-4">
+
+<div class="card-body">
+
+<h5 class="mb-3">
+
+<i class="fa-solid fa-box"></i>
+
+Produit
+
+</h5>
+
+
+<div class="row">
+
+<div class="col-md-8">
+
+<label
+for="produitId"
+class="form-label">
+
+Sélectionner le produit *
+
+</label>
+
+<select
+id="produitId"
+class="form-select"
+required>
+
+<option value="">
+
+Chargement des produits...
+
+</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-4">
+
+<label
+class="form-label">
+
+Stock actuel
+
+</label>
+
+<div
+id="stockActuel"
+class="form-control">
+
+-
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     QUANTITE ET PRIX
+===================================== -->
+
+<div class="card mb-4">
+
+<div class="card-body">
+
+<h5 class="mb-3">
+
+<i class="fa-solid fa-calculator"></i>
+
+Détails de l'achat
+
+</h5>
+
+
+<div class="row">
+
+<div class="col-md-4 mb-3">
+
+<label
+for="quantite"
+class="form-label">
+
+Quantité *
+
+</label>
+
+<input
+type="number"
+id="quantite"
+class="form-control"
+min="0.001"
+step="0.001"
+placeholder="0"
+required>
+
+</div>
+
+
+<div class="col-md-4 mb-3">
+
+<label
+for="prixUnitaire"
+class="form-label">
+
+Prix unitaire *
+
+</label>
+
+<div class="input-group">
+
+<input
+type="number"
+id="prixUnitaire"
+class="form-control"
+min="0"
+step="0.01"
+placeholder="0"
+required>
+
+<span class="input-group-text">
+
+FC
+
+</span>
+
+</div>
+
+</div>
+
+
+<div class="col-md-4 mb-3">
+
+<label
+class="form-label">
+
+Montant total
+
+</label>
+
+<div
+id="montantTotal"
+class="form-control montant">
+
+0 FC
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================
+     NOTES
+===================================== -->
+
+<div class="mb-4">
+
+<label
+for="notes"
+class="form-label">
+
+Notes
+
+</label>
+
+<textarea
+id="notes"
+class="form-control"
+rows="4"
+placeholder="Informations complémentaires sur cet achat..."></textarea>
+
+</div>
+
+
+<!-- =====================================
+     AVERTISSEMENT STOCK
+===================================== -->
+
+<div class="alert alert-info">
+
+<i class="fa-solid fa-boxes-stacked"></i>
+
+<strong>Mise à jour automatique du stock :</strong>
+
+Lorsque l'achat est enregistré avec le statut
+<strong>Validé</strong>, la quantité achetée sera
+automatiquement ajoutée au stock du produit.
+
+</div>
+
+
+<!-- =====================================
+     ACTIONS
+===================================== -->
+
+<div class="d-flex justify-content-end gap-2">
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-xmark"></i>
+
+Annuler
+
+</a>
+
+<button
+type="submit"
+class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer l'achat
+
+</button>
+
+</div>
+
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
+<div class="text-center mt-5 text-muted">
+
+<small>
+
+Ferme Asher ERP — Gestion des achats
+
+</small>
+
+</div>
+
+</div>
+
+
+<script src="../../js/achats.js"></script>
+
+<script>
+
+initialiserFormulaireAchat();
+
+</script>
+
+</body>
+
+</html>
