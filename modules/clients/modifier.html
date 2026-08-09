@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Modifier Client | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/clients.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+<div class="card shadow-lg">
+
+<div class="card-header bg-warning">
+
+<h3>
+
+<i class="fa-solid fa-user-pen"></i>
+
+Modifier le client
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<form id="editClientForm">
+
+<input
+type="hidden"
+id="clientId">
+
+<div class="alert alert-success">
+
+<i class="fa-solid fa-id-card"></i>
+
+<strong>Numéro client :</strong>
+
+<span id="numeroClient"></span>
+
+</div>
+
+<div class="row">
+
+  <div class="col-md-6 mb-3">
+
+<label
+for="nom"
+class="form-label">
+
+Nom complet *
+
+</label>
+
+<input
+type="text"
+id="nom"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label
+for="telephone"
+class="form-label">
+
+Numéro de téléphone *
+
+</label>
+
+<input
+type="tel"
+id="telephone"
+class="form-control"
+required>
+
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="adresse"
+class="form-label">
+
+Adresse
+
+</label>
+
+<input
+type="text"
+id="adresse"
+class="form-control">
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label
+for="email"
+class="form-label">
+
+Email
+
+</label>
+
+<input
+type="email"
+id="email"
+class="form-control">
+
+</div>
+
+</div>
+
+  <div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label
+for="statut"
+class="form-label">
+
+Statut du compte
+
+</label>
+
+<select
+id="statut"
+class="form-select">
+
+<option value="Actif">
+
+Actif
+
+</option>
+
+<option value="Inactif">
+
+Inactif
+
+</option>
+
+</select>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label
+for="source"
+class="form-label">
+
+Origine de l'inscription
+
+</label>
+
+<select
+id="source"
+class="form-select">
+
+<option value="ERP">
+
+ERP
+
+</option>
+
+<option value="Mobile">
+
+Application mobile
+
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="mb-3">
+
+<label
+for="notes"
+class="form-label">
+
+Notes
+
+</label>
+
+<textarea
+id="notes"
+class="form-control"
+rows="4"></textarea>
+
+</div>
+
+  <div class="card mb-4">
+
+<div class="card-body">
+
+<h5>
+
+<i class="fa-solid fa-chart-line"></i>
+
+Informations commerciales
+
+</h5>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<strong>Commandes</strong>
+
+<div id="nombreCommandes">
+
+0
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<strong>Total achats</strong>
+
+<div id="totalAchats">
+
+0 FC
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<strong>Inscription</strong>
+
+<div id="dateInscription">
+
+-
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="text-end">
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+<button
+type="submit"
+class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+  <script src="../../js/clients.js"></script>
+
+<script>
+
+chargerClientModification();
+
+</script>
+
+</body>
+
+</html>
