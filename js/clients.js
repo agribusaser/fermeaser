@@ -505,29 +505,84 @@ SUPPRIMER CLIENT
 
 function supprimerClient(id){
 
-    const confirmation =
-        confirm(
-            "Voulez-vous vraiment supprimer ce client ?"
-        );
-
-    if(!confirmation) return;
-
-    let clients =
+    const clients =
         JSON.parse(
             localStorage.getItem("clients")
         ) || [];
 
-    clients =
-        clients.filter(
-            client => client.id !== id
+    const client =
+        clients.find(
+            c => c.id === id
         );
 
+    if(!client){
+
+        alert("Client introuvable.");
+
+        return;
+
+    }
+
+
+    /*
+    ================================================
+    PROTECTION CONTRE LA SUPPRESSION
+    D'UN CLIENT AYANT DES COMMANDES
+    ================================================
+    */
+
+    if(
+        Number(client.nombreCommandes || 0) > 0
+    ){
+
+        alert(
+            "Ce client possède des commandes. " +
+            "Il ne peut pas être supprimé."
+        );
+
+        return;
+
+    }
+
+
+    const confirmation =
+        confirm(
+
+            "Voulez-vous vraiment supprimer " +
+            client.nom +
+            " (" +
+            client.numeroClient +
+            ") ?"
+
+        );
+
+    if(!confirmation) return;
+
+
+    const nouveauxClients =
+        clients.filter(
+            c => c.id !== id
+        );
+
+
     localStorage.setItem(
+
         "clients",
-        JSON.stringify(clients)
+
+        JSON.stringify(
+            nouveauxClients
+        )
+
     );
 
-    chargerClients();
+
+    alert(
+        "Client supprimé avec succès."
+    );
+
+
+    window.location.href =
+        "index.html";
 
 }
 
