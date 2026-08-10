@@ -135,12 +135,10 @@ function genererReferenceAchat() {
 /*====================================================
  AFFICHER STATISTIQUES
 ====================================================*/
-
 function afficherStatistiquesAchats(
     achats
 ) {
 
-    // Seuls les achats validés sont pris en compte
     const achatsValides =
         achats.filter(
             achat =>
@@ -148,11 +146,9 @@ function afficherStatistiquesAchats(
                 "Validé"
         );
 
-    // Nombre d'achats validés
     const totalAchats =
         achatsValides.length;
 
-    // Montant total des achats validés
     const montantTotal =
         achatsValides.reduce(
             (total, achat) =>
@@ -163,7 +159,6 @@ function afficherStatistiquesAchats(
             0
         );
 
-    // Achats du mois en cours
     const maintenant =
         new Date();
 
@@ -196,7 +191,6 @@ function afficherStatistiquesAchats(
             }
         ).length;
 
-    // Quantité totale achetée
     const quantiteAchetee =
         achatsValides.reduce(
             (total, achat) =>
@@ -207,7 +201,6 @@ function afficherStatistiquesAchats(
             0
         );
 
-    // Affichage nombre d'achats
     const elementTotal =
         document.getElementById(
             "totalAchats"
@@ -222,7 +215,6 @@ function afficherStatistiquesAchats(
 
     }
 
-    // Affichage montant total
     const elementMontant =
         document.getElementById(
             "montantTotalAchats"
@@ -237,7 +229,6 @@ function afficherStatistiquesAchats(
 
     }
 
-    // Affichage achats du mois
     const elementMois =
         document.getElementById(
             "achatsMois"
@@ -252,7 +243,6 @@ function afficherStatistiquesAchats(
 
     }
 
-    // Affichage quantité achetée
     const elementQuantite =
         document.getElementById(
             "quantiteAchetee"
@@ -268,7 +258,6 @@ function afficherStatistiquesAchats(
     }
 
 }
-
 /*====================================================
  ANNULER L'IMPACT STOCK D'UN ACHAT
 ====================================================*/
