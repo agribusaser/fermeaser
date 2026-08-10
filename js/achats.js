@@ -136,6 +136,139 @@ function genererReferenceAchat() {
  AFFICHER STATISTIQUES
 ====================================================*/
 
+function afficherStatistiquesAchats(
+    achats
+) {
+
+    // Seuls les achats validés sont pris en compte
+    const achatsValides =
+        achats.filter(
+            achat =>
+                (achat.statut || "Validé") ===
+                "Validé"
+        );
+
+    // Nombre d'achats validés
+    const totalAchats =
+        achatsValides.length;
+
+    // Montant total des achats validés
+    const montantTotal =
+        achatsValides.reduce(
+            (total, achat) =>
+                total +
+                Number(
+                    achat.montant || 0
+                ),
+            0
+        );
+
+    // Achats du mois en cours
+    const maintenant =
+        new Date();
+
+    const moisActuel =
+        maintenant.getMonth();
+
+    const anneeActuelle =
+        maintenant.getFullYear();
+
+    const achatsMois =
+        achatsValides.filter(
+            achat => {
+
+                if (!achat.date) {
+                    return false;
+                }
+
+                const dateAchat =
+                    new Date(
+                        achat.date
+                    );
+
+                return (
+                    dateAchat.getMonth() ===
+                        moisActuel &&
+                    dateAchat.getFullYear() ===
+                        anneeActuelle
+                );
+
+            }
+        ).length;
+
+    // Quantité totale achetée
+    const quantiteAchetee =
+        achatsValides.reduce(
+            (total, achat) =>
+                total +
+                Number(
+                    achat.quantite || 0
+                ),
+            0
+        );
+
+    // Affichage nombre d'achats
+    const elementTotal =
+        document.getElementById(
+            "totalAchats"
+        );
+
+    if (elementTotal) {
+
+        elementTotal.textContent =
+            totalAchats.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+    // Affichage montant total
+    const elementMontant =
+        document.getElementById(
+            "montantTotalAchats"
+        );
+
+    if (elementMontant) {
+
+        elementMontant.textContent =
+            montantTotal.toLocaleString(
+                "fr-FR"
+            ) + " FC";
+
+    }
+
+    // Affichage achats du mois
+    const elementMois =
+        document.getElementById(
+            "achatsMois"
+        );
+
+    if (elementMois) {
+
+        elementMois.textContent =
+            achatsMois.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+    // Affichage quantité achetée
+    const elementQuantite =
+        document.getElementById(
+            "quantiteAchetee"
+        );
+
+    if (elementQuantite) {
+
+        elementQuantite.textContent =
+            quantiteAchetee.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+}
+
 /*====================================================
  ANNULER L'IMPACT STOCK D'UN ACHAT
 ====================================================*/
