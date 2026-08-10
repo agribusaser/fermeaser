@@ -1512,7 +1512,53 @@ function creerAchat(donnees) {
 
     }
 
+/*================================================
+ENREGISTRER MOUVEMENT DE STOCK
+================================================*/
 
+const mouvementsStock =
+    JSON.parse(
+        localStorage.getItem("mouvementsStock")
+    ) || [];
+
+mouvementsStock.push({
+
+    id: Date.now(),
+
+    date: achat.date,
+
+    produitId: produit.id,
+
+    produit: produit.nom,
+
+    type: "Entrée",
+
+    nature: "Achat",
+
+    quantite: quantite,
+
+    prix: prixUnitaire,
+
+    montant: montant,
+
+    reference: achat.reference,
+
+    observation:
+        "Entrée en stock suite à l'achat " +
+        achat.reference,
+
+    utilisateur:
+        achat.utilisateur || "Administrateur"
+
+});
+
+localStorage.setItem(
+    "mouvementsStock",
+    JSON.stringify(
+        mouvementsStock
+    )
+);
+ 
     /*================================================
     MISE A JOUR DU FOURNISSEUR
     UNIQUEMENT SI ACHAT VALIDE
