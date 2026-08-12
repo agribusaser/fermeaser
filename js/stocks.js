@@ -946,6 +946,70 @@ function chargerHistorique(){
 }
 
 /*==================================================
+STATISTIQUES MENSUELLES
+==================================================*/
+
+function chargerStatistiquesMensuelles(){
+
+    const entreesElement =
+        document.getElementById("entreesMois");
+
+    const sortiesElement =
+        document.getElementById("sortiesMois");
+
+    if(!entreesElement || !sortiesElement) return;
+
+    const mouvements =
+        JSON.parse(
+            localStorage.getItem("mouvementsStock")
+        ) || [];
+
+    const maintenant = new Date();
+
+    const moisActuel =
+        maintenant.getMonth();
+
+    const anneeActuelle =
+        maintenant.getFullYear();
+
+    let totalEntrees = 0;
+    let totalSorties = 0;
+
+    mouvements.forEach(m => {
+
+        if(!m.date) return;
+
+        const date = new Date(m.date);
+
+        if(
+            date.getMonth() !== moisActuel ||
+            date.getFullYear() !== anneeActuelle
+        ){
+            return;
+        }
+
+        const quantite =
+            Number(m.quantite) || 0;
+
+        if(m.type === "Entrée"){
+            totalEntrees += quantite;
+        }
+
+        if(m.type === "Sortie"){
+            totalSorties += quantite;
+        }
+
+    });
+
+    entreesElement.textContent =
+        totalEntrees;
+
+    sortiesElement.textContent =
+        totalSorties;
+
+}
+
+/*==================================================
 FILTRES HISTORIQUE
 ==================================================*/
 
