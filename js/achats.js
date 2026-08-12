@@ -1158,55 +1158,6 @@ function annulerAchat(id) {
 
 }
 
-
-/*====================================================
- RETIRER STOCK APRES ANNULATION
-====================================================*/
-
-function retirerStockApresAnnulation(
-    achat
-) {
-
-    const produits =
-        JSON.parse(
-            localStorage.getItem(
-                "produits"
-            )
-        ) || [];
-
-
-    const index =
-        produits.findIndex(
-            produit =>
-            produit.id ===
-            achat.produitId
-        );
-
-
-    if (index === -1) {
-
-        console.warn(
-            "Produit introuvable pour " +
-            "l'annulation de l'achat."
-        );
-
-        return;
-
-    }
-
-
-    const quantite =
-        Number(
-            achat.quantite || 0
-        );
-
-
-    const stockActuel =
-        Number(
-            produits[index].stock || 0
-        );
-
-
     /*================================================
     PROTECTION
     ================================================
