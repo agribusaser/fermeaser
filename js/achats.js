@@ -1130,8 +1130,8 @@ function annulerAchat(id) {
     );
 
 
-    /*
-    ================================================
+   
+    /*================================================
     STATUT
     ================================================
     */
@@ -1163,7 +1163,27 @@ function annulerAchat(id) {
 ====================================================*/
 
 function retirerStockApresAnnulation(achat) {
+ 
+    const produits = JSON.parse(
+        localStorage.getItem("produits")
+    ) || [];
 
+    const index = produits.findIndex(
+        produit =>
+            produit.id === achat.productId
+    );
+
+    if (index === -1) {
+        alert("Produit introuvable.");
+        return;
+    }
+
+    const stockActuel =
+        Number(produits[index].stock) || 0;
+
+    const quantite =
+        Number(achat.quantite) || 0;
+ 
     /*================================================
     PROTECTION
     ================================================
@@ -1211,12 +1231,6 @@ function retirerStockApresAnnulation(achat) {
     );
 
 }
-
-
-/*
-/*====================================================
- CREER ACHAT
-====================================================*/
 
 /*====================================================
  CREER ACHAT
