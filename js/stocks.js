@@ -894,71 +894,54 @@ HISTORIQUE
 
 function chargerHistorique(){
 
-const table=
+    const table =
+        document.getElementById("historiqueTable") ||
+        document.getElementById("historiqueMouvements");
 
-document.getElementById(
+    if(!table) return;
 
-"historiqueMouvements"
+    const mouvements =
+        JSON.parse(
+            localStorage.getItem("mouvementsStock")
+        ) || [];
 
-);
+    table.innerHTML = "";
 
-if(!table) return;
+    const derniersMouvements =
+        mouvements
+        .slice()
+        .sort((a, b) => {
+            return Number(b.id || 0) - Number(a.id || 0);
+        })
+        .slice(0, 5);
 
-const mouvements=
+    derniersMouvements.forEach(m => {
 
-JSON.parse(
+        table.innerHTML += `
+            <tr>
 
-localStorage.getItem(
+                <td>${m.date || ""}</td>
 
-"mouvementsStock"
+                <td>${m.produit || ""}</td>
 
-)
+                <td>
+                    <span class="badge ${
+                        m.type === "Entrée"
+                        ? "bg-success"
+                        : "bg-danger"
+                    }">
+                        ${m.type || ""}
+                    </span>
+                </td>
 
-)||[];
+                <td>${m.quantite || 0}</td>
 
-table.innerHTML="";
+                <td>${m.utilisateur || ""}</td>
 
-let entrees=0;
+            </tr>
+        `;
 
-let sorties=0;
-
-mouvements.forEach(m=>{
-
-if(m.type==="Entrée") entrees++;
-
-if(m.type==="Sortie") sorties++;
-
-table.innerHTML+=`
-
-<tr>
-
-<td>${m.date}</td>
-
-<td>${m.produit}</td>
-
-<td>${m.type}</td>
-
-<td>${m.nature}</td>
-
-<td>${m.quantite}</td>
-
-<td>${Number(m.prix).toLocaleString()} FC</td>
-
-<td>${Number(m.montant).toLocaleString()} FC</td>
-
-<td>${m.utilisateur}</td>
-
-</tr>
-
-`;
-
-});
-
-document.getElementById("nbMouvements").textContent=mouvements.length;
-
-document.getElementById("totalEntrees").textContent=entrees;
-
-document.getElementById("totalSorties").textContent=sorties;
+    });
 
 }
 
