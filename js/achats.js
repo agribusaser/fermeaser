@@ -2391,3 +2391,1064 @@ window.enregistrerNouvelAchat =
 console.log(
     "Formulaire nouvel achat prêt."
 );
+
+/*====================================================
+ MODIFICATION D'UN ACHAT
+====================================================*/
+
+function initialiserFormulaireModificationAchat() {
+
+    const formulaire =
+        document.getElementById("achatForm");
+
+    if (!formulaire) return;
+
+
+    /*================================================
+      RECUPERER ID
+    =================================================*/
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const id =
+        Number(
+            params.get("id")
+        );
+
+
+    if (!id) {
+
+        alert(
+            "Identifiant de l'achat invalide."
+        );
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*================================================
+      RECUPERER ACHAT
+    =================================================*/
+
+    const achats =
+        obtenirAchats();
+
+    const achat =
+        achats.find(
+            a =>
+                Number(a.id) === id
+        );
+
+
+    if (!achat) {
+
+        alert(
+            "Achat introuvable."
+        );
+
+        window.location.href =
+            "index.html";
+
+        return;
+
+    }
+
+
+    /*================================================
+      REFERENCE
+    =================================================*/
+
+    const reference =
+        document.getElementById(
+            "referenceAchatPreview"
+        );
+
+    if (reference) {
+
+        reference.textContent =
+            achat.reference || "-";
+
+    }
+
+
+    /*================================================
+      DATE
+    =================================================*/
+
+    const date =
+        document.getElementById("date");
+
+    if (date) {
+
+        date.value =
+            achat.date || "";
+
+    }
+
+
+    /*================================================
+      STATUT
+    =================================================*/
+
+    const statut =
+        document.getElementById("statut");
+
+    if (statut) {
+
+        statut.value =
+            achat.statut || "Validé";
+
+    }
+
+
+    /*================================================
+      FOURNISSEURS
+    =================================================*/
+
+    chargerFournisseursAchat();
+
+    const fournisseur =
+        document.getElementById(
+            "fournisseurId"
+        );
+
+    if (fournisseur) {
+
+        fournisseur.value =
+            String(
+                achat.fournisseurId
+            );
+
+    }
+
+
+    /*================================================
+      PRODUITS
+    =================================================*/
+
+    chargerProduitsAchat();
+
+    const produit =
+        document.getElementById(
+            "produitId"
+        );
+
+    if (produit) {
+
+        produit.value =
+            String(
+                achat.produitId
+            );
+
+    }
+
+
+    /*================================================
+      STOCK
+    =================================================*/
+
+    afficherStockProduitAchat();
+
+
+    /*================================================
+      QUANTITE
+    =================================================*/
+
+    const quantite =
+        document.getElementById(
+            "quantite"
+        );
+
+    if (quantite) {
+
+        quantite.value =
+            achat.quantite || "";
+
+    }
+
+
+    /*================================================
+      PRIX
+    =================================================*/
+
+    const prix =
+        document.getElementById(
+            "prixUnitaire"
+        );
+
+    if (prix) {
+
+        prix.value =
+            achat.prixUnitaire || "";
+
+    }
+
+
+    /*================================================
+      NOTES
+    =================================================*/
+
+    const notes =
+        document.getElementById(
+            "notes"
+        );
+
+    if (notes) {
+
+        notes.value =
+            achat.notes || "";
+
+    }
+
+
+    /*================================================
+      CALCUL INITIAL
+    =================================================*/
+
+    calculerMontantAchat();
+
+
+    /*================================================
+      EVENEMENTS
+    =================================================*/
+
+    if (quantite) {
+
+        quantite.addEventListener(
+            "input",
+            calculerMontantAchat
+        );
+
+    }
+
+
+    if (prix) {
+
+        prix.addEventListener(
+            "input",
+            calculerMontantAchat
+        );
+
+    }
+
+
+    if (produit) {
+
+        produit.addEventListener(
+            "change",
+            afficherStockProduitAchat
+        );
+
+    }
+
+
+    /*================================================
+      ENREGISTREMENT
+    =================================================*/
+
+    formulaire.addEventListener(
+        "submit",
+        function (e) {
+
+            e.preventDefault();
+
+            modifierAchatEnregistre(id);
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ ENREGISTRER MODIFICATION
+====================================================*/
+
+function modifierAchatEnregistre(id) {
+
+    const achats =
+        obtenirAchats();
+
+
+    const index =
+        achats.findIndex(
+            a =>
+                Number(a.id) ===
+                Number(id)
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Achat introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const ancienAchat =
+        achats[index];
+
+
+    /*================================================
+      RECUPERATION
+    =================================================*/
+
+    const date =
+        document.getElementById(
+            "date"
+        ).value;
+
+
+    const fournisseurId =
+        document.getElementById(
+            "fournisseurId"
+        ).value;
+
+
+    const produitId =
+        document.getElementById(
+            "produitId"
+        ).value;
+
+
+    const quantite =
+        Number(
+            document.getElementById(
+                "quantite"
+            ).value
+        );
+
+
+    const prixUnitaire =
+        Number(
+            document.getElementById(
+                "prixUnitaire"
+            ).value
+        );
+
+
+    const statut =
+        document.getElementById(
+            "statut"
+        ).value;
+
+
+    const notes =
+        document.getElementById(
+            "notes"
+        ).value.trim();
+
+
+    /*================================================
+      VALIDATION
+    =================================================*/
+
+    if (!date) {
+
+        alert(
+            "Veuillez sélectionner la date."
+        );
+
+        return;
+
+    }
+
+
+    if (!fournisseurId) {
+
+        alert(
+            "Veuillez sélectionner un fournisseur."
+        );
+
+        return;
+
+    }
+
+
+    if (!produitId) {
+
+        alert(
+            "Veuillez sélectionner un produit."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(quantite) ||
+        quantite <= 0
+    ) {
+
+        alert(
+            "La quantité doit être supérieure à zéro."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(prixUnitaire) ||
+        prixUnitaire < 0
+    ) {
+
+        alert(
+            "Le prix unitaire est invalide."
+        );
+
+        return;
+
+    }
+
+
+    /*================================================
+      DONNEES
+    =================================================*/
+
+    const fournisseurs =
+        JSON.parse(
+            localStorage.getItem(
+                "fournisseurs"
+            )
+        ) || [];
+
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem(
+                "produits"
+            )
+        ) || [];
+
+
+    const nouveauFournisseur =
+        fournisseurs.find(
+            f =>
+                Number(f.id) ===
+                Number(fournisseurId)
+        );
+
+
+    const nouveauProduit =
+        produits.find(
+            p =>
+                Number(p.id) ===
+                Number(produitId)
+        );
+
+
+    if (!nouveauFournisseur) {
+
+        alert(
+            "Fournisseur introuvable."
+        );
+
+        return;
+
+    }
+
+
+    if (!nouveauProduit) {
+
+        alert(
+            "Produit introuvable."
+        );
+
+        return;
+
+    }
+
+
+    /*================================================
+      CONFIRMATION
+    =================================================*/
+
+    const confirmation =
+        confirm(
+
+            "Voulez-vous enregistrer les modifications de " +
+            ancienAchat.reference +
+            " ?\n\n" +
+
+            "Ancienne quantité : " +
+            ancienAchat.quantite +
+            "\n" +
+
+            "Nouvelle quantité : " +
+            quantite
+
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+    /*================================================
+      IMPACT STOCK
+    =================================================*/
+
+    const ancienValide =
+        (ancienAchat.statut || "Validé")
+        === "Validé";
+
+
+    const nouveauValide =
+        statut === "Validé";
+
+
+    const ancienProduitIndex =
+        produits.findIndex(
+            p =>
+                Number(p.id) ===
+                Number(ancienAchat.produitId)
+        );
+
+
+    const nouveauProduitIndex =
+        produits.findIndex(
+            p =>
+                Number(p.id) ===
+                Number(produitId)
+        );
+
+
+    /*================================================
+      CAS 1 :
+      ANCIEN VALIDÉ + MÊME PRODUIT
+    =================================================*/
+
+    if (
+        ancienValide &&
+        nouveauValide &&
+        Number(ancienAchat.produitId) ===
+        Number(produitId)
+    ) {
+
+        const difference =
+            quantite -
+            Number(
+                ancienAchat.quantite || 0
+            );
+
+
+        if (
+            nouveauProduitIndex !== -1
+        ) {
+
+            const stockActuel =
+                Number(
+                    produits[
+                        nouveauProduitIndex
+                    ].stock || 0
+                );
+
+
+            if (
+                difference < 0 &&
+                stockActuel <
+                Math.abs(difference)
+            ) {
+
+                alert(
+
+                    "Modification impossible.\n\n" +
+
+                    "Le stock actuel est insuffisant " +
+                    "pour diminuer cet achat."
+
+                );
+
+                return;
+
+            }
+
+
+            produits[
+                nouveauProduitIndex
+            ].stock =
+                stockActuel +
+                difference;
+
+        }
+
+    }
+
+
+    /*================================================
+      CAS 2 :
+      ANCIEN VALIDÉ + NOUVEAU PRODUIT
+    =================================================*/
+
+    if (
+        ancienValide &&
+        nouveauValide &&
+        Number(ancienAchat.produitId) !==
+        Number(produitId)
+    ) {
+
+        /* Retirer ancien stock */
+
+        if (
+            ancienProduitIndex !== -1
+        ) {
+
+            const ancienStock =
+                Number(
+                    produits[
+                        ancienProduitIndex
+                    ].stock || 0
+                );
+
+
+            if (
+                ancienStock <
+                Number(
+                    ancienAchat.quantite || 0
+                )
+            ) {
+
+                alert(
+
+                    "Modification impossible.\n\n" +
+
+                    "Le stock actuel du produit " +
+                    "d'origine est insuffisant " +
+                    "pour retirer cette ancienne quantité."
+
+                );
+
+                return;
+
+            }
+
+
+            produits[
+                ancienProduitIndex
+            ].stock =
+                ancienStock -
+                Number(
+                    ancienAchat.quantite || 0
+                );
+
+        }
+
+
+        /* Ajouter nouveau stock */
+
+        if (
+            nouveauProduitIndex !== -1
+        ) {
+
+            const nouveauStock =
+                Number(
+                    produits[
+                        nouveauProduitIndex
+                    ].stock || 0
+                );
+
+
+            produits[
+                nouveauProduitIndex
+            ].stock =
+                nouveauStock +
+                quantite;
+
+        }
+
+    }
+
+
+    /*================================================
+      CAS 3 :
+      ANCIEN BROUILLON -> VALIDÉ
+    =================================================*/
+
+    if (
+        !ancienValide &&
+        nouveauValide
+    ) {
+
+        if (
+            nouveauProduitIndex !== -1
+        ) {
+
+            const stockActuel =
+                Number(
+                    produits[
+                        nouveauProduitIndex
+                    ].stock || 0
+                );
+
+
+            produits[
+                nouveauProduitIndex
+            ].stock =
+                stockActuel +
+                quantite;
+
+        }
+
+    }
+
+
+    /*================================================
+      CAS 4 :
+      ANCIEN VALIDÉ -> BROUILLON
+    =================================================*/
+
+    if (
+        ancienValide &&
+        !nouveauValide
+    ) {
+
+        if (
+            ancienProduitIndex !== -1
+        ) {
+
+            const stockActuel =
+                Number(
+                    produits[
+                        ancienProduitIndex
+                    ].stock || 0
+                );
+
+
+            const ancienneQuantite =
+                Number(
+                    ancienAchat.quantite || 0
+                );
+
+
+            if (
+                stockActuel <
+                ancienneQuantite
+            ) {
+
+                alert(
+
+                    "Impossible de passer cet achat en brouillon.\n\n" +
+
+                    "Le stock actuel est inférieur " +
+                    "à la quantité de cet achat."
+
+                );
+
+                return;
+
+            }
+
+
+            produits[
+                ancienProduitIndex
+            ].stock =
+                stockActuel -
+                ancienneQuantite;
+
+        }
+
+    }
+
+
+    /*================================================
+      SAUVEGARDER PRODUITS
+    =================================================*/
+
+    localStorage.setItem(
+        "produits",
+        JSON.stringify(
+            produits
+        )
+    );
+
+
+    /*================================================
+      NOUVELLES DONNEES ACHAT
+    =================================================*/
+
+    const montant =
+        quantite *
+        prixUnitaire;
+
+
+    ancienAchat.date =
+        date;
+
+
+    ancienAchat.fournisseurId =
+        nouveauFournisseur.id;
+
+
+    ancienAchat.fournisseurNom =
+        nouveauFournisseur.nom;
+
+
+    ancienAchat.produitId =
+        nouveauProduit.id;
+
+
+    ancienAchat.produitNom =
+        nouveauProduit.nom;
+
+
+    ancienAchat.quantite =
+        quantite;
+
+
+    ancienAchat.prixUnitaire =
+        prixUnitaire;
+
+
+    ancienAchat.montant =
+        montant;
+
+
+    ancienAchat.statut =
+        statut;
+
+
+    ancienAchat.notes =
+        notes;
+
+
+    ancienAchat.dateModification =
+        new Date().toISOString();
+
+
+    /*================================================
+      SAUVEGARDER ACHAT
+    =================================================*/
+
+    sauvegarderAchats(
+        achats
+    );
+
+
+    /*================================================
+      METTRE A JOUR LE MOUVEMENT DE STOCK
+    =================================================*/
+
+    const mouvements =
+        JSON.parse(
+            localStorage.getItem(
+                "mouvementsStock"
+            )
+        ) || [];
+
+
+    const mouvement =
+        mouvements.find(
+            m =>
+                m.reference ===
+                ancienAchat.reference
+        );
+
+
+    if (mouvement) {
+
+        if (nouveauValide) {
+
+            mouvement.date =
+                date;
+
+            mouvement.produitId =
+                nouveauProduit.id;
+
+            mouvement.produit =
+                nouveauProduit.nom;
+
+            mouvement.type =
+                "Entrée";
+
+            mouvement.nature =
+                "Achat";
+
+            mouvement.quantite =
+                quantite;
+
+            mouvement.prix =
+                prixUnitaire;
+
+            mouvement.montant =
+                montant;
+
+            mouvement.observation =
+                "Entrée en stock suite à l'achat " +
+                ancienAchat.reference;
+
+        }
+        else {
+
+            mouvement.type =
+                "Aucun";
+
+            mouvement.nature =
+                "Brouillon";
+
+            mouvement.quantite =
+                0;
+
+            mouvement.montant =
+                0;
+
+            mouvement.observation =
+                "Achat en brouillon : " +
+                ancienAchat.reference;
+
+        }
+
+    }
+
+
+    localStorage.setItem(
+        "mouvementsStock",
+        JSON.stringify(
+            mouvements
+        )
+    );
+
+
+    /*================================================
+      FOURNISSEURS
+    =================================================*/
+
+    /*
+      Pour éviter de doubler les statistiques
+      du fournisseur, on recalcule les statistiques
+      à partir des achats validés.
+    */
+
+    fournisseurs.forEach(
+        fournisseur => {
+
+            fournisseur.nombreAchats = 0;
+
+            fournisseur.totalAchats = 0;
+
+            fournisseur.derniereCommande = null;
+
+        }
+    );
+
+
+    achats.forEach(
+        achat => {
+
+            if (
+                (achat.statut || "Validé")
+                !== "Validé"
+            ) {
+
+                return;
+
+            }
+
+
+            const fournisseur =
+                fournisseurs.find(
+                    f =>
+                        Number(f.id) ===
+                        Number(
+                            achat.fournisseurId
+                        )
+                );
+
+
+            if (!fournisseur) {
+
+                return;
+
+            }
+
+
+            fournisseur.nombreAchats =
+                Number(
+                    fournisseur.nombreAchats || 0
+                ) + 1;
+
+
+            fournisseur.totalAchats =
+                Number(
+                    fournisseur.totalAchats || 0
+                ) +
+                Number(
+                    achat.montant || 0
+                );
+
+
+            fournisseur.derniereCommande =
+                achat.date;
+
+        }
+    );
+
+
+    localStorage.setItem(
+        "fournisseurs",
+        JSON.stringify(
+            fournisseurs
+        )
+    );
+
+
+    /*================================================
+      CONFIRMATION
+    =================================================*/
+
+    alert(
+
+        "Achat modifié avec succès.\n\n" +
+
+        "Référence : " +
+        ancienAchat.reference +
+        "\n" +
+
+        "Nouvelle quantité : " +
+        quantite +
+        "\n" +
+
+        "Nouveau montant : " +
+        montant.toLocaleString(
+            "fr-FR"
+        ) +
+        " FC"
+
+    );
+
+
+    /*================================================
+      RETOUR
+    =================================================*/
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/*====================================================
+ EXPORT
+====================================================*/
+
+window.initialiserFormulaireModificationAchat =
+    initialiserFormulaireModificationAchat;
+
+window.modifierAchatEnregistre =
+    modifierAchatEnregistre;
