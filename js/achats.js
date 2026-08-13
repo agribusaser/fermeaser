@@ -1122,19 +1122,17 @@ function annulerAchat(id) {
     /*
     ================================================
     RETIRER LA QUANTITE DU STOCK
-    ================================================
-    */
+    ================================================*/
 
-    retirerStockApresAnnulation(
-        achat
-    );
+    const stockAnnule = retirarStockApresAnnulation(achat);
 
-
+if (!stockAnnule) {
+    return;
+}
    
     /*================================================
     STATUT
-    ================================================
-    */
+    ================================================*/
 
     achats[index].statut =
         "Annulé";
@@ -1161,76 +1159,6 @@ function annulerAchat(id) {
 /*====================================================
     RETIRER STOCK APRES ANNULATION
 ====================================================*/
-
-function retirerStockApresAnnulation(achat) {
- 
-    const produits = JSON.parse(
-        localStorage.getItem("produits")
-    ) || [];
-
-    const index = produits.findIndex(
-        produit =>
-            produit.id === achat.productId
-    );
-
-    if (index === -1) {
-        alert("Produit introuvable.");
-        return;
-    }
-
-    const stockActuel =
-        Number(produits[index].stock) || 0;
-
-    const quantite =
-        Number(achat.quantite) || 0;
- 
-    /*================================================
-    PROTECTION
-    ================================================
-    */
-
-    if (
-        stockActuel < quantite
-    ) {
-
-        alert(
-
-            "Attention : le stock actuel " +
-
-            "est inférieur à la quantité " +
-
-            "de cet achat.\n\n" +
-
-            "Le stock sera ramené à zéro."
-
-        );
-
-
-        produits[index].stock =
-            0;
-
-    }
-
-    else {
-
-        produits[index].stock =
-            stockActuel -
-            quantite;
-
-    }
-
-
-    localStorage.setItem(
-
-        "produits",
-
-        JSON.stringify(
-            produits
-        )
-
-    );
-
-}
 
 /*====================================================
  CREER ACHAT
