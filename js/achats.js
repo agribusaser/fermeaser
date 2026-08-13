@@ -1124,7 +1124,7 @@ function annulerAchat(id) {
     RETIRER LA QUANTITE DU STOCK
     ================================================*/
 
-    const stockAnnule = retirarStockApresAnnulation(achat);
+    const stockAnnule = retirerStockApresAnnulation(achat);
 
 if (!stockAnnule) {
     return;
