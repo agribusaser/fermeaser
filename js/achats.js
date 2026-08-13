@@ -262,13 +262,278 @@ function afficherStatistiquesAchats(
  ANNULER L'IMPACT STOCK D'UN ACHAT
 ====================================================*/
 
+/*====================================================
+ RETIRER STOCK APRES ANNULATION D'UN ACHAT
+====================================================*/
+
 function retirerStockApresAnnulation(achat) {
 
-    // Un achat brouillon n'a jamais ajouté
-    // de stock. Il ne faut donc rien retirer.
-    if (achat.statut !== "Validé") {
+    /*
+    ====================================================
+    VERIFICATION DE L'ACHAT
+    ====================================================
+    */
+
+    if (!achat) {
+
+        alert(
+            "Achat introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+    ====================================================
+    UN ACHAT NON VALIDE N'A PAS IMPACTE LE STOCK
+    ====================================================
+    */
+
+    const statut =
+        achat.statut || "Validé";
+
+
+    if (statut !== "Validé") {
 
         return true;
+
+    }
+
+
+    /*
+    ====================================================
+    CHARGER LES PRODUITS
+    ====================================================
+    */
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem("produits")
+        ) || [];
+
+
+    /*
+    ====================================================
+    RECHERCHER LE PRODUIT
+    ====================================================
+    */
+
+    const produitIndex =
+        produits.findIndex(
+            produit =>
+                Number(produit.id) ===
+                Number(achat.produitId)
+        );
+
+
+    if (produitIndex === -1) {
+
+        alert(
+
+            "Annulation impossible.\n\n" +
+
+            "Le produit associé à cet achat " +
+            "est introuvable dans le stock."
+
+        );
+
+        return false;
+
+    }
+
+
+    /*
+    ====================================================
+    QUANTITE DE L'ACHAT
+    ====================================================
+    */
+
+    const quantite =
+        Number(
+            achat.quantite || 0
+        );
+
+
+    if (
+        !Number.isFinite(quantite) ||
+        quantite <= 0
+    ) {
+
+        alert(
+
+            "Annulation impossible.\n\n" +
+
+            "La quantité de cet achat est invalide."
+
+        );
+
+        return false;
+
+    }
+
+
+    /*
+    ====================================================
+    STOCK ACTUEL
+    ====================================================
+    */
+
+    const stockActuel =
+        Number(
+            produits[produitIndex].stock || 0
+        );
+
+
+    /*
+    ====================================================
+    PROTECTION CONTRE LE STOCK NEGATIF
+    ====================================================
+    */
+
+    if (
+        stockActuel < quantite
+    ) {
+
+        alert(
+
+            "Annulation impossible.\n\n" +
+
+            "Produit : " +
+            (
+                produits[produitIndex].nom ||
+                achat.produitNom ||
+                "-"
+            ) +
+
+            "\nStock actuel : " +
+            stockActuel +
+
+            "\nQuantité de l'achat : " +
+            quantite +
+
+            "\n\n" +
+
+            "Le stock actuel ne permet pas " +
+            "d'annuler complètement cet achat."
+
+        );
+
+        return false;
+
+    }
+
+
+    /*
+    ====================================================
+    NOUVEAU STOCK
+    ====================================================
+    */
+
+    const nouveauStock =
+        stockActuel -
+        quantite;
+
+
+    /*
+    ====================================================
+    METTRE A JOUR LE STOCK
+    ====================================================
+    */
+
+    produits[produitIndex].stock =
+        nouveauStock;
+
+
+    localStorage.setItem(
+        "produits",
+        JSON.stringify(
+            produits
+        )
+    );
+
+
+    /*
+    ====================================================
+    ENREGISTRER LE MOUVEMENT DE STOCK
+    ====================================================
+    */
+
+    const mouvementsStock =
+        JSON.parse(
+            localStorage.getItem(
+                "mouvementsStock"
+            )
+        ) || [];
+
+
+    mouvementsStock.push({
+
+        id:
+            Date.now(),
+
+        date:
+            new Date().toISOString(),
+
+        produitId:
+            achat.produitId,
+
+        produit:
+            achat.produitNom ||
+            produits[produitIndex].nom ||
+            "-",
+
+        type:
+            "Sortie",
+
+        nature:
+            "Annulation achat",
+
+        quantite:
+            quantite,
+
+        prix:
+            Number(
+                achat.prixUnitaire || 0
+            ),
+
+        montant:
+            Number(
+                achat.montant || 0
+            ),
+
+        reference:
+            achat.reference,
+
+        observation:
+            "Sortie de stock suite à l'annulation de l'achat " +
+            achat.reference,
+
+        utilisateur:
+            achat.utilisateur ||
+            "Administrateur"
+
+    });
+
+
+    localStorage.setItem(
+        "mouvementsStock",
+        JSON.stringify(
+            mouvementsStock
+        )
+    );
+
+
+    /*
+    ====================================================
+    SUCCES
+    ====================================================
+    */
+
+    return true;
+
+}
 
     }
 
