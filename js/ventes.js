@@ -1927,10 +1927,16 @@ document.addEventListener(
     "DOMContentLoaded",
     function() {
 
-        console.log(
-            "Ferme Asher ERP - Module Ventes démarré"
-        );
+        chargerProduitsDansVente();
 
+        initialiserNouvelleVente();
+
+        initialiserFiltresVentes();
+
+        chargerVentes();
+
+    }
+);
 
         /*----------------------------------------
          PAGE : nouvelle.html
