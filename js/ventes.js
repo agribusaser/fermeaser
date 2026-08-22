@@ -1088,6 +1088,117 @@ function initialiserNouvelleVente() {
 }
 
 /*====================================================
+ CHARGER LES PRODUITS DANS LE FORMULAIRE DE VENTE
+====================================================*/
+
+function chargerProduitsDansVente() {
+
+    const selectProduit =
+        document.getElementById(
+            "produit"
+        );
+
+
+    if (!selectProduit) {
+
+        return;
+
+    }
+
+
+    const produits =
+        obtenirProduits();
+
+
+    /*--------------------------------------------
+     VIDER LA LISTE
+    --------------------------------------------*/
+
+    selectProduit.innerHTML =
+
+        '<option value="">Sélectionner un produit</option>';
+
+
+    /*--------------------------------------------
+     AJOUTER LES PRODUITS
+    --------------------------------------------*/
+
+    produits.forEach(
+        function(produit) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                produit.nom;
+
+
+            option.textContent =
+                produit.nom +
+                " — Stock : " +
+                (Number(produit.stock) || 0);
+
+
+            option.dataset.id =
+                produit.id;
+
+
+            option.dataset.prix =
+                produit.prix ||
+                produit.prixVente ||
+                0;
+
+
+            selectProduit.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    /*--------------------------------------------
+     CHARGER LE PRIX DU PRODUIT
+    --------------------------------------------*/
+
+    selectProduit.addEventListener(
+        "change",
+        function() {
+
+            const option =
+                selectProduit.options[
+                    selectProduit.selectedIndex
+                ];
+
+
+            const champPrix =
+                document.getElementById(
+                    "prix"
+                );
+
+
+            if (
+                champPrix &&
+                option.dataset.prix
+            ) {
+
+                champPrix.value =
+                    option.dataset.prix;
+
+            }
+
+
+            calculerTotalVente();
+
+        }
+    );
+
+}
+
+/*====================================================
  CHARGER ET AFFICHER LES VENTES
 ====================================================*/
 
