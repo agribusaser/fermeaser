@@ -3,22 +3,39 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Nouvelle Vente | Ferme Asher ERP</title>
+    <title>Nouvelle Vente | Ferme Asher ERP</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/ventes.css">
+    <!-- BOOTSTRAP -->
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- CSS DU MODULE -->
+
+    <link
+        rel="stylesheet"
+        href="../../css/ventes.css">
+
+
+    <!-- FONT AWESOME -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
+
 <body class="bg-light">
+
 
 <div class="container py-5">
 
@@ -26,297 +43,338 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <div class="col-lg-10">
 
+
+<!-- =========================================
+     CARTE PRINCIPALE
+========================================= -->
+
 <div class="card shadow-lg border-0">
 
-<div class="card-header bg-success text-white">
 
-<h3>
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
 
-<i class="fa-solid fa-cart-plus"></i>
+<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
 
-Nouvelle Vente
+    <h3 class="mb-0">
 
-</h3>
+        <i class="fa-solid fa-cart-plus"></i>
+
+        Nouvelle Vente
+
+    </h3>
+
+
+    <a
+        href="index.html"
+        class="btn btn-light">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Retour
+
+    </a>
 
 </div>
+
+
+<!-- =========================================
+     CORPS
+========================================= -->
 
 <div class="card-body">
 
+
 <form id="venteForm">
 
-<div class="row">
+
+<!-- =========================================
+     CLIENT
+========================================= -->
+
+<div class="row g-3">
+
 
 <div class="col-md-6">
 
-<label class="form-label">
+    <label
+        for="client"
+        class="form-label">
 
-Nom du client
+        Nom du client
+        <span class="text-danger">*</span>
 
-</label>
+    </label>
 
-<input
 
-type="text"
-
-class="form-control"
-
-id="client"
-
-required>
+    <input
+        type="text"
+        class="form-control"
+        id="client"
+        placeholder="Nom complet du client"
+        required>
 
 </div>
+
 
 <div class="col-md-6">
 
-<label class="form-label">
+    <label
+        for="telephone"
+        class="form-label">
 
-Téléphone
+        Téléphone
 
-</label>
+    </label>
 
-<input
 
-type="text"
-
-class="form-control"
-
-id="telephone">
+    <input
+        type="text"
+        class="form-control"
+        id="telephone"
+        placeholder="Ex : +243 000 000 000">
 
 </div>
 
 </div>
 
-<br>
 
-<div class="row">
+<!-- =========================================
+     PRODUIT / QUANTITE / PRIX
+========================================= -->
+
+<div class="row g-3 mt-2">
+
 
 <div class="col-md-6">
 
-<label class="form-label">
+    <label
+        for="produit"
+        class="form-label">
 
-Produit
+        Produit
+        <span class="text-danger">*</span>
 
-</label>
+    </label>
 
-<select
 
-class="form-select"
+    <select
+        class="form-select"
+        id="produit"
+        required>
 
-id="produit"
+        <option value="">
 
-required>
+            Sélectionner un produit
 
-<option value="">
+        </option>
 
-Sélectionner
-
-</option>
-
-<option>
-
-Œufs de caille
-
-</option>
-
-<option>
-
-Cailles
-
-</option>
-
-<option>
-
-Soja
-
-</option>
-
-<option>
-
-Farine enrichie
-
-</option>
-
-</select>
+    </select>
 
 </div>
+
 
 <div class="col-md-3">
 
-<label>
+    <label
+        for="quantite"
+        class="form-label">
 
-Quantité
+        Quantité
+        <span class="text-danger">*</span>
 
-</label>
+    </label>
 
-<input
 
-type="number"
-
-id="quantite"
-
-class="form-control"
-
-value="1">
+    <input
+        type="number"
+        id="quantite"
+        class="form-control"
+        value="1"
+        min="1"
+        required>
 
 </div>
+
 
 <div class="col-md-3">
 
-<label>
+    <label
+        for="prix"
+        class="form-label">
 
-Prix unitaire
+        Prix unitaire
 
-</label>
+    </label>
 
-<input
 
-type="number"
-
-id="prix"
-
-class="form-control">
+    <input
+        type="number"
+        id="prix"
+        class="form-control"
+        min="0"
+        required>
 
 </div>
 
 </div>
 
-<br>
 
-  <div class="row">
+<!-- =========================================
+     REMISE / PAIEMENT / DATE
+========================================= -->
+
+<div class="row g-3 mt-2">
+
 
 <div class="col-md-4">
 
-<label>
+    <label
+        for="remise"
+        class="form-label">
 
-Remise
+        Remise
 
-</label>
+    </label>
 
-<input
 
-type="number"
-
-class="form-control"
-
-id="remise"
-
-value="0">
+    <input
+        type="number"
+        class="form-control"
+        id="remise"
+        value="0"
+        min="0">
 
 </div>
+
 
 <div class="col-md-4">
 
-<label>
+    <label
+        for="paiement"
+        class="form-label">
 
-Paiement
+        Mode de paiement
 
-</label>
+    </label>
 
-<select
 
-class="form-select"
+    <select
+        class="form-select"
+        id="paiement">
 
-id="paiement">
+        <option value="Espèces">
 
-<option>
+            Espèces
 
-Espèces
+        </option>
 
-</option>
 
-<option>
+        <option value="Mobile Money">
 
-Mobile Money
+            Mobile Money
 
-</option>
+        </option>
 
-<option>
 
-Banque
+        <option value="Banque">
 
-</option>
+            Banque
 
-</select>
+        </option>
+
+    </select>
 
 </div>
+
 
 <div class="col-md-4">
 
-<label>
+    <label
+        for="date"
+        class="form-label">
 
-Date
+        Date
 
-</label>
+    </label>
 
-<input
 
-type="date"
-
-id="date"
-
-class="form-control">
-
-</div>
-
-</div>
-
-<br>
-
-<div class="alert alert-success">
-
-<h3>
-
-Total :
-
-<span id="total">
-
-0 FC
-
-</span>
-
-</h3>
+    <input
+        type="date"
+        id="date"
+        class="form-control"
+        required>
 
 </div>
 
-<div class="text-end">
+</div>
 
-<a
 
-href="index.html"
+<!-- =========================================
+     TOTAL
+========================================= -->
 
-class="btn btn-secondary">
+<div class="alert alert-success mt-4 mb-4">
 
-Retour
+    <div class="d-flex justify-content-between align-items-center">
 
-</a>
+        <strong>
+
+            TOTAL À PAYER
+
+        </strong>
+
+
+        <h3 class="mb-0">
+
+            <span id="total">
+
+                0 FC
+
+            </span>
+
+        </h3>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     BOUTONS
+========================================= -->
+
+<div class="d-flex justify-content-end gap-2">
+
 
 <button
+    type="reset"
+    class="btn btn-warning">
 
-type="reset"
+    <i class="fa-solid fa-rotate-left"></i>
 
-class="btn btn-warning">
-
-Annuler
+    Réinitialiser
 
 </button>
 
+
 <button
+    type="submit"
+    class="btn btn-success">
 
-type="submit"
+    <i class="fa-solid fa-floppy-disk"></i>
 
-class="btn btn-success">
-
-<i class="fa-solid fa-floppy-disk"></i>
-
-Enregistrer
+    Enregistrer la vente
 
 </button>
 
+
 </div>
+
 
 </form>
 
-</div>
 
 </div>
 
@@ -326,13 +384,15 @@ Enregistrer
 
 </div>
 
-  <script src="../../js/ventes.js"></script>
+</div>
 
-<script>
 
-document.getElementById("date").valueAsDate=new Date();
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
 
-</script>
+<script src="../../js/ventes.js"></script>
+
 
 </body>
 
