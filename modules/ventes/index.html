@@ -26,7 +26,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
 
-<h3>
+<h3 class="mb-0">
 
 <i class="fa-solid fa-cash-register"></i>
 
@@ -48,39 +48,33 @@ Nouvelle Vente
 
 <div class="row mb-4">
 
-<div class="col-md-4">
+<div class="col-md-4 mb-2">
 
 <input
-
 type="text"
-
 id="recherche"
-
 class="form-control"
-
 placeholder="Rechercher un client ou un produit">
 
 </div>
 
-<div class="col-md-3">
+<div class="col-md-3 mb-2">
 
 <input
-
 type="date"
-
 id="filtreDate"
-
 class="form-control">
 
 </div>
 
-<div class="col-md-2">
+<div class="col-md-2 mb-2">
 
 <button
-
+type="button"
 class="btn btn-success w-100"
-
 onclick="chargerVentes()">
+
+<i class="fa-solid fa-rotate"></i>
 
 Actualiser
 
@@ -106,9 +100,9 @@ ventes
 
 </div>
 
-</div
+</div>
 
-  <div class="table-responsive">
+<div class="table-responsive">
 
 <table class="table table-striped table-hover align-middle">
 
@@ -156,11 +150,15 @@ Actions
 
 </div>
 
-  <script src="../../js/ventes.js"></script>
+<script src="../../js/ventes.js"></script>
 
 <script>
 
-chargerVentes();
+document.addEventListener("DOMContentLoaded", function () {
+
+    chargerVentes();
+
+});
 
 </script>
 
