@@ -992,6 +992,9 @@ const nomProduit =
                 telephone:
                     telephone.value.trim(),
 
+             produitId:
+    produitId,
+
                 produit:
                     nomProduit,
 
