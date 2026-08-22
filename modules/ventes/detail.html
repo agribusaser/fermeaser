@@ -1,1 +1,686 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Détails de la Vente | Ferme Asher ERP</title>
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="../../css/ventes.css">
+
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9">
+
+
+            <!-- CARTE PRINCIPALE -->
+
+            <div class="card shadow-lg border-0">
+
+
+                <!-- EN-TÊTE -->
+
+                <div
+                    class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+
+                    <h3 class="mb-0">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                        Détails de la vente
+
+                    </h3>
+
+
+                    <a
+                        href="index.html"
+                        class="btn btn-light">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Retour
+
+                    </a>
+
+                </div>
+
+
+                <!-- CONTENU -->
+
+                <div class="card-body">
+
+
+                    <!-- MESSAGE DE CHARGEMENT -->
+
+                    <div
+                        id="chargement"
+                        class="text-center py-5">
+
+                        <div
+                            class="spinner-border text-success"
+                            role="status">
+
+                        </div>
+
+                        <p class="mt-3">
+
+                            Chargement de la vente...
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- MESSAGE SI VENTE INTROUVABLE -->
+
+                    <div
+                        id="venteIntrouvable"
+                        class="alert alert-danger d-none">
+
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+
+                        Vente introuvable.
+
+                    </div>
+
+
+                    <!-- DETAILS -->
+
+                    <div
+                        id="contenuVente"
+                        class="d-none">
+
+
+                        <!-- INFORMATIONS GENERALES -->
+
+                        <div class="row mb-4">
+
+
+                            <div class="col-md-6">
+
+                                <h5 class="text-success">
+
+                                    <i class="fa-solid fa-file-invoice"></i>
+
+                                    Informations générales
+
+                                </h5>
+
+
+                                <table class="table table-bordered">
+
+                                    <tbody>
+
+                                        <tr>
+
+                                            <th>
+                                                N° Facture
+                                            </th>
+
+                                            <td id="detailFacture">
+                                            </td>
+
+                                        </tr>
+
+
+                                        <tr>
+
+                                            <th>
+                                                Date
+                                            </th>
+
+                                            <td id="detailDate">
+                                            </td>
+
+                                        </tr>
+
+
+                                        <tr>
+
+                                            <th>
+                                                Statut
+                                            </th>
+
+                                            <td id="detailStatut">
+                                            </td>
+
+                                        </tr>
+
+
+                                        <tr>
+
+                                            <th>
+                                                Paiement
+                                            </th>
+
+                                            <td id="detailPaiement">
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                            <!-- CLIENT -->
+
+                            <div class="col-md-6">
+
+                                <h5 class="text-success">
+
+                                    <i class="fa-solid fa-user"></i>
+
+                                    Client
+
+                                </h5>
+
+
+                                <table class="table table-bordered">
+
+                                    <tbody>
+
+                                        <tr>
+
+                                            <th>
+                                                Nom
+                                            </th>
+
+                                            <td id="detailClient">
+                                            </td>
+
+                                        </tr>
+
+
+                                        <tr>
+
+                                            <th>
+                                                Téléphone
+                                            </th>
+
+                                            <td id="detailTelephone">
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PRODUIT -->
+
+                        <h5 class="text-success">
+
+                            <i class="fa-solid fa-box"></i>
+
+                            Produit vendu
+
+                        </h5>
+
+
+                        <div class="table-responsive">
+
+                            <table
+                                class="table table-bordered table-striped">
+
+                                <thead class="table-success">
+
+                                    <tr>
+
+                                        <th>
+                                            Produit
+                                        </th>
+
+                                        <th>
+                                            Quantité
+                                        </th>
+
+                                        <th>
+                                            Prix unitaire
+                                        </th>
+
+                                        <th>
+                                            Remise
+                                        </th>
+
+                                        <th>
+                                            Total
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    <tr>
+
+                                        <td id="detailProduit">
+                                        </td>
+
+                                        <td id="detailQuantite">
+                                        </td>
+
+                                        <td id="detailPrix">
+                                        </td>
+
+                                        <td id="detailRemise">
+                                        </td>
+
+                                        <td
+                                            id="detailTotal"
+                                            class="fw-bold text-success">
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <!-- BOUTONS -->
+
+                        <div
+                            class="d-flex justify-content-end gap-2 mt-4">
+
+
+                            <button
+                                type="button"
+                                id="btnFacture"
+                                class="btn btn-success">
+
+                                <i class="fa-solid fa-file-invoice"></i>
+
+                                Voir la facture
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                id="btnAnnuler"
+                                class="btn btn-danger">
+
+                                <i class="fa-solid fa-ban"></i>
+
+                                Annuler la vente
+
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+
+<script src="../../js/ventes.js"></script>
+
+
+<script>
+
+/*====================================================
+ LIRE L'ID DE LA VENTE DANS L'URL
+====================================================*/
+
+function obtenirIdDepuisUrl() {
+
+    const parametres =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return parametres.get(
+        "id"
+    );
+
+}
+
+
+/*====================================================
+ AFFICHER LES DETAILS DE LA VENTE
+====================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        let id =
+            obtenirIdDepuisUrl();
+
+
+        /*
+         Si l'URL ne contient pas d'ID,
+         essayer avec la dernière vente sélectionnée.
+        */
+
+        if (!id) {
+
+            id =
+                localStorage.getItem(
+                    "venteSelectionnee"
+                );
+
+        }
+
+
+        const chargement =
+            document.getElementById(
+                "chargement"
+            );
+
+
+        const contenu =
+            document.getElementById(
+                "contenuVente"
+            );
+
+
+        const introuvable =
+            document.getElementById(
+                "venteIntrouvable"
+            );
+
+
+        /*
+         Trouver la vente grâce à la fonction
+         présente dans ventes.js
+        */
+
+        const vente =
+            trouverVente(id);
+
+
+        /*
+         Masquer le chargement
+        */
+
+        chargement.classList.add(
+            "d-none"
+        );
+
+
+        /*
+         Vente introuvable
+        */
+
+        if (!vente) {
+
+            introuvable.classList.remove(
+                "d-none"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         Afficher le contenu
+        */
+
+        contenu.classList.remove(
+            "d-none"
+        );
+
+
+        /*--------------------------------------------
+         INFORMATIONS GENERALES
+        --------------------------------------------*/
+
+        document.getElementById(
+            "detailFacture"
+        ).textContent =
+            vente.facture ||
+            vente.id;
+
+
+        document.getElementById(
+            "detailDate"
+        ).textContent =
+            formatDate(
+                vente.date
+            );
+
+
+        document.getElementById(
+            "detailPaiement"
+        ).textContent =
+            vente.paiement ||
+            "-";
+
+
+        /*--------------------------------------------
+         STATUT
+        --------------------------------------------*/
+
+        const statut =
+            vente.statut ||
+            "Validée";
+
+
+        let classeStatut =
+            "bg-success";
+
+
+        if (
+            statut ===
+            "Annulée"
+        ) {
+
+            classeStatut =
+                "bg-danger";
+
+        }
+
+
+        document.getElementById(
+            "detailStatut"
+        ).innerHTML =
+
+            `<span class="badge ${classeStatut}">
+
+                ${statut}
+
+            </span>`;
+
+
+        /*--------------------------------------------
+         CLIENT
+        --------------------------------------------*/
+
+        document.getElementById(
+            "detailClient"
+        ).textContent =
+            vente.client ||
+            "-";
+
+
+        document.getElementById(
+            "detailTelephone"
+        ).textContent =
+            vente.telephone ||
+            "-";
+
+
+        /*--------------------------------------------
+         PRODUIT
+        --------------------------------------------*/
+
+        document.getElementById(
+            "detailProduit"
+        ).textContent =
+            vente.produit ||
+            "-";
+
+
+        document.getElementById(
+            "detailQuantite"
+        ).textContent =
+            vente.quantite ||
+            0;
+
+
+        document.getElementById(
+            "detailPrix"
+        ).textContent =
+            formatFC(
+                vente.prix
+            );
+
+
+        document.getElementById(
+            "detailRemise"
+        ).textContent =
+            formatFC(
+                vente.remise
+            );
+
+
+        document.getElementById(
+            "detailTotal"
+        ).textContent =
+            formatFC(
+                vente.total
+            );
+
+
+        /*--------------------------------------------
+         BOUTON FACTURE
+        --------------------------------------------*/
+
+        document.getElementById(
+            "btnFacture"
+        ).addEventListener(
+            "click",
+            function() {
+
+                ouvrirFacture(
+                    vente.id
+                );
+
+            }
+        );
+
+
+        /*--------------------------------------------
+         BOUTON ANNULATION
+        --------------------------------------------*/
+
+        const btnAnnuler =
+            document.getElementById(
+                "btnAnnuler"
+            );
+
+
+        /*
+         Si déjà annulée,
+         désactiver le bouton.
+        */
+
+        if (
+            statut ===
+            "Annulée"
+        ) {
+
+            btnAnnuler.disabled =
+                true;
+
+            btnAnnuler.innerHTML =
+
+                '<i class="fa-solid fa-ban"></i> Vente annulée';
+
+        }
+
+
+        btnAnnuler.addEventListener(
+            "click",
+            function() {
+
+                annulerVente(
+                    vente.id
+                );
+
+
+                /*
+                 Recharger la page
+                 pour afficher le nouveau statut.
+                */
+
+                setTimeout(
+                    function() {
+
+                        window.location.reload();
+
+                    },
+                    300
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
