@@ -769,3 +769,381 @@ function voirVente(id) {
 
 }
 
+/*====================================================
+ MODIFIER UNE VENTE
+====================================================*/
+
+function modifierVente(id) {
+
+    const vente =
+        trouverVente(id);
+
+
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+        "venteEnModification",
+        JSON.stringify(vente)
+    );
+
+
+    window.location.href =
+        "nouvelle.html?id=" +
+        encodeURIComponent(id);
+
+}
+
+/*====================================================
+ SUPPRIMER UNE VENTE
+====================================================*/
+
+function supprimerVente(id) {
+
+    const vente =
+        trouverVente(id);
+
+
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const confirmation =
+        confirm(
+
+            "Voulez-vous vraiment supprimer " +
+            "la vente du client : " +
+            vente.client +
+            " ?"
+
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+    const ventes =
+        obtenirVentes();
+
+
+    const nouvellesVentes =
+        ventes.filter(
+            vente =>
+                String(vente.id) !== String(id)
+        );
+
+
+    sauvegarderVentes(
+        nouvellesVentes
+    );
+
+
+    chargerVentes();
+
+
+    alert(
+        "Vente supprimée avec succès."
+    );
+
+}
+
+/*====================================================
+ IMPRIMER FACTURE
+====================================================*/
+
+function imprimerFacture(id) {
+
+    const vente =
+        trouverVente(id);
+
+
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const fenetre =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!fenetre) {
+
+        alert(
+            "Impossible d'ouvrir la fenêtre d'impression."
+        );
+
+        return;
+
+    }
+
+
+    fenetre.document.write(`
+
+        <!DOCTYPE html>
+
+        <html lang="fr">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>Facture</title>
+
+            <style>
+
+                body {
+
+                    font-family:
+                        Arial, sans-serif;
+
+                    padding: 40px;
+
+                }
+
+                h1 {
+
+                    color: #198754;
+
+                }
+
+                table {
+
+                    width: 100%;
+
+                    border-collapse:
+                        collapse;
+
+                    margin-top:
+                        25px;
+
+                }
+
+                td {
+
+                    padding:
+                        10px;
+
+                    border:
+                        1px solid #ccc;
+
+                }
+
+                .total {
+
+                    font-size:
+                        22px;
+
+                    font-weight:
+                        bold;
+
+                    margin-top:
+                        25px;
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                FERME ASHER
+            </h1>
+
+            <h2>
+                FACTURE DE VENTE
+            </h2>
+
+
+            <p>
+
+                <strong>Facture :</strong>
+
+                ${vente.facture || vente.id}
+
+            </p>
+
+
+            <p>
+
+                <strong>Date :</strong>
+
+                ${vente.date}
+
+            </p>
+
+
+            <p>
+
+                <strong>Client :</strong>
+
+                ${vente.client}
+
+            </p>
+
+
+            <p>
+
+                <strong>Téléphone :</strong>
+
+                ${vente.telephone || "-"}
+
+            </p>
+
+
+            <table>
+
+                <tr>
+
+                    <td>
+                        Produit
+                    </td>
+
+                    <td>
+                        ${vente.produit}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Quantité
+                    </td>
+
+                    <td>
+                        ${vente.quantite}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Prix unitaire
+                    </td>
+
+                    <td>
+                        ${formatFC(vente.prix)}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Remise
+                    </td>
+
+                    <td>
+                        ${formatFC(vente.remise)}
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Paiement
+                    </td>
+
+                    <td>
+                        ${vente.paiement}
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            <p class="total">
+
+                TOTAL :
+                ${formatFC(vente.total)}
+
+            </p>
+
+
+            <br>
+
+            <p>
+                Merci pour votre confiance.
+            </p>
+
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    fenetre.document.close();
+
+
+    fenetre.onload =
+        function() {
+
+            fenetre.print();
+
+        };
+
+}
+
+/*====================================================
+ DEMARRAGE DU MODULE
+====================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        console.log(
+            "Ferme Asher ERP - Module Ventes chargé"
+        );
+
+
+        initialiserNouvelleVente();
+
+
+        initialiserFiltresVentes();
+
+
+        chargerVentes();
+
+    }
+);
+
