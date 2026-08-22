@@ -1956,3 +1956,104 @@ document.addEventListener(
     }
 );
 
+/* =========================================================
+   CHARGER LES PRODUITS DANS LE FORMULAIRE DE VENTE
+   ========================================================= */
+
+function chargerProduitsVente() {
+
+    const selectProduit =
+        document.getElementById("produit");
+
+
+    if (!selectProduit) {
+
+        return;
+
+    }
+
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem(
+                "fermeaser_produits"
+            )
+        ) || [];
+
+
+    selectProduit.innerHTML =
+        '<option value="">Sélectionner un produit</option>';
+
+
+    produits.forEach(produit => {
+
+        if (produit.actif !== false) {
+
+            selectProduit.innerHTML += `
+
+                <option
+                    value="${produit.id}"
+                    data-prix="${produit.prix}">
+
+                    ${produit.nom}
+
+                </option>
+
+            `;
+
+        }
+
+    });
+
+}
+
+/* =========================================================
+   CHARGER AUTOMATIQUEMENT LE PRIX DU PRODUIT
+   ========================================================= */
+
+function chargerPrixProduit() {
+
+    const selectProduit =
+        document.getElementById("produit");
+
+
+    const champPrix =
+        document.getElementById("prix");
+
+
+    if (!selectProduit || !champPrix) {
+
+        return;
+
+    }
+
+
+    selectProduit.addEventListener(
+        "change",
+        function () {
+
+
+            const option =
+                selectProduit.options[
+                    selectProduit.selectedIndex
+                ];
+
+
+            const prix =
+                option.dataset.prix;
+
+
+            if (prix) {
+
+                champPrix.value = prix;
+
+            }
+
+
+            calculerTotal();
+
+        }
+    );
+
+}
+
