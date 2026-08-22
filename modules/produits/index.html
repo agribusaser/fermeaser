@@ -6,92 +6,92 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>Produits | Ferme Asher ERP</title>
+<title>
+Gestion des Produits | Ferme Asher ERP
+</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/produits.css">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
 
-<link rel="stylesheet"
+
+<link
+rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<link
+rel="stylesheet"
+href="../../css/produits.css">
 
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+<div class="card shadow-lg border-0">
 
-<h2>
+
+<div
+class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+
+
+<h3 class="mb-0">
 
 <i class="fa-solid fa-box"></i>
 
 Gestion des Produits
 
-</h2>
+</h3>
 
-<p class="text-muted">
 
-Catalogue des produits de Ferme Asher
-
-</p>
-
-</div>
-
-<div>
-
-<a href="../../dashboard.html" class="btn btn-secondary">
-
-<i class="fa-solid fa-house"></i>
-
-Dashboard
-
-</a>
-
-<a href="nouveau.html" class="btn btn-success">
+<a
+href="nouveau.html"
+class="btn btn-warning">
 
 <i class="fa-solid fa-plus"></i>
 
-Nouveau produit
+Nouveau Produit
 
 </a>
 
-</div>
 
 </div>
 
-  <div class="card shadow-sm border-0">
 
 <div class="card-body">
 
+
 <div class="row mb-4">
 
-<div class="col-lg-4">
+
+<div class="col-md-5">
 
 <input
-
 type="text"
-
-id="searchProduct"
-
+id="recherche"
 class="form-control"
-
-placeholder="Rechercher un produit...">
+placeholder="Rechercher un produit..."
+oninput="chargerProduits()">
 
 </div>
 
-<div class="col-lg-3">
+
+<div class="col-md-3">
 
 <select
-
+id="filtreCategorie"
 class="form-select"
-
-id="filterCategory">
+onchange="chargerProduits()">
 
 <option value="">
 
@@ -99,47 +99,33 @@ Toutes les catégories
 
 </option>
 
-<option>Œufs</option>
+<option value="Élevage">
 
-<option>Cailles</option>
-
-<option>Poules</option>
-
-<option>Soja</option>
-
-<option>Maïs</option>
-
-<option>Farine</option>
-
-<option>Huile</option>
-
-</select>
-
-</div>
-
-<div class="col-lg-3">
-
-<select
-
-class="form-select"
-
-id="filterStatus">
-
-<option>
-
-Tous les statuts
+Élevage
 
 </option>
 
-<option>
+<option value="Agriculture">
 
-Actif
+Agriculture
 
 </option>
 
-<option>
+<option value="Alimentation">
 
-Inactif
+Alimentation
+
+</option>
+
+<option value="Transformation">
+
+Transformation
+
+</option>
+
+<option value="Autres">
+
+Autres
 
 </option>
 
@@ -147,13 +133,14 @@ Inactif
 
 </div>
 
-<div class="col-lg-2">
+
+<div class="col-md-2">
 
 <button
-
 class="btn btn-success w-100"
-
 onclick="chargerProduits()">
+
+<i class="fa-solid fa-rotate"></i>
 
 Actualiser
 
@@ -161,159 +148,88 @@ Actualiser
 
 </div>
 
+
+<div class="col-md-2 text-end">
+
+<h5>
+
+Total :
+
+<span id="nombreProduits">
+
+0
+
+</span>
+
+produits
+
+</h5>
+
 </div>
 
-  <div class="table-responsive">
 
-<table class="table table-hover align-middle">
+</div>
+
+
+<div class="table-responsive">
+
+
+<table
+class="table table-striped table-hover align-middle">
+
 
 <thead class="table-success">
 
-<tr>
 
-<th>Image</th>
+<tr>
 
 <th>Code</th>
 
-<th>Nom</th>
+<th>Produit</th>
 
 <th>Catégorie</th>
 
-<th>Prix Vente</th>
-
 <th>Stock</th>
 
-<th>Statut</th>
+<th>Minimum</th>
 
-<th width="220">
+<th>Unité</th>
 
-Actions
+<th>Prix</th>
 
-</th>
+<th>État</th>
+
+<th>Actions</th>
 
 </tr>
 
+
 </thead>
 
-<tbody id="productsTable">
+
+<tbody id="tableProduits">
+
 
 </tbody>
 
+
 </table>
 
-</div>
 
 </div>
 
-</div>
-
-  <div class="row mt-4">
-
-<div class="col-md-3">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="totalProducts">
-
-0
-
-</h3>
-
-<p>
-
-Produits
-
-</p>
 
 </div>
 
-</div>
 
 </div>
 
-<div class="col-md-3">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="stockAlert">
-
-0
-
-</h3>
-
-<p>
-
-Stock faible
-
-</p>
 
 </div>
 
-</div>
 
-</div>
+<script src="../../js/produits.js"></script>
 
-<div class="col-md-3">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="activeProducts">
-
-0
-
-</h3>
-
-<p>
-
-Produits actifs
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="inactiveProducts">
-
-0
-
-</h3>
-
-<p>
-
-Produits inactifs
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-  <script src="../../js/produits.js"></script>
-
-<script>
-
-chargerProduits();
-
-</script>
 
 </body>
 
