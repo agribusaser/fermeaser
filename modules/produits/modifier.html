@@ -6,28 +6,47 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>Modifier un produit | Ferme Asher ERP</title>
+<title>
+Modifier Produit | Ferme Asher ERP
+</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/produits.css">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
 
-<link rel="stylesheet"
+
+<link
+rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <div class="container py-5">
 
-<div class="card shadow-lg">
+
+<div class="row justify-content-center">
+
+
+<div class="col-lg-8">
+
+
+<div class="card shadow-lg border-0">
+
 
 <div class="card-header bg-warning">
 
-<h3>
+
+<h3 class="mb-0">
 
 <i class="fa-solid fa-pen"></i>
 
@@ -35,231 +54,272 @@ Modifier le produit
 
 </h3>
 
+
 </div>
+
 
 <div class="card-body">
 
-<form id="editProductForm">
 
-<input type="hidden" id="productId">
+<form
+id="modifierProduitForm"
+onsubmit="modifierProduit(event)">
 
-<div class="row">
+
+<input
+type="hidden"
+id="idProduit">
+
+
+<div class="row g-3">
+
 
 <div class="col-md-6">
 
-<label>Code</label>
+<label class="form-label">
+
+Nom du produit
+
+</label>
+
 
 <input
-
 type="text"
-
-id="code"
-
-class="form-control"
-
-readonly>
-
-</div>
-
-<div class="col-md-6">
-
-<label>Nom</label>
-
-<input
-
-type="text"
-
 id="nom"
-
 class="form-control"
-
 required>
 
 </div>
 
-</div>
 
-<br>
+<div class="col-md-6">
 
-  <div class="row">
+<label class="form-label">
 
-<div class="col-md-4">
+Catégorie
 
-<label>Catégorie</label>
+</label>
 
-<select id="categorie" class="form-select">
-
-<option>Œufs</option>
-
-<option>Cailles</option>
-
-<option>Poules</option>
-
-<option>Poussins</option>
-
-<option>Soja</option>
-
-<option>Maïs</option>
-
-<option>Haricots</option>
-
-<option>Arachides</option>
-
-<option>Farine</option>
-
-<option>Huile</option>
-
-<option>Semences</option>
-
-<option>Engrais</option>
-
-<option>Autres</option>
-
-</select>
-
-</div>
-
-<div class="col-md-4">
-
-<label>Prix d'achat</label>
-
-<input
-
-type="number"
-
-id="prixAchat"
-
-class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label>Prix de vente</label>
-
-<input
-
-type="number"
-
-id="prixVente"
-
-class="form-control">
-
-</div>
-
-</div>
-
-<br>
-
-  <div class="row">
-
-<div class="col-md-4">
-
-<label>Stock</label>
-
-<input
-
-type="number"
-
-id="stock"
-
-class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label>Stock minimum</label>
-
-<input
-
-type="number"
-
-id="stockMinimum"
-
-class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label>Statut</label>
 
 <select
-
-id="statut"
-
+id="categorie"
 class="form-select">
 
-<option>Actif</option>
 
-<option>Inactif</option>
+<option value="Élevage">
+
+Élevage
+
+</option>
+
+
+<option value="Agriculture">
+
+Agriculture
+
+</option>
+
+
+<option value="Alimentation">
+
+Alimentation
+
+</option>
+
+
+<option value="Transformation">
+
+Transformation
+
+</option>
+
+
+<option value="Autres">
+
+Autres
+
+</option>
+
 
 </select>
 
 </div>
 
-</div>
 
-<br>
+<div class="col-md-4">
 
-<div>
+<label class="form-label">
 
-<label>Description</label>
+Prix unitaire
 
-<textarea
+</label>
 
-id="description"
 
-rows="4"
-
+<input
+type="number"
+id="prix"
 class="form-control">
 
-</textarea>
+</div>
+
+
+<div class="col-md-4">
+
+<label class="form-label">
+
+Stock
+
+</label>
+
+
+<input
+type="number"
+id="stock"
+class="form-control">
 
 </div>
 
-<br>
 
-  <div class="text-end">
+<div class="col-md-4">
+
+<label class="form-label">
+
+Stock minimum
+
+</label>
+
+
+<input
+type="number"
+id="minimum"
+class="form-control">
+
+</div>
+
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Unité
+
+</label>
+
+
+<select
+id="unite"
+class="form-select">
+
+
+<option value="Unité">
+
+Unité
+
+</option>
+
+
+<option value="Kg">
+
+Kg
+
+</option>
+
+
+<option value="Sac">
+
+Sac
+
+</option>
+
+
+<option value="Plateau">
+
+Plateau
+
+</option>
+
+
+<option value="Litre">
+
+Litre
+
+</option>
+
+
+</select>
+
+</div>
+
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Description
+
+</label>
+
+
+<textarea
+id="description"
+class="form-control"
+rows="3"></textarea>
+
+</div>
+
+
+</div>
+
+
+<hr class="my-4">
+
+
+<div class="text-end">
+
 
 <a
-
 href="index.html"
-
 class="btn btn-secondary">
 
 Retour
 
 </a>
 
+
 <button
-
 type="submit"
+class="btn btn-warning">
 
-class="btn btn-success">
+<i class="fa-solid fa-floppy-disk"></i>
 
 Enregistrer les modifications
 
 </button>
 
+
 </div>
+
 
 </form>
 
-</div>
 
 </div>
 
+
 </div>
 
-  <script src="../../js/produits.js"></script>
 
-<script>
+</div>
 
-chargerProduitModification();
 
-</script>
+</div>
+
+
+</div>
+
+
+<script src="../../js/produits.js"></script>
+
 
 </body>
 
