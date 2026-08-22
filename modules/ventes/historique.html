@@ -1,1 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Historique des ventes | Ferme Asher ERP</title>
+
+
+    <!-- BOOTSTRAP -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="../../css/ventes.css">
+
+
+    <!-- FONT AWESOME -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid py-4">
+
+
+<div class="card shadow-lg border-0">
+
+
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
+
+<div
+    class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+
+
+    <h3 class="mb-0">
+
+        <i class="fa-solid fa-clock-rotate-left"></i>
+
+        Historique des ventes
+
+    </h3>
+
+
+    <a
+        href="index.html"
+        class="btn btn-light">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Retour aux ventes
+
+    </a>
+
+
+</div>
+
+
+<!-- =========================================
+     CORPS
+========================================= -->
+
+<div class="card-body">
+
+
+<!-- =========================================
+     FILTRES
+========================================= -->
+
+<div class="row g-3 mb-4">
+
+
+<div class="col-md-5">
+
+    <input
+        type="text"
+        id="rechercheHistorique"
+        class="form-control"
+        placeholder="Rechercher client, produit ou facture">
+
+</div>
+
+
+<div class="col-md-3">
+
+    <input
+        type="date"
+        id="dateHistorique"
+        class="form-control">
+
+</div>
+
+
+<div class="col-md-2">
+
+    <button
+        type="button"
+        id="btnActualiserHistorique"
+        class="btn btn-success w-100">
+
+        <i class="fa-solid fa-rotate"></i>
+
+        Actualiser
+
+    </button>
+
+</div>
+
+
+<div class="col-md-2 text-md-end">
+
+    <h5 class="mb-0">
+
+        <span id="nombreHistorique">
+
+            0
+
+        </span>
+
+        action(s)
+
+    </h5>
+
+</div>
+
+
+</div>
+
+
+<!-- =========================================
+     TABLEAU
+========================================= -->
+
+<div class="table-responsive">
+
+
+<table
+    class="table table-striped table-hover align-middle">
+
+
+<thead class="table-success">
+
+
+<tr>
+
+    <th>Date / Heure</th>
+
+    <th>Action</th>
+
+    <th>Facture</th>
+
+    <th>Client</th>
+
+    <th>Produit</th>
+
+    <th>Qté</th>
+
+    <th>Montant</th>
+
+    <th>Observation</th>
+
+</tr>
+
+
+</thead>
+
+
+<tbody id="tableHistorique">
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script src="../../js/ventes.js"></script>
+
+
+<script>
+
+/*====================================================
+ CLE LOCALSTORAGE
+====================================================*/
+
+const CLE_HISTORIQUE_VENTES =
+    "historiqueVentes";
+
+
+/*====================================================
+ LIRE L'HISTORIQUE
+====================================================*/
+
+function obtenirHistoriqueVentes() {
+
+    try {
+
+        const donnees =
+            localStorage.getItem(
+                CLE_HISTORIQUE_VENTES
+            );
+
+
+        if (!donnees) {
+
+            return [];
+
+        }
+
+
+        const historique =
+            JSON.parse(
+                donnees
+            );
+
+
+        if (!Array.isArray(historique)) {
+
+            return [];
+
+        }
+
+
+        return historique;
+
+    }
+
+    catch (erreur) {
+
+        console.error(
+            "Erreur lecture historique :",
+            erreur
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/*====================================================
+ FORMATER DATE ET HEURE
+====================================================*/
+
+function formatDateHeure(date) {
+
+    if (!date) {
+
+        return "-";
+
+    }
+
+
+    const objetDate =
+        new Date(date);
+
+
+    if (
+        isNaN(
+            objetDate.getTime()
+        )
+    ) {
+
+        return date;
+
+    }
+
+
+    return objetDate.toLocaleString(
+        "fr-FR"
+    );
+
+}
+
+
+/*====================================================
+ CHARGER L'HISTORIQUE
+====================================================*/
+
+function chargerHistorique() {
+
+    const table =
+        document.getElementById(
+            "tableHistorique"
+        );
+
+
+    const compteur =
+        document.getElementById(
+            "nombreHistorique"
+        );
+
+
+    if (!table) {
+
+        return;
+
+    }
+
+
+    const champRecherche =
+        document.getElementById(
+            "rechercheHistorique"
+        );
+
+
+    const champDate =
+        document.getElementById(
+            "dateHistorique"
+        );
+
+
+    const recherche =
+        champRecherche
+            ? champRecherche.value
+                .trim()
+                .toLowerCase()
+            : "";
+
+
+    const dateFiltre =
+        champDate
+            ? champDate.value
+            : "";
+
+
+    let historique =
+        obtenirHistoriqueVentes();
+
+
+    /*--------------------------------------------
+     FILTRER
+    --------------------------------------------*/
+
+    historique =
+        historique.filter(
+            function(element) {
+
+                const client =
+                    String(
+                        element.client || ""
+                    )
+                    .toLowerCase();
+
+
+                const produit =
+                    String(
+                        element.produit || ""
+                    )
+                    .toLowerCase();
+
+
+                const facture =
+                    String(
+                        element.facture || ""
+                    )
+                    .toLowerCase();
+
+
+                const correspondRecherche =
+
+                    !recherche ||
+
+                    client.includes(
+                        recherche
+                    ) ||
+
+                    produit.includes(
+                        recherche
+                    ) ||
+
+                    facture.includes(
+                        recherche
+                    );
+
+
+                let correspondDate =
+                    true;
+
+
+                if (dateFiltre) {
+
+                    const dateElement =
+                        new Date(
+                            element.date
+                        );
+
+
+                    const annee =
+                        dateElement.getFullYear();
+
+
+                    const mois =
+                        String(
+                            dateElement.getMonth() + 1
+                        ).padStart(
+                            2,
+                            "0"
+                        );
+
+
+                    const jour =
+                        String(
+                            dateElement.getDate()
+                        ).padStart(
+                            2,
+                            "0"
+                        );
+
+
+                    const dateFormatee =
+
+                        annee +
+                        "-" +
+                        mois +
+                        "-" +
+                        jour;
+
+
+                    correspondDate =
+                        dateFormatee ===
+                        dateFiltre;
+
+                }
+
+
+                return (
+
+                    correspondRecherche &&
+
+                    correspondDate
+
+                );
+
+            }
+        );
+
+
+    /*--------------------------------------------
+     TRI : PLUS RECENT EN PREMIER
+    --------------------------------------------*/
+
+    historique.sort(
+        function(a, b) {
+
+            return (
+                new Date(b.date) -
+                new Date(a.date)
+            );
+
+        }
+    );
+
+
+    /*--------------------------------------------
+     COMPTEUR
+    --------------------------------------------*/
+
+    if (compteur) {
+
+        compteur.textContent =
+            historique.length;
+
+    }
+
+
+    /*--------------------------------------------
+     VIDER TABLEAU
+    --------------------------------------------*/
+
+    table.innerHTML =
+        "";
+
+
+    /*--------------------------------------------
+     AUCUNE ACTION
+    --------------------------------------------*/
+
+    if (
+        historique.length === 0
+    ) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted py-4">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                    Aucune action enregistrée.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*--------------------------------------------
+     AFFICHER L'HISTORIQUE
+    --------------------------------------------*/
+
+    historique.forEach(
+        function(element) {
+
+            let classeAction =
+                "bg-secondary";
+
+
+            if (
+                element.action ===
+                "Annulation"
+            ) {
+
+                classeAction =
+                    "bg-danger";
+
+            }
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        ${formatDateHeure(
+                            element.date
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="badge ${classeAction}">
+
+                            ${element.action || "-"}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${element.facture || "-"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${element.client || "-"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${element.produit || "-"}
+
+                    </td>
+
+
+                    <td>
+
+                        ${element.quantite || 0}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+
+                            ${formatFC(
+                                element.montant
+                            )}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${element.observation || "-"}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*====================================================
+ INITIALISER LA PAGE
+====================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        chargerHistorique();
+
+
+        /*----------------------------------------
+         RECHERCHE
+        ----------------------------------------*/
+
+        document.getElementById(
+            "rechercheHistorique"
+        ).addEventListener(
+            "input",
+            function() {
+
+                chargerHistorique();
+
+            }
+        );
+
+
+        /*----------------------------------------
+         FILTRE DATE
+        ----------------------------------------*/
+
+        document.getElementById(
+            "dateHistorique"
+        ).addEventListener(
+            "change",
+            function() {
+
+                chargerHistorique();
+
+            }
+        );
+
+
+        /*----------------------------------------
+         ACTUALISER
+        ----------------------------------------*/
+
+        document.getElementById(
+            "btnActualiserHistorique"
+        ).addEventListener(
+            "click",
+            function() {
+
+                chargerHistorique();
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
