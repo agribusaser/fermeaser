@@ -838,8 +838,30 @@ function initialiserNouvelleVente() {
             const nomClient =
                 client.value.trim();
 
-            const nomProduit =
-                produit.value.trim();
+           const produitId =
+    produit.value.trim();
+
+
+const produits =
+    obtenirProduits();
+
+
+const produitSelectionne =
+    produits.find(
+        p =>
+            String(p.id) ===
+            String(produitId)
+    );
+
+
+const nomProduit =
+    produitSelectionne
+        ? (
+            produitSelectionne.nom ||
+            produitSelectionne.produit ||
+            ""
+        )
+        : "";
 
             const quantiteVendue =
                 Number(
