@@ -1935,6 +1935,10 @@ document.addEventListener(
 
         chargerVentes();
 
+     chargerProduitsVente();
+
+chargerPrixProduit();
+
     }
 );
 
