@@ -1240,19 +1240,6 @@ function verifierStockDisponible(
 }
 
 
-/*--------------------------------
-    REDIRECTION
---------------------------------*/
-
-window.location.href =
-    "index.html";
-
-        }
-
-    );
-
-}
-
             /*--------------------------------
              CREATION DE LA VENTE
             --------------------------------*/
