@@ -1,1 +1,387 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+    Nouvel Employé | Ferme Asher ERP
+</title>
+
+
+<!-- BOOTSTRAP -->
+
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+
+<!-- FONT AWESOME -->
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<!-- CSS -->
+
+<link
+    rel="stylesheet"
+    href="../../css/employes.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container py-5">
+
+<div class="row justify-content-center">
+
+<div class="col-lg-9">
+
+
+<!-- =========================================
+CARTE PRINCIPALE
+========================================= -->
+
+<div class="card shadow-lg border-0">
+
+
+<!-- =========================================
+EN-TÊTE
+========================================= -->
+
+<div
+    class="
+        card-header
+        bg-success
+        text-white
+        d-flex
+        justify-content-between
+        align-items-center
+    ">
+
+<h3 class="mb-0">
+
+<i class="fa-solid fa-user-plus"></i>
+
+Nouvel Employé
+
+</h3>
+
+
+<a
+    href="index.html"
+    class="btn btn-light">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+<!-- =========================================
+FORMULAIRE
+========================================= -->
+
+<div class="card-body p-4">
+
+
+<form id="employeForm">
+
+
+<!-- =========================================
+INFORMATIONS PERSONNELLES
+========================================= -->
+
+<h5 class="border-bottom pb-2 mb-3">
+
+<i class="fa-solid fa-user"></i>
+
+Informations de l'employé
+
+</h5>
+
+
+<div class="row g-3">
+
+
+<!-- NOM -->
+
+<div class="col-md-6">
+
+<label
+    for="nomEmploye"
+    class="form-label">
+
+Nom complet
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<input
+    type="text"
+    id="nomEmploye"
+    class="form-control"
+    placeholder="Ex : Rigaine"
+    required>
+
+</div>
+
+
+<!-- TELEPHONE -->
+
+<div class="col-md-6">
+
+<label
+    for="telephoneEmploye"
+    class="form-label">
+
+Téléphone
+
+</label>
+
+
+<input
+    type="text"
+    id="telephoneEmploye"
+    class="form-control"
+    placeholder="Ex : +243 000 000 000">
+
+</div>
+
+
+</div>
+
+
+<!-- =========================================
+INFORMATIONS PROFESSIONNELLES
+========================================= -->
+
+<h5 class="border-bottom pb-2 mt-4 mb-3">
+
+<i class="fa-solid fa-briefcase"></i>
+
+Informations professionnelles
+
+</h5>
+
+
+<div class="row g-3">
+
+
+<!-- FONCTION -->
+
+<div class="col-md-6">
+
+<label
+    for="fonctionEmploye"
+    class="form-label">
+
+Fonction
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<input
+    type="text"
+    id="fonctionEmploye"
+    class="form-control"
+    placeholder="Ex : Ouvrier agricole"
+    required>
+
+</div>
+
+
+<!-- POSTE -->
+
+<div class="col-md-6">
+
+<label
+    for="posteEmploye"
+    class="form-label">
+
+Poste / Spécialité
+
+</label>
+
+
+<input
+    type="text"
+    id="posteEmploye"
+    class="form-control"
+    placeholder="Ex : Responsable irrigation">
+
+</div>
+
+
+</div>
+
+
+<!-- =========================================
+STATUT
+========================================= -->
+
+<div class="row g-3 mt-2">
+
+
+<div class="col-md-6">
+
+<label
+    for="statutEmploye"
+    class="form-label">
+
+Statut
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<select
+    id="statutEmploye"
+    class="form-select"
+    required>
+
+<option value="Actif">
+
+Actif
+
+</option>
+
+<option value="Inactif">
+
+Inactif
+
+</option>
+
+</select>
+
+</div>
+
+
+<!-- MATRICULE INFORMATION -->
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Matricule
+
+</label>
+
+
+<div class="form-control bg-light text-muted">
+
+Généré automatiquement lors de l'enregistrement
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- =========================================
+INFORMATION
+========================================= -->
+
+<div class="alert alert-info mt-4">
+
+<i class="fa-solid fa-circle-info"></i>
+
+Après l'enregistrement, cet employé pourra être
+sélectionné comme :
+
+<ul class="mb-0 mt-2">
+
+<li>Responsable de chantier</li>
+
+<li>Responsable de projet</li>
+
+<li>Employé affecté à une tâche</li>
+
+</ul>
+
+</div>
+
+
+<!-- =========================================
+BOUTONS
+========================================= -->
+
+<div
+    class="
+        d-flex
+        justify-content-end
+        gap-2
+        mt-4
+    ">
+
+
+<button
+    type="reset"
+    class="btn btn-warning">
+
+<i class="fa-solid fa-rotate-left"></i>
+
+Réinitialiser
+
+</button>
+
+
+<button
+    type="submit"
+    class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer l'employé
+
+</button>
+
+
+</div>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =========================================
+JAVASCRIPT
+========================================= -->
+
+<script src="../../js/employes.js"></script>
+
+
+</body>
+
+</html>
