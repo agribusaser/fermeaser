@@ -10,7 +10,7 @@ CONFIGURATION
 ==================================================*/
 
 const CLE_PRODUITS =
-    "fermeaser_produits";
+    "produits";
 
 const CLE_MOUVEMENTS =
     "mouvementsStock";
