@@ -749,6 +749,99 @@ function chargerDetailProjet() {
 
 }
 
+/*==================================================
+STATISTIQUES DES PROJETS
+==================================================*/
+
+function chargerStatistiquesProjets() {
+
+    const projets =
+        obtenirProjets();
+
+
+    const total =
+        projets.length;
+
+
+    const enCours =
+        projets.filter(
+            projet =>
+                projet.statut ===
+                "En cours"
+        ).length;
+
+
+    const termines =
+        projets.filter(
+            projet =>
+                projet.statut ===
+                "Terminé"
+        ).length;
+
+
+    const suspendus =
+        projets.filter(
+            projet =>
+                projet.statut ===
+                "Suspendu"
+        ).length;
+
+
+    const elementTotal =
+        document.getElementById(
+            "nbTotalProjets"
+        );
+
+    const elementEnCours =
+        document.getElementById(
+            "nbProjetsEnCours"
+        );
+
+    const elementTermines =
+        document.getElementById(
+            "nbProjetsTermines"
+        );
+
+    const elementSuspendus =
+        document.getElementById(
+            "nbProjetsSuspendus"
+        );
+
+
+    if (elementTotal) {
+
+        elementTotal.textContent =
+            total;
+
+    }
+
+
+    if (elementEnCours) {
+
+        elementEnCours.textContent =
+            enCours;
+
+    }
+
+
+    if (elementTermines) {
+
+        elementTermines.textContent =
+            termines;
+
+    }
+
+
+    if (elementSuspendus) {
+
+        elementSuspendus.textContent =
+            suspendus;
+
+    }
+
+}
+
+chargerStatistiquesProjets();
 
 /*==================================================
 FIN
