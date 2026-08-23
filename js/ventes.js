@@ -969,6 +969,352 @@ const nomProduit =
 
             }
 
+         /*--------------------------------
+    VERIFIER LE STOCK
+--------------------------------*/
+
+const verificationStock =
+    verifierStockDisponible(
+        produitId,
+        quantiteVendue
+    );
+
+if (!verificationStock.disponible) {
+
+    alert(
+        "Stock insuffisant !\n\n" +
+        "Produit : " +
+        nomProduit +
+        "\n\nStock disponible : " +
+        verificationStock.stockDisponible
+    );
+
+    return;
+
+}
+
+
+/*--------------------------------
+    CREATION DE LA VENTE
+--------------------------------*/
+
+const vente = {
+
+    id:
+        Date.now(),
+
+    date:
+        date.value,
+
+    client:
+        nomClient,
+
+    telephone:
+        telephone.value.trim(),
+
+    produitId:
+        produitId,
+
+    produit:
+        nomProduit,
+
+    quantite:
+        quantiteVendue,
+
+    prix:
+        prixUnitaire,
+
+    remise:
+        montantRemise,
+
+    total:
+        montantTotal,
+
+    paiement:
+        paiement.value,
+
+    statut:
+        "Validée"
+
+};
+
+
+/*--------------------------------
+    RECUPERER LES VENTES
+--------------------------------*/
+
+const ventes =
+    obtenirVentes();
+
+
+/*--------------------------------
+    AJOUTER LA NOUVELLE VENTE
+--------------------------------*/
+
+ventes.push(
+    vente
+);
+
+
+/*--------------------------------
+    ENREGISTRER LES VENTES
+--------------------------------*/
+
+localStorage.setItem(
+
+    "ventes",
+
+    JSON.stringify(
+        ventes
+    )
+
+);
+
+
+/*--------------------------------
+    DIMINUER LE STOCK
+--------------------------------*/
+
+diminuerStock(
+
+    produitId,
+
+    quantiteVendue
+
+);
+
+
+/*--------------------------------
+    MESSAGE DE CONFIRMATION
+--------------------------------*/
+
+alert(
+
+    "Vente enregistrée avec succès !\n\n" +
+
+    "Client : " +
+    nomClient +
+
+    "\nProduit : " +
+    nomProduit +
+
+    "\nQuantité : " +
+    quantiteVendue +
+
+    "\nTotal : " +
+    montantTotal.toLocaleString() +
+    " FC"
+
+);
+
+         /*====================================================
+    OBTENIR LES VENTES
+====================================================*/
+
+function obtenirVentes() {
+
+    const donnees =
+        localStorage.getItem(
+            "ventes"
+        );
+
+    if (!donnees) {
+
+        return [];
+
+    }
+
+    try {
+
+        return JSON.parse(
+            donnees
+        );
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur lecture ventes :",
+            erreur
+        );
+
+        return [];
+
+    }
+
+}
+
+ /*====================================================
+    VERIFIER LE STOCK DISPONIBLE
+====================================================*/
+
+function verifierStockDisponible(
+
+    produitId,
+
+    quantiteDemandee
+
+) {
+
+    const produits =
+        obtenirProduits();
+
+    const produit =
+        produits.find(
+
+            p =>
+
+                String(p.id) ===
+                String(produitId)
+
+        );
+
+
+    if (!produit) {
+
+        return {
+
+            disponible: false,
+
+            stockDisponible: 0
+
+        };
+
+    }
+
+
+    const stockDisponible =
+        Number(
+
+            produit.stock ||
+            produit.quantite ||
+            0
+
+        );
+
+
+    return {
+
+        disponible:
+
+            stockDisponible >=
+            quantiteDemandee,
+
+        stockDisponible:
+            stockDisponible
+
+    };
+
+}
+
+ /*====================================================
+    DIMINUER LE STOCK
+    APRES UNE VENTE
+====================================================*/
+
+function diminuerStock(
+
+    produitId,
+
+    quantiteVendue
+
+) {
+
+    const produits =
+        obtenirProduits();
+
+
+    const index =
+        produits.findIndex(
+
+            p =>
+
+                String(p.id) ===
+                String(produitId)
+
+        );
+
+
+    if (index === -1) {
+
+        console.error(
+
+            "Produit introuvable dans le stock."
+
+        );
+
+        return;
+
+    }
+
+
+    let stockActuel =
+        Number(
+
+            produits[index].stock ||
+            produits[index].quantite ||
+            0
+
+        );
+
+
+    let nouveauStock =
+        stockActuel -
+        quantiteVendue;
+
+
+    if (nouveauStock < 0) {
+
+        nouveauStock = 0;
+
+    }
+
+
+    /*--------------------------------
+        METTRE A JOUR LE PRODUIT
+    --------------------------------*/
+
+    produits[index].stock =
+        nouveauStock;
+
+
+    /*--------------------------------
+        ENREGISTRER
+    --------------------------------*/
+
+    localStorage.setItem(
+
+        "produits",
+
+        JSON.stringify(
+            produits
+        )
+
+    );
+
+
+    console.log(
+
+        "Stock mis à jour :",
+
+        produits[index]
+
+    );
+
+}
+
+
+/*--------------------------------
+    REDIRECTION
+--------------------------------*/
+
+window.location.href =
+    "index.html";
+
+        }
+
+    );
+
+}
 
             /*--------------------------------
              CREATION DE LA VENTE
