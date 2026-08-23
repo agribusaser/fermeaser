@@ -1,7 +1,12 @@
 /*==================================================
 FERME ASHER ERP
 DASHBOARD.JS
-VERSION 1.0
+VERSION 2.0
+==================================================*/
+
+
+/*==================================================
+INITIALISATION
 ==================================================*/
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,55 +15,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chargerDashboard();
 
-    initialiserGraphiques();
-
     actualiserDate();
 
 });
+
 
 /*==================================================
 LOADER
 ==================================================*/
 
-function masquerLoader(){
+function masquerLoader() {
 
-    const loader=document.getElementById("loader");
+    const loader =
+        document.getElementById("loader");
 
-    if(!loader) return;
+    if (!loader) return;
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         loader.classList.add("hidden");
 
-    },700);
+    }, 700);
 
 }
 
 
-
 /*==================================================
-DATE
+DATE / CONNEXION
 ==================================================*/
 
-function actualiserDate(){
+function actualiserDate() {
 
-    const date=new Date();
+    const date = new Date();
 
     console.log(
-
-        "Connexion :",
-
+        "Dashboard chargé :",
         date.toLocaleString()
-
     );
 
 }
 
+
 /*==================================================
-CHARGEMENT DASHBOARD
+CHARGEMENT DU DASHBOARD
 ==================================================*/
 
-function chargerDashboard(){
+function chargerDashboard() {
 
     chargerStatistiques();
 
@@ -66,35 +68,88 @@ function chargerDashboard(){
 
     chargerActivites();
 
+    initialiserGraphiques();
+
 }
+
 
 /*==================================================
 STATISTIQUES
 ==================================================*/
 
-function chargerStatistiques(){
+function chargerStatistiques() {
 
-    const ventes = JSON.parse(localStorage.getItem("ventes")) || [];
-    const clients = JSON.parse(localStorage.getItem("clients")) || [];
-    const produits = JSON.parse(localStorage.getItem("produits")) || [];
-    const stocks = JSON.parse(localStorage.getItem("stocks")) || [];
+    const ventes =
+        JSON.parse(
+            localStorage.getItem("ventes")
+        ) || [];
+
+    const clients =
+        JSON.parse(
+            localStorage.getItem("clients")
+        ) || [];
+
+    const produits =
+        JSON.parse(
+            localStorage.getItem("produits")
+        ) || [];
 
     let chiffreAffaires = 0;
 
+
     ventes.forEach(vente => {
 
-        chiffreAffaires += Number(vente.total || 0);
+        chiffreAffaires +=
+            Number(vente.total || 0);
 
     });
 
-    document.getElementById("kpiVentes").textContent = ventes.length;
 
-    document.getElementById("kpiClients").textContent = clients.length;
+    const kpiVentes =
+        document.getElementById("kpiVentes");
 
-    document.getElementById("kpiStock").textContent = produits.length;
+    const kpiClients =
+        document.getElementById("kpiClients");
 
-    document.getElementById("kpiCA").textContent =
-        chiffreAffaires.toLocaleString("fr-FR") + " FC";
+    const kpiStock =
+        document.getElementById("kpiStock");
+
+    const kpiCA =
+        document.getElementById("kpiCA");
+
+
+    if (kpiVentes) {
+
+        kpiVentes.textContent =
+            ventes.length;
+
+    }
+
+
+    if (kpiClients) {
+
+        kpiClients.textContent =
+            clients.length;
+
+    }
+
+
+    if (kpiStock) {
+
+        kpiStock.textContent =
+            produits.length;
+
+    }
+
+
+    if (kpiCA) {
+
+        kpiCA.textContent =
+            chiffreAffaires
+                .toLocaleString("fr-FR")
+            + " FC";
+
+    }
 
 }
 
@@ -103,26 +158,25 @@ function chargerStatistiques(){
 NOTIFICATIONS
 ==================================================*/
 
-
-function chargerNotifications(){
+function chargerNotifications() {
 
     const ventes =
-    JSON.parse(localStorage.getItem("ventes")) || [];
+        JSON.parse(
+            localStorage.getItem("ventes")
+        ) || [];
 
-    if(ventes.length==0){
 
-        console.log("Aucune vente.");
-
-    }
-
-    else{
+    if (ventes.length === 0) {
 
         console.log(
+            "Aucune vente enregistrée."
+        );
 
-            ventes.length+
+    } else {
 
-            " ventes enregistrées."
-
+        console.log(
+            ventes.length +
+            " vente(s) enregistrée(s)."
         );
 
     }
@@ -130,175 +184,225 @@ function chargerNotifications(){
 }
 
 
-
 /*==================================================
-ACTIVITES
+ACTIVITÉS RÉCENTES
 ==================================================*/
 
-function chargerActivites(){
+function chargerActivites() {
 
-console.log(
+    const tbody =
+        document.getElementById(
+            "recentActivities"
+        );
 
-"Activités chargées."
 
-);
+    if (!tbody) return;
 
-}
 
-/*==================================================
-GRAPHIQUES
-==================================================*/
+    const ventes =
+        JSON.parse(
+            localStorage.getItem("ventes")
+        ) || [];
 
-function initialiserGraphiques(){
 
-const ventes = JSON.parse(
+    tbody.innerHTML = "";
 
-localStorage.getItem("ventes")
 
-)||[];
+    if (ventes.length === 0) {
 
-const mois = [
+        tbody.innerHTML = `
 
-"Jan",
+        <tr>
 
-"Fév",
+            <td colspan="3"
+                class="text-center text-muted">
 
-"Mar",
+                Aucune activité récente.
 
-"Avr",
+            </td>
 
-"Mai",
+        </tr>
 
-"Juin",
+        `;
 
-"Juil",
+        return;
 
-"Août",
+    }
 
-"Sep",
-
-"Oct",
-
-"Nov",
-
-"Déc"
-
-];
-
-let totalMois =
-
-Array(12).fill(0);
-
-ventes.forEach(v=>{
-
-let d = new Date(v.date);
-
-if(!isNaN(d)){
-
-totalMois[d.getMonth()] +=
-
-Number(v.total);
-
-}
-
-});
-
-const canvas =
-
-document.getElementById("salesChart");
-
-if(canvas){
-
-new Chart(canvas,{
-
-type:"bar",
-
-data:{
-
-labels:mois,
-
-datasets:[{
-
-label:"Chiffre d'affaires",
-
-data:totalMois
-
-}]
-
-},
-
-options:{
-
-responsive:true
-
-}
-
-});
-
-}
-
-}
-
-/*==================================================
-DECONNEXION
-==================================================*/
-
-function deconnexion(){
-
-localStorage.removeItem(
-
-"sessionERP"
-
-);
-
-window.location.href=
-
-"login.html";
-
-}
-
-/*==================================================
-ACTIVITES RECENTES
-==================================================*/
-
-function chargerActivites(){
-
-    const tbody = document.getElementById("recentActivities");
-
-    if(!tbody) return;
-
-    const ventes = JSON.parse(localStorage.getItem("ventes")) || [];
-
-    tbody.innerHTML="";
 
     ventes
-    .slice()
-    .reverse()
-    .slice(0,5)
-    .forEach(vente=>{
+        .slice()
+        .reverse()
+        .slice(0, 5)
+        .forEach(vente => {
 
-        tbody.innerHTML += `
 
-<tr>
+            tbody.innerHTML += `
 
-<td>${vente.date}</td>
+            <tr>
 
-<td>${vente.client}</td>
+                <td>
 
-<td>
+                    ${vente.date || ""}
 
-Vente de ${vente.produit}
+                </td>
 
-</td>
 
-</tr>
+                <td>
 
-`;
+                    ${vente.client || ""}
+
+                </td>
+
+
+                <td>
+
+                    Vente de
+                    ${vente.produit || ""}
+
+                </td>
+
+            </tr>
+
+            `;
+
+        });
+
+}
+
+
+/*==================================================
+GRAPHIQUE DES VENTES
+==================================================*/
+
+function initialiserGraphiques() {
+
+    const ventes =
+        JSON.parse(
+            localStorage.getItem("ventes")
+        ) || [];
+
+
+    const mois = [
+
+        "Jan",
+        "Fév",
+        "Mar",
+        "Avr",
+        "Mai",
+        "Juin",
+        "Juil",
+        "Août",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Déc"
+
+    ];
+
+
+    const totalMois =
+        Array(12).fill(0);
+
+
+    ventes.forEach(vente => {
+
+        if (!vente.date) return;
+
+
+        const parties =
+            vente.date.split("-");
+
+
+        if (parties.length !== 3) return;
+
+
+        const moisVente =
+            Number(parties[1]) - 1;
+
+
+        if (
+            moisVente >= 0 &&
+            moisVente <= 11
+        ) {
+
+            totalMois[moisVente] +=
+                Number(
+                    vente.total || 0
+                );
+
+        }
+
+    });
+
+
+    const canvas =
+        document.getElementById(
+            "salesChart"
+        );
+
+
+    if (!canvas) return;
+
+
+    if (typeof Chart === "undefined") {
+
+        console.warn(
+            "Chart.js n'est pas chargé."
+        );
+
+        return;
+
+    }
+
+
+    new Chart(canvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: mois,
+
+            datasets: [{
+
+                label:
+                    "Chiffre d'affaires",
+
+                data:
+                    totalMois
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: true
+
+        }
 
     });
 
 }
 
+
+/*==================================================
+DÉCONNEXION
+==================================================*/
+
+function deconnexion() {
+
+    localStorage.removeItem(
+        "sessionERP"
+    );
+
+    window.location.href =
+        "login.html";
+
+}
 
 
 /*==================================================
@@ -306,7 +410,5 @@ FIN
 ==================================================*/
 
 console.log(
-
-"Dashboard chargé."
-
+    "Ferme Asher ERP - Dashboard.js Version 2.0 chargé."
 );
