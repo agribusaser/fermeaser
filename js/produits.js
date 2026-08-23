@@ -927,6 +927,79 @@ function chargerDetailProduit() {
 
 }
 
+/* =========================================================
+   DIMINUER LE STOCK APRES UNE VENTE
+========================================================= */
+
+function diminuerStockProduit(idProduit, quantiteVendue) {
+
+    const produits =
+        obtenirProduits();
+
+
+    const index =
+        produits.findIndex(
+            produit =>
+                String(produit.id) ===
+                String(idProduit)
+        );
+
+
+    if (index === -1) {
+
+        return {
+            succes: false,
+            message: "Produit introuvable."
+        };
+
+    }
+
+
+    const stockActuel =
+        Number(produits[index].stock) || 0;
+
+
+    const quantite =
+        Number(quantiteVendue) || 0;
+
+
+    if (quantite <= 0) {
+
+        return {
+            succes: false,
+            message: "Quantité invalide."
+        };
+
+    }
+
+
+    if (stockActuel < quantite) {
+
+        return {
+            succes: false,
+            message:
+                "Stock insuffisant. Stock disponible : " +
+                stockActuel +
+                " " +
+                produits[index].unite
+        };
+
+    }
+
+
+    produits[index].stock =
+        stockActuel - quantite;
+
+
+    enregistrerProduits(produits);
+
+
+    return {
+        succes: true,
+        produit: produits[index]
+    };
+
+}
 
 /* =========================================================
    INITIALISATION AUTOMATIQUE
