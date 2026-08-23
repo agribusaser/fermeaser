@@ -8,7 +8,7 @@
    CONSTANTES
    ========================================================= */
 
-const PRODUITS_KEY = "fermeaser_produits";
+const PRODUITS_KEY = "produits";
 
 
 /* =========================================================
