@@ -1,1 +1,604 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Gestion des Projets | Ferme Asher ERP
+</title>
+
+
+<!-- Bootstrap -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<!-- Font Awesome -->
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<!-- CSS -->
+
+<link
+rel="stylesheet"
+href="../../css/projets.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid py-4">
+
+
+<!-- ============================================
+ENTÊTE
+============================================ -->
+
+<div
+class="
+d-flex
+justify-content-between
+align-items-center
+mb-4
+">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-diagram-project"></i>
+
+Gestion des Projets
+
+</h2>
+
+<p class="text-muted mb-0">
+
+Suivi des projets, chantiers et équipes.
+
+</p>
+
+</div>
+
+
+<div>
+
+<a
+href="../../dashboard.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Dashboard
+
+</a>
+
+
+<a
+href="nouveau.html"
+class="btn btn-success">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouveau Projet
+
+</a>
+
+</div>
+
+</div>
+
+
+
+<!-- ============================================
+STATISTIQUES
+============================================ -->
+
+<div class="row mb-4">
+
+
+<!-- TOTAL -->
+
+<div class="col-md-3 mb-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<i
+class="
+fa-solid
+fa-diagram-project
+fa-2x
+text-primary
+mb-2
+">
+</i>
+
+<h3 id="nbTotalProjets">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Total Projets
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- EN COURS -->
+
+<div class="col-md-3 mb-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<i
+class="
+fa-solid
+fa-spinner
+fa-2x
+text-primary
+mb-2
+">
+</i>
+
+<h3 id="nbProjetsEnCours">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+En cours
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- TERMINÉS -->
+
+<div class="col-md-3 mb-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<i
+class="
+fa-solid
+fa-circle-check
+fa-2x
+text-success
+mb-2
+">
+</i>
+
+<h3 id="nbProjetsTermines">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Terminés
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- SUSPENDUS -->
+
+<div class="col-md-3 mb-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<i
+class="
+fa-solid
+fa-pause
+fa-2x
+text-warning
+mb-2
+">
+</i>
+
+<h3 id="nbProjetsSuspendus">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Suspendus
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ============================================
+FILTRES
+============================================ -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+<div class="card-body">
+
+<div class="row">
+
+
+<div class="col-md-5 mb-2">
+
+<input
+
+type="text"
+
+id="rechercheProjet"
+
+class="form-control"
+
+placeholder="
+Rechercher un projet, un chantier ou un responsable...
+">
+
+</div>
+
+
+
+<div class="col-md-3 mb-2">
+
+<select
+id="filtreStatut"
+class="form-select">
+
+<option value="">
+
+Tous les statuts
+
+</option>
+
+<option value="En cours">
+
+En cours
+
+</option>
+
+<option value="Terminé">
+
+Terminés
+
+</option>
+
+<option value="Suspendu">
+
+Suspendus
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<div class="col-md-2 mb-2">
+
+<button
+
+type="button"
+
+class="btn btn-success w-100"
+
+onclick="chargerProjets()"
+
+>
+
+<i class="fa-solid fa-rotate"></i>
+
+Actualiser
+
+</button>
+
+</div>
+
+
+
+<div class="col-md-2 mb-2">
+
+<a
+href="planning.html"
+class="btn btn-primary w-100">
+
+<i class="fa-solid fa-calendar-days"></i>
+
+Planning
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ============================================
+TABLE DES PROJETS
+============================================ -->
+
+<div class="card shadow-sm border-0">
+
+
+<div class="card-header bg-success text-white">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-list"></i>
+
+Liste des projets
+
+</h5>
+
+</div>
+
+
+
+<div class="card-body">
+
+
+<div class="table-responsive">
+
+
+<table
+class="
+table
+table-hover
+align-middle
+">
+
+
+<thead class="table-success">
+
+<tr>
+
+<th>
+
+ID
+
+</th>
+
+
+<th>
+
+Projet
+
+</th>
+
+
+<th>
+
+Site / Chantier
+
+</th>
+
+
+<th>
+
+Responsable
+
+</th>
+
+
+<th>
+
+Début
+
+</th>
+
+
+<th>
+
+Fin prévue
+
+</th>
+
+
+<th style="min-width:150px;">
+
+Avancement
+
+</th>
+
+
+<th>
+
+Statut
+
+</th>
+
+
+<th>
+
+Actions
+
+</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody
+id="tableProjets">
+
+<!-- Les projets seront chargés ici -->
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ============================================
+MENU RAPIDE
+============================================ -->
+
+<div class="row mt-4">
+
+
+<div class="col-md-4 mb-3">
+
+<a
+href="taches.html"
+class="
+btn
+btn-outline-success
+w-100
+p-3
+">
+
+<i class="fa-solid fa-list-check"></i>
+
+Gérer les tâches
+
+</a>
+
+</div>
+
+
+
+<div class="col-md-4 mb-3">
+
+<a
+href="suivi.html"
+class="
+btn
+btn-outline-primary
+w-100
+p-3
+">
+
+<i class="fa-solid fa-chart-line"></i>
+
+Suivi des chantiers
+
+</a>
+
+</div>
+
+
+
+<div class="col-md-4 mb-3">
+
+<a
+href="rapport.html"
+class="
+btn
+btn-outline-dark
+w-100
+p-3
+">
+
+<i class="fa-solid fa-file-lines"></i>
+
+Rapports des projets
+
+</a>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- ============================================
+JAVASCRIPT
+============================================ -->
+
+<script src="../../js/projets.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        chargerProjets();
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
