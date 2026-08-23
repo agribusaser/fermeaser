@@ -1427,8 +1427,8 @@ function chargerProduitsDansVente() {
                 );
 
 
-            option.value =
-                produit.nom;
+           option.value =
+              produit.id;
 
 
             option.textContent =
