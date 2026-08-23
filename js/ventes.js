@@ -18,7 +18,7 @@
 
 const CLE_VENTES = "ventes";
 
-const CLE_PRODUITS = "produits";
+const CLE_PRODUITS = "fermeaser_produits";
 
 const CLE_MOUVEMENTS_STOCK = "mouvementsStock";
 
