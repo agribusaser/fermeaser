@@ -1,1 +1,500 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Employés | Ferme Asher ERP
+    </title>
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- CSS général -->
+
+    <link
+        rel="stylesheet"
+        href="../../css/style.css"
+    >
+
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid py-4">
+
+
+    <!-- ==================================================
+    EN-TÊTE
+    ================================================== -->
+
+    <div
+        class="
+            d-flex
+            justify-content-between
+            align-items-center
+            mb-4
+        "
+    >
+
+
+        <div>
+
+            <h2>
+
+                <i
+                    class="
+                        fa-solid
+                        fa-users
+                    "
+                ></i>
+
+                Gestion des employés
+
+            </h2>
+
+
+            <p
+                class="text-muted mb-0"
+            >
+
+                Gérez les employés de Ferme Asher ERP.
+
+            </p>
+
+        </div>
+
+
+
+        <div
+            class="d-flex gap-2"
+        >
+
+
+            <!-- Retour Dashboard -->
+
+            <a
+                href="../../dashboard.html"
+                class="btn btn-secondary"
+            >
+
+                <i
+                    class="
+                        fa-solid
+                        fa-arrow-left
+                    "
+                ></i>
+
+                Dashboard
+
+            </a>
+
+
+
+            <!-- Nouvel employé -->
+
+            <a
+                href="nouveau.html"
+                class="btn btn-success"
+            >
+
+                <i
+                    class="
+                        fa-solid
+                        fa-user-plus
+                    "
+                ></i>
+
+                Nouvel employé
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ==================================================
+    STATISTIQUES
+    ================================================== -->
+
+    <div class="row mb-4">
+
+
+        <!-- Total -->
+
+        <div class="col-md-4 mb-3">
+
+            <div
+                class="
+                    card
+                    shadow-sm
+                    border-0
+                    text-center
+                    h-100
+                "
+            >
+
+                <div class="card-body">
+
+                    <div
+                        class="
+                            mb-2
+                            text-primary
+                        "
+                    >
+
+                        <i
+                            class="
+                                fa-solid
+                                fa-users
+                                fa-2x
+                            "
+                        ></i>
+
+                    </div>
+
+
+                    <h2
+                        id="nbTotalEmployes"
+                    >
+
+                        0
+
+                    </h2>
+
+
+                    <p
+                        class="
+                            text-muted
+                            mb-0
+                        "
+                    >
+
+                        Total employés
+
+                    </p>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Actifs -->
+
+        <div class="col-md-4 mb-3">
+
+            <div
+                class="
+                    card
+                    shadow-sm
+                    border-0
+                    text-center
+                    h-100
+                "
+            >
+
+                <div class="card-body">
+
+
+                    <div
+                        class="
+                            mb-2
+                            text-success
+                        "
+                    >
+
+                        <i
+                            class="
+                                fa-solid
+                                fa-user-check
+                                fa-2x
+                            "
+                        ></i>
+
+                    </div>
+
+
+                    <h2
+                        id="nbEmployesActifs"
+                    >
+
+                        0
+
+                    </h2>
+
+
+                    <p
+                        class="
+                            text-muted
+                            mb-0
+                        "
+                    >
+
+                        Employés actifs
+
+                    </p>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Inactifs -->
+
+        <div class="col-md-4 mb-3">
+
+            <div
+                class="
+                    card
+                    shadow-sm
+                    border-0
+                    text-center
+                    h-100
+                "
+            >
+
+                <div class="card-body">
+
+
+                    <div
+                        class="
+                            mb-2
+                            text-secondary
+                        "
+                    >
+
+                        <i
+                            class="
+                                fa-solid
+                                fa-user-slash
+                                fa-2x
+                            "
+                        ></i>
+
+                    </div>
+
+
+                    <h2
+                        id="nbEmployesInactifs"
+                    >
+
+                        0
+
+                    </h2>
+
+
+                    <p
+                        class="
+                            text-muted
+                            mb-0
+                        "
+                    >
+
+                        Employés inactifs
+
+                    </p>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ==================================================
+    TABLEAU DES EMPLOYÉS
+    ================================================== -->
+
+    <div
+        class="
+            card
+            shadow-sm
+            border-0
+        "
+    >
+
+
+        <div
+            class="
+                card-header
+                bg-white
+                d-flex
+                justify-content-between
+                align-items-center
+            "
+        >
+
+
+            <h5
+                class="mb-0"
+            >
+
+                <i
+                    class="
+                        fa-solid
+                        fa-list
+                    "
+                ></i>
+
+                Liste des employés
+
+            </h5>
+
+
+
+            <a
+                href="nouveau.html"
+                class="
+                    btn
+                    btn-success
+                    btn-sm
+                "
+            >
+
+                <i
+                    class="
+                        fa-solid
+                        fa-plus
+                    "
+                ></i>
+
+                Ajouter
+
+            </a>
+
+
+        </div>
+
+
+
+        <div class="card-body">
+
+
+            <div class="table-responsive">
+
+
+                <table
+                    class="
+                        table
+                        table-hover
+                        align-middle
+                    "
+                >
+
+
+                    <thead
+                        class="table-success"
+                    >
+
+                        <tr>
+
+                            <th>
+                                Matricule
+                            </th>
+
+                            <th>
+                                Nom
+                            </th>
+
+                            <th>
+                                Téléphone
+                            </th>
+
+                            <th>
+                                Fonction
+                            </th>
+
+                            <th>
+                                Poste / Chantier
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody
+                        id="tableEmployes"
+                    >
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ==================================================
+JAVASCRIPT
+================================================== -->
+
+<script
+    src="../../js/employes.js"
+></script>
+
+
+</body>
+
+</html>
