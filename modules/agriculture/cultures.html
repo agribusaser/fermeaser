@@ -1,1 +1,910 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Gestion des cultures | Ferme Asher ERP</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        body {
+            background: #f4f6f8;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .page-header h1 {
+            color: #1f6b45;
+            font-weight: bold;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            color: #198754;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f6b45;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .btn-success {
+            background: #198754;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #777;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #198754;
+            margin-bottom: 20px;
+        }
+
+        .culture-badge {
+            background: #e8f5ee;
+            color: #198754;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container-fluid p-4">
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-8">
+
+                <h1>
+
+                    <i class="fa-solid fa-seedling"></i>
+
+                    Gestion des cultures
+
+                </h1>
+
+                <p class="text-muted mb-0">
+
+                    Créez et gérez toutes les cultures de votre ferme.
+
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                <a
+                    href="index.html"
+                    class="btn btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Retour à l'agriculture
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- STATISTIQUES -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-4 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-seedling"></i>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="totalCultures">
+
+                    0
+
+                </div>
+
+                <div>
+
+                    Cultures enregistrées
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-tractor"></i>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="culturesActives">
+
+                    0
+
+                </div>
+
+                <div>
+
+                    Cultures actives
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-box"></i>
+
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="totalProduction">
+
+                    0
+
+                </div>
+
+                <div>
+
+                    Production totale
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- LISTE DES CULTURES -->
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h4 class="mb-0">
+
+                    <i class="fa-solid fa-list"></i>
+
+                    Liste des cultures
+
+                </h4>
+
+
+                <button
+                    class="btn btn-success"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cultureModal">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Nouvelle culture
+
+                </button>
+
+            </div>
+
+
+
+            <div
+                id="emptyState"
+                class="empty-state">
+
+                <i class="fa-solid fa-seedling"></i>
+
+                <h4>
+
+                    Aucune culture enregistrée
+
+                </h4>
+
+                <p>
+
+                    Commencez par ajouter une culture à votre ferme.
+
+                </p>
+
+            </div>
+
+
+
+            <div
+                class="table-responsive"
+                id="tableContainer"
+                style="display:none;">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Culture</th>
+
+                            <th>Catégorie</th>
+
+                            <th>Variété</th>
+
+                            <th>Statut</th>
+
+                            <th>Date création</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="culturesTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- MODAL NOUVELLE CULTURE -->
+
+<div
+    class="modal fade"
+    id="cultureModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-seedling"></i>
+
+                    Nouvelle culture
+
+                </h5>
+
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+
+                </button>
+
+            </div>
+
+
+
+            <div class="modal-body">
+
+                <form id="cultureForm">
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Nom de la culture
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nomCulture"
+                            placeholder="Exemple : Maïs"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Catégorie
+
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="categorieCulture"
+                            required>
+
+                            <option value="">
+
+                                Sélectionner
+
+                            </option>
+
+                            <option>
+
+                                Céréale
+
+                            </option>
+
+                            <option>
+
+                                Légumineuse
+
+                            </option>
+
+                            <option>
+
+                                Maraîchage
+
+                            </option>
+
+                            <option>
+
+                                Tubercule
+
+                            </option>
+
+                            <option>
+
+                                Fruit
+
+                            </option>
+
+                            <option>
+
+                                Autre
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Variété
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="varieteCulture"
+                            placeholder="Exemple : Maïs hybride">
+
+                    </div>
+
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Statut
+
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="statutCulture">
+
+                            <option value="Active">
+
+                                Active
+
+                            </option>
+
+                            <option value="Inactive">
+
+                                Inactive
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="ajouterCulture()">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Enregistrer
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- BOOTSTRAP JS -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+
+<script>
+
+/* =========================================
+   FERME ASHER ERP
+   GESTION DES CULTURES
+========================================= */
+
+
+/* ==============================
+   CLÉ LOCALSTORAGE
+============================== */
+
+const CLE_CULTURES = "fermeAsherCultures";
+
+
+/* ==============================
+   CHARGER LES CULTURES
+============================== */
+
+function chargerCultures() {
+
+    const cultures =
+        JSON.parse(
+            localStorage.getItem(CLE_CULTURES)
+        ) || [];
+
+
+    afficherCultures(cultures);
+
+    mettreAJourStatistiques(cultures);
+
+}
+
+
+
+/* ==============================
+   AJOUTER UNE CULTURE
+============================== */
+
+function ajouterCulture() {
+
+    const nom =
+        document.getElementById("nomCulture").value.trim();
+
+    const categorie =
+        document.getElementById("categorieCulture").value;
+
+    const variete =
+        document.getElementById("varieteCulture").value.trim();
+
+    const statut =
+        document.getElementById("statutCulture").value;
+
+
+
+    if (!nom || !categorie) {
+
+        alert(
+            "Veuillez remplir le nom et la catégorie."
+        );
+
+        return;
+
+    }
+
+
+
+    const cultures =
+        JSON.parse(
+            localStorage.getItem(CLE_CULTURES)
+        ) || [];
+
+
+
+    const nouvelleCulture = {
+
+        id: Date.now(),
+
+        nom: nom,
+
+        categorie: categorie,
+
+        variete: variete,
+
+        statut: statut,
+
+        dateCreation:
+            new Date().toLocaleDateString("fr-FR")
+
+    };
+
+
+
+    cultures.push(nouvelleCulture);
+
+
+
+    localStorage.setItem(
+
+        CLE_CULTURES,
+
+        JSON.stringify(cultures)
+
+    );
+
+
+
+    document
+        .getElementById("cultureForm")
+        .reset();
+
+
+
+    const modalElement =
+        document.getElementById("cultureModal");
+
+
+
+    const modal =
+        bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+
+
+    modal.hide();
+
+
+
+    chargerCultures();
+
+}
+
+
+
+/* ==============================
+   AFFICHER LES CULTURES
+============================== */
+
+function afficherCultures(cultures) {
+
+    const table =
+        document.getElementById("culturesTable");
+
+
+    const emptyState =
+        document.getElementById("emptyState");
+
+
+    const tableContainer =
+        document.getElementById("tableContainer");
+
+
+
+    table.innerHTML = "";
+
+
+
+    if (cultures.length === 0) {
+
+        emptyState.style.display = "block";
+
+        tableContainer.style.display = "none";
+
+        return;
+
+    }
+
+
+
+    emptyState.style.display = "none";
+
+    tableContainer.style.display = "block";
+
+
+
+    cultures.forEach(function(culture) {
+
+        const ligne = document.createElement("tr");
+
+
+        ligne.innerHTML = `
+
+            <td>
+
+                <strong>
+
+                    <i class="fa-solid fa-seedling text-success"></i>
+
+                    ${culture.nom}
+
+                </strong>
+
+            </td>
+
+
+            <td>
+
+                ${culture.categorie}
+
+            </td>
+
+
+            <td>
+
+                ${culture.variete || "-"}
+
+            </td>
+
+
+            <td>
+
+                <span class="culture-badge">
+
+                    ${culture.statut}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                ${culture.dateCreation}
+
+            </td>
+
+
+            <td>
+
+                <button
+                    class="btn btn-sm btn-danger"
+                    onclick="supprimerCulture(${culture.id})">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(ligne);
+
+    });
+
+}
+
+
+
+/* ==============================
+   SUPPRIMER UNE CULTURE
+============================== */
+
+function supprimerCulture(id) {
+
+    const confirmation =
+        confirm(
+            "Voulez-vous supprimer cette culture ?"
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+
+    let cultures =
+        JSON.parse(
+            localStorage.getItem(CLE_CULTURES)
+        ) || [];
+
+
+
+    cultures =
+        cultures.filter(function(culture) {
+
+            return culture.id !== id;
+
+        });
+
+
+
+    localStorage.setItem(
+
+        CLE_CULTURES,
+
+        JSON.stringify(cultures)
+
+    );
+
+
+
+    chargerCultures();
+
+}
+
+
+
+/* ==============================
+   STATISTIQUES
+============================== */
+
+function mettreAJourStatistiques(cultures) {
+
+    document
+        .getElementById("totalCultures")
+        .innerText = cultures.length;
+
+
+
+    const actives =
+        cultures.filter(function(culture) {
+
+            return culture.statut === "Active";
+
+        });
+
+
+
+    document
+        .getElementById("culturesActives")
+        .innerText = actives.length;
+
+
+
+    document
+        .getElementById("totalProduction")
+        .innerText = "0";
+
+}
+
+
+
+/* ==============================
+   INITIALISATION
+============================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    function() {
+
+        chargerCultures();
+
+    }
+
+);
+
+</script>
+
+
+</body>
+
+</html>
