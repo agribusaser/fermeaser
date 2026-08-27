@@ -2,7 +2,6 @@
 <html lang="fr">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,39 +9,42 @@
     <title>Agriculture | Ferme Asher ERP</title>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
     <!-- Font Awesome -->
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- CSS principal -->
+    <!-- CSS général -->
     <link rel="stylesheet" href="../../css/style.css">
 
 </head>
-
 
 <body>
 
 <div class="container-fluid py-4">
 
-    <!-- EN-TÊTE -->
+    <!-- =========================
+         EN-TÊTE
+    ========================== -->
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
 
-            <h2 class="text-success">
+            <h2 class="fw-bold">
 
-                <i class="fa-solid fa-seedling"></i>
+                <i class="fa-solid fa-seedling text-success"></i>
 
-                Agriculture
+                Gestion Agricole
 
             </h2>
 
-            <p class="text-muted">
+            <p class="text-muted mb-0">
 
-                Gestion complète des cultures, parcelles, campagnes et travaux agricoles.
+                Gérez vos exploitations, parcelles, cultures,
+                travaux, dépenses et récoltes.
 
             </p>
 
@@ -61,31 +63,41 @@
     </div>
 
 
-
-    <!-- STATISTIQUES -->
+    <!-- =========================
+         STATISTIQUES
+    ========================== -->
 
     <div class="row g-4 mb-4">
 
+        <!-- Exploitations -->
 
         <div class="col-md-3">
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body text-center">
+                <div class="card-body">
 
-                    <i class="fa-solid fa-wheat-awn fa-2x text-success mb-3"></i>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                    <h3 id="nbCultures">
+                        <div>
 
-                        0
+                            <h6 class="text-muted">
 
-                    </h3>
+                                Exploitations
 
-                    <p class="mb-0">
+                            </h6>
 
-                        Cultures
+                            <h2 id="nbExploitations">
 
-                    </p>
+                                0
+
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-map-location-dot fa-2x text-success"></i>
+
+                    </div>
 
                 </div>
 
@@ -94,26 +106,35 @@
         </div>
 
 
+        <!-- Parcelles -->
 
         <div class="col-md-3">
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body text-center">
+                <div class="card-body">
 
-                    <i class="fa-solid fa-map-location-dot fa-2x text-success mb-3"></i>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                    <h3 id="nbParcelles">
+                        <div>
 
-                        0
+                            <h6 class="text-muted">
 
-                    </h3>
+                                Parcelles
 
-                    <p class="mb-0">
+                            </h6>
 
-                        Parcelles
+                            <h2 id="nbParcelles">
 
-                    </p>
+                                0
+
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-vector-square fa-2x text-success"></i>
+
+                    </div>
 
                 </div>
 
@@ -122,26 +143,35 @@
         </div>
 
 
+        <!-- Cultures -->
 
         <div class="col-md-3">
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body text-center">
+                <div class="card-body">
 
-                    <i class="fa-solid fa-tractor fa-2x text-success mb-3"></i>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                    <h3 id="nbCampagnes">
+                        <div>
 
-                        0
+                            <h6 class="text-muted">
 
-                    </h3>
+                                Cultures actives
 
-                    <p class="mb-0">
+                            </h6>
 
-                        Campagnes
+                            <h2 id="nbCultures">
 
-                    </p>
+                                0
+
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-wheat-awn fa-2x text-success"></i>
+
+                    </div>
 
                 </div>
 
@@ -150,233 +180,363 @@
         </div>
 
 
+        <!-- Travaux -->
 
         <div class="col-md-3">
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body text-center">
+                <div class="card-body">
 
-                    <i class="fa-solid fa-list-check fa-2x text-success mb-3"></i>
+                    <div class="d-flex justify-content-between align-items-center">
 
-                    <h3 id="nbTravaux">
+                        <div>
 
-                        0
+                            <h6 class="text-muted">
 
-                    </h3>
+                                Travaux en cours
 
-                    <p class="mb-0">
+                            </h6>
 
-                        Travaux en cours
+                            <h2 id="nbTravaux">
 
-                    </p>
+                                0
+
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-person-digging fa-2x text-success"></i>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
-
 
     </div>
 
 
-
-    <!-- MENU AGRICULTURE -->
+    <!-- =========================
+         MODULES AGRICOLES
+    ========================== -->
 
     <div class="row g-4">
 
 
-        <!-- CULTURES -->
+        <!-- EXPLOITATIONS -->
 
         <div class="col-md-4">
 
-            <div class="card shadow-sm border-0 h-100">
+            <a href="exploitations.html"
+               class="text-decoration-none">
 
-                <div class="card-body text-center">
+                <div class="card shadow-sm border-0 h-100">
 
-                    <i class="fa-solid fa-wheat-awn fa-3x text-success mb-3"></i>
+                    <div class="card-body text-center p-4">
 
-                    <h4>
+                        <i class="fa-solid fa-map-location-dot
+                                  fa-3x text-success mb-3"></i>
 
-                        Cultures
+                        <h4>
 
-                    </h4>
+                            Exploitations
 
-                    <p class="text-muted">
+                        </h4>
 
-                        Créer et gérer les différentes cultures de la ferme.
+                        <p class="text-muted">
 
-                    </p>
+                            Gérez vos fermes, sites et chantiers agricoles.
 
-                    <a href="cultures.html"
-                       class="btn btn-success">
+                        </p>
 
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                        Gérer les cultures
-
-                    </a>
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
 
         </div>
-
 
 
         <!-- PARCELLES -->
 
         <div class="col-md-4">
 
-            <div class="card shadow-sm border-0 h-100">
+            <a href="parcelles.html"
+               class="text-decoration-none">
 
-                <div class="card-body text-center">
+                <div class="card shadow-sm border-0 h-100">
 
-                    <i class="fa-solid fa-map-location-dot fa-3x text-success mb-3"></i>
+                    <div class="card-body text-center p-4">
 
-                    <h4>
+                        <i class="fa-solid fa-vector-square
+                                  fa-3x text-success mb-3"></i>
 
-                        Sites & Parcelles
+                        <h4>
 
-                    </h4>
+                            Parcelles
 
-                    <p class="text-muted">
+                        </h4>
 
-                        Créer les sites agricoles et leurs différentes parcelles.
+                        <p class="text-muted">
 
-                    </p>
+                            Créez et organisez vos différentes parcelles.
 
-                    <a href="parcelles.html"
-                       class="btn btn-success">
+                        </p>
 
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                        Gérer les parcelles
-
-                    </a>
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
 
         </div>
 
 
-
-        <!-- CAMPAGNES -->
+        <!-- CULTURES -->
 
         <div class="col-md-4">
 
-            <div class="card shadow-sm border-0 h-100">
+            <a href="cultures.html"
+               class="text-decoration-none">
 
-                <div class="card-body text-center">
+                <div class="card shadow-sm border-0 h-100">
 
-                    <i class="fa-solid fa-tractor fa-3x text-success mb-3"></i>
+                    <div class="card-body text-center p-4">
 
-                    <h4>
+                        <i class="fa-solid fa-seedling
+                                  fa-3x text-success mb-3"></i>
 
-                        Campagnes agricoles
+                        <h4>
 
-                    </h4>
+                            Cultures
 
-                    <p class="text-muted">
+                        </h4>
 
-                        Planifier et suivre les différentes campagnes agricoles.
+                        <p class="text-muted">
 
-                    </p>
+                            Suivez toutes les cultures en production.
 
-                    <a href="campagnes.html"
-                       class="btn btn-success">
+                        </p>
 
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                        Gérer les campagnes
-
-                    </a>
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
 
         </div>
 
+
+        <!-- PLANNING -->
+
+        <div class="col-md-4">
+
+            <a href="planning.html"
+               class="text-decoration-none">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center p-4">
+
+                        <i class="fa-solid fa-calendar-days
+                                  fa-3x text-success mb-3"></i>
+
+                        <h4>
+
+                            Planning agricole
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Planifiez les semis, entretiens et récoltes.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
 
 
         <!-- TRAVAUX -->
 
-        <div class="col-md-6">
+        <div class="col-md-4">
 
-            <div class="card shadow-sm border-0 h-100">
+            <a href="travaux.html"
+               class="text-decoration-none">
 
-                <div class="card-body text-center">
+                <div class="card shadow-sm border-0 h-100">
 
-                    <i class="fa-solid fa-list-check fa-3x text-success mb-3"></i>
+                    <div class="card-body text-center p-4">
 
-                    <h4>
+                        <i class="fa-solid fa-person-digging
+                                  fa-3x text-success mb-3"></i>
 
-                        Travaux agricoles
+                        <h4>
 
-                    </h4>
+                            Travaux & Tâches
 
-                    <p class="text-muted">
+                        </h4>
 
-                        Planifier et attribuer les travaux aux responsables et employés.
+                        <p class="text-muted">
 
-                    </p>
+                            Affectez et suivez les tâches des employés.
 
-                    <a href="travaux.html"
-                       class="btn btn-success">
+                        </p>
 
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                        Gérer les travaux
-
-                    </a>
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
 
         </div>
 
 
+        <!-- MATERIELS -->
 
-        <!-- SUIVI -->
+        <div class="col-md-4">
 
-        <div class="col-md-6">
+            <a href="materiels.html"
+               class="text-decoration-none">
 
-            <div class="card shadow-sm border-0 h-100">
+                <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body text-center">
+                    <div class="card-body text-center p-4">
 
-                    <i class="fa-solid fa-chart-line fa-3x text-success mb-3"></i>
+                        <i class="fa-solid fa-tractor
+                                  fa-3x text-success mb-3"></i>
 
-                    <h4>
+                        <h4>
 
-                        Suivi agricole
+                            Matériels
 
-                    </h4>
+                        </h4>
 
-                    <p class="text-muted">
+                        <p class="text-muted">
 
-                        Contrôler l'avancement des travaux et des campagnes agricoles.
+                            Gérez les tracteurs, machines et équipements.
 
-                    </p>
+                        </p>
 
-                    <a href="suivi.html"
-                       class="btn btn-success">
-
-                        <i class="fa-solid fa-arrow-right"></i>
-
-                        Voir le suivi
-
-                    </a>
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
+
+        </div>
+
+
+        <!-- DEPENSES -->
+
+        <div class="col-md-4">
+
+            <a href="depenses.html"
+               class="text-decoration-none">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center p-4">
+
+                        <i class="fa-solid fa-money-bill-wave
+                                  fa-3x text-success mb-3"></i>
+
+                        <h4>
+
+                            Dépenses
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Suivez les dépenses de chaque activité agricole.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <!-- RECOLTES -->
+
+        <div class="col-md-4">
+
+            <a href="recoltes.html"
+               class="text-decoration-none">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center p-4">
+
+                        <i class="fa-solid fa-basket-shopping
+                                  fa-3x text-success mb-3"></i>
+
+                        <h4>
+
+                            Récoltes
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Enregistrez les récoltes et les rendements.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <!-- SUIVI -->
+
+        <div class="col-md-4">
+
+            <a href="suivi.html"
+               class="text-decoration-none">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body text-center p-4">
+
+                        <i class="fa-solid fa-chart-line
+                                  fa-3x text-success mb-3"></i>
+
+                        <h4>
+
+                            Suivi Agricole
+
+                        </h4>
+
+                        <p class="text-muted">
+
+                            Analysez la progression et les performances.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </a>
 
         </div>
 
@@ -384,7 +544,6 @@
     </div>
 
 </div>
-
 
 </body>
 
