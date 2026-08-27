@@ -1,1 +1,1841 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Parcelles | Ferme Asher ERP</title>
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            background: #f4f7f5;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            color: #243447;
+
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .page-header {
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 15px;
+
+            margin-bottom: 30px;
+
+            box-shadow:
+                0 4px 20px
+                rgba(0,0,0,0.06);
+
+        }
+
+
+        .page-title {
+
+            color: #1f7a4d;
+
+            font-weight: 700;
+
+            font-size: 32px;
+
+        }
+
+
+        .page-title i {
+
+            margin-right: 10px;
+
+        }
+
+
+        /* =========================
+           STATISTIQUES
+        ========================= */
+
+        .card-stat {
+
+            background: white;
+
+            border: none;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 4px 20px
+                rgba(0,0,0,0.06);
+
+            padding: 25px;
+
+            text-align: center;
+
+            height: 100%;
+
+        }
+
+
+        .card-stat i {
+
+            font-size: 35px;
+
+            color: #1f7a4d;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .card-stat .number {
+
+            font-size: 30px;
+
+            font-weight: bold;
+
+            color: #243447;
+
+        }
+
+
+        .card-stat .label {
+
+            color: #6c757d;
+
+            margin-top: 5px;
+
+        }
+
+
+        /* =========================
+           CONTENU
+        ========================= */
+
+        .content-card {
+
+            background: white;
+
+            border-radius: 15px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 4px 20px
+                rgba(0,0,0,0.06);
+
+        }
+
+
+        .btn-success {
+
+            background: #1f7a4d;
+
+            border-color: #1f7a4d;
+
+        }
+
+
+        .btn-success:hover {
+
+            background: #17633e;
+
+            border-color: #17633e;
+
+        }
+
+
+        /* =========================
+           TABLEAU
+        ========================= */
+
+        .table thead {
+
+            background: #1f7a4d;
+
+            color: white;
+
+        }
+
+
+        .badge-active {
+
+            background: #d1f2df;
+
+            color: #146c43;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+        }
+
+
+        .badge-inactive {
+
+            background: #e9ecef;
+
+            color: #6c757d;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+        }
+
+
+        /* =========================
+           ETAT VIDE
+        ========================= */
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 50px 20px;
+
+            color: #6c757d;
+
+        }
+
+
+        .empty-state i {
+
+            font-size: 60px;
+
+            color: #1f7a4d;
+
+            margin-bottom: 20px;
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+<div class="container-fluid p-4">
+
+
+    <!-- =================================
+         EN-TÊTE
+    ================================= -->
+
+    <div
+        class="page-header
+               d-flex
+               justify-content-between
+               align-items-center
+               flex-wrap
+               gap-3">
+
+
+        <div>
+
+            <h1 class="page-title">
+
+                <i class="fa-solid fa-map-location-dot"></i>
+
+                Parcelles agricoles
+
+            </h1>
+
+
+            <p class="mb-0 text-muted">
+
+                Gérez les parcelles de vos différentes exploitations agricoles.
+
+            </p>
+
+        </div>
+
+
+
+        <div>
+
+
+            <a
+                href="index.html"
+                class="btn btn-secondary me-2">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Retour Agriculture
+
+            </a>
+
+
+
+            <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#modalParcelle">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Nouvelle parcelle
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================
+         STATISTIQUES
+    ================================= -->
+
+    <div class="row g-4 mb-4">
+
+
+        <!-- TOTAL PARCELLES -->
+
+        <div class="col-md-4">
+
+            <div class="card-stat">
+
+                <i class="fa-solid fa-map"></i>
+
+
+                <div
+                    class="number"
+                    id="totalParcelles">
+
+                    0
+
+                </div>
+
+
+                <div class="label">
+
+                    Parcelles
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SUPERFICIE -->
+
+        <div class="col-md-4">
+
+            <div class="card-stat">
+
+                <i class="fa-solid fa-ruler-combined"></i>
+
+
+                <div
+                    class="number"
+                    id="totalSuperficie">
+
+                    0 Ha
+
+                </div>
+
+
+                <div class="label">
+
+                    Superficie totale
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PARCELLES ACTIVES -->
+
+        <div class="col-md-4">
+
+            <div class="card-stat">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+
+                <div
+                    class="number"
+                    id="parcellesActives">
+
+                    0
+
+                </div>
+
+
+                <div class="label">
+
+                    Parcelles actives
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =================================
+         LISTE
+    ================================= -->
+
+    <div class="content-card">
+
+
+        <div
+            class="d-flex
+                   justify-content-between
+                   align-items-center
+                   mb-4
+                   flex-wrap
+                   gap-3">
+
+
+            <h3 class="mb-0">
+
+                <i class="fa-solid fa-list"></i>
+
+                Liste des parcelles
+
+            </h3>
+
+
+
+            <input
+                type="text"
+                class="form-control"
+                id="recherche"
+                placeholder="Rechercher une parcelle..."
+                style="max-width:300px;">
+
+
+        </div>
+
+
+
+        <div class="table-responsive">
+
+
+            <table
+                class="table
+                       table-hover
+                       align-middle">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>Parcelle</th>
+
+                        <th>Exploitation</th>
+
+                        <th>Localisation</th>
+
+                        <th>Superficie</th>
+
+                        <th>Type de sol</th>
+
+                        <th>Statut</th>
+
+                        <th class="text-center">
+
+                            Actions
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody id="listeParcelles">
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+
+        <!-- ETAT VIDE -->
+
+        <div
+            class="empty-state"
+            id="emptyState">
+
+
+            <i class="fa-solid fa-map-location-dot"></i>
+
+
+            <h4>
+
+                Aucune parcelle enregistrée
+
+            </h4>
+
+
+            <p>
+
+                Créez votre première parcelle et rattachez-la à une exploitation.
+
+            </p>
+
+
+            <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#modalParcelle">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Créer une parcelle
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================
+     MODAL
+================================= -->
+
+<div
+    class="modal fade"
+    id="modalParcelle"
+    tabindex="-1">
+
+
+    <div class="modal-dialog modal-lg">
+
+
+        <div class="modal-content">
+
+
+            <!-- HEADER -->
+
+            <div class="modal-header">
+
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-map-location-dot"></i>
+
+                    Nouvelle parcelle
+
+                </h5>
+
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- BODY -->
+
+            <div class="modal-body">
+
+
+                <form id="formParcelle">
+
+
+                    <!-- ID CACHE -->
+
+                    <input
+                        type="hidden"
+                        id="parcelleId">
+
+
+
+                    <div class="row g-3">
+
+
+                        <!-- NOM -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Nom de la parcelle *
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="nom"
+                                placeholder="Ex: Parcelle A"
+                                required>
+
+
+                        </div>
+
+
+
+                        <!-- EXPLOITATION -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Exploitation *
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="exploitationIdSelect"
+                                required>
+
+
+                                <option value="">
+
+                                    -- Sélectionner une exploitation --
+
+                                </option>
+
+
+                            </select>
+
+
+                        </div>
+
+
+
+                        <!-- LOCALISATION -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Localisation
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="localisation"
+                                placeholder="Ex: Secteur Nord">
+
+
+                        </div>
+
+
+
+                        <!-- SUPERFICIE -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Superficie (Ha)
+
+                            </label>
+
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="superficie"
+                                step="0.01"
+                                min="0"
+                                placeholder="Ex: 2.5">
+
+
+                        </div>
+
+
+
+                        <!-- TYPE DE SOL -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Type de sol
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="typeSol">
+
+
+                                <option value="">
+
+                                    -- Sélectionner --
+
+                                </option>
+
+
+                                <option value="Argileux">
+
+                                    Argileux
+
+                                </option>
+
+
+                                <option value="Sableux">
+
+                                    Sableux
+
+                                </option>
+
+
+                                <option value="Limoneux">
+
+                                    Limoneux
+
+                                </option>
+
+
+                                <option value="Argilo-limoneux">
+
+                                    Argilo-limoneux
+
+                                </option>
+
+
+                                <option value="Autre">
+
+                                    Autre
+
+                                </option>
+
+
+                            </select>
+
+
+                        </div>
+
+
+
+                        <!-- STATUT -->
+
+                        <div class="col-md-6">
+
+
+                            <label class="form-label">
+
+                                Statut
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="statut">
+
+
+                                <option value="Active">
+
+                                    Active
+
+                                </option>
+
+
+                                <option value="Inactive">
+
+                                    Inactive
+
+                                </option>
+
+
+                            </select>
+
+
+                        </div>
+
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="col-12">
+
+
+                            <label class="form-label">
+
+                                Description
+
+                            </label>
+
+
+                            <textarea
+                                class="form-control"
+                                id="description"
+                                rows="3"
+                                placeholder="Informations complémentaires..."></textarea>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Annuler
+
+                </button>
+
+
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="enregistrerParcelle()">
+
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Enregistrer
+
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================
+     BOOTSTRAP
+================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+
+<script>
+
+
+/* ============================================
+   CLÉS LOCALSTORAGE
+============================================ */
+
+const CLE_PARCELLES = "parcelles";
+
+const CLE_EXPLOITATIONS = "exploitations";
+
+
+
+/* ============================================
+   RECUPERER LES EXPLOITATIONS
+============================================ */
+
+function getExploitations() {
+
+    return JSON.parse(
+        localStorage.getItem(CLE_EXPLOITATIONS)
+    ) || [];
+
+}
+
+
+
+/* ============================================
+   RECUPERER LES PARCELLES
+============================================ */
+
+function getParcelles() {
+
+    return JSON.parse(
+        localStorage.getItem(CLE_PARCELLES)
+    ) || [];
+
+}
+
+
+
+/* ============================================
+   CHARGER LES EXPLOITATIONS
+   DANS LE SELECT
+============================================ */
+
+function chargerExploitations() {
+
+
+    const exploitations =
+        getExploitations();
+
+
+    const select =
+        document.getElementById(
+            "exploitationIdSelect"
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            -- Sélectionner une exploitation --
+
+        </option>
+
+    `;
+
+
+
+    exploitations.forEach(function(exploitation) {
+
+
+        select.innerHTML += `
+
+            <option
+                value="${exploitation.id}">
+
+                ${exploitation.nom}
+
+            </option>
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+/* ============================================
+   ENREGISTRER UNE PARCELLE
+============================================ */
+
+function enregistrerParcelle() {
+
+
+    const id =
+        document
+        .getElementById("parcelleId")
+        .value;
+
+
+    const nom =
+        document
+        .getElementById("nom")
+        .value
+        .trim();
+
+
+    const exploitationId =
+        document
+        .getElementById(
+            "exploitationIdSelect"
+        )
+        .value;
+
+
+    const localisation =
+        document
+        .getElementById("localisation")
+        .value
+        .trim();
+
+
+    const superficie =
+        parseFloat(
+            document
+            .getElementById("superficie")
+            .value
+        ) || 0;
+
+
+    const typeSol =
+        document
+        .getElementById("typeSol")
+        .value;
+
+
+    const statut =
+        document
+        .getElementById("statut")
+        .value;
+
+
+    const description =
+        document
+        .getElementById("description")
+        .value
+        .trim();
+
+
+
+    /* VERIFICATIONS */
+
+    if (!nom) {
+
+        alert(
+            "Veuillez saisir le nom de la parcelle."
+        );
+
+        return;
+
+    }
+
+
+
+    if (!exploitationId) {
+
+        alert(
+            "Veuillez sélectionner une exploitation."
+        );
+
+        return;
+
+    }
+
+
+
+    let parcelles =
+        getParcelles();
+
+
+
+    const parcelle = {
+
+        id:
+            id
+            ? Number(id)
+            : Date.now(),
+
+        nom: nom,
+
+        exploitationId:
+            Number(exploitationId),
+
+        localisation:
+            localisation,
+
+        superficie:
+            superficie,
+
+        typeSol:
+            typeSol,
+
+        statut:
+            statut,
+
+        description:
+            description
+
+    };
+
+
+
+    /* MODIFICATION */
+
+    if (id) {
+
+
+        parcelles =
+            parcelles.map(function(item) {
+
+
+                if (
+                    item.id === Number(id)
+                ) {
+
+                    return parcelle;
+
+                }
+
+
+                return item;
+
+
+            });
+
+
+    }
+
+
+    /* CREATION */
+
+    else {
+
+
+        parcelles.push(
+            parcelle
+        );
+
+
+    }
+
+
+
+    /* SAUVEGARDE */
+
+    localStorage.setItem(
+
+        CLE_PARCELLES,
+
+        JSON.stringify(
+            parcelles
+        )
+
+    );
+
+
+
+    /* RESET FORMULAIRE */
+
+    document
+        .getElementById(
+            "formParcelle"
+        )
+        .reset();
+
+
+
+    document
+        .getElementById(
+            "parcelleId"
+        )
+        .value = "";
+
+
+
+    /* FERMER MODAL */
+
+    const modalElement =
+        document.getElementById(
+            "modalParcelle"
+        );
+
+
+    const modal =
+        bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+
+    modal.hide();
+
+
+
+    /* RAFRAICHIR */
+
+    afficherParcelles();
+
+
+}
+
+
+
+/* ============================================
+   AFFICHER LES PARCELLES
+============================================ */
+
+function afficherParcelles() {
+
+
+    const parcelles =
+        getParcelles();
+
+
+    const exploitations =
+        getExploitations();
+
+
+
+    const tbody =
+        document.getElementById(
+            "listeParcelles"
+        );
+
+
+    const emptyState =
+        document.getElementById(
+            "emptyState"
+        );
+
+
+
+    tbody.innerHTML = "";
+
+
+
+    if (
+        parcelles.length === 0
+    ) {
+
+        emptyState.style.display =
+            "block";
+
+    }
+
+    else {
+
+        emptyState.style.display =
+            "none";
+
+    }
+
+
+
+    parcelles.forEach(function(parcelle) {
+
+
+        /* TROUVER L'EXPLOITATION */
+
+        const exploitation =
+            exploitations.find(
+                function(item) {
+
+                    return (
+                        item.id ===
+                        parcelle.exploitationId
+                    );
+
+                }
+            );
+
+
+
+        const nomExploitation =
+            exploitation
+            ? exploitation.nom
+            : "Non définie";
+
+
+
+        /* STATUT */
+
+        let badge = "";
+
+
+        if (
+            parcelle.statut === "Active"
+        ) {
+
+            badge = `
+
+                <span
+                    class="badge-active">
+
+                    Active
+
+                </span>
+
+            `;
+
+        }
+
+        else {
+
+            badge = `
+
+                <span
+                    class="badge-inactive">
+
+                    Inactive
+
+                </span>
+
+            `;
+
+        }
+
+
+
+        /* AJOUT LIGNE */
+
+        tbody.innerHTML += `
+
+            <tr>
+
+
+                <td>
+
+                    <strong>
+
+                        ${parcelle.nom}
+
+                    </strong>
+
+                </td>
+
+
+
+                <td>
+
+                    ${nomExploitation}
+
+                </td>
+
+
+
+                <td>
+
+                    ${parcelle.localisation || "-"}
+
+                </td>
+
+
+
+                <td>
+
+                    ${parcelle.superficie || 0} Ha
+
+                </td>
+
+
+
+                <td>
+
+                    ${parcelle.typeSol || "-"}
+
+                </td>
+
+
+
+                <td>
+
+                    ${badge}
+
+                </td>
+
+
+
+                <td class="text-center">
+
+
+                    <button
+                        class="btn
+                               btn-sm
+                               btn-outline-primary"
+
+                        onclick="
+                            modifierParcelle(
+                                ${parcelle.id}
+                            )
+                        "
+
+                        title="Modifier">
+
+
+                        <i
+                            class="fa-solid fa-pen">
+
+                        </i>
+
+
+                    </button>
+
+
+
+                    <button
+                        class="btn
+                               btn-sm
+                               btn-outline-danger"
+
+                        onclick="
+                            supprimerParcelle(
+                                ${parcelle.id}
+                            )
+                        "
+
+                        title="Supprimer">
+
+
+                        <i
+                            class="fa-solid fa-trash">
+
+                        </i>
+
+
+                    </button>
+
+
+                </td>
+
+
+            </tr>
+
+        `;
+
+
+    });
+
+
+
+    mettreAJourStatistiques();
+
+
+}
+
+
+
+/* ============================================
+   MODIFIER UNE PARCELLE
+============================================ */
+
+function modifierParcelle(id) {
+
+
+    const parcelles =
+        getParcelles();
+
+
+
+    const parcelle =
+        parcelles.find(
+            function(item) {
+
+                return item.id === id;
+
+            }
+        );
+
+
+
+    if (!parcelle) {
+
+        return;
+
+    }
+
+
+
+    /* RECHARGER LES EXPLOITATIONS */
+
+    chargerExploitations();
+
+
+
+    /* REMPLIR LE FORMULAIRE */
+
+    document
+        .getElementById(
+            "parcelleId"
+        )
+        .value =
+        parcelle.id;
+
+
+
+    document
+        .getElementById("nom")
+        .value =
+        parcelle.nom;
+
+
+
+    document
+        .getElementById(
+            "exploitationIdSelect"
+        )
+        .value =
+        parcelle.exploitationId;
+
+
+
+    document
+        .getElementById(
+            "localisation"
+        )
+        .value =
+        parcelle.localisation;
+
+
+
+    document
+        .getElementById(
+            "superficie"
+        )
+        .value =
+        parcelle.superficie;
+
+
+
+    document
+        .getElementById(
+            "typeSol"
+        )
+        .value =
+        parcelle.typeSol;
+
+
+
+    document
+        .getElementById(
+            "statut"
+        )
+        .value =
+        parcelle.statut;
+
+
+
+    document
+        .getElementById(
+            "description"
+        )
+        .value =
+        parcelle.description || "";
+
+
+
+    /* OUVRIR MODAL */
+
+    const modal =
+        new bootstrap.Modal(
+
+            document.getElementById(
+                "modalParcelle"
+            )
+
+        );
+
+
+    modal.show();
+
+
+}
+
+
+
+/* ============================================
+   SUPPRIMER UNE PARCELLE
+============================================ */
+
+function supprimerParcelle(id) {
+
+
+    const confirmation =
+        confirm(
+            "Voulez-vous supprimer cette parcelle ?"
+        );
+
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+
+    let parcelles =
+        getParcelles();
+
+
+
+    parcelles =
+        parcelles.filter(
+            function(item) {
+
+                return item.id !== id;
+
+            }
+        );
+
+
+
+    localStorage.setItem(
+
+        CLE_PARCELLES,
+
+        JSON.stringify(
+            parcelles
+        )
+
+    );
+
+
+
+    afficherParcelles();
+
+
+}
+
+
+
+/* ============================================
+   STATISTIQUES
+============================================ */
+
+function mettreAJourStatistiques() {
+
+
+    const parcelles =
+        getParcelles();
+
+
+
+    let superficie = 0;
+
+    let actives = 0;
+
+
+
+    parcelles.forEach(function(parcelle) {
+
+
+        superficie +=
+            Number(
+                parcelle.superficie
+            ) || 0;
+
+
+
+        if (
+            parcelle.statut === "Active"
+        ) {
+
+            actives++;
+
+        }
+
+
+    });
+
+
+
+    /* TOTAL */
+
+    document
+        .getElementById(
+            "totalParcelles"
+        )
+        .textContent =
+        parcelles.length;
+
+
+
+    /* SUPERFICIE */
+
+    document
+        .getElementById(
+            "totalSuperficie"
+        )
+        .textContent =
+        superficie + " Ha";
+
+
+
+    /* ACTIVES */
+
+    document
+        .getElementById(
+            "parcellesActives"
+        )
+        .textContent =
+        actives;
+
+
+}
+
+
+
+/* ============================================
+   RECHERCHE
+============================================ */
+
+document
+.getElementById("recherche")
+.addEventListener(
+    "input",
+    function() {
+
+
+        const recherche =
+            this.value
+            .toLowerCase();
+
+
+
+        const lignes =
+            document.querySelectorAll(
+                "#listeParcelles tr"
+            );
+
+
+
+        lignes.forEach(
+            function(ligne) {
+
+
+                const texte =
+                    ligne.textContent
+                    .toLowerCase();
+
+
+
+                if (
+                    texte.includes(
+                        recherche
+                    )
+                ) {
+
+                    ligne.style.display =
+                        "";
+
+                }
+
+                else {
+
+                    ligne.style.display =
+                        "none";
+
+                }
+
+
+            }
+        );
+
+
+    }
+);
+
+
+
+/* ============================================
+   AVANT OUVERTURE DU MODAL
+============================================ */
+
+document
+.getElementById(
+    "modalParcelle"
+)
+.addEventListener(
+    "show.bs.modal",
+    function() {
+
+
+        chargerExploitations();
+
+
+    }
+);
+
+
+
+/* ============================================
+   INITIALISATION
+============================================ */
+
+document
+.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+
+        chargerExploitations();
+
+
+        afficherParcelles();
+
+
+    }
+);
+
+
+</script>
+
+
+</body>
+
+</html>
