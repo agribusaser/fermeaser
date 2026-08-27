@@ -1,1 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agriculture | Ferme Asher ERP</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="../../css/style.css">
+
+</head>
+
+
+<body>
+
+<div class="container-fluid py-4">
+
+    <!-- EN-TÊTE -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="text-success">
+
+                <i class="fa-solid fa-seedling"></i>
+
+                Agriculture
+
+            </h2>
+
+            <p class="text-muted">
+
+                Gestion complète des cultures, parcelles, campagnes et travaux agricoles.
+
+            </p>
+
+        </div>
+
+
+        <a href="../../dashboard.html"
+           class="btn btn-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Retour au tableau de bord
+
+        </a>
+
+    </div>
+
+
+
+    <!-- STATISTIQUES -->
+
+    <div class="row g-4 mb-4">
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-wheat-awn fa-2x text-success mb-3"></i>
+
+                    <h3 id="nbCultures">
+
+                        0
+
+                    </h3>
+
+                    <p class="mb-0">
+
+                        Cultures
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-map-location-dot fa-2x text-success mb-3"></i>
+
+                    <h3 id="nbParcelles">
+
+                        0
+
+                    </h3>
+
+                    <p class="mb-0">
+
+                        Parcelles
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-tractor fa-2x text-success mb-3"></i>
+
+                    <h3 id="nbCampagnes">
+
+                        0
+
+                    </h3>
+
+                    <p class="mb-0">
+
+                        Campagnes
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-list-check fa-2x text-success mb-3"></i>
+
+                    <h3 id="nbTravaux">
+
+                        0
+
+                    </h3>
+
+                    <p class="mb-0">
+
+                        Travaux en cours
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- MENU AGRICULTURE -->
+
+    <div class="row g-4">
+
+
+        <!-- CULTURES -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-wheat-awn fa-3x text-success mb-3"></i>
+
+                    <h4>
+
+                        Cultures
+
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Créer et gérer les différentes cultures de la ferme.
+
+                    </p>
+
+                    <a href="cultures.html"
+                       class="btn btn-success">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        Gérer les cultures
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PARCELLES -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-map-location-dot fa-3x text-success mb-3"></i>
+
+                    <h4>
+
+                        Sites & Parcelles
+
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Créer les sites agricoles et leurs différentes parcelles.
+
+                    </p>
+
+                    <a href="parcelles.html"
+                       class="btn btn-success">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        Gérer les parcelles
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CAMPAGNES -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-tractor fa-3x text-success mb-3"></i>
+
+                    <h4>
+
+                        Campagnes agricoles
+
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Planifier et suivre les différentes campagnes agricoles.
+
+                    </p>
+
+                    <a href="campagnes.html"
+                       class="btn btn-success">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        Gérer les campagnes
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TRAVAUX -->
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-list-check fa-3x text-success mb-3"></i>
+
+                    <h4>
+
+                        Travaux agricoles
+
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Planifier et attribuer les travaux aux responsables et employés.
+
+                    </p>
+
+                    <a href="travaux.html"
+                       class="btn btn-success">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        Gérer les travaux
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SUIVI -->
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-chart-line fa-3x text-success mb-3"></i>
+
+                    <h4>
+
+                        Suivi agricole
+
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Contrôler l'avancement des travaux et des campagnes agricoles.
+
+                    </p>
+
+                    <a href="suivi.html"
+                       class="btn btn-success">
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                        Voir le suivi
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+</body>
+
+</html>
