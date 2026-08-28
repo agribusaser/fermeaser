@@ -5613,3 +5613,722 @@ document.addEventListener(
 
     }
 );
+
+/* =========================================================
+   FERME ASHER ERP
+   LIAISONS CENTRALES ÉLEVAGE
+   LOTS → PRODUCTION → RÉPARTITION DES ŒUFS
+========================================================= */
+
+
+/* =========================================================
+   BASE DES LOTS CONNECTÉS
+========================================================= */
+
+function obtenirLotsConnectes() {
+
+    try {
+
+        const lots =
+            JSON.parse(
+                localStorage.getItem(
+                    "lotsElevage"
+                )
+            );
+
+        return Array.isArray(lots)
+            ? lots
+            : [];
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur lecture lotsElevage :",
+            erreur
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/* =========================================================
+   CHARGER LES LOTS DANS PRODUCTION
+========================================================= */
+
+function chargerLotsProduction() {
+
+    const select =
+        document.getElementById(
+            "productionLot"
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const valeurActuelle =
+        select.value;
+
+
+    const lots =
+        obtenirLotsConnectes();
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un lot
+
+        </option>
+
+    `;
+
+
+    lots
+        .filter(
+            function (lot) {
+
+                return (
+                    lot.statut === "Actif"
+                    ||
+                    !lot.statut
+                );
+
+            }
+        )
+        .forEach(
+            function (lot) {
+
+
+                const quantite =
+                    Number(
+                        lot.quantiteActuelle
+                        ??
+                        lot.quantite
+                        ??
+                        0
+                    );
+
+
+                select.innerHTML += `
+
+                    <option
+                        value="${lot.id}"
+                        data-espece="${lot.espece || lot.type || ""}"
+                        data-nom="${lot.nom || lot.nomLot || ""}">
+
+                        ${lot.nom || lot.nomLot || "Lot sans nom"}
+
+                        —
+
+                        ${lot.espece || lot.type || ""}
+
+                        (${quantite} animaux)
+
+                    </option>
+
+                `;
+
+            }
+        );
+
+
+    if (valeurActuelle) {
+
+        select.value =
+            valeurActuelle;
+
+    }
+
+}
+
+
+/* =========================================================
+   OBTENIR LES PRODUCTIONS
+========================================================= */
+
+function obtenirProductionsConnectees() {
+
+    try {
+
+        const productions =
+            JSON.parse(
+                localStorage.getItem(
+                    "productionsElevage"
+                )
+            );
+
+        return Array.isArray(
+            productions
+        )
+            ? productions
+            : [];
+
+    } catch (erreur) {
+
+        return [];
+
+    }
+
+}
+
+
+/* =========================================================
+   STOCK DES ŒUFS DESTINÉS À L'INCUBATION
+========================================================= */
+
+function obtenirStockOeufsIncubation() {
+
+    try {
+
+        const stock =
+            JSON.parse(
+                localStorage.getItem(
+                    "stockOeufsIncubation"
+                )
+            );
+
+        return Array.isArray(stock)
+            ? stock
+            : [];
+
+    } catch (erreur) {
+
+        return [];
+
+    }
+
+}
+
+
+function sauvegarderStockOeufsIncubation(stock) {
+
+    localStorage.setItem(
+        "stockOeufsIncubation",
+        JSON.stringify(stock)
+    );
+
+}
+
+
+/* =========================================================
+   ENREGISTRER UNE PRODUCTION CONNECTÉE
+========================================================= */
+
+function enregistrerProduction() {
+
+
+    const date =
+        document.getElementById(
+            "productionDate"
+        )?.value
+        ||
+        obtenirDateAujourdhui();
+
+
+    const lotId =
+        document.getElementById(
+            "productionLot"
+        )?.value;
+
+
+    const type =
+        document.getElementById(
+            "productionType"
+        )?.value;
+
+
+    const produit =
+        document.getElementById(
+            "productionProduit"
+        )?.value
+        .trim();
+
+
+    const quantite =
+        Number(
+            document.getElementById(
+                "productionQuantite"
+            )?.value
+        );
+
+
+    const unite =
+        document.getElementById(
+            "productionUnite"
+        )?.value
+        ||
+        "Unité";
+
+
+    const notes =
+        document.getElementById(
+            "productionNotes"
+        )?.value
+        .trim()
+        ||
+        "";
+
+
+    /* -----------------------------------------
+       RÉPARTITION
+    ----------------------------------------- */
+
+    const incubation =
+        Number(
+            document.getElementById(
+                "productionIncubation"
+            )?.value
+        ) || 0;
+
+
+    const vente =
+        Number(
+            document.getElementById(
+                "productionVente"
+            )?.value
+        ) || 0;
+
+
+    const consommation =
+        Number(
+            document.getElementById(
+                "productionConsommation"
+            )?.value
+        ) || 0;
+
+
+    const autre =
+        Number(
+            document.getElementById(
+                "productionAutre"
+            )?.value
+        ) || 0;
+
+
+    /* -----------------------------------------
+       VALIDATION
+    ----------------------------------------- */
+
+    if (!lotId) {
+
+        alert(
+            "Veuillez sélectionner le lot producteur."
+        );
+
+        return;
+
+    }
+
+
+    if (!type) {
+
+        alert(
+            "Veuillez sélectionner le type de production."
+        );
+
+        return;
+
+    }
+
+
+    if (!produit) {
+
+        alert(
+            "Veuillez indiquer le produit."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(quantite)
+        ||
+        quantite <= 0
+    ) {
+
+        alert(
+            "La quantité produite doit être supérieure à zéro."
+        );
+
+        return;
+
+    }
+
+
+    const totalReparti =
+        incubation
+        +
+        vente
+        +
+        consommation
+        +
+        autre;
+
+
+    if (
+        totalReparti >
+        quantite
+    ) {
+
+        alert(
+            "Erreur : la répartition dépasse la quantité totale produite."
+        );
+
+        return;
+
+    }
+
+
+    const reste =
+        quantite -
+        totalReparti;
+
+
+    /* -----------------------------------------
+       RECHERCHER LE LOT
+    ----------------------------------------- */
+
+    const lots =
+        obtenirLotsConnectes();
+
+
+    const lot =
+        lots.find(
+            function (element) {
+
+                return (
+                    element.id === lotId
+                );
+
+            }
+        );
+
+
+    if (!lot) {
+
+        alert(
+            "Le lot sélectionné est introuvable."
+        );
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       CRÉATION PRODUCTION
+    ----------------------------------------- */
+
+    const productions =
+        obtenirProductionsConnectees();
+
+
+    const nouvelleProduction = {
+
+        id:
+
+            "PROD-"
+            +
+            Date.now()
+            +
+            "-"
+            +
+            Math.floor(
+                Math.random() * 1000
+            ),
+
+
+        date:
+            date,
+
+
+        lotId:
+            lot.id,
+
+
+        lotNom:
+            lot.nom
+            ||
+            lot.nomLot
+            ||
+            "",
+
+
+        espece:
+            lot.espece
+            ||
+            lot.type
+            ||
+            "",
+
+
+        type:
+            type,
+
+
+        produit:
+            produit,
+
+
+        quantite:
+            quantite,
+
+
+        unite:
+            unite,
+
+
+        repartition: {
+
+            incubation:
+                incubation,
+
+            vente:
+                vente,
+
+            consommation:
+                consommation,
+
+            autre:
+                autre,
+
+            reste:
+                reste
+
+        },
+
+
+        notes:
+            notes,
+
+
+        utilisateur:
+
+            (
+                localStorage.getItem(
+                    "utilisateur"
+                )
+                ||
+                localStorage.getItem(
+                    "utilisateurConnecte"
+                )
+                ||
+                "Administrateur"
+            ),
+
+
+        dateCreation:
+            new Date()
+                .toISOString()
+
+    };
+
+
+    productions.push(
+        nouvelleProduction
+    );
+
+
+    localStorage.setItem(
+        "productionsElevage",
+        JSON.stringify(
+            productions
+        )
+    );
+
+
+    /* -----------------------------------------
+       AJOUT AUTOMATIQUE AU STOCK INCUBATION
+    ----------------------------------------- */
+
+    if (
+        incubation > 0
+    ) {
+
+
+        const stockIncubation =
+            obtenirStockOeufsIncubation();
+
+
+        stockIncubation.push({
+
+            id:
+
+                "STKINC-"
+                +
+                Date.now()
+                +
+                "-"
+                +
+                Math.floor(
+                    Math.random() * 1000
+                ),
+
+
+            productionId:
+                nouvelleProduction.id,
+
+
+            lotId:
+                lot.id,
+
+
+            lotNom:
+
+                lot.nom
+                ||
+                lot.nomLot
+                ||
+                "",
+
+
+            espece:
+
+                lot.espece
+                ||
+                lot.type
+                ||
+                "",
+
+
+            produit:
+                produit,
+
+
+            quantiteInitiale:
+                incubation,
+
+
+            quantiteDisponible:
+                incubation,
+
+
+            quantiteUtilisee:
+                0,
+
+
+            dateProduction:
+                date,
+
+
+            statut:
+                "Disponible"
+
+
+        });
+
+
+        sauvegarderStockOeufsIncubation(
+            stockIncubation
+        );
+
+    }
+
+
+    /* -----------------------------------------
+       FERMER LE MODAL
+    ----------------------------------------- */
+
+    const modalElement =
+        document.getElementById(
+            "modalProduction"
+        );
+
+
+    if (
+        modalElement
+        &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        const modal =
+            bootstrap.Modal.getInstance(
+                modalElement
+            );
+
+        if (modal) {
+
+            modal.hide();
+
+        }
+
+    }
+
+
+    /* -----------------------------------------
+       ACTUALISATION
+    ----------------------------------------- */
+
+    if (
+        typeof chargerProductions
+        ===
+        "function"
+    ) {
+
+        chargerProductions();
+
+    }
+
+
+    const formulaire =
+        document.getElementById(
+            "formProduction"
+        );
+
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
+
+    alert(
+
+        "Production enregistrée avec succès.\n\n"
+
+        +
+
+        "Incubation : "
+        +
+        incubation
+        +
+        "\n"
+
+        +
+
+        "Vente : "
+        +
+        vente
+        +
+        "\n"
+
+        +
+
+        "Consommation : "
+        +
+        consommation
+        +
+        "\n"
+
+        +
+
+        "Autre : "
+        +
+        autre
+
+    );
+
+}
