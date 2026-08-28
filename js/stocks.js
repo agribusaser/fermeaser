@@ -1750,7 +1750,6 @@ function enregistrerInventaire() {
 
 }
 
-
 /*==================================================
 CHARGER HISTORIQUE
 ==================================================*/
@@ -1759,7 +1758,7 @@ function chargerHistorique() {
 
     const table =
         document.getElementById(
-            "historiqueTable"
+            "historiqueMouvements"
         );
 
     if (!table) {
@@ -1769,58 +1768,413 @@ function chargerHistorique() {
     }
 
 
-    const mouvements =
+    const filtreDate =
+        document.getElementById(
+            "filtreDate"
+        );
+
+
+    const filtreProduit =
+        document.getElementById(
+            "filtreProduit"
+        );
+
+
+    const filtreType =
+        document.getElementById(
+            "filtreType"
+        );
+
+
+    const elementNbMouvements =
+        document.getElementById(
+            "nbMouvements"
+        );
+
+
+    const elementTotalEntrees =
+        document.getElementById(
+            "totalEntrees"
+        );
+
+
+    const elementTotalSorties =
+        document.getElementById(
+            "totalSorties"
+        );
+
+
+    const dateRecherche =
+        filtreDate
+            ? filtreDate.value
+            : "";
+
+
+    const produitRecherche =
+        filtreProduit
+            ? filtreProduit.value
+                .trim()
+                .toLowerCase()
+            : "";
+
+
+    const typeRecherche =
+        filtreType
+            ? filtreType.value
+            : "";
+
+
+    let mouvements =
         obtenirMouvements();
 
-    table.innerHTML = "";
 
+    /*==================================================
+    FILTRER LES MOUVEMENTS
+    ==================================================*/
 
-    mouvements
-        .slice()
-        .reverse()
-        .forEach(
+    mouvements =
+        mouvements.filter(
             mouvement => {
 
-                table.innerHTML += `
+
+                const nomProduit =
+                    String(
+                        mouvement.produit || ""
+                    )
+                    .toLowerCase();
+
+
+                const correspondProduit =
+
+                    !produitRecherche ||
+
+                    nomProduit.includes(
+                        produitRecherche
+                    );
+
+
+                const correspondType =
+
+                    !typeRecherche ||
+
+                    mouvement.type ===
+                    typeRecherche;
+
+
+                const correspondDate =
+
+                    !dateRecherche ||
+
+                    String(
+                        mouvement.date || ""
+                    ).slice(
+                        0,
+                        10
+                    ) === dateRecherche;
+
+
+                return (
+
+                    correspondProduit &&
+
+                    correspondType &&
+
+                    correspondDate
+
+                );
+
+            }
+        );
+
+
+    /*==================================================
+    TRI DU PLUS RECENT AU PLUS ANCIEN
+    ==================================================*/
+
+    mouvements.sort(
+        function(a, b) {
+
+            return (
+
+                new Date(
+                    b.date || 0
+                ) -
+
+                new Date(
+                    a.date || 0
+                )
+
+            );
+
+        }
+    );
+
+
+    /*==================================================
+    CALCUL DES STATISTIQUES
+    ==================================================*/
+
+    let totalEntrees =
+        0;
+
+
+    let totalSorties =
+        0;
+
+
+    mouvements.forEach(
+        mouvement => {
+
+
+            const quantite =
+                Number(
+                    mouvement.quantite
+                ) || 0;
+
+
+            if (
+                mouvement.type ===
+                "Entrée"
+            ) {
+
+                totalEntrees +=
+                    quantite;
+
+            }
+
+
+            if (
+                mouvement.type ===
+                "Sortie"
+            ) {
+
+                totalSorties +=
+                    quantite;
+
+            }
+
+        }
+    );
+
+
+    /*==================================================
+    AFFICHER LES STATISTIQUES
+    ==================================================*/
+
+    if (
+        elementNbMouvements
+    ) {
+
+        elementNbMouvements.textContent =
+            mouvements.length;
+
+    }
+
+
+    if (
+        elementTotalEntrees
+    ) {
+
+        elementTotalEntrees.textContent =
+            totalEntrees;
+
+    }
+
+
+    if (
+        elementTotalSorties
+    ) {
+
+        elementTotalSorties.textContent =
+            totalSorties;
+
+    }
+
+
+    /*==================================================
+    VIDER LE TABLEAU
+    ==================================================*/
+
+    table.innerHTML =
+        "";
+
+
+    /*==================================================
+    AUCUN MOUVEMENT
+    ==================================================*/
+
+    if (
+        mouvements.length === 0
+    ) {
+
+        table.innerHTML = `
 
 <tr>
 
-<td>
-${mouvement.date || ""}
-</td>
+<td
+colspan="8"
+class="text-center text-muted py-4">
 
-<td>
-${mouvement.produit || ""}
-</td>
+<i class="fa-solid fa-clock"></i>
 
-<td>
-${mouvement.type || ""}
-</td>
+Aucun mouvement trouvé.
 
-<td>
-${mouvement.nature || ""}
-</td>
-
-<td>
-${Number(
-    mouvement.quantite
-) || 0}
-</td>
-
-<td>
-${mouvement.reference || ""}
-</td>
-
-<td>
-${mouvement.observation || ""}
 </td>
 
 </tr>
 
 `;
 
+        return;
+
+    }
+
+
+    /*==================================================
+    AFFICHER LES MOUVEMENTS
+    ==================================================*/
+
+    mouvements.forEach(
+        mouvement => {
+
+
+            const type =
+                mouvement.type ||
+                "-";
+
+
+            let classeBadge =
+                "bg-secondary";
+
+
+            if (
+                type ===
+                "Entrée"
+            ) {
+
+                classeBadge =
+                    "bg-success";
+
             }
-        );
+
+
+            else if (
+                type ===
+                "Sortie"
+            ) {
+
+                classeBadge =
+                    "bg-danger";
+
+            }
+
+
+            else if (
+                type ===
+                "Inventaire"
+            ) {
+
+                classeBadge =
+                    "bg-warning text-dark";
+
+            }
+
+
+            const quantite =
+                Number(
+                    mouvement.quantite
+                ) || 0;
+
+
+            const prix =
+                Number(
+                    mouvement.prix
+                ) || 0;
+
+
+            const montant =
+                Number(
+                    mouvement.montant
+                ) || 0;
+
+
+            table.innerHTML += `
+
+<tr>
+
+<td>
+
+${mouvement.date || "-"}
+
+</td>
+
+
+<td>
+
+${mouvement.produit || "-"}
+
+</td>
+
+
+<td>
+
+<span class="badge ${classeBadge}">
+
+${type}
+
+</span>
+
+</td>
+
+
+<td>
+
+${mouvement.nature || "-"}
+
+</td>
+
+
+<td>
+
+${quantite}
+
+</td>
+
+
+<td>
+
+${prix.toLocaleString(
+    "fr-FR"
+)} FC
+
+</td>
+
+
+<td>
+
+<strong>
+
+${montant.toLocaleString(
+    "fr-FR"
+)} FC
+
+</strong>
+
+</td>
+
+
+<td>
+
+${mouvement.utilisateur || "Administrateur"}
+
+</td>
+
+</tr>
+
+`;
+
+        }
+    );
 
 }
 
