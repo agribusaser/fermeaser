@@ -1,1 +1,1884 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Production Agricole | Ferme Asher ERP</title>
+
+
+<!-- BOOTSTRAP -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<!-- FONT AWESOME -->
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<style>
+
+/*========================================
+STYLE GENERAL
+========================================*/
+
+body{
+
+background:#f4f6f8;
+
+}
+
+
+/*========================================
+HEADER
+========================================*/
+
+.page-header{
+
+background:white;
+
+padding:30px;
+
+border-radius:15px;
+
+margin-bottom:30px;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+.page-header h1{
+
+color:#198754;
+
+font-weight:bold;
+
+}
+
+
+/*========================================
+STATISTIQUES
+========================================*/
+
+.stat-card{
+
+background:white;
+
+padding:25px;
+
+border-radius:15px;
+
+text-align:center;
+
+height:100%;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+.stat-icon{
+
+font-size:35px;
+
+color:#198754;
+
+margin-bottom:10px;
+
+}
+
+
+.stat-number{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#198754;
+
+}
+
+
+/*========================================
+CARTES
+========================================*/
+
+.card{
+
+border:none;
+
+border-radius:15px;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+/*========================================
+ETAT VIDE
+========================================*/
+
+.empty-state{
+
+text-align:center;
+
+padding:50px;
+
+color:#777;
+
+}
+
+
+.empty-state i{
+
+font-size:60px;
+
+color:#198754;
+
+margin-bottom:20px;
+
+}
+
+
+/*========================================
+TABLE
+========================================*/
+
+.table td{
+
+vertical-align:middle;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid p-4">
+
+
+<!--========================================
+HEADER
+========================================-->
+
+<div class="page-header">
+
+<div class="row align-items-center">
+
+
+<div class="col-md-8">
+
+<h1>
+
+<i class="fa-solid fa-wheat-awn"></i>
+
+Production Agricole
+
+</h1>
+
+<p class="text-muted mb-0">
+
+Enregistrez et suivez les récoltes et productions de vos parcelles.
+
+</p>
+
+</div>
+
+
+<div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<!--========================================
+STATISTIQUES
+========================================-->
+
+<div class="row mb-4">
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-basket-shopping"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="totalProductions">
+
+0
+
+</div>
+
+<div>
+
+Productions enregistrées
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-scale-balanced"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="quantiteTotale">
+
+0
+
+</div>
+
+<div>
+
+Quantité totale
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-calendar-day"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="productionAujourdhui">
+
+0
+
+</div>
+
+<div>
+
+Productions aujourd'hui
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-seedling"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="nombreCultures">
+
+0
+
+</div>
+
+<div>
+
+Cultures produites
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!--========================================
+LISTE DES PRODUCTIONS
+========================================-->
+
+<div class="card">
+
+
+<div class="card-body">
+
+
+<div
+class="d-flex justify-content-between align-items-center mb-4">
+
+
+<h4 class="mb-0">
+
+<i class="fa-solid fa-list"></i>
+
+Historique des productions
+
+</h4>
+
+
+<button
+class="btn btn-success"
+data-bs-toggle="modal"
+data-bs-target="#productionModal"
+onclick="chargerListesProduction()">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouvelle production
+
+</button>
+
+
+</div>
+
+
+
+<!-- ETAT VIDE -->
+
+<div
+id="emptyState"
+class="empty-state">
+
+<i class="fa-solid fa-wheat-awn"></i>
+
+<h4>
+
+Aucune production enregistrée
+
+</h4>
+
+<p>
+
+Commencez par enregistrer votre première récolte ou production agricole.
+
+</p>
+
+</div>
+
+
+
+<!-- TABLE -->
+
+<div
+class="table-responsive"
+id="tableContainer"
+style="display:none;">
+
+
+<table
+class="table table-hover align-middle">
+
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Culture</th>
+
+<th>Campagne</th>
+
+<th>Parcelle</th>
+
+<th>Quantité</th>
+
+<th>Qualité</th>
+
+<th>Destination</th>
+
+<th>Responsable</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="productionTable">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!--========================================
+MODAL NOUVELLE PRODUCTION
+========================================-->
+
+<div
+class="modal fade"
+id="productionModal"
+tabindex="-1">
+
+
+<div class="modal-dialog modal-lg">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header bg-success text-white">
+
+<h5 class="modal-title">
+
+<i class="fa-solid fa-wheat-awn"></i>
+
+Enregistrer une production
+
+</h5>
+
+
+<button
+type="button"
+class="btn-close btn-close-white"
+data-bs-dismiss="modal">
+
+</button>
+
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="productionForm">
+
+
+<div class="row">
+
+
+<!-- DATE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Date de récolte
+
+<span class="text-danger">*</span>
+
+</label>
+
+<input
+type="date"
+class="form-control"
+id="dateProduction"
+required>
+
+</div>
+
+
+
+<!-- CULTURE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Culture
+
+<span class="text-danger">*</span>
+
+</label>
+
+<select
+class="form-select"
+id="cultureProduction"
+required>
+
+<option value="">
+
+Sélectionner une culture
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- CAMPAGNE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Campagne
+
+</label>
+
+<select
+class="form-select"
+id="campagneProduction">
+
+<option value="">
+
+Sélectionner une campagne
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- PARCELLE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Parcelle
+
+</label>
+
+<select
+class="form-select"
+id="parcelleProduction">
+
+<option value="">
+
+Sélectionner une parcelle
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- QUANTITE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Quantité récoltée
+
+<span class="text-danger">*</span>
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="quantiteProduction"
+min="0.01"
+step="0.01"
+placeholder="Exemple : 2500"
+required>
+
+</div>
+
+
+
+<!-- UNITE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Unité
+
+<span class="text-danger">*</span>
+
+</label>
+
+<select
+class="form-select"
+id="uniteProduction"
+required>
+
+<option value="kg">
+
+kg
+
+</option>
+
+<option value="Tonne">
+
+Tonne
+
+</option>
+
+<option value="Sac">
+
+Sac
+
+</option>
+
+<option value="Panier">
+
+Panier
+
+</option>
+
+<option value="Caisse">
+
+Caisse
+
+</option>
+
+<option value="Unité">
+
+Unité
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- QUALITE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Qualité
+
+</label>
+
+<select
+class="form-select"
+id="qualiteProduction">
+
+<option value="Bonne">
+
+Bonne
+
+</option>
+
+<option value="Moyenne">
+
+Moyenne
+
+</option>
+
+<option value="Faible">
+
+Faible
+
+</option>
+
+<option value="Premium">
+
+Premium
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- DESTINATION -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Destination
+
+</label>
+
+<select
+class="form-select"
+id="destinationProduction">
+
+<option value="Stock">
+
+Stock
+
+</option>
+
+<option value="Vente">
+
+Vente directe
+
+</option>
+
+<option value="Transformation">
+
+Transformation
+
+</option>
+
+<option value="Consommation">
+
+Consommation interne
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- RESPONSABLE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Responsable
+
+</label>
+
+<input
+type="text"
+class="form-control"
+id="responsableProduction"
+placeholder="Exemple : Eddy">
+
+</div>
+
+
+
+<!-- PRIX ESTIME -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Valeur estimée (FC)
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="valeurProduction"
+min="0"
+value="0">
+
+</div>
+
+
+
+<!-- OBSERVATIONS -->
+
+<div class="col-md-12 mb-3">
+
+<label class="form-label">
+
+Observations
+
+</label>
+
+<textarea
+class="form-control"
+id="observationsProduction"
+rows="4"
+placeholder="Informations sur la récolte, qualité, problèmes rencontrés...">
+
+</textarea>
+
+</div>
+
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<div class="modal-footer">
+
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+type="button"
+class="btn btn-success"
+onclick="enregistrerProduction()">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer
+
+</button>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!--========================================
+BOOTSTRAP
+========================================-->
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+
+</script>
+
+
+
+<script>
+
+/*==================================================
+FERME ASHER ERP
+PRODUCTION AGRICOLE
+==================================================*/
+
+
+/*========================================
+CLES LOCALSTORAGE
+========================================*/
+
+const CLE_PRODUCTIONS =
+"fermeAsherProductions";
+
+const CLE_CULTURES =
+"fermeAsherCultures";
+
+const CLE_CAMPAGNES =
+"fermeAsherCampagnes";
+
+const CLE_PARCELLES =
+"fermeAsherParcelles";
+
+
+/*========================================
+INITIALISATION
+========================================*/
+
+document.addEventListener(
+
+"DOMContentLoaded",
+
+function(){
+
+initialiserDateProduction();
+
+chargerListesProduction();
+
+chargerProductions();
+
+}
+
+);
+
+
+/*========================================
+DATE DU JOUR
+========================================*/
+
+function initialiserDateProduction(){
+
+const input =
+document.getElementById(
+"dateProduction"
+);
+
+if(!input) return;
+
+
+const maintenant =
+new Date();
+
+
+const annee =
+maintenant.getFullYear();
+
+
+const mois =
+String(
+maintenant.getMonth()+1
+).padStart(2,"0");
+
+
+const jour =
+String(
+maintenant.getDate()
+).padStart(2,"0");
+
+
+input.value =
+annee+
+"-"+
+mois+
+"-"+
+jour;
+
+}
+
+
+/*========================================
+CHARGER LES LISTES
+========================================*/
+
+function chargerListesProduction(){
+
+chargerCulturesProduction();
+
+chargerCampagnesProduction();
+
+chargerParcellesProduction();
+
+}
+
+
+/*========================================
+CULTURES
+========================================*/
+
+function chargerCulturesProduction(){
+
+const cultures =
+JSON.parse(
+
+localStorage.getItem(
+CLE_CULTURES
+)
+
+)||[];
+
+
+const select =
+document.getElementById(
+"cultureProduction"
+);
+
+
+if(!select) return;
+
+
+/* GARDER OPTION PRINCIPALE */
+
+select.innerHTML = `
+
+<option value="">
+
+Sélectionner une culture
+
+</option>
+
+`;
+
+
+cultures.forEach(function(culture){
+
+const nom =
+
+culture.nom ||
+
+culture.culture ||
+
+"";
+
+
+if(!nom) return;
+
+
+select.innerHTML += `
+
+<option value="${nom}">
+
+${nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*========================================
+CAMPAGNES
+========================================*/
+
+function chargerCampagnesProduction(){
+
+const campagnes =
+JSON.parse(
+
+localStorage.getItem(
+CLE_CAMPAGNES
+)
+
+)||[];
+
+
+const select =
+document.getElementById(
+"campagneProduction"
+);
+
+
+if(!select) return;
+
+
+select.innerHTML = `
+
+<option value="">
+
+Sélectionner une campagne
+
+</option>
+
+`;
+
+
+campagnes.forEach(function(campagne){
+
+const nom =
+
+campagne.nom ||
+
+campagne.campagne ||
+
+"";
+
+
+if(!nom) return;
+
+
+select.innerHTML += `
+
+<option value="${nom}">
+
+${nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*========================================
+PARCELLES
+========================================*/
+
+function chargerParcellesProduction(){
+
+const parcelles =
+JSON.parse(
+
+localStorage.getItem(
+CLE_PARCELLES
+)
+
+)||[];
+
+
+const select =
+document.getElementById(
+"parcelleProduction"
+);
+
+
+if(!select) return;
+
+
+select.innerHTML = `
+
+<option value="">
+
+Sélectionner une parcelle
+
+</option>
+
+`;
+
+
+parcelles.forEach(function(parcelle){
+
+const nom =
+
+parcelle.nom ||
+
+parcelle.parcelle ||
+
+"";
+
+
+if(!nom) return;
+
+
+select.innerHTML += `
+
+<option value="${nom}">
+
+${nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*========================================
+ENREGISTRER PRODUCTION
+========================================*/
+
+function enregistrerProduction(){
+
+
+const date =
+document.getElementById(
+"dateProduction"
+).value;
+
+
+const culture =
+document.getElementById(
+"cultureProduction"
+).value;
+
+
+const campagne =
+document.getElementById(
+"campagneProduction"
+).value;
+
+
+const parcelle =
+document.getElementById(
+"parcelleProduction"
+).value;
+
+
+const quantite =
+Number(
+
+document.getElementById(
+"quantiteProduction"
+).value
+
+);
+
+
+const unite =
+document.getElementById(
+"uniteProduction"
+).value;
+
+
+const qualite =
+document.getElementById(
+"qualiteProduction"
+).value;
+
+
+const destination =
+document.getElementById(
+"destinationProduction"
+).value;
+
+
+const responsable =
+document.getElementById(
+"responsableProduction"
+).value.trim();
+
+
+const valeur =
+Number(
+
+document.getElementById(
+"valeurProduction"
+).value
+
+)||0;
+
+
+const observations =
+document.getElementById(
+"observationsProduction"
+).value.trim();
+
+
+/*========================================
+VALIDATION
+========================================*/
+
+if(!date){
+
+alert(
+"Veuillez sélectionner la date."
+);
+
+return;
+
+}
+
+
+if(!culture){
+
+alert(
+"Veuillez sélectionner une culture."
+);
+
+return;
+
+}
+
+
+if(
+
+!Number.isFinite(quantite)
+
+||
+
+quantite <= 0
+
+){
+
+alert(
+"Veuillez saisir une quantité valide."
+);
+
+return;
+
+}
+
+
+/*========================================
+RECUPERATION
+========================================*/
+
+const productions =
+JSON.parse(
+
+localStorage.getItem(
+CLE_PRODUCTIONS
+)
+
+)||[];
+
+
+/*========================================
+NOUVELLE PRODUCTION
+========================================*/
+
+const nouvelleProduction = {
+
+id:
+Date.now(),
+
+date:
+date,
+
+culture:
+culture,
+
+campagne:
+campagne,
+
+parcelle:
+parcelle,
+
+quantite:
+quantite,
+
+unite:
+unite,
+
+qualite:
+qualite,
+
+destination:
+destination,
+
+responsable:
+responsable,
+
+valeur:
+valeur,
+
+observations:
+observations,
+
+dateCreation:
+new Date().toISOString()
+
+};
+
+
+/*========================================
+AJOUT
+========================================*/
+
+productions.push(
+nouvelleProduction
+);
+
+
+/*========================================
+SAUVEGARDE
+========================================*/
+
+localStorage.setItem(
+
+CLE_PRODUCTIONS,
+
+JSON.stringify(
+productions
+)
+
+);
+
+
+/*========================================
+FERMER MODAL
+========================================*/
+
+const modalElement =
+document.getElementById(
+"productionModal"
+);
+
+
+const modal =
+bootstrap.Modal.getInstance(
+modalElement
+);
+
+
+if(modal){
+
+modal.hide();
+
+}
+
+
+/*========================================
+RESET FORMULAIRE
+========================================*/
+
+document
+.getElementById(
+"productionForm"
+)
+.reset();
+
+
+initialiserDateProduction();
+
+
+/*========================================
+RECHARGER
+========================================*/
+
+chargerProductions();
+
+
+alert(
+"Production enregistrée avec succès."
+);
+
+}
+
+
+/*========================================
+CHARGER PRODUCTIONS
+========================================*/
+
+function chargerProductions(){
+
+
+const productions =
+JSON.parse(
+
+localStorage.getItem(
+CLE_PRODUCTIONS
+)
+
+)||[];
+
+
+afficherProductions(
+productions
+);
+
+
+mettreAJourStatistiquesProduction(
+productions
+);
+
+}
+
+
+/*========================================
+AFFICHER PRODUCTIONS
+========================================*/
+
+function afficherProductions(productions){
+
+
+const table =
+document.getElementById(
+"productionTable"
+);
+
+
+const emptyState =
+document.getElementById(
+"emptyState"
+);
+
+
+const tableContainer =
+document.getElementById(
+"tableContainer"
+);
+
+
+if(!table) return;
+
+
+table.innerHTML = "";
+
+
+/*========================================
+AUCUNE PRODUCTION
+========================================*/
+
+if(productions.length === 0){
+
+emptyState.style.display =
+"block";
+
+
+tableContainer.style.display =
+"none";
+
+
+return;
+
+}
+
+
+/*========================================
+AFFICHAGE TABLE
+========================================*/
+
+emptyState.style.display =
+"none";
+
+
+tableContainer.style.display =
+"block";
+
+
+productions
+.slice()
+.reverse()
+.forEach(function(production){
+
+
+const ligne =
+document.createElement(
+"tr"
+);
+
+
+ligne.innerHTML = `
+
+<td>
+
+${production.date}
+
+</td>
+
+
+<td>
+
+<strong>
+
+${production.culture}
+
+</strong>
+
+</td>
+
+
+<td>
+
+${production.campagne || "-"}
+
+</td>
+
+
+<td>
+
+${production.parcelle || "-"}
+
+</td>
+
+
+<td>
+
+<strong>
+
+${production.quantite}
+
+</strong>
+
+${production.unite}
+
+</td>
+
+
+<td>
+
+<span class="badge bg-success">
+
+${production.qualite}
+
+</span>
+
+</td>
+
+
+<td>
+
+${production.destination}
+
+</td>
+
+
+<td>
+
+${production.responsable || "-"}
+
+</td>
+
+
+<td>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="supprimerProduction(${production.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</td>
+
+`;
+
+
+table.appendChild(
+ligne
+);
+
+});
+
+}
+
+
+/*========================================
+SUPPRIMER PRODUCTION
+========================================*/
+
+function supprimerProduction(id){
+
+
+if(
+
+!confirm(
+"Voulez-vous supprimer cette production ?"
+)
+
+){
+
+return;
+
+}
+
+
+let productions =
+JSON.parse(
+
+localStorage.getItem(
+CLE_PRODUCTIONS
+)
+
+)||[];
+
+
+productions =
+productions.filter(
+
+production =>
+
+production.id !== id
+
+);
+
+
+/* SAUVEGARDE */
+
+localStorage.setItem(
+
+CLE_PRODUCTIONS,
+
+JSON.stringify(
+productions
+)
+
+);
+
+
+/* RECHARGER */
+
+chargerProductions();
+
+}
+
+
+/*========================================
+STATISTIQUES
+========================================*/
+
+function mettreAJourStatistiquesProduction(productions){
+
+
+/* TOTAL PRODUCTIONS */
+
+document
+.getElementById(
+"totalProductions"
+)
+.innerText =
+productions.length;
+
+
+/*========================================
+QUANTITE TOTALE
+========================================*/
+
+/*
+IMPORTANT :
+
+Les unités peuvent être différentes :
+kg, tonnes, sacs, caisses...
+
+Pour l'instant nous additionnons seulement
+les quantités enregistrées.
+
+Plus tard, nous allons améliorer ceci pour
+convertir automatiquement :
+
+1 tonne = 1000 kg
+
+*/
+
+
+const totalQuantite =
+productions.reduce(
+
+function(total,production){
+
+return (
+
+total +
+
+Number(
+production.quantite || 0
+)
+
+);
+
+},
+
+0
+
+);
+
+
+document
+.getElementById(
+"quantiteTotale"
+)
+.innerText =
+totalQuantite.toLocaleString(
+"fr-FR"
+);
+
+
+/*========================================
+AUJOURD'HUI
+========================================*/
+
+const aujourdHui =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const productionsJour =
+productions.filter(
+
+production =>
+
+production.date === aujourdHui
+
+);
+
+
+document
+.getElementById(
+"productionAujourdhui"
+)
+.innerText =
+productionsJour.length;
+
+
+/*========================================
+NOMBRE DE CULTURES
+========================================*/
+
+const cultures =
+new Set();
+
+
+productions.forEach(
+
+production => {
+
+if(production.culture){
+
+cultures.add(
+production.culture
+);
+
+}
+
+}
+
+);
+
+
+document
+.getElementById(
+"nombreCultures"
+)
+.innerText =
+cultures.size;
+
+}
+
+</script>
+
+
+</body>
+
+</html>
