@@ -1,1 +1,1637 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Suivi des opérations | Ferme Asher ERP</title>
+
+
+<!-- BOOTSTRAP -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<!-- FONT AWESOME -->
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+<style>
+
+body{
+
+background:#f4f6f8;
+
+}
+
+
+/*================================
+HEADER
+================================*/
+
+.page-header{
+
+background:white;
+
+padding:30px;
+
+border-radius:15px;
+
+margin-bottom:30px;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+.page-header h1{
+
+color:#198754;
+
+font-weight:bold;
+
+}
+
+
+/*================================
+STATISTIQUES
+================================*/
+
+.stat-card{
+
+background:white;
+
+padding:25px;
+
+border-radius:15px;
+
+text-align:center;
+
+height:100%;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+.stat-icon{
+
+font-size:35px;
+
+color:#198754;
+
+margin-bottom:10px;
+
+}
+
+
+.stat-number{
+
+font-size:30px;
+
+font-weight:bold;
+
+color:#198754;
+
+}
+
+
+/*================================
+CARD
+================================*/
+
+.card{
+
+border:none;
+
+border-radius:15px;
+
+box-shadow:
+0 3px 15px rgba(0,0,0,.08);
+
+}
+
+
+/*================================
+ETAT VIDE
+================================*/
+
+.empty-state{
+
+text-align:center;
+
+padding:50px;
+
+color:#777;
+
+}
+
+
+.empty-state i{
+
+font-size:60px;
+
+color:#198754;
+
+margin-bottom:20px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid p-4">
+
+
+<!--================================
+HEADER
+================================-->
+
+<div class="page-header">
+
+<div class="row align-items-center">
+
+
+<div class="col-md-8">
+
+<h1>
+
+<i class="fa-solid fa-clipboard-check"></i>
+
+Suivi des opérations agricoles
+
+</h1>
+
+<p class="text-muted mb-0">
+
+Enregistrez quotidiennement les activités réalisées sur vos chantiers agricoles.
+
+</p>
+
+</div>
+
+
+<div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<!--================================
+STATISTIQUES
+================================-->
+
+<div class="row mb-4">
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-clipboard-list"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="totalSuivis">
+
+0
+
+</div>
+
+<div>
+
+Total opérations
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-calendar-day"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="suivisAujourdhui">
+
+0
+
+</div>
+
+<div>
+
+Aujourd'hui
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="totalEmployes">
+
+0
+
+</div>
+
+<div>
+
+Employés mobilisés
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3 mb-3">
+
+<div class="stat-card">
+
+<div class="stat-icon">
+
+<i class="fa-solid fa-chart-line"></i>
+
+</div>
+
+<div
+class="stat-number"
+id="avancementMoyen">
+
+0%
+
+</div>
+
+<div>
+
+Avancement moyen
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!--================================
+LISTE DES OPERATIONS
+================================-->
+
+<div class="card">
+
+
+<div class="card-body">
+
+
+<div
+class="d-flex justify-content-between align-items-center mb-4">
+
+
+<h4 class="mb-0">
+
+<i class="fa-solid fa-list"></i>
+
+Historique des opérations
+
+</h4>
+
+
+<button
+class="btn btn-success"
+data-bs-toggle="modal"
+data-bs-target="#suiviModal">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouvelle opération
+
+</button>
+
+
+</div>
+
+
+
+<!-- ETAT VIDE -->
+
+<div
+id="emptyState"
+class="empty-state">
+
+<i class="fa-solid fa-clipboard-check"></i>
+
+<h4>
+
+Aucune opération enregistrée
+
+</h4>
+
+<p>
+
+Commencez à enregistrer les activités réalisées sur vos chantiers.
+
+</p>
+
+</div>
+
+
+
+<!-- TABLE -->
+
+<div
+class="table-responsive"
+id="tableContainer"
+style="display:none;">
+
+
+<table
+class="table table-hover align-middle">
+
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Travail</th>
+
+<th>Campagne</th>
+
+<th>Parcelle</th>
+
+<th>Responsable</th>
+
+<th>Employés</th>
+
+<th>Heures</th>
+
+<th>Avancement</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="suiviTable">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!--================================
+MODAL
+================================-->
+
+<div
+class="modal fade"
+id="suiviModal"
+tabindex="-1">
+
+
+<div class="modal-dialog modal-xl">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header">
+
+<h5 class="modal-title">
+
+<i class="fa-solid fa-clipboard-check"></i>
+
+Nouvelle opération agricole
+
+</h5>
+
+
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+
+</button>
+
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="suiviForm">
+
+
+<div class="row">
+
+
+<!-- DATE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Date
+
+</label>
+
+<input
+type="date"
+class="form-control"
+id="dateSuivi"
+required>
+
+</div>
+
+
+
+<!-- TRAVAIL -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Travail
+
+</label>
+
+<select
+class="form-select"
+id="travailSuivi">
+
+<option value="">
+
+Sélectionner un travail
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- CAMPAGNE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Campagne
+
+</label>
+
+<select
+class="form-select"
+id="campagneSuivi">
+
+<option value="">
+
+Sélectionner
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- PARCELLE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Parcelle
+
+</label>
+
+<select
+class="form-select"
+id="parcelleSuivi">
+
+<option value="">
+
+Sélectionner
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- RESPONSABLE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Responsable
+
+</label>
+
+<input
+type="text"
+class="form-control"
+id="responsableSuivi"
+placeholder="Exemple : Eddy">
+
+</div>
+
+
+
+<!-- EMPLOYES -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Nombre d'employés présents
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="nombreEmployes"
+min="0"
+value="1">
+
+</div>
+
+
+
+<!-- HEURES -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Heures travaillées
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="heuresTravail"
+min="0"
+step="0.5">
+
+</div>
+
+
+
+<!-- AVANCEMENT -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Avancement (%)
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="avancement"
+min="0"
+max="100"
+value="0">
+
+</div>
+
+
+
+<!-- CARBURANT -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Carburant utilisé (L)
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="carburant"
+min="0"
+step="0.01"
+value="0">
+
+</div>
+
+
+
+<!-- INTRANTS -->
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Intrants / Matériels utilisés
+
+</label>
+
+<input
+type="text"
+class="form-control"
+id="intrants"
+placeholder="Exemple : 2 sacs d'engrais, semences...">
+
+</div>
+
+
+
+<!-- QUANTITE -->
+
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+
+Quantité utilisée
+
+</label>
+
+<input
+type="number"
+class="form-control"
+id="quantiteIntrant"
+min="0"
+step="0.01">
+
+</div>
+
+
+
+<!-- UNITE -->
+
+<div class="col-md-3 mb-3">
+
+<label class="form-label">
+
+Unité
+
+</label>
+
+<select
+class="form-select"
+id="uniteIntrant">
+
+<option value="">
+
+Sélectionner
+
+</option>
+
+<option value="kg">
+
+kg
+
+</option>
+
+<option value="L">
+
+Litre
+
+</option>
+
+<option value="Sac">
+
+Sac
+
+</option>
+
+<option value="Unité">
+
+Unité
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- OBSERVATIONS -->
+
+<div class="col-md-12 mb-3">
+
+<label class="form-label">
+
+Observations
+
+</label>
+
+<textarea
+class="form-control"
+id="observations"
+rows="4"
+placeholder="Décrivez ce qui a été réalisé, les problèmes rencontrés, les résultats..."></textarea>
+
+</div>
+
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<div class="modal-footer">
+
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+type="button"
+class="btn btn-success"
+onclick="enregistrerSuivi()">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer l'opération
+
+</button>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- BOOTSTRAP -->
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+
+<script>
+
+/*==================================================
+FERME ASHER ERP
+SUIVI DES OPERATIONS AGRICOLES
+==================================================*/
+
+
+const CLE_SUIVIS =
+"fermeAsherSuivis";
+
+const CLE_TRAVAUX =
+"fermeAsherTravaux";
+
+const CLE_CAMPAGNES =
+"fermeAsherCampagnes";
+
+const CLE_PARCELLES =
+"fermeAsherParcelles";
+
+
+/*==================================================
+INITIALISATION
+==================================================*/
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+
+chargerListesSuivi();
+
+chargerSuivis();
+
+initialiserDateSuivi();
+
+}
+
+);
+
+
+/*==================================================
+DATE DU JOUR
+==================================================*/
+
+function initialiserDateSuivi(){
+
+const dateInput =
+document.getElementById(
+"dateSuivi"
+);
+
+if(!dateInput) return;
+
+
+const aujourdHui =
+new Date();
+
+const annee =
+aujourdHui.getFullYear();
+
+const mois =
+String(
+aujourdHui.getMonth()+1
+).padStart(2,"0");
+
+const jour =
+String(
+aujourdHui.getDate()
+).padStart(2,"0");
+
+
+dateInput.value =
+annee+"-"+mois+"-"+jour;
+
+}
+
+
+/*==================================================
+CHARGER LISTES
+==================================================*/
+
+function chargerListesSuivi(){
+
+chargerTravauxSuivi();
+
+chargerCampagnesSuivi();
+
+chargerParcellesSuivi();
+
+}
+
+
+/*==================================================
+CHARGER TRAVAUX
+==================================================*/
+
+function chargerTravauxSuivi(){
+
+const travaux =
+JSON.parse(
+localStorage.getItem(
+CLE_TRAVAUX
+)
+)||[];
+
+
+const select =
+document.getElementById(
+"travailSuivi"
+);
+
+
+travaux.forEach(function(travail){
+
+select.innerHTML += `
+
+<option value="${travail.nom}">
+
+${travail.nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*==================================================
+CHARGER CAMPAGNES
+==================================================*/
+
+function chargerCampagnesSuivi(){
+
+const campagnes =
+JSON.parse(
+localStorage.getItem(
+CLE_CAMPAGNES
+)
+)||[];
+
+
+const select =
+document.getElementById(
+"campagneSuivi"
+);
+
+
+campagnes.forEach(function(campagne){
+
+select.innerHTML += `
+
+<option value="${campagne.nom}">
+
+${campagne.nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*==================================================
+CHARGER PARCELLES
+==================================================*/
+
+function chargerParcellesSuivi(){
+
+const parcelles =
+JSON.parse(
+localStorage.getItem(
+CLE_PARCELLES
+)
+)||[];
+
+
+const select =
+document.getElementById(
+"parcelleSuivi"
+);
+
+
+parcelles.forEach(function(parcelle){
+
+select.innerHTML += `
+
+<option value="${parcelle.nom}">
+
+${parcelle.nom}
+
+</option>
+
+`;
+
+});
+
+}
+
+
+/*==================================================
+ENREGISTRER SUIVI
+==================================================*/
+
+function enregistrerSuivi(){
+
+
+const date =
+document.getElementById(
+"dateSuivi"
+).value;
+
+
+const travail =
+document.getElementById(
+"travailSuivi"
+).value;
+
+
+const campagne =
+document.getElementById(
+"campagneSuivi"
+).value;
+
+
+const parcelle =
+document.getElementById(
+"parcelleSuivi"
+).value;
+
+
+const responsable =
+document.getElementById(
+"responsableSuivi"
+).value.trim();
+
+
+const employes =
+Number(
+document.getElementById(
+"nombreEmployes"
+).value
+);
+
+
+const heures =
+Number(
+document.getElementById(
+"heuresTravail"
+).value
+)||0;
+
+
+const avancement =
+Number(
+document.getElementById(
+"avancement"
+).value
+)||0;
+
+
+const carburant =
+Number(
+document.getElementById(
+"carburant"
+).value
+)||0;
+
+
+const intrants =
+document.getElementById(
+"intrants"
+).value.trim();
+
+
+const quantiteIntrant =
+Number(
+document.getElementById(
+"quantiteIntrant"
+).value
+)||0;
+
+
+const unite =
+document.getElementById(
+"uniteIntrant"
+).value;
+
+
+const observations =
+document.getElementById(
+"observations"
+).value.trim();
+
+
+/* VALIDATION */
+
+if(!date){
+
+alert(
+"Veuillez sélectionner une date."
+);
+
+return;
+
+}
+
+
+if(!travail){
+
+alert(
+"Veuillez sélectionner le travail effectué."
+);
+
+return;
+
+}
+
+
+/* RECUPERATION */
+
+const suivis =
+JSON.parse(
+localStorage.getItem(
+CLE_SUIVIS
+)
+)||[];
+
+
+/* NOUVEL ENREGISTREMENT */
+
+const nouveauSuivi={
+
+id:Date.now(),
+
+date:date,
+
+travail:travail,
+
+campagne:campagne,
+
+parcelle:parcelle,
+
+responsable:responsable,
+
+employes:employes,
+
+heures:heures,
+
+avancement:avancement,
+
+carburant:carburant,
+
+intrants:intrants,
+
+quantiteIntrant:quantiteIntrant,
+
+unite:unite,
+
+observations:observations,
+
+dateCreation:
+new Date().toISOString()
+
+};
+
+
+/* AJOUT */
+
+suivis.push(
+nouveauSuivi
+);
+
+
+/* SAUVEGARDE */
+
+localStorage.setItem(
+
+CLE_SUIVIS,
+
+JSON.stringify(
+suivis
+)
+
+);
+
+
+/* RESET */
+
+document
+.getElementById(
+"suiviForm"
+)
+.reset();
+
+
+initialiserDateSuivi();
+
+
+/* FERMER MODAL */
+
+const modalElement =
+document.getElementById(
+"suiviModal"
+);
+
+const modal =
+bootstrap.Modal.getInstance(
+modalElement
+);
+
+modal.hide();
+
+
+/* RECHARGER */
+
+chargerSuivis();
+
+}
+
+
+/*==================================================
+CHARGER SUIVIS
+==================================================*/
+
+function chargerSuivis(){
+
+const suivis =
+JSON.parse(
+localStorage.getItem(
+CLE_SUIVIS
+)
+)||[];
+
+
+afficherSuivis(
+suivis
+);
+
+mettreAJourStatistiques(
+suivis
+);
+
+}
+
+
+/*==================================================
+AFFICHER SUIVIS
+==================================================*/
+
+function afficherSuivis(suivis){
+
+const table =
+document.getElementById(
+"suiviTable"
+);
+
+
+const emptyState =
+document.getElementById(
+"emptyState"
+);
+
+
+const tableContainer =
+document.getElementById(
+"tableContainer"
+);
+
+
+table.innerHTML="";
+
+
+if(suivis.length===0){
+
+emptyState.style.display=
+"block";
+
+tableContainer.style.display=
+"none";
+
+return;
+
+}
+
+
+emptyState.style.display=
+"none";
+
+tableContainer.style.display=
+"block";
+
+
+suivis
+.slice()
+.reverse()
+.forEach(function(suivi){
+
+
+const ligne =
+document.createElement(
+"tr"
+);
+
+
+ligne.innerHTML=`
+
+<td>
+
+${suivi.date}
+
+</td>
+
+
+<td>
+
+<strong>
+
+${suivi.travail}
+
+</strong>
+
+</td>
+
+
+<td>
+
+${suivi.campagne||"-"}
+
+</td>
+
+
+<td>
+
+${suivi.parcelle||"-"}
+
+</td>
+
+
+<td>
+
+${suivi.responsable||"-"}
+
+</td>
+
+
+<td>
+
+${suivi.employes}
+
+</td>
+
+
+<td>
+
+${suivi.heures} h
+
+</td>
+
+
+<td>
+
+<div class="progress">
+
+<div
+class="progress-bar bg-success"
+style="width:${suivi.avancement}%">
+
+${suivi.avancement}%
+
+</div>
+
+</div>
+
+</td>
+
+
+<td>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="supprimerSuivi(${suivi.id})">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</td>
+
+`;
+
+
+table.appendChild(
+ligne
+);
+
+});
+
+}
+
+
+/*==================================================
+SUPPRIMER
+==================================================*/
+
+function supprimerSuivi(id){
+
+if(!confirm(
+"Supprimer cette opération ?"
+)){
+
+return;
+
+}
+
+
+let suivis =
+JSON.parse(
+localStorage.getItem(
+CLE_SUIVIS
+)
+)||[];
+
+
+suivis =
+suivis.filter(
+s=>s.id!==id
+);
+
+
+localStorage.setItem(
+
+CLE_SUIVIS,
+
+JSON.stringify(
+suivis
+)
+
+);
+
+
+chargerSuivis();
+
+}
+
+
+/*==================================================
+STATISTIQUES
+==================================================*/
+
+function mettreAJourStatistiques(suivis){
+
+
+/* TOTAL */
+
+document
+.getElementById(
+"totalSuivis"
+)
+.innerText=
+suivis.length;
+
+
+/* AUJOURD'HUI */
+
+const aujourdHui =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const suivisJour =
+suivis.filter(
+s=>s.date===aujourdHui
+);
+
+
+document
+.getElementById(
+"suivisAujourdhui"
+)
+.innerText=
+suivisJour.length;
+
+
+/* EMPLOYES */
+
+const employes =
+suivis.reduce(
+(total,s)=>
+total+
+Number(
+s.employes||0
+),
+0
+);
+
+
+document
+.getElementById(
+"totalEmployes"
+)
+.innerText=
+employes;
+
+
+/* AVANCEMENT */
+
+if(suivis.length===0){
+
+document
+.getElementById(
+"avancementMoyen"
+)
+.innerText=
+"0%";
+
+return;
+
+}
+
+
+const totalAvancement =
+suivis.reduce(
+(total,s)=>
+total+
+Number(
+s.avancement||0
+),
+0
+);
+
+
+const moyenne =
+Math.round(
+totalAvancement/
+suivis.length
+);
+
+
+document
+.getElementById(
+"avancementMoyen"
+)
+.innerText=
+moyenne+"%";
+
+}
+
+</script>
+
+
+</body>
+
+</html>
