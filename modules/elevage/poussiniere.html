@@ -1,1 +1,699 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Poussinière | Ferme Asher ERP
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="../../css/style.css">
+
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+
+
+<body>
+
+
+<div class="page-container">
+
+
+    <!-- EN-TÊTE -->
+
+    <div class="module-header">
+
+
+        <div>
+
+            <h1>
+
+                <i class="fa-solid fa-feather"></i>
+
+                Gestion Poussinière
+
+            </h1>
+
+
+            <p>
+
+                Suivez les poussins depuis l'éclosion jusqu'au transfert.
+
+            </p>
+
+        </div>
+
+
+        <a
+            href="index.html"
+            class="btn-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Retour à l'élevage
+
+        </a>
+
+
+    </div>
+
+
+
+    <!-- STATISTIQUES -->
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div>
+
+                <p>
+                    Lots actifs
+                </p>
+
+                <h2 id="brooderLotsActifs">
+                    0
+                </h2>
+
+            </div>
+
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-box"></i>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div>
+
+                <p>
+                    Poussins présents
+                </p>
+
+                <h2 id="brooderPoussinsPresents">
+                    0
+                </h2>
+
+            </div>
+
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-feather"></i>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div>
+
+                <p>
+                    Mortalité totale
+                </p>
+
+                <h2 id="brooderMortalite">
+                    0
+                </h2>
+
+            </div>
+
+
+            <div class="stat-icon danger-icon">
+
+                <i class="fa-solid fa-heart-crack"></i>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div>
+
+                <p>
+                    Transférés
+                </p>
+
+                <h2 id="brooderTransferes">
+                    0
+                </h2>
+
+            </div>
+
+
+            <div class="stat-icon">
+
+                <i class="fa-solid fa-right-left"></i>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ACTIONS -->
+
+
+    <div class="section-header">
+
+
+        <div>
+
+            <h2>
+
+                <i class="fa-solid fa-feather"></i>
+
+                Lots en poussinière
+
+            </h2>
+
+
+            <p>
+
+                Gérez les poussins et leur évolution quotidienne.
+
+            </p>
+
+        </div>
+
+
+
+        <button
+            class="btn-primary"
+            onclick="ouvrirFormulairePoussiniere()">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Nouveau lot
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- TABLEAU -->
+
+
+    <div class="table-container">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Espèce</th>
+
+                    <th>Origine</th>
+
+                    <th>Date entrée</th>
+
+                    <th>Nombre initial</th>
+
+                    <th>Présents</th>
+
+                    <th>Mortalité</th>
+
+                    <th>Température</th>
+
+                    <th>Statut</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody id="listePoussiniere">
+
+                <!-- Lots générés automatiquement -->
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+
+</div>
+
+
+
+<!-- MODAL NOUVEAU LOT -->
+
+
+<div
+    id="modalPoussiniere"
+    class="modal">
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+
+            <h2>
+
+                <i class="fa-solid fa-feather"></i>
+
+                Nouveau lot en poussinière
+
+            </h2>
+
+
+            <button
+                class="close-btn"
+                onclick="fermerFormulairePoussiniere()">
+
+                &times;
+
+            </button>
+
+
+        </div>
+
+
+
+        <form id="formPoussiniere">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Espèce
+                    </label>
+
+
+                    <select
+                        id="brooderEspece"
+                        required>
+
+
+                        <option value="">
+                            Sélectionner
+                        </option>
+
+
+                        <option value="Cailles">
+                            Cailles
+                        </option>
+
+
+                        <option value="Poules">
+                            Poules
+                        </option>
+
+
+                        <option value="Canards">
+                            Canards
+                        </option>
+
+
+                        <option value="Pintades">
+                            Pintades
+                        </option>
+
+
+                    </select>
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Origine / Incubation
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="brooderOrigine"
+                        placeholder="Exemple : INC-2026-001"
+                        required>
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Nombre initial
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderNombre"
+                        min="1"
+                        required>
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Date d'entrée
+                    </label>
+
+
+                    <input
+                        type="date"
+                        id="brooderDate"
+                        required>
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Poussinière / Brooder
+                    </label>
+
+
+                    <select
+                        id="brooderEmplacement"
+                        required>
+
+
+                        <option value="">
+                            Sélectionner
+                        </option>
+
+
+                        <option value="Poussinière 01">
+                            Poussinière 01
+                        </option>
+
+
+                        <option value="Poussinière 02">
+                            Poussinière 02
+                        </option>
+
+
+                        <option value="Brooder 01">
+                            Brooder 01
+                        </option>
+
+
+                    </select>
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Température initiale °C
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderTemperature"
+                        placeholder="35"
+                        min="0"
+                        max="50">
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="form-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fermerFormulairePoussiniere()">
+
+                    Annuler
+
+                </button>
+
+
+
+                <button
+                    type="submit"
+                    class="btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Créer le lot
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- MODAL SUIVI JOURNALIER -->
+
+
+<div
+    id="modalSuiviPoussiniere"
+    class="modal">
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+
+            <h2>
+
+                <i class="fa-solid fa-clipboard-check"></i>
+
+                Suivi journalier
+
+            </h2>
+
+
+            <button
+                class="close-btn"
+                onclick="fermerSuiviPoussiniere()">
+
+                &times;
+
+            </button>
+
+
+        </div>
+
+
+
+        <form id="formSuiviPoussiniere">
+
+
+            <input
+                type="hidden"
+                id="suiviBrooderId">
+
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Mortalité aujourd'hui
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderMorts"
+                        value="0"
+                        min="0">
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Nombre transféré
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderTransfert"
+                        value="0"
+                        min="0">
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Aliment consommé (kg)
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderAliment"
+                        value="0"
+                        min="0"
+                        step="0.01">
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+                    <label>
+                        Température °C
+                    </label>
+
+
+                    <input
+                        type="number"
+                        id="brooderTempJour"
+                        min="0"
+                        max="50">
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="form-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fermerSuiviPoussiniere()">
+
+                    Annuler
+
+                </button>
+
+
+
+                <button
+                    type="submit"
+                    class="btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Enregistrer le suivi
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script src="../../js/elevage.js"></script>
+
+
+</body>
+
+</html>
