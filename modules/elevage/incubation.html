@@ -1033,6 +1033,256 @@
     </div>
 
 </div>
+
+<!-- MODALE NOUVELLE INCUBATION -->
+
+<div class="modal fade" id="modalIncubation" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <!-- HEADER -->
+
+            <div class="modal-header bg-success text-white">
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-egg"></i>
+
+                    Nouvelle incubation
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    onclick="fermerModalIncubation()">
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+
+            <div class="modal-body">
+
+                <form id="formIncubation">
+
+                    <div class="row">
+
+
+                        <!-- ESPECE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Espèce
+
+                            </label>
+
+                            <select
+                                id="incubationEspece"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Sélectionner
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- LOT -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Lot d'origine
+
+                            </label>
+
+                            <select
+                                id="incubationLot"
+                                class="form-select">
+
+                                <option value="">
+
+                                    Sélectionner un lot
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- COUVEUSE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Couveuse
+
+                            </label>
+
+                            <select
+                                id="incubationCouveuse"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Sélectionner une couveuse
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- NOMBRE OEUFS -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Nombre d'œufs
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="incubationOeufs"
+                                class="form-control"
+                                min="1"
+                                required>
+
+                        </div>
+
+
+                        <!-- DATE ENTREE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Date d'entrée
+
+                            </label>
+
+                            <input
+                                type="date"
+                                id="incubationDateEntree"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+
+                        <!-- DUREE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Durée d'incubation
+
+                            </label>
+
+                            <select
+                                id="incubationDuree"
+                                class="form-select">
+
+                                <option value="17">
+
+                                    Caille — 17 jours
+
+                                </option>
+
+                                <option value="21">
+
+                                    Poule — 21 jours
+
+                                </option>
+
+                                <option value="28">
+
+                                    Canard — 28 jours
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- NOTES -->
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label">
+
+                                Notes
+
+                            </label>
+
+                            <textarea
+                                id="incubationNotes"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Informations complémentaires..."></textarea>
+
+                        </div>
+
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="fermerModalIncubation()">
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="enregistrerIncubation()">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Enregistrer l'incubation
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
     
 <script src="../../js/elevage.js"></script>
 
