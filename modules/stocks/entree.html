@@ -6,285 +6,394 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Entrée de Stock | Ferme Asher ERP</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/stocks.css">
+<!-- BOOTSTRAP -->
 
-<link rel="stylesheet"
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<!-- CSS -->
+
+<link
+rel="stylesheet"
+href="../../css/stocks.css">
+
+
+<!-- FONT AWESOME -->
+
+<link
+rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <div class="container py-5">
 
-<div class="card shadow-lg">
 
-<div class="card-header bg-success text-white">
+<div class="row justify-content-center">
 
-<h3>
 
-<i class="fa-solid fa-arrow-down"></i>
+<div class="col-lg-8">
 
-Nouvelle entrée de stock
+
+<div class="card shadow border-0">
+
+
+<!-- HEADER -->
+
+<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+
+<h3 class="mb-0">
+
+<i class="fa-solid fa-circle-plus"></i>
+
+Entrée de Stock
 
 </h3>
 
-</div>
-
-<div class="card-body">
-
-<form id="entreeForm">
-
-  <div class="row">
-
-<div class="col-md-6">
-
-<label class="form-label">
-
-Produit
-
-</label>
-
-<select
-
-id="produit"
-
-class="form-select"
-
-required>
-
-</select>
-
-</div>
-
-<div class="col-md-6">
-
-<label class="form-label">
-
-Date
-
-</label>
-
-<input
-
-type="date"
-
-id="date"
-
-class="form-control"
-
-required>
-
-</div>
-
-</div>
-
-<br>
-
-<div class="row">
-
-<div class="col-md-4">
-
-<label>
-
-Quantité
-
-</label>
-
-<input
-
-type="number"
-
-id="quantite"
-
-class="form-control"
-
-min="1"
-
-required>
-
-</div>
-
-<div class="col-md-4">
-
-<label>
-
-Prix unitaire
-
-</label>
-
-<input
-
-type="number"
-
-id="prix"
-
-class="form-control"
-
-min="0"
-
-required>
-
-</div>
-
-<div class="col-md-4">
-
-<label>
-
-Montant
-
-</label>
-
-<input
-
-type="number"
-
-id="montant"
-
-class="form-control"
-
-readonly>
-
-</div>
-
-</div>
-
-  <br>
-
-<div class="row">
-
-<div class="col-md-6">
-
-<label>
-
-Type d'entrée
-
-</label>
-
-<select
-
-id="type"
-
-class="form-select">
-
-<option>Achat</option>
-
-<option>Production</option>
-
-<option>Retour client</option>
-
-<option>Correction</option>
-
-<option>Autre</option>
-
-</select>
-
-</div>
-
-<div class="col-md-6">
-
-<label>
-
-Référence
-
-</label>
-
-<input
-
-type="text"
-
-id="reference"
-
-class="form-control"
-
-placeholder="Facture, Bon de livraison...">
-
-</div>
-
-</div>
-
-<br>
-
-<label>
-
-Observation
-
-</label>
-
-<textarea
-
-id="observation"
-
-class="form-control"
-
-rows="4">
-
-</textarea>
-
-  <br>
-
-<div class="text-end">
 
 <a
-
 href="index.html"
+class="btn btn-light">
 
-class="btn btn-secondary">
+<i class="fa-solid fa-arrow-left"></i>
 
 Retour
 
 </a>
 
+</div>
+
+
+
+<!-- CORPS -->
+
+<div class="card-body p-4">
+
+
+<form id="entreeForm">
+
+
+<div class="row g-3">
+
+
+<!-- DATE -->
+
+<div class="col-md-6">
+
+<label
+for="date"
+class="form-label">
+
+Date
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<input
+type="date"
+id="date"
+class="form-control"
+required>
+
+</div>
+
+
+
+<!-- PRODUIT -->
+
+<div class="col-md-6">
+
+<label
+for="produit"
+class="form-label">
+
+Produit
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<select
+id="produit"
+class="form-select"
+required>
+
+<option value="">
+
+Chargement des produits...
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- QUANTITE -->
+
+<div class="col-md-6">
+
+<label
+for="quantite"
+class="form-label">
+
+Quantité
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<input
+type="number"
+id="quantite"
+class="form-control"
+min="0.01"
+step="0.01"
+required>
+
+</div>
+
+
+
+<!-- PRIX -->
+
+<div class="col-md-6">
+
+<label
+for="prix"
+class="form-label">
+
+Prix unitaire (FC)
+
+</label>
+
+
+<input
+type="number"
+id="prix"
+class="form-control"
+min="0"
+step="0.01"
+value="0">
+
+</div>
+
+
+
+<!-- MONTANT -->
+
+<div class="col-md-6">
+
+<label
+for="montant"
+class="form-label">
+
+Montant total (FC)
+
+</label>
+
+
+<input
+type="number"
+id="montant"
+class="form-control"
+readonly>
+
+</div>
+
+
+
+<!-- PROVENANCE -->
+
+<div class="col-md-6">
+
+<label
+for="type"
+class="form-label">
+
+Provenance
+
+<span class="text-danger">*</span>
+
+</label>
+
+
+<select
+id="type"
+class="form-select"
+required>
+
+<option value="">
+
+Sélectionner la provenance
+
+</option>
+
+<option value="Production agricole">
+
+Production agricole
+
+</option>
+
+<option value="Production élevage">
+
+Production élevage
+
+</option>
+
+<option value="Achat">
+
+Achat
+
+</option>
+
+<option value="Transformation">
+
+Transformation
+
+</option>
+
+<option value="Retour">
+
+Retour
+
+</option>
+
+<option value="Ajustement">
+
+Ajustement
+
+</option>
+
+<option value="Autre">
+
+Autre
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- REFERENCE -->
+
+<div class="col-md-12">
+
+<label
+for="reference"
+class="form-label">
+
+Référence
+
+</label>
+
+
+<input
+type="text"
+id="reference"
+class="form-control"
+placeholder="Ex : Récolte maïs campagne 2026">
+
+</div>
+
+
+
+<!-- OBSERVATION -->
+
+<div class="col-md-12">
+
+<label
+for="observation"
+class="form-label">
+
+Observation
+
+</label>
+
+
+<textarea
+id="observation"
+class="form-control"
+rows="4"
+placeholder="Informations complémentaires...">
+
+</textarea>
+
+</div>
+
+
+</div>
+
+
+<!-- BOUTONS -->
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+
+
 <button
-
 type="reset"
-
 class="btn btn-warning">
 
-Annuler
+<i class="fa-solid fa-rotate-left"></i>
+
+Réinitialiser
 
 </button>
 
+
 <button
-
 type="submit"
-
 class="btn btn-success">
 
 <i class="fa-solid fa-floppy-disk"></i>
 
-Enregistrer
+Enregistrer l'entrée
 
 </button>
 
+
 </div>
+
 
 </form>
 
-  </div>
 
 </div>
 
 </div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- STOCKS JS -->
 
 <script src="../../js/stocks.js"></script>
 
-<script>
 
-chargerListeProduits();
-
-dateAujourdhui();
-
-calculerMontant();
-
-</script>
-
-  </body>
+</body>
 
 </html>
