@@ -126,6 +126,8 @@ document.addEventListener(
 
         chargerStocks();
 
+        chargerStatistiquesMensuelles();
+
         initialiserRecherche();
 
         initialiserFiltres();
@@ -136,13 +138,10 @@ document.addEventListener(
 
         initialiserPageSortie();
 
-        chargerInventaire();
-
         initialiserInventaire();
 
     }
 );
-
 
 /*==================================================
 CHARGER LES STOCKS
