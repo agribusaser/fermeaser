@@ -1,158 +1,242 @@
-/* ==========================================
+/* =========================================================
    FERME ASHER ERP
    MODULE ÉLEVAGE
    Fichier : js/elevage.js
-========================================== */
+========================================================= */
 
 
-/* ==========================================
-   INITIALISATION DES DONNÉES
-========================================== */
+/* =========================================================
+   INITIALISATION DES BASES LOCALSTORAGE
+========================================================= */
 
 function initialiserElevage() {
 
-    if (!localStorage.getItem("animaux")) {
-        localStorage.setItem("animaux", JSON.stringify([]));
-    }
+    const bases = [
+        "animaux",
+        "productionsElevage",
+        "santeElevage",
+        "alimentationElevage",
+        "reproductionElevage",
+        "croissanceElevage"
+    ];
 
-    if (!localStorage.getItem("productionsElevage")) {
-        localStorage.setItem("productionsElevage", JSON.stringify([]));
-    }
+    bases.forEach(function (base) {
 
-    if (!localStorage.getItem("santeElevage")) {
-        localStorage.setItem("santeElevage", JSON.stringify([]));
-    }
+        if (!localStorage.getItem(base)) {
+
+            localStorage.setItem(
+                base,
+                JSON.stringify([])
+            );
+
+        }
+
+    });
 
 }
+
 
 initialiserElevage();
 
 
-/* ==========================================
-   FONCTIONS UTILITAIRES
-========================================== */
 
-function genererId(prefix = "ID") {
+/* =========================================================
+   OUTILS GÉNÉRAUX
+========================================================= */
 
-    return prefix +
-        Date.now().toString().slice(-6) +
-        Math.floor(Math.random() * 1000);
+function genererId(prefixe) {
+
+    return (
+        prefixe +
+        "-" +
+        Date.now() +
+        "-" +
+        Math.floor(Math.random() * 10000)
+    );
 
 }
 
 
+function obtenirDateAujourdHui() {
+
+    return new Date()
+        .toISOString()
+        .split("T")[0];
+
+}
+
+
+function obtenirUtilisateur() {
+
+    return (
+        localStorage.getItem("utilisateur") ||
+        localStorage.getItem("utilisateurConnecte") ||
+        "Administrateur"
+    );
+
+}
+
+
+function obtenirDonnees(nom) {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(nom)
+        ) || [];
+
+    } catch (erreur) {
+
+        return [];
+
+    }
+
+}
+
+
+function sauvegarderDonnees(nom, donnees) {
+
+    localStorage.setItem(
+        nom,
+        JSON.stringify(donnees)
+    );
+
+}
+
+
+function formaterNombre(nombre) {
+
+    return Number(nombre || 0)
+        .toLocaleString("fr-FR");
+
+}
+
+
+
+/* =========================================================
+   ACCÈS AUX ANIMAUX
+========================================================= */
+
 function obtenirAnimaux() {
 
-    return JSON.parse(
-        localStorage.getItem("animaux")
-    ) || [];
+    return obtenirDonnees("animaux");
 
 }
 
 
 function sauvegarderAnimaux(animaux) {
 
-    localStorage.setItem(
+    sauvegarderDonnees(
         "animaux",
-        JSON.stringify(animaux)
+        animaux
     );
 
 }
 
 
-function obtenirProductions() {
 
-    return JSON.parse(
-        localStorage.getItem("productionsElevage")
-    ) || [];
-
-}
-
-
-function sauvegarderProductions(productions) {
-
-    localStorage.setItem(
-        "productionsElevage",
-        JSON.stringify(productions)
-    );
-
-}
-
-
-function obtenirSante() {
-
-    return JSON.parse(
-        localStorage.getItem("santeElevage")
-    ) || [];
-
-}
-
-
-function sauvegarderSante(sante) {
-
-    localStorage.setItem(
-        "santeElevage",
-        JSON.stringify(sante)
-    );
-
-}
-
-
-/* ==========================================
+/* =========================================================
    MODULE ANIMAUX
-========================================== */
+========================================================= */
 
 function ajouterAnimal(event) {
 
     if (event) {
+
         event.preventDefault();
+
     }
+
+
+    const typeElement =
+        document.getElementById("typeAnimal");
+
+    const raceElement =
+        document.getElementById("raceAnimal");
+
+    const quantiteElement =
+        document.getElementById("quantiteAnimal");
+
+    const dateElement =
+        document.getElementById("dateAnimal");
+
+    const statutElement =
+        document.getElementById("statutAnimal");
+
 
     const type =
-        document.getElementById("typeAnimal")?.value;
+        typeElement ?
+        typeElement.value.trim() :
+        "";
 
     const race =
-        document.getElementById("raceAnimal")?.value;
+        raceElement ?
+        raceElement.value.trim() :
+        "";
 
     const quantite =
-        parseInt(
-            document.getElementById("quantiteAnimal")?.value
-        );
+        quantiteElement ?
+        Number(quantiteElement.value) :
+        0;
 
     const date =
-        document.getElementById("dateAnimal")?.value;
+        dateElement ?
+        dateElement.value :
+        obtenirDateAujourdHui();
 
     const statut =
-        document.getElementById("statutAnimal")?.value;
+        statutElement ?
+        statutElement.value :
+        "Actif";
 
-    if (!type || !quantite || quantite <= 0) {
 
-        alert("Veuillez remplir correctement les informations.");
+    if (!type) {
+
+        alert("Veuillez sélectionner le type d'animal.");
 
         return;
+
     }
 
 
-    const animaux = obtenirAnimaux();
+    if (quantite <= 0) {
+
+        alert("La quantité doit être supérieure à zéro.");
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
 
 
     animaux.push({
 
-        id: genererId("ANI"),
+        id:
+            genererId("ANI"),
 
-        type: type,
+        type:
+            type,
 
-        race: race || "Non précisée",
+        race:
+            race || "Non précisée",
 
-        quantite: quantite,
+        quantite:
+            quantite,
 
-        date: date || new Date().toISOString().split("T")[0],
+        quantiteInitiale:
+            quantite,
 
-        statut: statut || "Actif",
+        date:
+            date,
+
+        statut:
+            statut,
 
         utilisateur:
-            localStorage.getItem("utilisateur") ||
-            "Administrateur"
+            obtenirUtilisateur()
 
     });
 
@@ -160,7 +244,7 @@ function ajouterAnimal(event) {
     sauvegarderAnimaux(animaux);
 
 
-    alert("Animaux ajoutés avec succès.");
+    alert("Animal enregistré avec succès.");
 
     window.location.reload();
 
@@ -168,21 +252,25 @@ function ajouterAnimal(event) {
 
 
 
-/* ==========================================
-   AFFICHER LES ANIMAUX
-========================================== */
+/* =========================================================
+   CHARGER LES ANIMAUX
+========================================================= */
 
 function chargerAnimaux() {
 
     const tableau =
         document.getElementById("listeAnimaux");
 
+
     if (!tableau) {
+
         return;
+
     }
 
 
-    const animaux = obtenirAnimaux();
+    const animaux =
+        obtenirAnimaux();
 
 
     tableau.innerHTML = "";
@@ -194,8 +282,9 @@ function chargerAnimaux() {
 
             <tr>
 
-                <td colspan="7"
-                    class="text-center text-muted">
+                <td
+                colspan="7"
+                class="text-center text-muted">
 
                     Aucun animal enregistré.
 
@@ -206,28 +295,36 @@ function chargerAnimaux() {
         `;
 
         return;
+
     }
 
 
-    animaux.forEach(animal => {
+    animaux.forEach(function (animal) {
 
-        let badge = "success";
+        let couleur =
+            "success";
 
 
-        if (
-            animal.statut === "Malade"
-        ) {
+        if (animal.statut === "Malade") {
 
-            badge = "danger";
+            couleur =
+                "danger";
 
         }
 
 
-        if (
-            animal.statut === "Vendu"
-        ) {
+        if (animal.statut === "Vendu") {
 
-            badge = "secondary";
+            couleur =
+                "secondary";
+
+        }
+
+
+        if (animal.statut === "Inactif") {
+
+            couleur =
+                "secondary";
 
         }
 
@@ -249,7 +346,7 @@ function chargerAnimaux() {
                 </td>
 
                 <td>
-                    ${animal.quantite}
+                    ${formaterNombre(animal.quantite)}
                 </td>
 
                 <td>
@@ -258,7 +355,8 @@ function chargerAnimaux() {
 
                 <td>
 
-                    <span class="badge bg-${badge}">
+                    <span
+                    class="badge bg-${couleur}">
 
                         ${animal.statut}
 
@@ -269,10 +367,13 @@ function chargerAnimaux() {
                 <td>
 
                     <button
-                        class="btn btn-sm btn-danger"
-                        onclick="supprimerAnimal('${animal.id}')">
+                    class="btn btn-sm btn-danger"
+                    onclick="supprimerAnimal('${animal.id}')">
 
-                        <i class="fa-solid fa-trash"></i>
+                        <i
+                        class="fa-solid fa-trash">
+
+                        </i>
 
                     </button>
 
@@ -288,9 +389,9 @@ function chargerAnimaux() {
 
 
 
-/* ==========================================
-   SUPPRIMER UN ANIMAL
-========================================== */
+/* =========================================================
+   SUPPRIMER ANIMAL
+========================================================= */
 
 function supprimerAnimal(id) {
 
@@ -299,17 +400,22 @@ function supprimerAnimal(id) {
             "Voulez-vous vraiment supprimer cet enregistrement ?"
         )
     ) {
+
         return;
+
     }
 
 
-    let animaux = obtenirAnimaux();
+    let animaux =
+        obtenirAnimaux();
 
 
     animaux =
-        animaux.filter(
-            animal => animal.id !== id
-        );
+        animaux.filter(function (animal) {
+
+            return animal.id !== id;
+
+        });
 
 
     sauvegarderAnimaux(animaux);
@@ -321,40 +427,116 @@ function supprimerAnimal(id) {
 
 
 
-/* ==========================================
+/* =========================================================
    PRODUCTION
-========================================== */
+========================================================= */
+
+function obtenirProductions() {
+
+    return obtenirDonnees(
+        "productionsElevage"
+    );
+
+}
+
+
+function sauvegarderProductions(productions) {
+
+    sauvegarderDonnees(
+        "productionsElevage",
+        productions
+    );
+
+}
+
 
 function ajouterProduction(event) {
 
     if (event) {
+
         event.preventDefault();
+
     }
 
 
-    const animal =
-        document.getElementById("animalProduction")?.value;
-
-    const type =
-        document.getElementById("typeProduction")?.value;
-
-    const quantite =
-        parseFloat(
-            document.getElementById("quantiteProduction")?.value
+    const animalElement =
+        document.getElementById(
+            "animalProduction"
         );
 
+    const typeElement =
+        document.getElementById(
+            "typeProduction"
+        );
+
+    const quantiteElement =
+        document.getElementById(
+            "quantiteProduction"
+        );
+
+    const uniteElement =
+        document.getElementById(
+            "uniteProduction"
+        );
+
+    const dateElement =
+        document.getElementById(
+            "dateProduction"
+        );
+
+
+    const animal =
+        animalElement ?
+        animalElement.value :
+        "";
+
+    const type =
+        typeElement ?
+        typeElement.value :
+        "";
+
+    const quantite =
+        quantiteElement ?
+        Number(quantiteElement.value) :
+        0;
+
     const unite =
-        document.getElementById("uniteProduction")?.value;
+        uniteElement ?
+        uniteElement.value :
+        "Unité";
 
     const date =
-        document.getElementById("dateProduction")?.value;
+        dateElement ?
+        dateElement.value :
+        obtenirDateAujourdHui();
 
 
-    if (!animal || !type || !quantite || quantite <= 0) {
+    if (!animal) {
 
-        alert("Veuillez remplir correctement les informations.");
+        alert("Veuillez sélectionner l'animal.");
 
         return;
+
+    }
+
+
+    if (!type) {
+
+        alert("Veuillez indiquer le type de production.");
+
+        return;
+
+    }
+
+
+    if (quantite <= 0) {
+
+        alert(
+            "La quantité produite doit être supérieure à zéro."
+        );
+
+        return;
+
     }
 
 
@@ -364,25 +546,26 @@ function ajouterProduction(event) {
 
     productions.push({
 
-        id: genererId("PROD"),
+        id:
+            genererId("PROD"),
 
-        animal: animal,
+        animal:
+            animal,
 
-        type: type,
+        type:
+            type,
 
-        quantite: quantite,
+        quantite:
+            quantite,
 
-        unite: unite || "Unité",
+        unite:
+            unite,
 
         date:
-            date ||
-            new Date()
-                .toISOString()
-                .split("T")[0],
+            date,
 
         utilisateur:
-            localStorage.getItem("utilisateur") ||
-            "Administrateur"
+            obtenirUtilisateur()
 
     });
 
@@ -390,7 +573,10 @@ function ajouterProduction(event) {
     sauvegarderProductions(productions);
 
 
-    alert("Production enregistrée avec succès.");
+    alert(
+        "Production enregistrée avec succès."
+    );
+
 
     window.location.reload();
 
@@ -398,17 +584,22 @@ function ajouterProduction(event) {
 
 
 
-/* ==========================================
-   CHARGER LA PRODUCTION
-========================================== */
+/* =========================================================
+   CHARGER PRODUCTIONS
+========================================================= */
 
 function chargerProductions() {
 
     const tableau =
-        document.getElementById("listeProductions");
+        document.getElementById(
+            "listeProductions"
+        );
+
 
     if (!tableau) {
+
         return;
+
     }
 
 
@@ -425,8 +616,9 @@ function chargerProductions() {
 
             <tr>
 
-                <td colspan="7"
-                    class="text-center text-muted">
+                <td
+                colspan="7"
+                class="text-center text-muted">
 
                     Aucune production enregistrée.
 
@@ -444,55 +636,46 @@ function chargerProductions() {
     productions
         .slice()
         .reverse()
-        .forEach(production => {
+        .forEach(function (production) {
 
             tableau.innerHTML += `
 
                 <tr>
 
                     <td>
-
                         ${production.date}
-
                     </td>
 
                     <td>
-
                         ${production.animal}
-
                     </td>
 
                     <td>
-
                         ${production.type}
-
                     </td>
 
                     <td>
-
-                        ${production.quantite}
-
+                        ${formaterNombre(production.quantite)}
                     </td>
 
                     <td>
-
                         ${production.unite}
-
                     </td>
 
                     <td>
-
                         ${production.utilisateur}
-
                     </td>
 
                     <td>
 
                         <button
-                            class="btn btn-sm btn-danger"
-                            onclick="supprimerProduction('${production.id}')">
+                        class="btn btn-sm btn-danger"
+                        onclick="supprimerProduction('${production.id}')">
 
-                            <i class="fa-solid fa-trash"></i>
+                            <i
+                            class="fa-solid fa-trash">
+
+                            </i>
 
                         </button>
 
@@ -508,18 +691,20 @@ function chargerProductions() {
 
 
 
-/* ==========================================
+/* =========================================================
    SUPPRIMER PRODUCTION
-========================================== */
+========================================================= */
 
 function supprimerProduction(id) {
 
     if (
         !confirm(
-            "Supprimer cette production ?"
+            "Voulez-vous supprimer cette production ?"
         )
     ) {
+
         return;
+
     }
 
 
@@ -528,10 +713,11 @@ function supprimerProduction(id) {
 
 
     productions =
-        productions.filter(
-            production =>
-                production.id !== id
-        );
+        productions.filter(function (production) {
+
+            return production.id !== id;
+
+        });
 
 
     sauvegarderProductions(productions);
@@ -543,36 +729,70 @@ function supprimerProduction(id) {
 
 
 
-/* ==========================================
-   SANTÉ DES ANIMAUX
-========================================== */
+/* =========================================================
+   SANTÉ ANIMALE
+========================================================= */
+
+function obtenirSante() {
+
+    return obtenirDonnees(
+        "santeElevage"
+    );
+
+}
+
+
+function sauvegarderSante(sante) {
+
+    sauvegarderDonnees(
+        "santeElevage",
+        sante
+    );
+
+}
+
 
 function ajouterSante(event) {
 
     if (event) {
+
         event.preventDefault();
+
     }
 
 
     const animal =
-        document.getElementById("animalSante")?.value;
+        document.getElementById(
+            "animalSante"
+        )?.value || "";
 
     const type =
-        document.getElementById("typeSoin")?.value;
+        document.getElementById(
+            "typeSoin"
+        )?.value || "";
 
     const description =
-        document.getElementById("descriptionSante")?.value;
+        document.getElementById(
+            "descriptionSante"
+        )?.value || "";
 
     const traitement =
-        document.getElementById("traitementSante")?.value;
+        document.getElementById(
+            "traitementSante"
+        )?.value || "";
 
     const quantite =
-        parseInt(
-            document.getElementById("quantiteSante")?.value
+        Number(
+            document.getElementById(
+                "quantiteSante"
+            )?.value
         ) || 0;
 
     const date =
-        document.getElementById("dateSante")?.value;
+        document.getElementById(
+            "dateSante"
+        )?.value ||
+        obtenirDateAujourdHui();
 
 
     if (!animal || !type) {
@@ -582,6 +802,7 @@ function ajouterSante(event) {
         );
 
         return;
+
     }
 
 
@@ -591,31 +812,29 @@ function ajouterSante(event) {
 
     sante.push({
 
-        id: genererId("SANT"),
+        id:
+            genererId("SANTE"),
 
-        animal: animal,
+        animal:
+            animal,
 
-        type: type,
+        type:
+            type,
 
         description:
-            description ||
-            "Aucune description",
+            description,
 
         traitement:
-            traitement ||
-            "Aucun traitement",
+            traitement,
 
-        quantite: quantite,
+        quantite:
+            quantite,
 
         date:
-            date ||
-            new Date()
-                .toISOString()
-                .split("T")[0],
+            date,
 
         utilisateur:
-            localStorage.getItem("utilisateur") ||
-            "Administrateur"
+            obtenirUtilisateur()
 
     });
 
@@ -624,7 +843,7 @@ function ajouterSante(event) {
 
 
     alert(
-        "Intervention sanitaire enregistrée avec succès."
+        "Suivi sanitaire enregistré avec succès."
     );
 
 
@@ -634,17 +853,22 @@ function ajouterSante(event) {
 
 
 
-/* ==========================================
-   CHARGER LES DONNÉES SANTÉ
-========================================== */
+/* =========================================================
+   CHARGER SANTÉ
+========================================================= */
 
 function chargerSante() {
 
     const tableau =
-        document.getElementById("listeSante");
+        document.getElementById(
+            "listeSante"
+        );
+
 
     if (!tableau) {
+
         return;
+
     }
 
 
@@ -661,8 +885,9 @@ function chargerSante() {
 
             <tr>
 
-                <td colspan="8"
-                    class="text-center text-muted">
+                <td
+                colspan="8"
+                class="text-center text-muted">
 
                     Aucun suivi sanitaire enregistré.
 
@@ -680,25 +905,24 @@ function chargerSante() {
     sante
         .slice()
         .reverse()
-        .forEach(enregistrement => {
+        .forEach(function (item) {
 
-            let couleur = "success";
+            let couleur =
+                "success";
 
 
-            if (
-                enregistrement.type === "Maladie"
-            ) {
+            if (item.type === "Maladie") {
 
-                couleur = "danger";
+                couleur =
+                    "danger";
 
             }
 
 
-            if (
-                enregistrement.type === "Traitement"
-            ) {
+            if (item.type === "Traitement") {
 
-                couleur = "warning";
+                couleur =
+                    "warning";
 
             }
 
@@ -708,58 +932,50 @@ function chargerSante() {
                 <tr>
 
                     <td>
+                        ${item.date}
+                    </td>
 
-                        ${enregistrement.date}
-
+                    <td>
+                        ${item.animal}
                     </td>
 
                     <td>
 
-                        ${enregistrement.animal}
+                        <span
+                        class="badge bg-${couleur}">
 
-                    </td>
-
-                    <td>
-
-                        <span class="badge bg-${couleur}">
-
-                            ${enregistrement.type}
+                            ${item.type}
 
                         </span>
 
                     </td>
 
                     <td>
-
-                        ${enregistrement.description}
-
+                        ${item.description || "-"}
                     </td>
 
                     <td>
-
-                        ${enregistrement.traitement}
-
+                        ${item.traitement || "-"}
                     </td>
 
                     <td>
-
-                        ${enregistrement.quantite}
-
+                        ${formaterNombre(item.quantite)}
                     </td>
 
                     <td>
-
-                        ${enregistrement.utilisateur}
-
+                        ${item.utilisateur}
                     </td>
 
                     <td>
 
                         <button
-                            class="btn btn-sm btn-danger"
-                            onclick="supprimerSante('${enregistrement.id}')">
+                        class="btn btn-sm btn-danger"
+                        onclick="supprimerSante('${item.id}')">
 
-                            <i class="fa-solid fa-trash"></i>
+                            <i
+                            class="fa-solid fa-trash">
+
+                            </i>
 
                         </button>
 
@@ -775,18 +991,20 @@ function chargerSante() {
 
 
 
-/* ==========================================
-   SUPPRIMER SUIVI SANITAIRE
-========================================== */
+/* =========================================================
+   SUPPRIMER SANTÉ
+========================================================= */
 
 function supprimerSante(id) {
 
     if (
         !confirm(
-            "Supprimer cet enregistrement sanitaire ?"
+            "Voulez-vous supprimer cet enregistrement ?"
         )
     ) {
+
         return;
+
     }
 
 
@@ -795,10 +1013,11 @@ function supprimerSante(id) {
 
 
     sante =
-        sante.filter(
-            enregistrement =>
-                enregistrement.id !== id
-        );
+        sante.filter(function (item) {
+
+            return item.id !== id;
+
+        });
 
 
     sauvegarderSante(sante);
@@ -810,9 +1029,1596 @@ function supprimerSante(id) {
 
 
 
-/* ==========================================
+/* =========================================================
+   ALIMENTATION
+========================================================= */
+
+function obtenirAlimentation() {
+
+    return obtenirDonnees(
+        "alimentationElevage"
+    );
+
+}
+
+
+function sauvegarderAlimentation(alimentation) {
+
+    sauvegarderDonnees(
+        "alimentationElevage",
+        alimentation
+    );
+
+}
+
+
+
+/* =========================================================
+   CHARGER LES LOTS DANS ALIMENTATION
+========================================================= */
+
+function chargerLotsAlimentation() {
+
+    const select =
+        document.getElementById(
+            "alimentLot"
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un lot
+
+        </option>
+
+    `;
+
+
+    animaux.forEach(function (animal) {
+
+        select.innerHTML += `
+
+            <option value="${animal.id}">
+
+                ${animal.type}
+                -
+                ${animal.race}
+                (${animal.quantite})
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+
+/* =========================================================
+   ENREGISTRER ALIMENTATION
+========================================================= */
+
+function enregistrerAlimentation() {
+
+    const date =
+        document.getElementById(
+            "alimentDate"
+        )?.value ||
+        obtenirDateAujourdHui();
+
+
+    const lot =
+        document.getElementById(
+            "alimentLot"
+        )?.value || "";
+
+
+    const produit =
+        document.getElementById(
+            "alimentProduit"
+        )?.value.trim() || "";
+
+
+    const quantite =
+        Number(
+            document.getElementById(
+                "alimentQuantite"
+            )?.value
+        );
+
+
+    const unite =
+        document.getElementById(
+            "alimentUnite"
+        )?.value || "Kg";
+
+
+    const notes =
+        document.getElementById(
+            "alimentNotes"
+        )?.value.trim() || "";
+
+
+    if (!lot) {
+
+        alert(
+            "Veuillez sélectionner un lot."
+        );
+
+        return;
+
+    }
+
+
+    if (!produit) {
+
+        alert(
+            "Veuillez indiquer le nom de l'aliment."
+        );
+
+        return;
+
+    }
+
+
+    if (!quantite || quantite <= 0) {
+
+        alert(
+            "La quantité doit être supérieure à zéro."
+        );
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    const animal =
+        animaux.find(function (item) {
+
+            return item.id === lot;
+
+        });
+
+
+    const alimentation =
+        obtenirAlimentation();
+
+
+    alimentation.push({
+
+        id:
+            genererId("ALIM"),
+
+        date:
+            date,
+
+        lot:
+            lot,
+
+        lotNom:
+            animal ?
+            `${animal.type} - ${animal.race}` :
+            lot,
+
+        produit:
+            produit,
+
+        quantite:
+            quantite,
+
+        unite:
+            unite,
+
+        notes:
+            notes,
+
+        utilisateur:
+            obtenirUtilisateur()
+
+    });
+
+
+    sauvegarderAlimentation(
+        alimentation
+    );
+
+
+    alert(
+        "Consommation enregistrée avec succès."
+    );
+
+
+    window.location.reload();
+
+}
+
+
+
+/* =========================================================
+   CHARGER ALIMENTATION
+========================================================= */
+
+function chargerAlimentation() {
+
+    const tableau =
+        document.getElementById(
+            "listeAlimentation"
+        );
+
+
+    const alimentation =
+        obtenirAlimentation();
+
+
+    if (tableau) {
+
+        tableau.innerHTML = "";
+
+
+        if (alimentation.length === 0) {
+
+            tableau.innerHTML = `
+
+                <tr>
+
+                    <td
+                    colspan="7"
+                    class="text-center text-muted">
+
+                        Aucune consommation enregistrée.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        } else {
+
+            alimentation
+                .slice()
+                .reverse()
+                .forEach(function (item) {
+
+                    tableau.innerHTML += `
+
+                        <tr>
+
+                            <td>
+                                ${item.date}
+                            </td>
+
+                            <td>
+                                ${item.lotNom}
+                            </td>
+
+                            <td>
+                                ${item.produit}
+                            </td>
+
+                            <td>
+                                ${formaterNombre(item.quantite)}
+                            </td>
+
+                            <td>
+                                ${item.unite}
+                            </td>
+
+                            <td>
+                                ${item.notes || "-"}
+                            </td>
+
+                            <td>
+
+                                <button
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerAlimentation('${item.id}')">
+
+                                    <i
+                                    class="fa-solid fa-trash">
+
+                                    </i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                });
+
+        }
+
+    }
+
+
+    chargerStatistiquesAlimentation();
+
+}
+
+
+
+/* =========================================================
+   STATISTIQUES ALIMENTATION
+========================================================= */
+
+function chargerStatistiquesAlimentation() {
+
+    const alimentation =
+        obtenirAlimentation();
+
+
+    const aujourdHui =
+        obtenirDateAujourdHui();
+
+
+    const moisActuel =
+        aujourdHui.substring(0, 7);
+
+
+    let consommationJour =
+        0;
+
+    let consommationMois =
+        0;
+
+    let consommationTotale =
+        0;
+
+
+    const lots =
+        new Set();
+
+
+    alimentation.forEach(function (item) {
+
+        const quantite =
+            Number(item.quantite) || 0;
+
+
+        consommationTotale +=
+            quantite;
+
+
+        lots.add(item.lot);
+
+
+        if (
+            item.date === aujourdHui
+        ) {
+
+            consommationJour +=
+                quantite;
+
+        }
+
+
+        if (
+            item.date &&
+            item.date.substring(0, 7) === moisActuel
+        ) {
+
+            consommationMois +=
+                quantite;
+
+        }
+
+    });
+
+
+    const elementJour =
+        document.getElementById(
+            "alimentJour"
+        );
+
+    const elementMois =
+        document.getElementById(
+            "alimentMois"
+        );
+
+    const elementTotal =
+        document.getElementById(
+            "alimentTotal"
+        );
+
+    const elementLots =
+        document.getElementById(
+            "lotsNourris"
+        );
+
+
+    if (elementJour) {
+
+        elementJour.textContent =
+            formaterNombre(consommationJour);
+
+    }
+
+
+    if (elementMois) {
+
+        elementMois.textContent =
+            formaterNombre(consommationMois);
+
+    }
+
+
+    if (elementTotal) {
+
+        elementTotal.textContent =
+            formaterNombre(consommationTotale);
+
+    }
+
+
+    if (elementLots) {
+
+        elementLots.textContent =
+            lots.size;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   SUPPRIMER ALIMENTATION
+========================================================= */
+
+function supprimerAlimentation(id) {
+
+    if (
+        !confirm(
+            "Voulez-vous supprimer cette consommation ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    let alimentation =
+        obtenirAlimentation();
+
+
+    alimentation =
+        alimentation.filter(function (item) {
+
+            return item.id !== id;
+
+        });
+
+
+    sauvegarderAlimentation(
+        alimentation
+    );
+
+
+    chargerAlimentation();
+
+}
+
+
+
+/* =========================================================
+   REPRODUCTION
+========================================================= */
+
+function obtenirReproduction() {
+
+    return obtenirDonnees(
+        "reproductionElevage"
+    );
+
+}
+
+
+function sauvegarderReproduction(reproduction) {
+
+    sauvegarderDonnees(
+        "reproductionElevage",
+        reproduction
+    );
+
+}
+
+
+
+/* =========================================================
+   CHARGER LOTS REPRODUCTION
+========================================================= */
+
+function chargerLotsReproduction() {
+
+    const select =
+        document.getElementById(
+            "reproductionLot"
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un lot
+
+        </option>
+
+    `;
+
+
+    animaux.forEach(function (animal) {
+
+        select.innerHTML += `
+
+            <option value="${animal.id}">
+
+                ${animal.type}
+                -
+                ${animal.race}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+
+/* =========================================================
+   ENREGISTRER REPRODUCTION
+========================================================= */
+
+function enregistrerReproduction() {
+
+    const lot =
+        document.getElementById(
+            "reproductionLot"
+        )?.value || "";
+
+
+    const type =
+        document.getElementById(
+            "reproductionType"
+        )?.value.trim() || "";
+
+
+    const date =
+        document.getElementById(
+            "reproductionDate"
+        )?.value ||
+        obtenirDateAujourdHui();
+
+
+    const datePrevue =
+        document.getElementById(
+            "reproductionDatePrevue"
+        )?.value || "";
+
+
+    const oeufs =
+        Number(
+            document.getElementById(
+                "reproductionOeufs"
+            )?.value
+        );
+
+
+    const couveuse =
+        document.getElementById(
+            "reproductionCouveuse"
+        )?.value.trim() || "";
+
+
+    const statut =
+        document.getElementById(
+            "reproductionStatut"
+        )?.value ||
+        "En incubation";
+
+
+    const notes =
+        document.getElementById(
+            "reproductionNotes"
+        )?.value.trim() || "";
+
+
+    if (!lot) {
+
+        alert(
+            "Veuillez sélectionner un lot parent."
+        );
+
+        return;
+
+    }
+
+
+    if (!type) {
+
+        alert(
+            "Veuillez indiquer le type d'œufs."
+        );
+
+        return;
+
+    }
+
+
+    if (!datePrevue) {
+
+        alert(
+            "Veuillez indiquer la date prévue d'éclosion."
+        );
+
+        return;
+
+    }
+
+
+    if (!oeufs || oeufs <= 0) {
+
+        alert(
+            "Le nombre d'œufs doit être supérieur à zéro."
+        );
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    const animal =
+        animaux.find(function (item) {
+
+            return item.id === lot;
+
+        });
+
+
+    const reproduction =
+        obtenirReproduction();
+
+
+    reproduction.push({
+
+        id:
+            genererId("INC"),
+
+        lot:
+            lot,
+
+        lotNom:
+            animal ?
+            `${animal.type} - ${animal.race}` :
+            lot,
+
+        type:
+            type,
+
+        date:
+            date,
+
+        datePrevue:
+            datePrevue,
+
+        oeufs:
+            oeufs,
+
+        eclos:
+            0,
+
+        couveuse:
+            couveuse,
+
+        statut:
+            statut,
+
+        notes:
+            notes,
+
+        utilisateur:
+            obtenirUtilisateur()
+
+    });
+
+
+    sauvegarderReproduction(
+        reproduction
+    );
+
+
+    alert(
+        "Incubation enregistrée avec succès."
+    );
+
+
+    window.location.reload();
+
+}
+
+
+
+/* =========================================================
+   CHARGER REPRODUCTION
+========================================================= */
+
+function chargerReproduction() {
+
+    const tableau =
+        document.getElementById(
+            "listeReproduction"
+        );
+
+
+    const reproduction =
+        obtenirReproduction();
+
+
+    if (tableau) {
+
+        tableau.innerHTML = "";
+
+
+        if (reproduction.length === 0) {
+
+            tableau.innerHTML = `
+
+                <tr>
+
+                    <td
+                    colspan="9"
+                    class="text-center text-muted">
+
+                        Aucune incubation enregistrée.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        } else {
+
+            reproduction
+                .slice()
+                .reverse()
+                .forEach(function (item) {
+
+                    let couleur =
+                        "warning";
+
+
+                    if (
+                        item.statut === "Terminé"
+                    ) {
+
+                        couleur =
+                            "success";
+
+                    }
+
+
+                    tableau.innerHTML += `
+
+                        <tr>
+
+                            <td>
+                                ${item.id}
+                            </td>
+
+                            <td>
+                                ${item.lotNom}
+                            </td>
+
+                            <td>
+                                ${item.type}
+                            </td>
+
+                            <td>
+                                ${item.date}
+                            </td>
+
+                            <td>
+                                ${item.datePrevue}
+                            </td>
+
+                            <td>
+                                ${formaterNombre(item.oeufs)}
+                            </td>
+
+                            <td>
+                                ${formaterNombre(item.eclos)}
+                            </td>
+
+                            <td>
+
+                                <span
+                                class="badge bg-${couleur}">
+
+                                    ${item.statut}
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <button
+                                class="btn btn-sm btn-primary"
+                                onclick="enregistrerEclosion('${item.id}')">
+
+                                    <i
+                                    class="fa-solid fa-feather">
+
+                                    </i>
+
+                                </button>
+
+
+                                <button
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerReproduction('${item.id}')">
+
+                                    <i
+                                    class="fa-solid fa-trash">
+
+                                    </i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                });
+
+        }
+
+    }
+
+
+    chargerStatistiquesReproduction();
+
+}
+
+
+
+/* =========================================================
+   ENREGISTRER ÉCLOSION
+========================================================= */
+
+function enregistrerEclosion(id) {
+
+    let reproduction =
+        obtenirReproduction();
+
+
+    const index =
+        reproduction.findIndex(function (item) {
+
+            return item.id === id;
+
+        });
+
+
+    if (index === -1) {
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const resultat =
+        prompt(
+            "Combien d'animaux ont éclos ?",
+            reproduction[index].eclos || 0
+        );
+
+
+    if (resultat === null) {
+
+        return;
+
+    }
+
+
+    const eclos =
+        Number(resultat);
+
+
+    if (
+        isNaN(eclos) ||
+        eclos < 0 ||
+        eclos > Number(reproduction[index].oeufs)
+    ) {
+
+        alert(
+            "Veuillez entrer une quantité valide."
+        );
+
+        return;
+
+    }
+
+
+    reproduction[index].eclos =
+        eclos;
+
+
+    reproduction[index].statut =
+        "Terminé";
+
+
+    sauvegarderReproduction(
+        reproduction
+    );
+
+
+    chargerReproduction();
+
+}
+
+
+
+/* =========================================================
+   SUPPRIMER REPRODUCTION
+========================================================= */
+
+function supprimerReproduction(id) {
+
+    if (
+        !confirm(
+            "Voulez-vous supprimer cette incubation ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    let reproduction =
+        obtenirReproduction();
+
+
+    reproduction =
+        reproduction.filter(function (item) {
+
+            return item.id !== id;
+
+        });
+
+
+    sauvegarderReproduction(
+        reproduction
+    );
+
+
+    chargerReproduction();
+
+}
+
+
+
+/* =========================================================
+   STATISTIQUES REPRODUCTION
+========================================================= */
+
+function chargerStatistiquesReproduction() {
+
+    const reproduction =
+        obtenirReproduction();
+
+
+    let oeufsActifs =
+        0;
+
+    let incubationsActives =
+        0;
+
+    let totalEclos =
+        0;
+
+    let totalOeufsTermines =
+        0;
+
+
+    reproduction.forEach(function (item) {
+
+        if (
+            item.statut === "En incubation"
+        ) {
+
+            oeufsActifs +=
+                Number(item.oeufs) || 0;
+
+            incubationsActives++;
+
+        }
+
+
+        totalEclos +=
+            Number(item.eclos) || 0;
+
+
+        if (
+            item.statut === "Terminé"
+        ) {
+
+            totalOeufsTermines +=
+                Number(item.oeufs) || 0;
+
+        }
+
+    });
+
+
+    let taux =
+        0;
+
+
+    if (
+        totalOeufsTermines > 0
+    ) {
+
+        taux =
+            (
+                totalEclos /
+                totalOeufsTermines
+            ) * 100;
+
+    }
+
+
+    const oeufsElement =
+        document.getElementById(
+            "oeufsIncubation"
+        );
+
+    const incubationElement =
+        document.getElementById(
+            "incubationsActives"
+        );
+
+    const eclosElement =
+        document.getElementById(
+            "totalEclosions"
+        );
+
+    const tauxElement =
+        document.getElementById(
+            "tauxEclosion"
+        );
+
+
+    if (oeufsElement) {
+
+        oeufsElement.textContent =
+            formaterNombre(oeufsActifs);
+
+    }
+
+
+    if (incubationElement) {
+
+        incubationElement.textContent =
+            incubationsActives;
+
+    }
+
+
+    if (eclosElement) {
+
+        eclosElement.textContent =
+            formaterNombre(totalEclos);
+
+    }
+
+
+    if (tauxElement) {
+
+        tauxElement.textContent =
+            taux.toFixed(1) + " %";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   CROISSANCE
+========================================================= */
+
+function obtenirCroissance() {
+
+    return obtenirDonnees(
+        "croissanceElevage"
+    );
+
+}
+
+
+function sauvegarderCroissance(croissance) {
+
+    sauvegarderDonnees(
+        "croissanceElevage",
+        croissance
+    );
+
+}
+
+
+
+/* =========================================================
+   CHARGER LOTS CROISSANCE
+========================================================= */
+
+function chargerLotsCroissance() {
+
+    const select =
+        document.getElementById(
+            "croissanceLot"
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner un lot
+
+        </option>
+
+    `;
+
+
+    animaux.forEach(function (animal) {
+
+        select.innerHTML += `
+
+            <option value="${animal.id}">
+
+                ${animal.type}
+                -
+                ${animal.race}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+
+
+/* =========================================================
+   ENREGISTRER CROISSANCE
+========================================================= */
+
+function enregistrerCroissance() {
+
+    const date =
+        document.getElementById(
+            "croissanceDate"
+        )?.value ||
+        obtenirDateAujourdHui();
+
+
+    const lot =
+        document.getElementById(
+            "croissanceLot"
+        )?.value || "";
+
+
+    const nombre =
+        Number(
+            document.getElementById(
+                "croissanceNombre"
+            )?.value
+        );
+
+
+    const poids =
+        Number(
+            document.getElementById(
+                "croissancePoids"
+            )?.value
+        );
+
+
+    const notes =
+        document.getElementById(
+            "croissanceNotes"
+        )?.value.trim() || "";
+
+
+    if (!lot) {
+
+        alert(
+            "Veuillez sélectionner un lot."
+        );
+
+        return;
+
+    }
+
+
+    if (!nombre || nombre <= 0) {
+
+        alert(
+            "Le nombre d'animaux doit être supérieur à zéro."
+        );
+
+        return;
+
+    }
+
+
+    if (!poids || poids <= 0) {
+
+        alert(
+            "Le poids doit être supérieur à zéro."
+        );
+
+        return;
+
+    }
+
+
+    const animaux =
+        obtenirAnimaux();
+
+
+    const animal =
+        animaux.find(function (item) {
+
+            return item.id === lot;
+
+        });
+
+
+    const poidsMoyen =
+        poids / nombre;
+
+
+    const croissance =
+        obtenirCroissance();
+
+
+    croissance.push({
+
+        id:
+            genererId("CROI"),
+
+        date:
+            date,
+
+        lot:
+            lot,
+
+        lotNom:
+            animal ?
+            `${animal.type} - ${animal.race}` :
+            lot,
+
+        nombre:
+            nombre,
+
+        poids:
+            poids,
+
+        poidsMoyen:
+            poidsMoyen,
+
+        notes:
+            notes,
+
+        utilisateur:
+            obtenirUtilisateur()
+
+    });
+
+
+    sauvegarderCroissance(
+        croissance
+    );
+
+
+    alert(
+        "Mesure de croissance enregistrée avec succès."
+    );
+
+
+    window.location.reload();
+
+}
+
+
+
+/* =========================================================
+   CHARGER CROISSANCE
+========================================================= */
+
+function chargerCroissance() {
+
+    const tableau =
+        document.getElementById(
+            "listeCroissance"
+        );
+
+
+    const croissance =
+        obtenirCroissance();
+
+
+    if (tableau) {
+
+        tableau.innerHTML = "";
+
+
+        if (croissance.length === 0) {
+
+            tableau.innerHTML = `
+
+                <tr>
+
+                    <td
+                    colspan="7"
+                    class="text-center text-muted">
+
+                        Aucune mesure enregistrée.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        } else {
+
+            croissance
+                .slice()
+                .reverse()
+                .forEach(function (item) {
+
+                    tableau.innerHTML += `
+
+                        <tr>
+
+                            <td>
+                                ${item.date}
+                            </td>
+
+                            <td>
+                                ${item.lotNom}
+                            </td>
+
+                            <td>
+                                ${formaterNombre(item.nombre)}
+                            </td>
+
+                            <td>
+                                ${Number(item.poids).toFixed(2)} Kg
+                            </td>
+
+                            <td>
+                                ${Number(item.poidsMoyen).toFixed(3)} Kg
+                            </td>
+
+                            <td>
+                                ${item.notes || "-"}
+                            </td>
+
+                            <td>
+
+                                <button
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerCroissance('${item.id}')">
+
+                                    <i
+                                    class="fa-solid fa-trash">
+
+                                    </i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                });
+
+        }
+
+    }
+
+
+    chargerStatistiquesCroissance();
+
+}
+
+
+
+/* =========================================================
+   STATISTIQUES CROISSANCE
+========================================================= */
+
+function chargerStatistiquesCroissance() {
+
+    const croissance =
+        obtenirCroissance();
+
+
+    const lots =
+        new Set();
+
+
+    let totalPoidsMoyen =
+        0;
+
+
+    croissance.forEach(function (item) {
+
+        lots.add(item.lot);
+
+        totalPoidsMoyen +=
+            Number(item.poidsMoyen) || 0;
+
+    });
+
+
+    const moyenne =
+        croissance.length > 0 ?
+        totalPoidsMoyen / croissance.length :
+        0;
+
+
+    const poidsElement =
+        document.getElementById(
+            "poidsMoyenGeneral"
+        );
+
+    const lotsElement =
+        document.getElementById(
+            "lotsMesures"
+        );
+
+    const mesuresElement =
+        document.getElementById(
+            "nombreMesures"
+        );
+
+
+    if (poidsElement) {
+
+        poidsElement.textContent =
+            moyenne.toFixed(3) + " Kg";
+
+    }
+
+
+    if (lotsElement) {
+
+        lotsElement.textContent =
+            lots.size;
+
+    }
+
+
+    if (mesuresElement) {
+
+        mesuresElement.textContent =
+            croissance.length;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   SUPPRIMER CROISSANCE
+========================================================= */
+
+function supprimerCroissance(id) {
+
+    if (
+        !confirm(
+            "Voulez-vous supprimer cette mesure ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    let croissance =
+        obtenirCroissance();
+
+
+    croissance =
+        croissance.filter(function (item) {
+
+            return item.id !== id;
+
+        });
+
+
+    sauvegarderCroissance(
+        croissance
+    );
+
+
+    chargerCroissance();
+
+}
+
+
+
+/* =========================================================
    TABLEAU DE BORD ÉLEVAGE
-========================================== */
+========================================================= */
 
 function chargerDashboardElevage() {
 
@@ -826,45 +2632,62 @@ function chargerDashboardElevage() {
         obtenirSante();
 
 
-    const totalAnimaux =
-        animaux.reduce(
-            (total, animal) =>
-                total + Number(animal.quantite),
-            0
-        );
+    const aujourdHui =
+        obtenirDateAujourdHui();
+
+
+    let totalAnimaux =
+        0;
+
+
+    animaux.forEach(function (animal) {
+
+        if (
+            animal.statut !== "Vendu"
+        ) {
+
+            totalAnimaux +=
+                Number(animal.quantite) || 0;
+
+        }
+
+    });
 
 
     const animauxMalades =
         animaux
-            .filter(
-                animal =>
-                    animal.statut === "Malade"
-            )
-            .reduce(
-                (total, animal) =>
-                    total + Number(animal.quantite),
-                0
-            );
+            .filter(function (animal) {
 
+                return animal.statut === "Malade";
 
-    const aujourdHui =
-        new Date()
-            .toISOString()
-            .split("T")[0];
+            })
+            .reduce(function (total, animal) {
+
+                return (
+                    total +
+                    (Number(animal.quantite) || 0)
+                );
+
+            }, 0);
 
 
     const productionJour =
         productions
-            .filter(
-                production =>
+            .filter(function (production) {
+
+                return (
                     production.date === aujourdHui
-            )
-            .reduce(
-                (total, production) =>
+                );
+
+            })
+            .reduce(function (total, production) {
+
+                return (
                     total +
-                    Number(production.quantite),
-                0
-            );
+                    (Number(production.quantite) || 0)
+                );
+
+            }, 0);
 
 
     const totalElement =
@@ -891,7 +2714,7 @@ function chargerDashboardElevage() {
     if (totalElement) {
 
         totalElement.textContent =
-            totalAnimaux;
+            formaterNombre(totalAnimaux);
 
     }
 
@@ -899,7 +2722,7 @@ function chargerDashboardElevage() {
     if (maladeElement) {
 
         maladeElement.textContent =
-            animauxMalades;
+            formaterNombre(animauxMalades);
 
     }
 
@@ -907,7 +2730,7 @@ function chargerDashboardElevage() {
     if (productionElement) {
 
         productionElement.textContent =
-            productionJour;
+            formaterNombre(productionJour);
 
     }
 
@@ -923,9 +2746,466 @@ function chargerDashboardElevage() {
 
 
 
-/* ==========================================
-   CHARGEMENT AUTOMATIQUE
-========================================== */
+/* =========================================================
+   SUIVI GÉNÉRAL ÉLEVAGE
+========================================================= */
+
+function chargerSuiviElevage() {
+
+    const animaux =
+        obtenirAnimaux();
+
+    const productions =
+        obtenirProductions();
+
+    const alimentation =
+        obtenirAlimentation();
+
+    const sante =
+        obtenirSante();
+
+
+    let totalAnimaux =
+        0;
+
+
+    animaux.forEach(function (animal) {
+
+        totalAnimaux +=
+            Number(animal.quantite) || 0;
+
+    });
+
+
+    let productionTotale =
+        0;
+
+
+    productions.forEach(function (production) {
+
+        productionTotale +=
+            Number(production.quantite) || 0;
+
+    });
+
+
+    let mortalite =
+        0;
+
+
+    /*
+       Les mortalités seront comptées si un
+       enregistrement de santé contient le
+       type "Mortalité".
+    */
+
+    sante.forEach(function (item) {
+
+        if (
+            item.type === "Mortalité"
+        ) {
+
+            mortalite +=
+                Number(item.quantite) || 0;
+
+        }
+
+    });
+
+
+    let alimentationTotale =
+        0;
+
+
+    alimentation.forEach(function (item) {
+
+        if (
+            item.unite === "Kg"
+        ) {
+
+            alimentationTotale +=
+                Number(item.quantite) || 0;
+
+        }
+
+    });
+
+
+    const suiviAnimaux =
+        document.getElementById(
+            "suiviAnimaux"
+        );
+
+    const suiviProduction =
+        document.getElementById(
+            "suiviProduction"
+        );
+
+    const suiviMortalite =
+        document.getElementById(
+            "suiviMortalite"
+        );
+
+    const suiviAlimentation =
+        document.getElementById(
+            "suiviAlimentation"
+        );
+
+
+    if (suiviAnimaux) {
+
+        suiviAnimaux.textContent =
+            formaterNombre(totalAnimaux);
+
+    }
+
+
+    if (suiviProduction) {
+
+        suiviProduction.textContent =
+            formaterNombre(productionTotale);
+
+    }
+
+
+    if (suiviMortalite) {
+
+        suiviMortalite.textContent =
+            formaterNombre(mortalite);
+
+    }
+
+
+    if (suiviAlimentation) {
+
+        suiviAlimentation.textContent =
+            formaterNombre(alimentationTotale)
+            + " Kg";
+
+    }
+
+
+    chargerResumeLotsSuivi(
+        animaux,
+        productions,
+        alimentation
+    );
+
+
+    chargerActivitesRecentes();
+
+}
+
+
+
+/* =========================================================
+   RÉSUMÉ DES LOTS
+========================================================= */
+
+function chargerResumeLotsSuivi(
+    animaux,
+    productions,
+    alimentation
+) {
+
+    const tableau =
+        document.getElementById(
+            "listeSuiviLots"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    tableau.innerHTML = "";
+
+
+    if (animaux.length === 0) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                colspan="7"
+                class="text-center text-muted">
+
+                    Aucun lot enregistré.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    animaux.forEach(function (animal) {
+
+        const productionLot =
+            productions
+                .filter(function (production) {
+
+                    return (
+                        production.animal === animal.id ||
+                        production.animal === animal.type
+                    );
+
+                })
+                .reduce(function (total, production) {
+
+                    return (
+                        total +
+                        (Number(production.quantite) || 0)
+                    );
+
+                }, 0);
+
+
+        const alimentationLot =
+            alimentation
+                .filter(function (item) {
+
+                    return item.lot === animal.id;
+
+                })
+                .reduce(function (total, item) {
+
+                    if (
+                        item.unite === "Kg"
+                    ) {
+
+                        return (
+                            total +
+                            (Number(item.quantite) || 0)
+                        );
+
+                    }
+
+                    return total;
+
+                }, 0);
+
+
+        tableau.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${animal.type}
+                    -
+                    ${animal.race}
+                </td>
+
+                <td>
+                    ${animal.type}
+                </td>
+
+                <td>
+                    ${formaterNombre(
+                        animal.quantiteInitiale ||
+                        animal.quantite
+                    )}
+                </td>
+
+                <td>
+                    ${formaterNombre(
+                        animal.quantite
+                    )}
+                </td>
+
+                <td>
+                    ${formaterNombre(
+                        productionLot
+                    )}
+                </td>
+
+                <td>
+                    ${formaterNombre(
+                        alimentationLot
+                    )} Kg
+                </td>
+
+                <td>
+
+                    <span
+                    class="badge bg-success">
+
+                        ${animal.statut}
+
+                    </span>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+
+/* =========================================================
+   ACTIVITÉS RÉCENTES
+========================================================= */
+
+function chargerActivitesRecentes() {
+
+    const conteneur =
+        document.getElementById(
+            "listeActivites"
+        );
+
+
+    if (!conteneur) {
+
+        return;
+
+    }
+
+
+    const activites =
+        [];
+
+
+    obtenirAnimaux().forEach(function (item) {
+
+        activites.push({
+
+            date:
+                item.date,
+
+            texte:
+                `${item.quantite} ${item.type} ajoutés`
+
+        });
+
+    });
+
+
+    obtenirProductions().forEach(function (item) {
+
+        activites.push({
+
+            date:
+                item.date,
+
+            texte:
+                `Production : ${item.quantite} ${item.unite} de ${item.type}`
+
+        });
+
+    });
+
+
+    obtenirAlimentation().forEach(function (item) {
+
+        activites.push({
+
+            date:
+                item.date,
+
+            texte:
+                `Alimentation : ${item.quantite} ${item.unite} de ${item.produit}`
+
+        });
+
+    });
+
+
+    obtenirSante().forEach(function (item) {
+
+        activites.push({
+
+            date:
+                item.date,
+
+            texte:
+                `Santé : ${item.type} - ${item.animal}`
+
+        });
+
+    });
+
+
+    activites.sort(function (a, b) {
+
+        return (
+            new Date(b.date) -
+            new Date(a.date)
+        );
+
+    });
+
+
+    conteneur.innerHTML = "";
+
+
+    if (activites.length === 0) {
+
+        conteneur.innerHTML = `
+
+            <div
+            class="text-center text-muted">
+
+                Aucune activité enregistrée.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    activites
+        .slice(0, 10)
+        .forEach(function (activite) {
+
+            conteneur.innerHTML += `
+
+                <div
+                class="list-group-item
+                d-flex
+                justify-content-between
+                align-items-center">
+
+                    <span>
+
+                        ${activite.texte}
+
+                    </span>
+
+                    <small
+                    class="text-muted">
+
+                        ${activite.date}
+
+                    </small>
+
+                </div>
+
+            `;
+
+        });
+
+}
+
+
+
+/* =========================================================
+   INITIALISATION AUTOMATIQUE
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -937,7 +3217,15 @@ document.addEventListener(
 
         chargerSante();
 
+        chargerAlimentation();
+
+        chargerReproduction();
+
+        chargerCroissance();
+
         chargerDashboardElevage();
+
+        chargerSuiviElevage();
 
     }
 );
