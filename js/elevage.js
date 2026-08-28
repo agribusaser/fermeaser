@@ -4870,3 +4870,746 @@ document.addEventListener(
 
     }
 );
+
+/* =========================================================
+   GESTION DES LOTS D'ANIMAUX
+   Correction - animaux.html
+========================================================= */
+
+/* -----------------------------------------
+   OBTENIR LES LOTS
+----------------------------------------- */
+function obtenirLotsElevage() {
+
+    try {
+
+        const lots =
+            JSON.parse(
+                localStorage.getItem("lotsElevage")
+            );
+
+        return Array.isArray(lots)
+            ? lots
+            : [];
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur lors de la lecture des lots :",
+            erreur
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   SAUVEGARDER LES LOTS
+----------------------------------------- */
+function sauvegarderLotsElevage(lots) {
+
+    localStorage.setItem(
+        "lotsElevage",
+        JSON.stringify(lots)
+    );
+
+}
+
+
+/* -----------------------------------------
+   GENERER UN CODE UNIQUE DE LOT
+----------------------------------------- */
+function genererCodeLot() {
+
+    const maintenant = new Date();
+
+    const annee =
+        maintenant.getFullYear();
+
+    const mois =
+        String(
+            maintenant.getMonth() + 1
+        ).padStart(2, "0");
+
+    const jour =
+        String(
+            maintenant.getDate()
+        ).padStart(2, "0");
+
+    const heure =
+        String(
+            maintenant.getHours()
+        ).padStart(2, "0");
+
+    const minute =
+        String(
+            maintenant.getMinutes()
+        ).padStart(2, "0");
+
+    const seconde =
+        String(
+            maintenant.getSeconds()
+        ).padStart(2, "0");
+
+    const aleatoire =
+        Math.floor(
+            Math.random() * 900 + 100
+        );
+
+    return `LOT-${annee}${mois}${jour}-${heure}${minute}${seconde}-${aleatoire}`;
+
+}
+
+
+/* -----------------------------------------
+   ENREGISTRER UN NOUVEAU LOT
+----------------------------------------- */
+function enregistrerLot() {
+
+    const especeElement =
+        document.getElementById(
+            "lotEspece"
+        );
+
+    const raceElement =
+        document.getElementById(
+            "lotRace"
+        );
+
+    const nomElement =
+        document.getElementById(
+            "lotNom"
+        );
+
+    const dateElement =
+        document.getElementById(
+            "lotDateEntree"
+        );
+
+    const quantiteElement =
+        document.getElementById(
+            "lotQuantite"
+        );
+
+    const origineElement =
+        document.getElementById(
+            "lotOrigine"
+        );
+
+    const coutElement =
+        document.getElementById(
+            "lotCout"
+        );
+
+    const statutElement =
+        document.getElementById(
+            "lotStatut"
+        );
+
+    const notesElement =
+        document.getElementById(
+            "lotNotes"
+        );
+
+
+    /* -----------------------------------------
+       VERIFICATION DES CHAMPS
+    ----------------------------------------- */
+
+    if (
+        !especeElement ||
+        !nomElement ||
+        !dateElement ||
+        !quantiteElement
+    ) {
+
+        alert(
+            "Erreur : certains champs du formulaire sont introuvables."
+        );
+
+        console.error(
+            "Les éléments du formulaire ne correspondent pas aux IDs attendus."
+        );
+
+        return;
+
+    }
+
+
+    const espece =
+        especeElement.value.trim();
+
+    const race =
+        raceElement
+            ? raceElement.value.trim()
+            : "";
+
+    const nom =
+        nomElement.value.trim();
+
+    const dateEntree =
+        dateElement.value;
+
+    const quantite =
+        Number(
+            quantiteElement.value
+        );
+
+    const origine =
+        origineElement
+            ? origineElement.value
+            : "Autre";
+
+    const cout =
+        coutElement
+            ? Number(coutElement.value) || 0
+            : 0;
+
+    const statut =
+        statutElement
+            ? statutElement.value
+            : "Actif";
+
+    const notes =
+        notesElement
+            ? notesElement.value.trim()
+            : "";
+
+
+    /* -----------------------------------------
+       VALIDATION
+    ----------------------------------------- */
+
+    if (!espece) {
+
+        alert(
+            "Veuillez sélectionner une espèce."
+        );
+
+        return;
+
+    }
+
+
+    if (!nom) {
+
+        alert(
+            "Veuillez saisir le nom du lot."
+        );
+
+        return;
+
+    }
+
+
+    if (!dateEntree) {
+
+        alert(
+            "Veuillez sélectionner la date d'entrée."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(quantite) ||
+        quantite <= 0
+    ) {
+
+        alert(
+            "La quantité initiale doit être supérieure à zéro."
+        );
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------
+       RECUPERATION DES LOTS EXISTANTS
+    ----------------------------------------- */
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    /* -----------------------------------------
+       VERIFICATION DU NOM
+    ----------------------------------------- */
+
+    const lotExiste =
+        lots.some(
+            function (lot) {
+
+                return (
+                    String(
+                        lot.nom || ""
+                    ).toLowerCase()
+                    ===
+                    nom.toLowerCase()
+                );
+
+            }
+        );
+
+
+    if (lotExiste) {
+
+        const continuer =
+            confirm(
+                `Un lot nommé "${nom}" existe déjà.\n\nVoulez-vous quand même créer un nouveau lot ?`
+            );
+
+        if (!continuer) {
+
+            return;
+
+        }
+
+    }
+
+
+    /* -----------------------------------------
+       CREATION DU LOT
+    ----------------------------------------- */
+
+    const nouveauLot = {
+
+        id:
+            genererCodeLot(),
+
+        code:
+            genererCodeLot(),
+
+        espece:
+            espece,
+
+        type:
+            espece,
+
+        race:
+            race || "Non précisée",
+
+        nom:
+            nom,
+
+        nomLot:
+            nom,
+
+        dateEntree:
+            dateEntree,
+
+        date:
+            dateEntree,
+
+        quantiteInitiale:
+            quantite,
+
+        quantiteActuelle:
+            quantite,
+
+        quantite:
+            quantite,
+
+        origine:
+            origine,
+
+        cout:
+            cout,
+
+        statut:
+            statut,
+
+        notes:
+            notes,
+
+        utilisateur:
+            (
+                localStorage.getItem(
+                    "utilisateur"
+                )
+                ||
+                localStorage.getItem(
+                    "utilisateurConnecte"
+                )
+                ||
+                "Administrateur"
+            ),
+
+        dateCreation:
+            new Date().toISOString()
+
+    };
+
+
+    /* -----------------------------------------
+       AJOUT ET SAUVEGARDE
+    ----------------------------------------- */
+
+    lots.push(
+        nouveauLot
+    );
+
+
+    sauvegarderLotsElevage(
+        lots
+    );
+
+
+    console.log(
+        "Nouveau lot enregistré :",
+        nouveauLot
+    );
+
+
+    /* -----------------------------------------
+       REINITIALISER LE FORMULAIRE
+    ----------------------------------------- */
+
+    const formulaire =
+        document.getElementById(
+            "formLot"
+        );
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
+
+    /* -----------------------------------------
+       FERMER LE MODAL
+    ----------------------------------------- */
+
+    const modalElement =
+        document.getElementById(
+            "modalLot"
+        );
+
+    if (
+        modalElement &&
+        typeof bootstrap !== "undefined"
+    ) {
+
+        const modal =
+            bootstrap.Modal.getInstance(
+                modalElement
+            );
+
+        if (modal) {
+
+            modal.hide();
+
+        }
+
+    }
+
+
+    /* -----------------------------------------
+       ACTUALISER LA LISTE
+    ----------------------------------------- */
+
+    chargerLots();
+
+
+    alert(
+        `Le lot "${nom}" a été enregistré avec succès.`
+    );
+
+}
+
+
+/* -----------------------------------------
+   CHARGER LA LISTE DES LOTS
+----------------------------------------- */
+function chargerLots() {
+
+    const tableau =
+        document.getElementById(
+            "listeLots"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    tableau.innerHTML = "";
+
+
+    if (lots.length === 0) {
+
+        tableau.innerHTML = `
+            <tr>
+                <td
+                    colspan="9"
+                    class="text-center text-muted py-4"
+                >
+                    Aucun lot enregistré.
+                </td>
+            </tr>
+        `;
+
+        mettreAJourStatistiquesLots();
+
+        return;
+
+    }
+
+
+    lots
+        .slice()
+        .reverse()
+        .forEach(
+            function (lot) {
+
+                let couleur =
+                    "success";
+
+
+                if (
+                    lot.statut === "Terminé"
+                ) {
+
+                    couleur =
+                        "secondary";
+
+                }
+
+
+                tableau.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${lot.code || lot.id}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${lot.espece || lot.type || "-"}
+                        </td>
+
+                        <td>
+                            ${lot.race || "-"}
+                        </td>
+
+                        <td>
+                            ${lot.nom || lot.nomLot || "-"}
+                        </td>
+
+                        <td>
+                            ${lot.dateEntree || lot.date || "-"}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                lot.quantiteInitiale || 0
+                            ).toLocaleString("fr-FR")}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                lot.quantiteActuelle ??
+                                lot.quantite ??
+                                0
+                            ).toLocaleString("fr-FR")}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge bg-${couleur}"
+                            >
+
+                                ${lot.statut || "Actif"}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerLot('${lot.id}')"
+                                title="Supprimer"
+                            >
+
+                                <i
+                                    class="fa-solid fa-trash"
+                                ></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+    mettreAJourStatistiquesLots();
+
+}
+
+
+/* -----------------------------------------
+   SUPPRIMER UN LOT
+----------------------------------------- */
+function supprimerLot(id) {
+
+    const confirmation =
+        confirm(
+            "Voulez-vous vraiment supprimer ce lot ?"
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+    let lots =
+        obtenirLotsElevage();
+
+
+    lots =
+        lots.filter(
+            function (lot) {
+
+                return lot.id !== id;
+
+            }
+        );
+
+
+    sauvegarderLotsElevage(
+        lots
+    );
+
+
+    chargerLots();
+
+
+    alert(
+        "Le lot a été supprimé."
+    );
+
+}
+
+
+/* -----------------------------------------
+   STATISTIQUES DES LOTS
+----------------------------------------- */
+function mettreAJourStatistiquesLots() {
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    const lotsActifs =
+        lots.filter(
+            function (lot) {
+
+                return (
+                    lot.statut === "Actif"
+                );
+
+            }
+        );
+
+
+    const totalAnimaux =
+        lotsActifs.reduce(
+            function (
+                total,
+                lot
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        lot.quantiteActuelle ??
+                        lot.quantite ??
+                        0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const elementAnimaux =
+        document.getElementById(
+            "totalAnimaux"
+        );
+
+
+    const elementLots =
+        document.getElementById(
+            "totalLots"
+        );
+
+
+    if (elementAnimaux) {
+
+        elementAnimaux.textContent =
+            totalAnimaux.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+
+    if (elementLots) {
+
+        elementLots.textContent =
+            lotsActifs.length;
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   INITIALISATION PAGE ANIMAUX
+----------------------------------------- */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        if (
+            document.getElementById(
+                "listeLots"
+            )
+        ) {
+
+            chargerLots();
+
+        }
+
+    }
+);
