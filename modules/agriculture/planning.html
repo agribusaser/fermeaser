@@ -1,1 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Planning Agricole | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<link
+rel="stylesheet"
+href="../../css/agriculture.css">
+
+</head>
+
+
+<body class="bg-light">
+
+<div class="container-fluid py-4">
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="text-success">
+
+<i class="fa-solid fa-calendar-days"></i>
+
+Planning Agricole
+
+</h2>
+
+<p class="text-muted">
+
+Planifiez les semis, entretiens et récoltes.
+
+</p>
+
+</div>
+
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+
+<div class="row mb-4">
+
+
+<div class="col-md-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<h3 id="totalActivites">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Activités
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<h3 id="activitesAujourdhui">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Aujourd'hui
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body text-center">
+
+<h3 id="activitesEnCours">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+En cours
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<button
+class="btn btn-success w-100 h-100"
+data-bs-toggle="modal"
+data-bs-target="#modalPlanning">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouvelle activité
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Activité</th>
+
+<th>Culture</th>
+
+<th>Parcelle</th>
+
+<th>Responsable</th>
+
+<th>Statut</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="listePlanning">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<div
+class="modal fade"
+id="modalPlanning"
+tabindex="-1">
+
+
+<div class="modal-dialog">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header bg-success text-white">
+
+<h5 class="modal-title">
+
+Nouvelle activité agricole
+
+</h5>
+
+
+<button
+type="button"
+class="btn-close btn-close-white"
+data-bs-dismiss="modal">
+
+</button>
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="formPlanning">
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Date
+
+</label>
+
+<input
+type="date"
+id="datePlanning"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Activité
+
+</label>
+
+<select
+id="activitePlanning"
+class="form-select"
+required>
+
+<option value="Semis">
+
+Semis
+
+</option>
+
+<option value="Arrosage">
+
+Arrosage
+
+</option>
+
+<option value="Fertilisation">
+
+Fertilisation
+
+</option>
+
+<option value="Désherbage">
+
+Désherbage
+
+</option>
+
+<option value="Traitement">
+
+Traitement
+
+</option>
+
+<option value="Récolte">
+
+Récolte
+
+</option>
+
+<option value="Autre">
+
+Autre
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Culture
+
+</label>
+
+<input
+type="text"
+id="culturePlanning"
+class="form-control">
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Parcelle
+
+</label>
+
+<input
+type="text"
+id="parcellePlanning"
+class="form-control">
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Responsable
+
+</label>
+
+<input
+type="text"
+id="responsablePlanning"
+class="form-control">
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Statut
+
+</label>
+
+<select
+id="statutPlanning"
+class="form-select">
+
+<option value="Prévu">
+
+Prévu
+
+</option>
+
+<option value="En cours">
+
+En cours
+
+</option>
+
+<option value="Terminé">
+
+Terminé
+
+</option>
+
+</select>
+
+</div>
+
+
+</form>
+
+</div>
+
+
+
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+type="button"
+class="btn btn-success"
+onclick="ajouterPlanning()">
+
+Enregistrer
+
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+
+</script>
+
+<script src="../../js/agriculture.js"></script>
+
+</body>
+
+</html>
