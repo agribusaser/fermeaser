@@ -1,1 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gestion Élevage | Ferme Asher ERP</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+<div class="container-fluid py-4">
+
+
+<!-- EN-TÊTE -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2>
+            <i class="fa-solid fa-cow"></i>
+            Gestion Élevage
+        </h2>
+
+        <p class="text-muted">
+            Gérez vos animaux, productions, alimentation, santé et reproduction.
+        </p>
+
+    </div>
+
+
+    <a href="../../dashboard.html"
+       class="btn btn-secondary">
+
+        <i class="fa-solid fa-arrow-left"></i>
+        Retour au tableau de bord
+
+    </a>
+
+</div>
+
+
+
+<!-- STATISTIQUES -->
+
+<div class="row mb-4">
+
+
+    <div class="col-lg-3 col-md-6 mb-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Animaux
+                    </p>
+
+                    <h3 id="totalAnimaux">
+                        0
+                    </h3>
+
+                </div>
+
+                <i class="fa-solid fa-paw fa-2x text-success"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-lg-3 col-md-6 mb-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Lots actifs
+                    </p>
+
+                    <h3 id="lotsActifs">
+                        0
+                    </h3>
+
+                </div>
+
+                <i class="fa-solid fa-layer-group fa-2x text-success"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-lg-3 col-md-6 mb-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Production du jour
+                    </p>
+
+                    <h3 id="productionJour">
+                        0
+                    </h3>
+
+                </div>
+
+                <i class="fa-solid fa-egg fa-2x text-success"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-lg-3 col-md-6 mb-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Mortalité du mois
+                    </p>
+
+                    <h3 id="mortaliteMois">
+                        0
+                    </h3>
+
+                </div>
+
+                <i class="fa-solid fa-heart-pulse fa-2x text-danger"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- MODULES -->
+
+<div class="row">
+
+
+    <!-- ANIMAUX -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="animaux.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-cow fa-3x text-success mb-3"></i>
+
+                    <h4>
+                        Animaux & Lots
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Gérez les espèces, animaux et différents lots.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- PRODUCTION -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="production.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-egg fa-3x text-success mb-3"></i>
+
+                    <h4>
+                        Production
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Enregistrez les œufs et autres productions.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- SANTE -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="sante.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-heart-pulse fa-3x text-danger mb-3"></i>
+
+                    <h4>
+                        Santé & Mortalité
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Suivez les maladies, traitements et mortalités.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- ALIMENTATION -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="alimentation.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-wheat-awn fa-3x text-warning mb-3"></i>
+
+                    <h4>
+                        Alimentation
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Suivez la consommation d'aliments par lot.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- REPRODUCTION -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="reproduction.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-feather fa-3x text-success mb-3"></i>
+
+                    <h4>
+                        Reproduction & Incubation
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Gérez les œufs fécondés, couveuses et éclosions.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- CROISSANCE -->
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <a href="croissance.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 h-100 text-center">
+
+                <div class="card-body py-5">
+
+                    <i class="fa-solid fa-weight-scale fa-3x text-primary mb-3"></i>
+
+                    <h4>
+                        Croissance
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Suivez le poids et l'évolution des animaux.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- SUIVI -->
+
+    <div class="col-lg-12 mb-4">
+
+        <a href="suivi.html"
+           class="text-decoration-none text-dark">
+
+            <div class="card shadow-sm border-0 text-center">
+
+                <div class="card-body py-4">
+
+                    <i class="fa-solid fa-chart-line fa-3x text-success mb-3"></i>
+
+                    <h4>
+                        Suivi Élevage
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Analysez les performances, productions, mortalités et évolution de votre élevage.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+
+</div>
+
+
+</div>
+
+
+<script src="../../js/elevage.js"></script>
+
+</body>
+
+</html>
