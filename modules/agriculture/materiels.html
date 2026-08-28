@@ -1,1 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Matériels Agricoles | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+<div class="container-fluid py-4">
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="text-success">
+
+<i class="fa-solid fa-tractor"></i>
+
+Matériels Agricoles
+
+</h2>
+
+<p class="text-muted">
+
+Gérez vos tracteurs, machines et équipements.
+
+</p>
+
+</div>
+
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+
+<div class="row mb-4">
+
+
+<div class="col-md-3">
+
+<div class="card text-center shadow-sm">
+
+<div class="card-body">
+
+<h3 id="totalMateriels">
+
+0
+
+</h3>
+
+<p>Total matériels</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card text-center shadow-sm">
+
+<div class="card-body">
+
+<h3 id="materielsDisponibles">
+
+0
+
+</h3>
+
+<p>Disponibles</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card text-center shadow-sm">
+
+<div class="card-body">
+
+<h3 id="materielsPanne">
+
+0
+
+</h3>
+
+<p>En panne</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<button
+class="btn btn-success w-100 h-100"
+data-bs-toggle="modal"
+data-bs-target="#modalMateriel">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouveau matériel
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Nom</th>
+
+<th>Catégorie</th>
+
+<th>Marque</th>
+
+<th>État</th>
+
+<th>Responsable</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="listeMateriels">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<div
+class="modal fade"
+id="modalMateriel">
+
+
+<div class="modal-dialog">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header bg-success text-white">
+
+<h5>
+
+Nouveau matériel
+
+</h5>
+
+<button
+type="button"
+class="btn-close btn-close-white"
+data-bs-dismiss="modal">
+
+</button>
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="formMateriel">
+
+
+<div class="mb-3">
+
+<label>Nom du matériel</label>
+
+<input
+type="text"
+id="nomMateriel"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>Catégorie</label>
+
+<select
+id="categorieMateriel"
+class="form-select">
+
+<option>Tracteur</option>
+
+<option>Machine</option>
+
+<option>Outil manuel</option>
+
+<option>Pompe</option>
+
+<option>Véhicule</option>
+
+<option>Équipement</option>
+
+<option>Autre</option>
+
+</select>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>Marque / Modèle</label>
+
+<input
+type="text"
+id="marqueMateriel"
+class="form-control">
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>État</label>
+
+<select
+id="etatMateriel"
+class="form-select">
+
+<option value="Disponible">
+
+Disponible
+
+</option>
+
+<option value="En utilisation">
+
+En utilisation
+
+</option>
+
+<option value="En panne">
+
+En panne
+
+</option>
+
+<option value="Maintenance">
+
+Maintenance
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>Responsable</label>
+
+<input
+type="text"
+id="responsableMateriel"
+class="form-control">
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<div class="modal-footer">
+
+<button
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+class="btn btn-success"
+onclick="ajouterMateriel()">
+
+Enregistrer
+
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+
+</script>
+
+<script src="../../js/agriculture.js"></script>
+
+</body>
+
+</html>
