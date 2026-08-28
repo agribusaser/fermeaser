@@ -1,1 +1,1851 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Travaux agricoles | Ferme Asher ERP</title>
+
+
+    <!-- BOOTSTRAP -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- FONT AWESOME -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+    <style>
+
+        body {
+
+            background: #f4f6f8;
+
+        }
+
+
+        .page-header {
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 15px;
+
+            margin-bottom: 30px;
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,0.08);
+
+        }
+
+
+        .page-header h1 {
+
+            color: #198754;
+
+            font-weight: bold;
+
+        }
+
+
+        .stat-card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            height: 100%;
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,0.08);
+
+        }
+
+
+        .stat-icon {
+
+            font-size: 35px;
+
+            color: #198754;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .stat-number {
+
+            font-size: 30px;
+
+            font-weight: bold;
+
+            color: #198754;
+
+        }
+
+
+        .card {
+
+            border: none;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,0.08);
+
+        }
+
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 50px;
+
+            color: #777;
+
+        }
+
+
+        .empty-state i {
+
+            font-size: 60px;
+
+            color: #198754;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .badge-a-faire {
+
+            background: #e9ecef;
+
+            color: #495057;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+        }
+
+
+        .badge-en-cours {
+
+            background: #fff3cd;
+
+            color: #856404;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+        }
+
+
+        .badge-termine {
+
+            background: #d1e7dd;
+
+            color: #0f5132;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+        }
+
+
+        .priorite-faible {
+
+            background: #e2e3e5;
+
+            color: #41464b;
+
+        }
+
+
+        .priorite-normale {
+
+            background: #cfe2ff;
+
+            color: #084298;
+
+        }
+
+
+        .priorite-haute {
+
+            background: #fff3cd;
+
+            color: #664d03;
+
+        }
+
+
+        .priorite-urgente {
+
+            background: #f8d7da;
+
+            color: #842029;
+
+        }
+
+
+        .priorite {
+
+            padding: 6px 10px;
+
+            border-radius: 15px;
+
+            font-weight: bold;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid p-4">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <div class="page-header">
+
+        <div class="row align-items-center">
+
+
+            <div class="col-md-8">
+
+                <h1>
+
+                    <i class="fa-solid fa-helmet-safety"></i>
+
+                    Travaux agricoles
+
+                </h1>
+
+
+                <p class="text-muted mb-0">
+
+                    Planifiez, assignez et suivez tous les travaux agricoles.
+
+                </p>
+
+            </div>
+
+
+            <div
+                class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                <a
+                    href="index.html"
+                    class="btn btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Retour
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================
+         STATISTIQUES
+    ====================================== -->
+
+    <div class="row mb-4">
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-list-check"></i>
+
+                </div>
+
+
+                <div
+                    class="stat-number"
+                    id="totalTravaux">
+
+                    0
+
+                </div>
+
+
+                <div>
+
+                    Total travaux
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-clock"></i>
+
+                </div>
+
+
+                <div
+                    class="stat-number"
+                    id="travauxAFaire">
+
+                    0
+
+                </div>
+
+
+                <div>
+
+                    À faire
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-person-digging"></i>
+
+                </div>
+
+
+                <div
+                    class="stat-number"
+                    id="travauxEnCours">
+
+                    0
+
+                </div>
+
+
+                <div>
+
+                    En cours
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3 mb-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                </div>
+
+
+                <div
+                    class="stat-number"
+                    id="travauxTermines">
+
+                    0
+
+                </div>
+
+
+                <div>
+
+                    Terminés
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================
+         LISTE DES TRAVAUX
+    ====================================== -->
+
+    <div class="card">
+
+
+        <div class="card-body">
+
+
+            <div
+                class="d-flex justify-content-between align-items-center mb-4">
+
+
+                <h4 class="mb-0">
+
+                    <i class="fa-solid fa-list"></i>
+
+                    Liste des travaux
+
+                </h4>
+
+
+                <button
+                    class="btn btn-success"
+                    data-bs-toggle="modal"
+                    data-bs-target="#travailModal">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Nouveau travail
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- ETAT VIDE -->
+
+            <div
+                id="emptyState"
+                class="empty-state">
+
+                <i class="fa-solid fa-helmet-safety"></i>
+
+
+                <h4>
+
+                    Aucun travail enregistré
+
+                </h4>
+
+
+                <p>
+
+                    Créez votre premier travail agricole.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- TABLE -->
+
+            <div
+                class="table-responsive"
+                id="tableContainer"
+                style="display:none;">
+
+
+                <table
+                    class="table table-hover align-middle">
+
+
+                    <thead class="table-success">
+
+                        <tr>
+
+                            <th>Travail</th>
+
+                            <th>Campagne</th>
+
+                            <th>Culture</th>
+
+                            <th>Parcelle</th>
+
+                            <th>Responsable</th>
+
+                            <th>Date prévue</th>
+
+                            <th>Priorité</th>
+
+                            <th>Statut</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody id="travauxTable">
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     MODAL NOUVEAU TRAVAIL
+===================================== -->
+
+<div
+    class="modal fade"
+    id="travailModal"
+    tabindex="-1">
+
+
+    <div class="modal-dialog modal-lg">
+
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-helmet-safety"></i>
+
+                    Nouveau travail
+
+                </h5>
+
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+
+                </button>
+
+
+            </div>
+
+
+
+            <div class="modal-body">
+
+
+                <form id="travailForm">
+
+
+                    <div class="row">
+
+
+                        <!-- NOM -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Travail
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="nomTravail"
+                                required>
+
+                                <option value="">
+
+                                    Sélectionner
+
+                                </option>
+
+                                <option value="Préparation du sol">
+
+                                    Préparation du sol
+
+                                </option>
+
+                                <option value="Labour">
+
+                                    Labour
+
+                                </option>
+
+                                <option value="Hersage">
+
+                                    Hersage
+
+                                </option>
+
+                                <option value="Semis">
+
+                                    Semis
+
+                                </option>
+
+                                <option value="Repiquage">
+
+                                    Repiquage
+
+                                </option>
+
+                                <option value="Fertilisation">
+
+                                    Fertilisation
+
+                                </option>
+
+                                <option value="Irrigation">
+
+                                    Irrigation
+
+                                </option>
+
+                                <option value="Désherbage">
+
+                                    Désherbage
+
+                                </option>
+
+                                <option value="Traitement phytosanitaire">
+
+                                    Traitement phytosanitaire
+
+                                </option>
+
+                                <option value="Récolte">
+
+                                    Récolte
+
+                                </option>
+
+                                <option value="Transport">
+
+                                    Transport
+
+                                </option>
+
+                                <option value="Autre">
+
+                                    Autre
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- CAMPAGNE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Campagne
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="campagneTravail">
+
+                                <option value="">
+
+                                    Sélectionner une campagne
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- CULTURE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Culture
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="cultureTravail">
+
+                                <option value="">
+
+                                    Sélectionner une culture
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- PARCELLE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Parcelle
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="parcelleTravail">
+
+                                <option value="">
+
+                                    Sélectionner une parcelle
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- RESPONSABLE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Responsable
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="responsableTravail"
+                                placeholder="Exemple : Eddy">
+
+                        </div>
+
+
+
+                        <!-- DATE PREVUE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Date prévue
+
+                            </label>
+
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="datePrevue">
+
+                        </div>
+
+
+
+                        <!-- PRIORITE -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Priorité
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="prioriteTravail">
+
+                                <option value="Faible">
+
+                                    Faible
+
+                                </option>
+
+                                <option
+                                    value="Normale"
+                                    selected>
+
+                                    Normale
+
+                                </option>
+
+                                <option value="Haute">
+
+                                    Haute
+
+                                </option>
+
+                                <option value="Urgente">
+
+                                    Urgente
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- STATUT -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+
+                                Statut
+
+                            </label>
+
+
+                            <select
+                                class="form-select"
+                                id="statutTravail">
+
+                                <option value="À faire">
+
+                                    À faire
+
+                                </option>
+
+                                <option value="En cours">
+
+                                    En cours
+
+                                </option>
+
+                                <option value="Terminé">
+
+                                    Terminé
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="col-md-12 mb-3">
+
+                            <label class="form-label">
+
+                                Description / Instructions
+
+                            </label>
+
+
+                            <textarea
+                                class="form-control"
+                                id="descriptionTravail"
+                                rows="3"
+                                placeholder="Décrivez le travail à effectuer..."></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+
+            <div class="modal-footer">
+
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="ajouterTravail()">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Enregistrer
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     JAVASCRIPT BOOTSTRAP
+===================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+
+<script>
+
+/*==================================================
+ FERME ASHER ERP
+ GESTION DES TRAVAUX AGRICOLES
+==================================================*/
+
+
+const CLE_TRAVAUX =
+    "fermeAsherTravaux";
+
+const CLE_CAMPAGNES =
+    "fermeAsherCampagnes";
+
+const CLE_CULTURES =
+    "fermeAsherCultures";
+
+const CLE_PARCELLES =
+    "fermeAsherParcelles";
+
+
+/*==================================================
+ INITIALISATION
+==================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        chargerListesTravail();
+
+        chargerTravaux();
+
+    }
+);
+
+
+/*==================================================
+ CHARGER LES LISTES
+==================================================*/
+
+function chargerListesTravail() {
+
+    chargerCampagnesTravail();
+
+    chargerCulturesTravail();
+
+    chargerParcellesTravail();
+
+}
+
+
+/*==================================================
+ CHARGER CAMPAGNES
+==================================================*/
+
+function chargerCampagnesTravail() {
+
+    const campagnes =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_CAMPAGNES
+            )
+        ) || [];
+
+
+    const select =
+        document.getElementById(
+            "campagneTravail"
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner une campagne
+
+        </option>
+
+    `;
+
+
+    campagnes.forEach(
+        function(campagne) {
+
+            select.innerHTML += `
+
+                <option value="${campagne.nom}">
+
+                    ${campagne.nom}
+
+                </option>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*==================================================
+ CHARGER CULTURES
+==================================================*/
+
+function chargerCulturesTravail() {
+
+    const cultures =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_CULTURES
+            )
+        ) || [];
+
+
+    const select =
+        document.getElementById(
+            "cultureTravail"
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner une culture
+
+        </option>
+
+    `;
+
+
+    cultures.forEach(
+        function(culture) {
+
+            select.innerHTML += `
+
+                <option value="${culture.nom}">
+
+                    ${culture.nom}
+
+                </option>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*==================================================
+ CHARGER PARCELLES
+==================================================*/
+
+function chargerParcellesTravail() {
+
+    const parcelles =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_PARCELLES
+            )
+        ) || [];
+
+
+    const select =
+        document.getElementById(
+            "parcelleTravail"
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Sélectionner une parcelle
+
+        </option>
+
+    `;
+
+
+    parcelles.forEach(
+        function(parcelle) {
+
+            select.innerHTML += `
+
+                <option value="${parcelle.nom}">
+
+                    ${parcelle.nom}
+
+                </option>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/*==================================================
+ AJOUTER TRAVAIL
+==================================================*/
+
+function ajouterTravail() {
+
+    const nom =
+        document
+            .getElementById("nomTravail")
+            .value;
+
+
+    const campagne =
+        document
+            .getElementById("campagneTravail")
+            .value;
+
+
+    const culture =
+        document
+            .getElementById("cultureTravail")
+            .value;
+
+
+    const parcelle =
+        document
+            .getElementById("parcelleTravail")
+            .value;
+
+
+    const responsable =
+        document
+            .getElementById("responsableTravail")
+            .value
+            .trim();
+
+
+    const datePrevue =
+        document
+            .getElementById("datePrevue")
+            .value;
+
+
+    const priorite =
+        document
+            .getElementById("prioriteTravail")
+            .value;
+
+
+    const statut =
+        document
+            .getElementById("statutTravail")
+            .value;
+
+
+    const description =
+        document
+            .getElementById("descriptionTravail")
+            .value
+            .trim();
+
+
+
+    /* VALIDATION */
+
+    if (!nom) {
+
+        alert(
+            "Veuillez sélectionner un travail."
+        );
+
+        return;
+
+    }
+
+
+
+    const travaux =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_TRAVAUX
+            )
+        ) || [];
+
+
+
+    const nouveauTravail = {
+
+        id: Date.now(),
+
+        nom: nom,
+
+        campagne: campagne,
+
+        culture: culture,
+
+        parcelle: parcelle,
+
+        responsable: responsable,
+
+        datePrevue: datePrevue,
+
+        dateTerminee: "",
+
+        priorite: priorite,
+
+        statut: statut,
+
+        description: description,
+
+        dateCreation:
+            new Date()
+                .toLocaleDateString(
+                    "fr-FR"
+                )
+
+    };
+
+
+
+    travaux.push(
+        nouveauTravail
+    );
+
+
+
+    localStorage.setItem(
+
+        CLE_TRAVAUX,
+
+        JSON.stringify(
+            travaux
+        )
+
+    );
+
+
+
+    document
+        .getElementById(
+            "travailForm"
+        )
+        .reset();
+
+
+
+    const modalElement =
+        document.getElementById(
+            "travailModal"
+        );
+
+
+    const modal =
+        bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+
+    modal.hide();
+
+
+
+    chargerTravaux();
+
+}
+
+
+/*==================================================
+ CHARGER TRAVAUX
+==================================================*/
+
+function chargerTravaux() {
+
+    const travaux =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_TRAVAUX
+            )
+        ) || [];
+
+
+    afficherTravaux(
+        travaux
+    );
+
+
+    mettreAJourStatistiquesTravaux(
+        travaux
+    );
+
+}
+
+
+/*==================================================
+ AFFICHER TRAVAUX
+==================================================*/
+
+function afficherTravaux(travaux) {
+
+    const table =
+        document.getElementById(
+            "travauxTable"
+        );
+
+
+    const emptyState =
+        document.getElementById(
+            "emptyState"
+        );
+
+
+    const tableContainer =
+        document.getElementById(
+            "tableContainer"
+        );
+
+
+    table.innerHTML = "";
+
+
+
+    if (travaux.length === 0) {
+
+        emptyState.style.display =
+            "block";
+
+        tableContainer.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+
+    emptyState.style.display =
+        "none";
+
+    tableContainer.style.display =
+        "block";
+
+
+
+    travaux.forEach(
+        function(travail) {
+
+            let statutClass =
+                "badge-a-faire";
+
+
+            if (
+                travail.statut ===
+                "En cours"
+            ) {
+
+                statutClass =
+                    "badge-en-cours";
+
+            }
+
+
+            if (
+                travail.statut ===
+                "Terminé"
+            ) {
+
+                statutClass =
+                    "badge-termine";
+
+            }
+
+
+
+            let prioriteClass =
+                "priorite-normale";
+
+
+            if (
+                travail.priorite ===
+                "Faible"
+            ) {
+
+                prioriteClass =
+                    "priorite-faible";
+
+            }
+
+
+            if (
+                travail.priorite ===
+                "Haute"
+            ) {
+
+                prioriteClass =
+                    "priorite-haute";
+
+            }
+
+
+            if (
+                travail.priorite ===
+                "Urgente"
+            ) {
+
+                prioriteClass =
+                    "priorite-urgente";
+
+            }
+
+
+
+            const ligne =
+                document.createElement(
+                    "tr"
+                );
+
+
+            ligne.innerHTML = `
+
+                <td>
+
+                    <strong>
+
+                        ${travail.nom}
+
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                    ${travail.campagne || "-"}
+
+                </td>
+
+
+                <td>
+
+                    ${travail.culture || "-"}
+
+                </td>
+
+
+                <td>
+
+                    ${travail.parcelle || "-"}
+
+                </td>
+
+
+                <td>
+
+                    ${travail.responsable || "-"}
+
+                </td>
+
+
+                <td>
+
+                    ${travail.datePrevue || "-"}
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="priorite ${prioriteClass}">
+
+                        ${travail.priorite}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="${statutClass}">
+
+                        ${travail.statut}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+
+                    <select
+                        class="form-select form-select-sm mb-1"
+                        onchange="changerStatutTravail(
+                            ${travail.id},
+                            this.value
+                        )">
+
+
+                        <option
+                            value="À faire"
+                            ${travail.statut === "À faire"
+                                ? "selected"
+                                : ""}>
+
+                            À faire
+
+                        </option>
+
+
+                        <option
+                            value="En cours"
+                            ${travail.statut === "En cours"
+                                ? "selected"
+                                : ""}>
+
+                            En cours
+
+                        </option>
+
+
+                        <option
+                            value="Terminé"
+                            ${travail.statut === "Terminé"
+                                ? "selected"
+                                : ""}>
+
+                            Terminé
+
+                        </option>
+
+
+                    </select>
+
+
+                    <button
+                        class="btn btn-sm btn-danger"
+                        onclick="supprimerTravail(
+                            ${travail.id}
+                        )">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+
+                </td>
+
+            `;
+
+
+            table.appendChild(
+                ligne
+            );
+
+        }
+    );
+
+}
+
+
+/*==================================================
+ CHANGER STATUT
+==================================================*/
+
+function changerStatutTravail(
+    id,
+    nouveauStatut
+) {
+
+    let travaux =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_TRAVAUX
+            )
+        ) || [];
+
+
+    travaux =
+        travaux.map(
+            function(travail) {
+
+                if (
+                    travail.id === id
+                ) {
+
+                    travail.statut =
+                        nouveauStatut;
+
+
+                    if (
+                        nouveauStatut ===
+                        "Terminé"
+                    ) {
+
+                        travail.dateTerminee =
+                            new Date()
+                                .toLocaleDateString(
+                                    "fr-FR"
+                                );
+
+                    }
+
+                }
+
+
+                return travail;
+
+            }
+        );
+
+
+
+    localStorage.setItem(
+
+        CLE_TRAVAUX,
+
+        JSON.stringify(
+            travaux
+        )
+
+    );
+
+
+    chargerTravaux();
+
+}
+
+
+/*==================================================
+ SUPPRIMER TRAVAIL
+==================================================*/
+
+function supprimerTravail(id) {
+
+    const confirmation =
+        confirm(
+            "Voulez-vous supprimer ce travail ?"
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+
+    let travaux =
+        JSON.parse(
+            localStorage.getItem(
+                CLE_TRAVAUX
+            )
+        ) || [];
+
+
+    travaux =
+        travaux.filter(
+            function(travail) {
+
+                return travail.id !== id;
+
+            }
+        );
+
+
+    localStorage.setItem(
+
+        CLE_TRAVAUX,
+
+        JSON.stringify(
+            travaux
+        )
+
+    );
+
+
+    chargerTravaux();
+
+}
+
+
+/*==================================================
+ STATISTIQUES
+==================================================*/
+
+function mettreAJourStatistiquesTravaux(
+    travaux
+) {
+
+    document
+        .getElementById(
+            "totalTravaux"
+        )
+        .innerText =
+            travaux.length;
+
+
+
+    const aFaire =
+        travaux.filter(
+            t =>
+                t.statut ===
+                "À faire"
+        );
+
+
+    document
+        .getElementById(
+            "travauxAFaire"
+        )
+        .innerText =
+            aFaire.length;
+
+
+
+    const enCours =
+        travaux.filter(
+            t =>
+                t.statut ===
+                "En cours"
+        );
+
+
+    document
+        .getElementById(
+            "travauxEnCours"
+        )
+        .innerText =
+            enCours.length;
+
+
+
+    const termines =
+        travaux.filter(
+            t =>
+                t.statut ===
+                "Terminé"
+        );
+
+
+    document
+        .getElementById(
+            "travauxTermines"
+        )
+        .innerText =
+            termines.length;
+
+}
+
+
+/*==================================================
+ FIN
+==================================================*/
+
+console.log(
+    "Module Travaux agricoles chargé."
+);
+
+</script>
+
+
+</body>
+
+</html>
