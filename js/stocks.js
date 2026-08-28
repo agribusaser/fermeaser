@@ -1,7 +1,7 @@
 /*==================================================
 FERME ASHER ERP
 STOCKS.JS
-VERSION 2.0
+VERSION 3.0
 ==================================================*/
 
 
@@ -9,11 +9,9 @@ VERSION 2.0
 CONFIGURATION
 ==================================================*/
 
-const CLE_PRODUITS =
-    "produits";
+const CLE_PRODUITS = "produits";
 
-const CLE_MOUVEMENTS =
-    "mouvementsStock";
+const CLE_MOUVEMENTS = "mouvementsStock";
 
 
 /*==================================================
@@ -35,15 +33,11 @@ function obtenirProduits() {
 ENREGISTRER LES PRODUITS
 ==================================================*/
 
-function enregistrerProduits(
-    produits
-) {
+function enregistrerProduits(produits) {
 
     localStorage.setItem(
         CLE_PRODUITS,
-        JSON.stringify(
-            produits
-        )
+        JSON.stringify(produits)
     );
 
 }
@@ -68,15 +62,11 @@ function obtenirMouvements() {
 ENREGISTRER LES MOUVEMENTS
 ==================================================*/
 
-function enregistrerMouvements(
-    mouvements
-) {
+function enregistrerMouvements(mouvements) {
 
     localStorage.setItem(
         CLE_MOUVEMENTS,
-        JSON.stringify(
-            mouvements
-        )
+        JSON.stringify(mouvements)
     );
 
 }
@@ -86,15 +76,10 @@ function enregistrerMouvements(
 RECHERCHER UN PRODUIT
 ==================================================*/
 
-function trouverProduit(
-    idProduit,
-    produits = null
-) {
+function trouverProduit(idProduit, produits = null) {
 
     const liste =
-        produits ||
-        obtenirProduits();
-
+        produits || obtenirProduits();
 
     return liste.find(
         produit =>
@@ -111,39 +96,22 @@ DATE D'AUJOURD'HUI
 
 function obtenirDateAujourdhui() {
 
-    const maintenant =
-        new Date();
-
+    const maintenant = new Date();
 
     const annee =
         maintenant.getFullYear();
 
-
     const mois =
         String(
             maintenant.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
+        ).padStart(2, "0");
 
     const jour =
         String(
             maintenant.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
-
-    return (
-        annee +
-        "-" +
-        mois +
-        "-" +
-        jour
-    );
+    return annee + "-" + mois + "-" + jour;
 
 }
 
@@ -168,6 +136,8 @@ document.addEventListener(
 
         initialiserPageSortie();
 
+        chargerInventaire();
+
         initialiserInventaire();
 
     }
@@ -183,12 +153,10 @@ function chargerStocks() {
     const produits =
         obtenirProduits();
 
-
     const table =
         document.getElementById(
             "stocksTable"
         );
-
 
     if (!table) {
 
@@ -196,33 +164,27 @@ function chargerStocks() {
 
     }
 
-
     const filtreCategorie =
         document.getElementById(
             "filtreCategorie"
         );
-
 
     const filtreEtat =
         document.getElementById(
             "filtreEtat"
         );
 
-
     const categorieSelectionnee =
         filtreCategorie
             ? filtreCategorie.value
             : "";
-
 
     const etatSelectionne =
         filtreEtat
             ? filtreEtat.value
             : "";
 
-
     table.innerHTML = "";
-
 
     let valeurTotale = 0;
 
@@ -235,10 +197,7 @@ function chargerStocks() {
         produit => {
 
             const stock =
-                Number(
-                    produit.stock
-                ) || 0;
-
+                Number(produit.stock) || 0;
 
             const minimum =
                 Number(
@@ -247,7 +206,6 @@ function chargerStocks() {
                     0
                 );
 
-
             const prixAchat =
                 Number(
                     produit.prixAchat ||
@@ -255,15 +213,10 @@ function chargerStocks() {
                     0
                 );
 
-
             const valeur =
-                stock *
-                prixAchat;
+                stock * prixAchat;
 
-
-            valeurTotale +=
-                valeur;
-
+            valeurTotale += valeur;
 
             let etat =
                 "Disponible";
@@ -274,11 +227,9 @@ function chargerStocks() {
 
             if (stock <= 0) {
 
-                etat =
-                    "Rupture";
+                etat = "Rupture";
 
-                badge =
-                    "danger";
+                badge = "danger";
 
                 rupture++;
 
@@ -288,11 +239,9 @@ function chargerStocks() {
                 stock <= minimum
             ) {
 
-                etat =
-                    "Stock faible";
+                etat = "Stock faible";
 
-                badge =
-                    "warning";
+                badge = "warning";
 
                 stockFaible++;
 
@@ -312,8 +261,7 @@ function chargerStocks() {
 
             if (
                 etatSelectionne &&
-                etat !==
-                etatSelectionne
+                etat !== etatSelectionne
             ) {
 
                 return;
@@ -331,29 +279,17 @@ function chargerStocks() {
 
 <tr>
 
-<td>
-${code}
-</td>
+<td>${code}</td>
 
-<td>
-${produit.nom || ""}
-</td>
+<td>${produit.nom || ""}</td>
 
-<td>
-${produit.categorie || ""}
-</td>
+<td>${produit.categorie || ""}</td>
 
-<td>
-${stock}
-</td>
+<td>${stock}</td>
 
-<td>
-${minimum}
-</td>
+<td>${minimum}</td>
 
-<td>
-${produit.unite || ""}
-</td>
+<td>${produit.unite || ""}</td>
 
 <td>
 ${valeur.toLocaleString("fr-FR")} FC
@@ -413,11 +349,6 @@ title="Sortie de stock">
         produits
     );
 
-
-    chargerHistorique();
-
-    chargerStatistiquesMensuelles();
-
 }
 
 
@@ -437,18 +368,15 @@ function mettreAJourStatistiques(
             "totalProduits"
         );
 
-
     const valeurStock =
         document.getElementById(
             "valeurStock"
         );
 
-
     const elementStockFaible =
         document.getElementById(
             "stockFaible"
         );
-
 
     const ruptureStock =
         document.getElementById(
@@ -467,11 +395,9 @@ function mettreAJourStatistiques(
     if (valeurStock) {
 
         valeurStock.textContent =
-            valeur
-                .toLocaleString(
-                    "fr-FR"
-                ) +
-            " FC";
+            valeur.toLocaleString(
+                "fr-FR"
+            ) + " FC";
 
     }
 
@@ -498,22 +424,18 @@ function mettreAJourStatistiques(
 ALERTES STOCK
 ==================================================*/
 
-function afficherAlertes(
-    produits
-) {
+function afficherAlertes(produits) {
 
     const zone =
         document.getElementById(
             "alertesStock"
         );
 
-
     if (!zone) {
 
         return;
 
     }
-
 
     zone.innerHTML = "";
 
@@ -522,10 +444,7 @@ function afficherAlertes(
         produit => {
 
             const stock =
-                Number(
-                    produit.stock
-                ) || 0;
-
+                Number(produit.stock) || 0;
 
             const minimum =
                 Number(
@@ -535,9 +454,7 @@ function afficherAlertes(
                 );
 
 
-            if (
-                stock <= 0
-            ) {
+            if (stock <= 0) {
 
                 zone.innerHTML += `
 
@@ -583,9 +500,7 @@ Stock faible.
     );
 
 
-    if (
-        zone.innerHTML === ""
-    ) {
+    if (zone.innerHTML === "") {
 
         zone.innerHTML = `
 
@@ -613,7 +528,6 @@ function initialiserRecherche() {
             "rechercheStock"
         );
 
-
     if (!champ) {
 
         return;
@@ -640,11 +554,9 @@ function initialiserRecherche() {
                         ligne.style.display =
                             ligne.innerText
                                 .toLowerCase()
-                                .includes(
-                                    valeur
-                                )
-                            ? ""
-                            : "none";
+                                .includes(valeur)
+                                ? ""
+                                : "none";
 
                     }
                 );
@@ -665,7 +577,6 @@ function initialiserFiltres() {
         document.getElementById(
             "filtreCategorie"
         );
-
 
     const etat =
         document.getElementById(
@@ -696,12 +607,10 @@ function initialiserFiltres() {
 
 
 /*==================================================
-REDIRECTION ENTREE STOCK
+REDIRECTION ENTREE
 ==================================================*/
 
-function entreeStock(
-    id
-) {
+function entreeStock(id) {
 
     window.location.href =
         "entree.html?id=" +
@@ -711,12 +620,10 @@ function entreeStock(
 
 
 /*==================================================
-REDIRECTION SORTIE STOCK
+REDIRECTION SORTIE
 ==================================================*/
 
-function sortieStock(
-    id
-) {
+function sortieStock(id) {
 
     window.location.href =
         "sortie.html?id=" +
@@ -726,7 +633,7 @@ function sortieStock(
 
 
 /*==================================================
-CHARGER LISTE DES PRODUITS
+CHARGER LA LISTE DES PRODUITS
 ==================================================*/
 
 function chargerListeProduits() {
@@ -735,7 +642,6 @@ function chargerListeProduits() {
         document.getElementById(
             "produit"
         );
-
 
     if (!select) {
 
@@ -748,8 +654,24 @@ function chargerListeProduits() {
         obtenirProduits();
 
 
-    select.innerHTML =
-        '<option value="">Sélectionner un produit</option>';
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const idSelectionne =
+        params.get("id");
+
+
+    select.innerHTML = `
+
+<option value="">
+
+Sélectionner un produit
+
+</option>
+
+`;
 
 
     produits.forEach(
@@ -760,18 +682,25 @@ function chargerListeProduits() {
                     "option"
                 );
 
-
             option.value =
                 produit.id;
 
-
             option.textContent =
-                (
-                    produit.code ||
-                    produit.id
-                ) +
-                " - " +
-                produit.nom;
+                (produit.nom || "Sans nom") +
+                " — Stock : " +
+                (Number(produit.stock) || 0) +
+                " " +
+                (produit.unite || "");
+
+
+            if (
+                String(produit.id) ===
+                String(idSelectionne)
+            ) {
+
+                option.selected = true;
+
+            }
 
 
             select.appendChild(
@@ -780,32 +709,6 @@ function chargerListeProduits() {
 
         }
     );
-
-
-    const parametres =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const id =
-        parametres.get(
-            "id"
-        );
-
-
-    if (id) {
-
-        select.value =
-            id;
-
-        select.dispatchEvent(
-            new Event(
-                "change"
-            )
-        );
-
-    }
 
 }
 
@@ -821,7 +724,6 @@ function initialiserPageEntree() {
             "entreeForm"
         );
 
-
     if (!formulaire) {
 
         return;
@@ -834,34 +736,48 @@ function initialiserPageEntree() {
             "date"
         );
 
-
-    if (
-        date &&
-        !date.value
-    ) {
-
-        date.value =
-            obtenirDateAujourdhui();
-
-    }
-
+    const produit =
+        document.getElementById(
+            "produit"
+        );
 
     const quantite =
         document.getElementById(
             "quantite"
         );
 
-
     const prix =
         document.getElementById(
             "prix"
         );
 
-
     const montant =
         document.getElementById(
             "montant"
         );
+
+    const type =
+        document.getElementById(
+            "type"
+        );
+
+    const reference =
+        document.getElementById(
+            "reference"
+        );
+
+    const observation =
+        document.getElementById(
+            "observation"
+        );
+
+
+    if (date && !date.value) {
+
+        date.value =
+            obtenirDateAujourdhui();
+
+    }
 
 
     function calculerMontant() {
@@ -872,22 +788,11 @@ function initialiserPageEntree() {
 
         }
 
-
-        const qte =
-            Number(
-                quantite?.value
-            ) || 0;
-
-
-        const prixUnitaire =
-            Number(
-                prix?.value
-            ) || 0;
-
-
         montant.value =
-            qte *
-            prixUnitaire;
+            (
+                (Number(quantite?.value) || 0) *
+                (Number(prix?.value) || 0)
+            ).toFixed(2);
 
     }
 
@@ -914,42 +819,37 @@ function initialiserPageEntree() {
 
     formulaire.addEventListener(
         "submit",
-        function (
-            event
-        ) {
+        function (event) {
 
             event.preventDefault();
 
 
             const idProduit =
-                document.getElementById(
-                    "produit"
-                ).value;
-
+                produit.value;
 
             const quantiteEntree =
                 Number(
-                    document.getElementById(
-                        "quantite"
-                    ).value
+                    quantite.value
                 );
 
-
-            const prixEntree =
+            const prixUnitaire =
                 Number(
-                    document.getElementById(
-                        "prix"
-                    ).value
+                    prix?.value
                 ) || 0;
 
+            const natureEntree =
+                type
+                    ? type.value.trim()
+                    : "";
 
-            if (
-                !idProduit
-            ) {
+
+            if (!idProduit) {
 
                 alert(
                     "Veuillez sélectionner un produit."
                 );
+
+                produit.focus();
 
                 return;
 
@@ -964,8 +864,27 @@ function initialiserPageEntree() {
             ) {
 
                 alert(
-                    "Veuillez saisir une quantité valide."
+                    "La quantité doit être supérieure à zéro."
                 );
+
+                quantite.focus();
+
+                return;
+
+            }
+
+
+            if (!natureEntree) {
+
+                alert(
+                    "Veuillez sélectionner la provenance de l'entrée."
+                );
+
+                if (type) {
+
+                    type.focus();
+
+                }
 
                 return;
 
@@ -975,22 +894,15 @@ function initialiserPageEntree() {
             const produits =
                 obtenirProduits();
 
-
             const index =
                 produits.findIndex(
-                    produit =>
-                        String(
-                            produit.id
-                        ) ===
-                        String(
-                            idProduit
-                        )
+                    p =>
+                        String(p.id) ===
+                        String(idProduit)
                 );
 
 
-            if (
-                index === -1
-            ) {
+            if (index === -1) {
 
                 alert(
                     "Produit introuvable."
@@ -1012,16 +924,6 @@ function initialiserPageEntree() {
                 quantiteEntree;
 
 
-            if (
-                prixEntree > 0
-            ) {
-
-                produits[index].prixAchat =
-                    prixEntree;
-
-            }
-
-
             enregistrerProduits(
                 produits
             );
@@ -1034,7 +936,7 @@ function initialiserPageEntree() {
             mouvements.push({
 
                 id:
-                    "MVT-" +
+                    "MVT-ENT-" +
                     Date.now(),
 
                 date:
@@ -1051,32 +953,27 @@ function initialiserPageEntree() {
                     "Entrée",
 
                 nature:
-                    document.getElementById(
-                        "type"
-                    )?.value ||
-                    "Entrée manuelle",
+                    natureEntree,
 
                 quantite:
                     quantiteEntree,
 
                 prix:
-                    prixEntree,
+                    prixUnitaire,
 
                 montant:
                     quantiteEntree *
-                    prixEntree,
+                    prixUnitaire,
 
                 reference:
-                    document.getElementById(
-                        "reference"
-                    )?.value ||
-                    "",
+                    reference
+                        ? reference.value.trim()
+                        : "",
 
                 observation:
-                    document.getElementById(
-                        "observation"
-                    )?.value ||
-                    "",
+                    observation
+                        ? observation.value.trim()
+                        : "",
 
                 utilisateur:
                     "Administrateur"
@@ -1114,7 +1011,6 @@ function initialiserPageSortie() {
             "sortieForm"
         );
 
-
     if (!formulaire) {
 
         return;
@@ -1127,11 +1023,43 @@ function initialiserPageSortie() {
             "date"
         );
 
+    const select =
+        document.getElementById(
+            "produit"
+        );
 
-    if (
-        date &&
-        !date.value
-    ) {
+    const stockDisponible =
+        document.getElementById(
+            "stockDisponible"
+        );
+
+    const quantite =
+        document.getElementById(
+            "quantite"
+        );
+
+    const prix =
+        document.getElementById(
+            "prix"
+        );
+
+    const type =
+        document.getElementById(
+            "type"
+        );
+
+    const reference =
+        document.getElementById(
+            "reference"
+        );
+
+    const observation =
+        document.getElementById(
+            "observation"
+        );
+
+
+    if (date && !date.value) {
 
         date.value =
             obtenirDateAujourdhui();
@@ -1139,32 +1067,7 @@ function initialiserPageSortie() {
     }
 
 
-    const select =
-        document.getElementById(
-            "produit"
-        );
-
-
-    const stockDisponible =
-        document.getElementById(
-            "stockDisponible"
-        );
-
-
-    const prix =
-        document.getElementById(
-            "prix"
-        );
-
-
-    function mettreAJourProduit() {
-
-        if (!select) {
-
-            return;
-
-        }
-
+    function afficherInformationsProduit() {
 
         const produit =
             trouverProduit(
@@ -1172,25 +1075,19 @@ function initialiserPageSortie() {
             );
 
 
-        if (
-            !produit
-        ) {
+        if (!produit) {
 
             if (stockDisponible) {
 
-                stockDisponible.value =
-                    "";
+                stockDisponible.value = "";
 
             }
-
 
             if (prix) {
 
-                prix.value =
-                    "";
+                prix.value = "";
 
             }
-
 
             return;
 
@@ -1200,9 +1097,7 @@ function initialiserPageSortie() {
         if (stockDisponible) {
 
             stockDisponible.value =
-                Number(
-                    produit.stock
-                ) || 0;
+                Number(produit.stock) || 0;
 
         }
 
@@ -1221,24 +1116,18 @@ function initialiserPageSortie() {
     }
 
 
-    if (select) {
-
-        select.addEventListener(
-            "change",
-            mettreAJourProduit
-        );
-
-    }
+    select.addEventListener(
+        "change",
+        afficherInformationsProduit
+    );
 
 
-    mettreAJourProduit();
+    afficherInformationsProduit();
 
 
     formulaire.addEventListener(
         "submit",
-        function (
-            event
-        ) {
+        function (event) {
 
             event.preventDefault();
 
@@ -1246,22 +1135,24 @@ function initialiserPageSortie() {
             const idProduit =
                 select.value;
 
-
             const quantiteSortie =
                 Number(
-                    document.getElementById(
-                        "quantite"
-                    ).value
+                    quantite.value
                 );
 
+            const natureSortie =
+                type
+                    ? type.value.trim()
+                    : "";
 
-            if (
-                !idProduit
-            ) {
+
+            if (!idProduit) {
 
                 alert(
                     "Veuillez sélectionner un produit."
                 );
+
+                select.focus();
 
                 return;
 
@@ -1276,8 +1167,27 @@ function initialiserPageSortie() {
             ) {
 
                 alert(
-                    "Veuillez saisir une quantité valide."
+                    "La quantité doit être supérieure à zéro."
                 );
+
+                quantite.focus();
+
+                return;
+
+            }
+
+
+            if (!natureSortie) {
+
+                alert(
+                    "Veuillez sélectionner le motif de sortie."
+                );
+
+                if (type) {
+
+                    type.focus();
+
+                }
 
                 return;
 
@@ -1287,22 +1197,15 @@ function initialiserPageSortie() {
             const produits =
                 obtenirProduits();
 
-
             const index =
                 produits.findIndex(
-                    produit =>
-                        String(
-                            produit.id
-                        ) ===
-                        String(
-                            idProduit
-                        )
+                    p =>
+                        String(p.id) ===
+                        String(idProduit)
                 );
 
 
-            if (
-                index === -1
-            ) {
+            if (index === -1) {
 
                 alert(
                     "Produit introuvable."
@@ -1350,22 +1253,20 @@ function initialiserPageSortie() {
             );
 
 
+            const prixUnitaire =
+                Number(
+                    prix?.value
+                ) || 0;
+
+
             const mouvements =
                 obtenirMouvements();
-
-
-            const prixSortie =
-                Number(
-                    produits[index].prixVente ||
-                    produits[index].prix ||
-                    0
-                );
 
 
             mouvements.push({
 
                 id:
-                    "MVT-" +
+                    "MVT-SOR-" +
                     Date.now(),
 
                 date:
@@ -1382,32 +1283,27 @@ function initialiserPageSortie() {
                     "Sortie",
 
                 nature:
-                    document.getElementById(
-                        "type"
-                    )?.value ||
-                    "Sortie manuelle",
+                    natureSortie,
 
                 quantite:
                     quantiteSortie,
 
                 prix:
-                    prixSortie,
+                    prixUnitaire,
 
                 montant:
                     quantiteSortie *
-                    prixSortie,
+                    prixUnitaire,
 
                 reference:
-                    document.getElementById(
-                        "reference"
-                    )?.value ||
-                    "",
+                    reference
+                        ? reference.value.trim()
+                        : "",
 
                 observation:
-                    document.getElementById(
-                        "observation"
-                    )?.value ||
-                    "",
+                    observation
+                        ? observation.value.trim()
+                        : "",
 
                 utilisateur:
                     "Administrateur"
@@ -1435,49 +1331,6 @@ function initialiserPageSortie() {
 
 
 /*==================================================
-INITIALISER INVENTAIRE
-==================================================*/
-
-function initialiserInventaire() {
-
-    const table =
-        document.getElementById(
-            "inventaireTable"
-        );
-
-
-    if (!table) {
-
-        return;
-
-    }
-
-
-    chargerInventaire();
-
-
-    const bouton =
-        document.getElementById(
-            "btnEnregistrerInventaire"
-        );
-
-
-    if (!bouton) {
-
-        return;
-
-    }
-
-
-    bouton.addEventListener(
-        "click",
-        enregistrerInventaire
-    );
-
-}
-
-
-/*==================================================
 CHARGER INVENTAIRE
 ==================================================*/
 
@@ -1487,7 +1340,6 @@ function chargerInventaire() {
         document.getElementById(
             "inventaireTable"
         );
-
 
     if (!table) {
 
@@ -1500,12 +1352,7 @@ function chargerInventaire() {
         obtenirProduits();
 
 
-    table.innerHTML =
-        "";
-
-
-    let conformes =
-        0;
+    table.innerHTML = "";
 
 
     produits.forEach(
@@ -1522,7 +1369,7 @@ function chargerInventaire() {
 <tr>
 
 <td>
-${produit.code || produit.id}
+${produit.code || produit.id || ""}
 </td>
 
 <td>
@@ -1541,234 +1388,192 @@ ${stock}
 
 <input
 type="number"
-class="form-control stockPhysique"
+class="form-control stock-physique"
 data-id="${produit.id}"
 data-stock="${stock}"
-value="${stock}"
-min="0">
+min="0"
+step="0.01"
+value="${stock}">
 
 </td>
 
-<td>
-
-<span
-class="badge bg-success"
-id="ecart-${produit.id}">
-
+<td class="ecart">
 0
-
-</span>
-
 </td>
 
 </tr>
 
 `;
 
-
-            conformes++;
-
         }
     );
 
 
-    const nbProduits =
-        document.getElementById(
-            "nbProduitsInventaire"
-        );
-
-
-    const nbEcarts =
-        document.getElementById(
-            "nbEcarts"
-        );
-
-
-    const nbConformes =
-        document.getElementById(
-            "nbConformes"
-        );
-
-
-    if (nbProduits) {
-
-        nbProduits.textContent =
-            produits.length;
-
-    }
-
-
-    if (nbEcarts) {
-
-        nbEcarts.textContent =
-            0;
-
-    }
-
-
-    if (nbConformes) {
-
-        nbConformes.textContent =
-            conformes;
-
-    }
-
-
     document
         .querySelectorAll(
-            ".stockPhysique"
+            ".stock-physique"
         )
         .forEach(
             champ => {
 
                 champ.addEventListener(
                     "input",
-                    calculerEcartInventaire
+                    calculerEcartsInventaire
                 );
 
             }
         );
 
+
+    calculerEcartsInventaire();
+
 }
 
 
 /*==================================================
-CALCULER ECART INVENTAIRE
+CALCULER ECARTS INVENTAIRE
 ==================================================*/
 
-function calculerEcartInventaire(
-    event
-) {
+function calculerEcartsInventaire() {
 
-    const champ =
-        event.target;
-
-
-    const id =
-        champ.dataset.id;
-
-
-    const stockTheorique =
-        Number(
-            champ.dataset.stock
-        ) || 0;
-
-
-    const stockPhysique =
-        Number(
-            champ.value
-        ) || 0;
-
-
-    const ecart =
-        stockPhysique -
-        stockTheorique;
-
-
-    const badge =
-        document.getElementById(
-            "ecart-" +
-            id
+    const champs =
+        document.querySelectorAll(
+            ".stock-physique"
         );
 
 
-    if (badge) {
+    let nbProduits = 0;
 
-        badge.textContent =
-            ecart;
+    let nbEcarts = 0;
 
-
-        badge.className =
-            ecart === 0
-            ? "badge bg-success"
-            : "badge bg-danger";
-
-    }
+    let nbConformes = 0;
 
 
-    mettreAJourStatistiquesInventaire();
+    champs.forEach(
+        champ => {
 
-}
+            nbProduits++;
 
+            const stockSysteme =
+                Number(
+                    champ.dataset.stock
+                ) || 0;
 
-/*==================================================
-STATISTIQUES INVENTAIRE
-==================================================*/
+            const stockPhysique =
+                Number(
+                    champ.value
+                ) || 0;
 
-function mettreAJourStatistiquesInventaire() {
+            const ecart =
+                stockPhysique -
+                stockSysteme;
 
-    let ecarts =
-        0;
-
-
-    let conformes =
-        0;
-
-
-    document
-        .querySelectorAll(
-            ".stockPhysique"
-        )
-        .forEach(
-            champ => {
-
-                const stockTheorique =
-                    Number(
-                        champ.dataset.stock
-                    ) || 0;
+            const cellule =
+                champ
+                    .closest("tr")
+                    .querySelector(".ecart");
 
 
-                const stockPhysique =
-                    Number(
-                        champ.value
-                    ) || 0;
+            if (cellule) {
 
+                cellule.textContent =
+                    ecart;
 
-                if (
-                    stockPhysique ===
-                    stockTheorique
-                ) {
-
-                    conformes++;
-
-                }
-
-                else {
-
-                    ecarts++;
-
-                }
+                cellule.className =
+                    "ecart " +
+                    (
+                        ecart === 0
+                            ? "text-success"
+                            : "text-danger"
+                    );
 
             }
+
+
+            if (ecart === 0) {
+
+                nbConformes++;
+
+            }
+
+            else {
+
+                nbEcarts++;
+
+            }
+
+        }
+    );
+
+
+    const elementProduits =
+        document.getElementById(
+            "nbProduitsInventaire"
         );
 
-
-    const nbEcarts =
+    const elementEcarts =
         document.getElementById(
             "nbEcarts"
         );
 
-
-    const nbConformes =
+    const elementConformes =
         document.getElementById(
             "nbConformes"
         );
 
 
-    if (nbEcarts) {
+    if (elementProduits) {
 
-        nbEcarts.textContent =
-            ecarts;
+        elementProduits.textContent =
+            nbProduits;
+
+    }
+
+
+    if (elementEcarts) {
+
+        elementEcarts.textContent =
+            nbEcarts;
 
     }
 
 
-    if (nbConformes) {
+    if (elementConformes) {
 
-        nbConformes.textContent =
-            conformes;
+        elementConformes.textContent =
+            nbConformes;
 
     }
+
+}
+
+
+/*==================================================
+INITIALISER INVENTAIRE
+==================================================*/
+
+function initialiserInventaire() {
+
+    const bouton =
+        document.getElementById(
+            "btnEnregistrerInventaire"
+        );
+
+    if (!bouton) {
+
+        return;
+
+    }
+
+
+    bouton.addEventListener(
+        "click",
+        function () {
+
+            enregistrerInventaire();
+
+        }
+    );
 
 }
 
@@ -1779,145 +1584,157 @@ ENREGISTRER INVENTAIRE
 
 function enregistrerInventaire() {
 
+    const champs =
+        document.querySelectorAll(
+            ".stock-physique"
+        );
+
+    if (!champs.length) {
+
+        return;
+
+    }
+
+
     const produits =
         obtenirProduits();
-
 
     const mouvements =
         obtenirMouvements();
 
-
-    document
-        .querySelectorAll(
-            ".stockPhysique"
-        )
-        .forEach(
-            champ => {
-
-                const id =
-                    champ.dataset.id;
+    let modifications = 0;
 
 
-                const stockPhysique =
-                    Number(
-                        champ.value
-                    ) || 0;
+    champs.forEach(
+        champ => {
+
+            const idProduit =
+                champ.dataset.id;
+
+            const stockPhysique =
+                Number(
+                    champ.value
+                );
+
+            const index =
+                produits.findIndex(
+                    produit =>
+                        String(produit.id) ===
+                        String(idProduit)
+                );
 
 
-                const index =
-                    produits.findIndex(
-                        produit =>
-                            String(
-                                produit.id
-                            ) ===
-                            String(
-                                id
-                            )
-                    );
+            if (
+                index === -1 ||
+                !Number.isFinite(stockPhysique) ||
+                stockPhysique < 0
+            ) {
+
+                return;
+
+            }
 
 
-                if (
-                    index === -1
-                ) {
+            const stockSysteme =
+                Number(
+                    produits[index].stock
+                ) || 0;
 
-                    return;
-
-                }
-
-
-                const stockTheorique =
-                    Number(
-                        produits[index].stock
-                    ) || 0;
+            const ecart =
+                stockPhysique -
+                stockSysteme;
 
 
-                const ecart =
-                    stockPhysique -
-                    stockTheorique;
+            if (ecart === 0) {
+
+                return;
+
+            }
 
 
-                if (
-                    ecart === 0
-                ) {
+            produits[index].stock =
+                stockPhysique;
 
-                    return;
-
-                }
+            modifications++;
 
 
-                produits[index].stock =
-                    stockPhysique;
+            mouvements.push({
 
+                id:
+                    "MVT-INV-" +
+                    Date.now() +
+                    "-" +
+                    idProduit,
 
-                mouvements.push({
+                date:
+                    obtenirDateAujourdhui(),
 
-                    id:
-                        "INV-" +
-                        Date.now() +
-                        "-" +
-                        produits[index].id,
+                produitId:
+                    produits[index].id,
 
-                    date:
-                        obtenirDateAujourdhui(),
+                produit:
+                    produits[index].nom,
 
-                    produitId:
-                        produits[index].id,
-
-                    produit:
-                        produits[index].nom,
-
-                    type:
-                        ecart > 0
+                type:
+                    ecart > 0
                         ? "Entrée"
                         : "Sortie",
 
-                    nature:
-                        "Ajustement inventaire",
+                nature:
+                    "Ajustement inventaire",
 
-                    quantite:
-                        Math.abs(
-                            ecart
-                        ),
+                quantite:
+                    Math.abs(ecart),
 
-                    prix:
-                        Number(
-                            produits[index].prixAchat ||
-                            produits[index].prix ||
-                            0
-                        ),
+                prix:
+                    Number(
+                        produits[index].prixAchat ||
+                        produits[index].prix ||
+                        0
+                    ),
 
-                    montant:
-                        Math.abs(
-                            ecart
-                        ) *
-                        Number(
-                            produits[index].prixAchat ||
-                            produits[index].prix ||
-                            0
-                        ),
+                montant:
+                    Math.abs(ecart) *
+                    Number(
+                        produits[index].prixAchat ||
+                        produits[index].prix ||
+                        0
+                    ),
 
-                    reference:
-                        "INVENTAIRE",
+                reference:
+                    "INVENTAIRE-" +
+                    Date.now(),
 
-                    observation:
-                        "Stock théorique : " +
-                        stockTheorique +
-                        " | Stock physique : " +
-                        stockPhysique,
+                observation:
+                    "Ajustement après inventaire. " +
+                    "Ancien stock : " +
+                    stockSysteme +
+                    " | Nouveau stock : " +
+                    stockPhysique,
 
-                    utilisateur:
-                        "Administrateur"
+                utilisateur:
+                    "Administrateur"
 
-                });
+            });
 
-            }
+        }
+    );
+
+
+    if (modifications === 0) {
+
+        alert(
+            "Aucun écart à enregistrer."
         );
+
+        return;
+
+    }
 
 
     enregistrerProduits(
         produits
     );
-
 
     enregistrerMouvements(
         mouvements
@@ -1929,14 +1746,13 @@ function enregistrerInventaire() {
     );
 
 
-    window.location.href =
-        "index.html";
+    chargerInventaire();
 
 }
 
 
 /*==================================================
-HISTORIQUE DES MOUVEMENTS
+CHARGER HISTORIQUE
 ==================================================*/
 
 function chargerHistorique() {
@@ -1944,11 +1760,7 @@ function chargerHistorique() {
     const table =
         document.getElementById(
             "historiqueTable"
-        ) ||
-        document.getElementById(
-            "historiqueMouvements"
         );
-
 
     if (!table) {
 
@@ -1957,113 +1769,19 @@ function chargerHistorique() {
     }
 
 
-    let mouvements =
+    const mouvements =
         obtenirMouvements();
 
-
-    const filtreProduit =
-        document.getElementById(
-            "filtreProduit"
-        );
+    table.innerHTML = "";
 
 
-    const filtreType =
-        document.getElementById(
-            "filtreType"
-        );
+    mouvements
+        .slice()
+        .reverse()
+        .forEach(
+            mouvement => {
 
-
-    if (
-        filtreProduit &&
-        filtreProduit.value
-    ) {
-
-        const recherche =
-            filtreProduit.value
-                .toLowerCase();
-
-
-        mouvements =
-            mouvements.filter(
-                mouvement =>
-                    String(
-                        mouvement.produit ||
-                        ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        recherche
-                    )
-            );
-
-    }
-
-
-    if (
-        filtreType &&
-        filtreType.value
-    ) {
-
-        mouvements =
-            mouvements.filter(
-                mouvement =>
-                    mouvement.type ===
-                    filtreType.value
-            );
-
-    }
-
-
-    table.innerHTML =
-        "";
-
-
-    const derniersMouvements =
-        mouvements
-            .slice()
-            .reverse()
-            .slice(
-                0,
-                100
-            );
-
-
-    if (
-        derniersMouvements.length === 0
-    ) {
-
-        table.innerHTML = `
-
-<tr>
-
-<td
-colspan="5"
-class="text-center text-muted">
-
-Aucun mouvement de stock.
-
-</td>
-
-</tr>
-
-`;
-
-        return;
-
-    }
-
-
-    derniersMouvements.forEach(
-        mouvement => {
-
-            const badge =
-                mouvement.type ===
-                "Entrée"
-                ? "bg-success"
-                : "bg-danger";
-
-
-            table.innerHTML += `
+                table.innerHTML += `
 
 <tr>
 
@@ -2076,31 +1794,33 @@ ${mouvement.produit || ""}
 </td>
 
 <td>
-
-<span class="badge ${badge}">
-
 ${mouvement.type || ""}
+</td>
 
-</span>
-
+<td>
+${mouvement.nature || ""}
 </td>
 
 <td>
 ${Number(
     mouvement.quantite
-).toLocaleString("fr-FR")}
+) || 0}
 </td>
 
 <td>
-${mouvement.utilisateur || ""}
+${mouvement.reference || ""}
+</td>
+
+<td>
+${mouvement.observation || ""}
 </td>
 
 </tr>
 
 `;
 
-        }
-    );
+            }
+        );
 
 }
 
@@ -2111,21 +1831,22 @@ STATISTIQUES MENSUELLES
 
 function chargerStatistiquesMensuelles() {
 
-    const entreesElement =
+    const mouvements =
+        obtenirMouvements();
+
+    const elementEntrees =
         document.getElementById(
             "entreesMois"
         );
 
-
-    const sortiesElement =
+    const elementSorties =
         document.getElementById(
             "sortiesMois"
         );
 
-
     if (
-        !entreesElement ||
-        !sortiesElement
+        !elementEntrees &&
+        !elementSorties
     ) {
 
         return;
@@ -2133,54 +1854,23 @@ function chargerStatistiquesMensuelles() {
     }
 
 
-    const mouvements =
-        obtenirMouvements();
-
-
-    const maintenant =
-        new Date();
-
-
     const moisActuel =
-        maintenant.getMonth();
+        obtenirDateAujourdhui()
+            .slice(0, 7);
 
+    let entrees = 0;
 
-    const anneeActuelle =
-        maintenant.getFullYear();
-
-
-    let totalEntrees =
-        0;
-
-
-    let totalSorties =
-        0;
+    let sorties = 0;
 
 
     mouvements.forEach(
         mouvement => {
 
             if (
-                !mouvement.date
-            ) {
-
-                return;
-
-            }
-
-
-            const date =
-                new Date(
-                    mouvement.date +
-                    "T00:00:00"
-                );
-
-
-            if (
-                date.getMonth() !==
-                moisActuel ||
-                date.getFullYear() !==
-                anneeActuelle
+                String(
+                    mouvement.date || ""
+                ).slice(0, 7) !==
+                moisActuel
             ) {
 
                 return;
@@ -2199,19 +1889,16 @@ function chargerStatistiquesMensuelles() {
                 "Entrée"
             ) {
 
-                totalEntrees +=
-                    quantite;
+                entrees += quantite;
 
             }
 
-
-            if (
+            else if (
                 mouvement.type ===
                 "Sortie"
             ) {
 
-                totalSorties +=
-                    quantite;
+                sorties += quantite;
 
             }
 
@@ -2219,50 +1906,18 @@ function chargerStatistiquesMensuelles() {
     );
 
 
-    entreesElement.textContent =
-        totalEntrees;
+    if (elementEntrees) {
 
-
-    sortiesElement.textContent =
-        totalSorties;
-
-}
-
-
-/*==================================================
-FILTRES HISTORIQUE
-==================================================*/
-
-function initialiserFiltresHistorique() {
-
-    const produit =
-        document.getElementById(
-            "filtreProduit"
-        );
-
-
-    const type =
-        document.getElementById(
-            "filtreType"
-        );
-
-
-    if (produit) {
-
-        produit.addEventListener(
-            "input",
-            chargerHistorique
-        );
+        elementEntrees.textContent =
+            entrees;
 
     }
 
 
-    if (type) {
+    if (elementSorties) {
 
-        type.addEventListener(
-            "change",
-            chargerHistorique
-        );
+        elementSorties.textContent =
+            sorties;
 
     }
 
@@ -2270,17 +1925,364 @@ function initialiserFiltresHistorique() {
 
 
 /*==================================================
-INITIALISER HISTORIQUE
+RETIRER LE STOCK APRES UNE VENTE
 ==================================================*/
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function retirerStockApresVente(
+    vente
+) {
 
-        initialiserFiltresHistorique();
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return false;
 
     }
-);
+
+
+    const idProduit =
+        vente.produitId;
+
+    const quantiteVendue =
+        Number(
+            vente.quantite
+        );
+
+
+    if (!idProduit) {
+
+        alert(
+            "Produit de la vente introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !Number.isFinite(
+            quantiteVendue
+        ) ||
+        quantiteVendue <= 0
+    ) {
+
+        alert(
+            "Quantité de vente invalide."
+        );
+
+        return false;
+
+    }
+
+
+    const produits =
+        obtenirProduits();
+
+    const index =
+        produits.findIndex(
+            produit =>
+                String(produit.id) ===
+                String(idProduit)
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Produit introuvable dans le stock."
+        );
+
+        return false;
+
+    }
+
+
+    const stockActuel =
+        Number(
+            produits[index].stock
+        ) || 0;
+
+
+    if (
+        quantiteVendue >
+        stockActuel
+    ) {
+
+        alert(
+
+            "Stock insuffisant.\n\n" +
+
+            "Produit : " +
+            (
+                produits[index].nom ||
+                vente.produit ||
+                ""
+            ) +
+
+            "\nDisponible : " +
+            stockActuel +
+            " " +
+            (
+                produits[index].unite ||
+                ""
+            )
+
+        );
+
+        return false;
+
+    }
+
+
+    produits[index].stock =
+        stockActuel -
+        quantiteVendue;
+
+
+    enregistrerProduits(
+        produits
+    );
+
+
+    const mouvements =
+        obtenirMouvements();
+
+
+    mouvements.push({
+
+        id:
+            "MVT-VTE-" +
+            Date.now(),
+
+        date:
+            vente.date ||
+            obtenirDateAujourdhui(),
+
+        produitId:
+            produits[index].id,
+
+        produit:
+            produits[index].nom,
+
+        type:
+            "Sortie",
+
+        nature:
+            "Vente",
+
+        quantite:
+            quantiteVendue,
+
+        prix:
+            Number(
+                vente.prix ||
+                produits[index].prixVente ||
+                produits[index].prix ||
+                0
+            ),
+
+        montant:
+            Number(
+                vente.total ||
+                (
+                    quantiteVendue *
+                    Number(
+                        vente.prix ||
+                        produits[index].prixVente ||
+                        produits[index].prix ||
+                        0
+                    )
+                )
+            ),
+
+        reference:
+            vente.facture ||
+            vente.id ||
+            "",
+
+        observation:
+            "Sortie automatique suite à une vente.",
+
+        utilisateur:
+            "Administrateur"
+
+    });
+
+
+    enregistrerMouvements(
+        mouvements
+    );
+
+
+    return true;
+
+}
+
+
+/*==================================================
+REMETTRE LE STOCK APRES ANNULATION D'UNE VENTE
+==================================================*/
+
+function remettreStockApresAnnulation(
+    vente
+) {
+
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    const idProduit =
+        vente.produitId;
+
+    const quantiteRetour =
+        Number(
+            vente.quantite
+        );
+
+
+    if (!idProduit) {
+
+        alert(
+            "Produit de la vente introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !Number.isFinite(
+            quantiteRetour
+        ) ||
+        quantiteRetour <= 0
+    ) {
+
+        alert(
+            "Quantité de retour invalide."
+        );
+
+        return false;
+
+    }
+
+
+    const produits =
+        obtenirProduits();
+
+    const index =
+        produits.findIndex(
+            produit =>
+                String(produit.id) ===
+                String(idProduit)
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Produit introuvable dans le stock."
+        );
+
+        return false;
+
+    }
+
+
+    const stockActuel =
+        Number(
+            produits[index].stock
+        ) || 0;
+
+
+    produits[index].stock =
+        stockActuel +
+        quantiteRetour;
+
+
+    enregistrerProduits(
+        produits
+    );
+
+
+    const mouvements =
+        obtenirMouvements();
+
+
+    mouvements.push({
+
+        id:
+            "MVT-ANN-" +
+            Date.now(),
+
+        date:
+            obtenirDateAujourdhui(),
+
+        produitId:
+            produits[index].id,
+
+        produit:
+            produits[index].nom,
+
+        type:
+            "Entrée",
+
+        nature:
+            "Annulation de vente",
+
+        quantite:
+            quantiteRetour,
+
+        prix:
+            Number(
+                vente.prix ||
+                produits[index].prixVente ||
+                produits[index].prix ||
+                0
+            ),
+
+        montant:
+            quantiteRetour *
+            Number(
+                vente.prix ||
+                produits[index].prixVente ||
+                produits[index].prix ||
+                0
+            ),
+
+        reference:
+            vente.facture ||
+            vente.id ||
+            "",
+
+        observation:
+            "Retour automatique après annulation de la vente.",
+
+        utilisateur:
+            "Administrateur"
+
+    });
+
+
+    enregistrerMouvements(
+        mouvements
+    );
+
+
+    return true;
+
+}
 
 
 /*==================================================
@@ -2288,5 +2290,5 @@ FIN MODULE
 ==================================================*/
 
 console.log(
-    "Ferme Asher ERP - Stocks.js Version 2.0 chargé."
+    "Ferme Asher ERP - Stocks.js Version 3.0 chargé."
 );
