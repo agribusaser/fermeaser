@@ -575,7 +575,157 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         </div>
 
+<!-- =====================================================
+     RÉPARTITION DES ŒUFS
+===================================================== -->
 
+<div class="col-12">
+
+    <hr>
+
+    <h5 class="text-success mb-3">
+
+        <i class="fa-solid fa-egg"></i>
+
+        Répartition de la production
+
+    </h5>
+
+    <p class="text-muted small">
+
+        Répartissez la production entre incubation,
+        vente, consommation et autres destinations.
+
+    </p>
+
+</div>
+
+
+<!-- INCUBATION -->
+
+<div class="col-md-6">
+
+    <label class="form-label">
+
+        <i class="fa-solid fa-temperature-half text-warning"></i>
+
+        Destinés à l'incubation
+
+    </label>
+
+    <input
+        type="number"
+        id="productionIncubation"
+        class="form-control"
+        value="0"
+        min="0">
+
+</div>
+
+
+<!-- VENTE -->
+
+<div class="col-md-6">
+
+    <label class="form-label">
+
+        <i class="fa-solid fa-cart-shopping text-success"></i>
+
+        Destinés à la vente
+
+    </label>
+
+    <input
+        type="number"
+        id="productionVente"
+        class="form-control"
+        value="0"
+        min="0">
+
+</div>
+
+
+<!-- CONSOMMATION -->
+
+<div class="col-md-6">
+
+    <label class="form-label">
+
+        <i class="fa-solid fa-utensils text-primary"></i>
+
+        Destinés à la consommation
+
+    </label>
+
+    <input
+        type="number"
+        id="productionConsommation"
+        class="form-control"
+        value="0"
+        min="0">
+
+</div>
+
+
+<!-- MARCHÉ / AUTRE -->
+
+<div class="col-md-6">
+
+    <label class="form-label">
+
+        <i class="fa-solid fa-store text-secondary"></i>
+
+        Marché / autre destination
+
+    </label>
+
+    <input
+        type="number"
+        id="productionAutre"
+        class="form-control"
+        value="0"
+        min="0">
+
+</div>
+
+
+<!-- RESTE -->
+
+<div class="col-12">
+
+    <div
+        class="alert alert-light border"
+        id="resumeRepartitionProduction">
+
+        <strong>
+
+            <i class="fa-solid fa-calculator"></i>
+
+            Répartition :
+
+        </strong>
+
+        <span id="totalRepartiProduction">
+
+            0
+
+        </span>
+
+        œufs répartis
+
+        |
+
+        Reste :
+
+        <strong id="resteProduction">
+
+            0
+
+        </strong>
+
+    </div>
+
+</div>
 
                         <!-- NOTES -->
 
@@ -665,6 +815,159 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </script>
 
+    <script>
+
+/* =========================================================
+   CALCUL AUTOMATIQUE DE LA RÉPARTITION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const quantite =
+            document.getElementById(
+                "productionQuantite"
+            );
+
+
+        const incubation =
+            document.getElementById(
+                "productionIncubation"
+            );
+
+
+        const vente =
+            document.getElementById(
+                "productionVente"
+            );
+
+
+        const consommation =
+            document.getElementById(
+                "productionConsommation"
+            );
+
+
+        const autre =
+            document.getElementById(
+                "productionAutre"
+            );
+
+
+        function calculerRepartition() {
+
+
+            const total =
+                Number(
+                    quantite?.value
+                ) || 0;
+
+
+            const totalReparti =
+                (
+                    Number(
+                        incubation?.value
+                    ) || 0
+                )
+                +
+                (
+                    Number(
+                        vente?.value
+                    ) || 0
+                )
+                +
+                (
+                    Number(
+                        consommation?.value
+                    ) || 0
+                )
+                +
+                (
+                    Number(
+                        autre?.value
+                    ) || 0
+                );
+
+
+            const reste =
+                total -
+                totalReparti;
+
+
+            const totalElement =
+                document.getElementById(
+                    "totalRepartiProduction"
+                );
+
+
+            const resteElement =
+                document.getElementById(
+                    "resteProduction"
+                );
+
+
+            if (totalElement) {
+
+                totalElement.textContent =
+                    totalReparti;
+
+            }
+
+
+            if (resteElement) {
+
+                resteElement.textContent =
+                    reste;
+
+            }
+
+
+            if (
+                reste < 0
+            ) {
+
+                resteElement.className =
+                    "text-danger";
+
+            } else {
+
+                resteElement.className =
+                    "text-success";
+
+            }
+
+        }
+
+
+        [
+            quantite,
+            incubation,
+            vente,
+            consommation,
+            autre
+
+        ].forEach(
+            function (champ) {
+
+                if (champ) {
+
+                    champ.addEventListener(
+                        "input",
+                        calculerRepartition
+                    );
+
+                }
+
+            }
+        );
+
+
+    }
+);
+
+</script>
 
 </body>
 
