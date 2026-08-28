@@ -3229,3 +3229,1644 @@ document.addEventListener(
 
     }
 );
+
+/* =========================================================
+   FERME ASHER ERP
+   MODULE ÉLEVAGE
+   GESTION INCUBATION + POUSSINIÈRE
+   ========================================================= */
+
+
+/* =========================================================
+   OUTILS GÉNÉRAUX
+   ========================================================= */
+
+function getDataLocale(cle) {
+
+    try {
+
+        return JSON.parse(localStorage.getItem(cle)) || [];
+
+    } catch (erreur) {
+
+        console.error("Erreur lecture localStorage :", cle, erreur);
+
+        return [];
+
+    }
+
+}
+
+
+function sauvegarderDataLocale(cle, donnees) {
+
+    localStorage.setItem(
+        cle,
+        JSON.stringify(donnees)
+    );
+
+}
+
+
+function genererId(prefixe, donnees) {
+
+    const annee = new Date().getFullYear();
+
+    const numero = String(
+        donnees.length + 1
+    ).padStart(3, "0");
+
+    return `${prefixe}-${annee}-${numero}`;
+
+}
+
+
+function obtenirDateAujourdhui() {
+
+    const aujourdHui = new Date();
+
+    const annee = aujourdHui.getFullYear();
+
+    const mois = String(
+        aujourdHui.getMonth() + 1
+    ).padStart(2, "0");
+
+    const jour = String(
+        aujourdHui.getDate()
+    ).padStart(2, "0");
+
+    return `${annee}-${mois}-${jour}`;
+
+}
+
+
+function formaterDate(date) {
+
+    if (!date) {
+
+        return "";
+
+    }
+
+    const parties = date.split("-");
+
+    if (parties.length !== 3) {
+
+        return date;
+
+    }
+
+    return `${parties[2]}/${parties[1]}/${parties[0]}`;
+
+}
+
+
+/* =========================================================
+   INCUBATION
+   ========================================================= */
+
+
+/* -----------------------------------------
+   OUVRIR LE FORMULAIRE
+----------------------------------------- */
+
+function ouvrirFormulaireIncubation() {
+
+    const modal = document.getElementById(
+        "modalIncubation"
+    );
+
+    if (!modal) return;
+
+    modal.style.display = "flex";
+
+    const champDate = document.getElementById(
+        "incubationDate"
+    );
+
+    if (champDate && !champDate.value) {
+
+        champDate.value =
+            obtenirDateAujourdhui();
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   FERMER LE FORMULAIRE
+----------------------------------------- */
+
+function fermerFormulaireIncubation() {
+
+    const modal = document.getElementById(
+        "modalIncubation"
+    );
+
+    if (!modal) return;
+
+    modal.style.display = "none";
+
+}
+
+
+/* -----------------------------------------
+   CALCUL DATE D'ÉCLOSION
+----------------------------------------- */
+
+function calculerDateEclosion(
+    dateEntree,
+    duree
+) {
+
+    if (!dateEntree || !duree) {
+
+        return "";
+
+    }
+
+    const date = new Date(
+        `${dateEntree}T00:00:00`
+    );
+
+    date.setDate(
+        date.getDate() + Number(duree)
+    );
+
+    const annee = date.getFullYear();
+
+    const mois = String(
+        date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const jour = String(
+        date.getDate()
+    ).padStart(2, "0");
+
+    return `${annee}-${mois}-${jour}`;
+
+}
+
+
+/* -----------------------------------------
+   ENREGISTRER UNE INCUBATION
+----------------------------------------- */
+
+function enregistrerIncubation(event) {
+
+    event.preventDefault();
+
+
+    const espece = document.getElementById(
+        "incubationEspece"
+    ).value.trim();
+
+
+    const lot = document.getElementById(
+        "incubationLot"
+    ).value.trim();
+
+
+    const couveuse = document.getElementById(
+        "incubationCouveuse"
+    ).value;
+
+
+    const oeufs = Number(
+        document.getElementById(
+            "incubationOeufs"
+        ).value
+    );
+
+
+    const dateEntree = document.getElementById(
+        "incubationDate"
+    ).value;
+
+
+    const duree = Number(
+        document.getElementById(
+            "incubationDuree"
+        ).value
+    );
+
+
+    if (
+        !espece ||
+        !lot ||
+        !couveuse ||
+        oeufs <= 0 ||
+        !dateEntree ||
+        duree <= 0
+    ) {
+
+        alert(
+            "Veuillez remplir correctement tous les champs."
+        );
+
+        return;
+
+    }
+
+
+    const incubations = getDataLocale(
+        "incubations"
+    );
+
+
+    const dateEclosion =
+        calculerDateEclosion(
+            dateEntree,
+            duree
+        );
+
+
+    const nouvelleIncubation = {
+
+        id: genererId(
+            "INC",
+            incubations
+        ),
+
+        espece: espece,
+
+        lot: lot,
+
+        couveuse: couveuse,
+
+        oeufsInitial: oeufs,
+
+        oeufsRetires: 0,
+
+        oeufsNonFecondes: 0,
+
+        embryonsMorts: 0,
+
+        poussinsEclos: 0,
+
+        dateEntree: dateEntree,
+
+        duree: duree,
+
+        dateEclosion: dateEclosion,
+
+        statut: "En incubation",
+
+        brooderCree: false,
+
+        dateCreation: new Date().toISOString()
+
+    };
+
+
+    incubations.push(
+        nouvelleIncubation
+    );
+
+
+    sauvegarderDataLocale(
+        "incubations",
+        incubations
+    );
+
+
+    alert(
+        `Incubation ${nouvelleIncubation.id} créée avec succès.`
+    );
+
+
+    document.getElementById(
+        "formIncubation"
+    ).reset();
+
+
+    fermerFormulaireIncubation();
+
+
+    chargerIncubations();
+
+}
+
+
+/* -----------------------------------------
+   CHARGER LES INCUBATIONS
+----------------------------------------- */
+
+function chargerIncubations() {
+
+    const tableau = document.getElementById(
+        "listeIncubations"
+    );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    const incubations = getDataLocale(
+        "incubations"
+    );
+
+
+    tableau.innerHTML = "";
+
+
+    incubations.forEach(function (incubation) {
+
+        let badgeStatut = "bg-success";
+
+
+        if (
+            incubation.statut === "Terminée"
+        ) {
+
+            badgeStatut = "bg-secondary";
+
+        }
+
+
+        if (
+            incubation.statut === "Éclosion"
+        ) {
+
+            badgeStatut = "bg-warning text-dark";
+
+        }
+
+
+        const ligne = document.createElement(
+            "tr"
+        );
+
+
+        ligne.innerHTML = `
+
+            <td>${incubation.id}</td>
+
+            <td>${incubation.espece}</td>
+
+            <td>${incubation.lot}</td>
+
+            <td>${incubation.couveuse}</td>
+
+            <td>${incubation.oeufsInitial}</td>
+
+            <td>
+                ${formaterDate(
+                    incubation.dateEntree
+                )}
+            </td>
+
+            <td>
+                ${formaterDate(
+                    incubation.dateEclosion
+                )}
+            </td>
+
+            <td>
+
+                <span class="badge ${badgeStatut}">
+
+                    ${incubation.statut}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <button
+                    class="btn btn-sm btn-primary"
+                    onclick="ouvrirSuiviIncubation('${incubation.id}')">
+
+                    <i class="fa-solid fa-clipboard-check"></i>
+
+                    Suivi
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        tableau.appendChild(
+            ligne
+        );
+
+    });
+
+
+    mettreAJourStatistiquesIncubation();
+
+}
+
+
+/* -----------------------------------------
+   STATISTIQUES INCUBATION
+----------------------------------------- */
+
+function mettreAJourStatistiquesIncubation() {
+
+    const incubations = getDataLocale(
+        "incubations"
+    );
+
+
+    const actives = incubations.filter(
+        function (incubation) {
+
+            return incubation.statut !== "Terminée";
+
+        }
+    );
+
+
+    const totalOeufs =
+        actives.reduce(
+            function (total, incubation) {
+
+                return (
+                    total +
+                    Number(
+                        incubation.oeufsInitial || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const aujourdHui =
+        obtenirDateAujourdhui();
+
+
+    const eclosionsPrevues =
+        incubations.filter(
+            function (incubation) {
+
+                return (
+                    incubation.dateEclosion === aujourdHui &&
+                    incubation.statut !== "Terminée"
+                );
+
+            }
+        ).length;
+
+
+    const totalPoussins =
+        incubations.reduce(
+            function (total, incubation) {
+
+                return (
+                    total +
+                    Number(
+                        incubation.poussinsEclos || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const elementActives =
+        document.getElementById(
+            "incubationsActives"
+        );
+
+
+    const elementOeufs =
+        document.getElementById(
+            "oeufsIncubation"
+        );
+
+
+    const elementPrevues =
+        document.getElementById(
+            "eclosionsPrevues"
+        );
+
+
+    const elementPoussins =
+        document.getElementById(
+            "poussinsEclos"
+        );
+
+
+    if (elementActives) {
+
+        elementActives.textContent =
+            actives.length;
+
+    }
+
+
+    if (elementOeufs) {
+
+        elementOeufs.textContent =
+            totalOeufs;
+
+    }
+
+
+    if (elementPrevues) {
+
+        elementPrevues.textContent =
+            eclosionsPrevues;
+
+    }
+
+
+    if (elementPoussins) {
+
+        elementPoussins.textContent =
+            totalPoussins;
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   OUVRIR LE SUIVI D'UNE INCUBATION
+----------------------------------------- */
+
+function ouvrirSuiviIncubation(id) {
+
+    const incubations = getDataLocale(
+        "incubations"
+    );
+
+
+    const incubation =
+        incubations.find(
+            function (element) {
+
+                return element.id === id;
+
+            }
+        );
+
+
+    if (!incubation) {
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "suiviIncubationId"
+    ).value = incubation.id;
+
+
+    document.getElementById(
+        "oeufsRetires"
+    ).value =
+        incubation.oeufsRetires || 0;
+
+
+    document.getElementById(
+        "oeufsNonFecondes"
+    ).value =
+        incubation.oeufsNonFecondes || 0;
+
+
+    document.getElementById(
+        "embryonsMorts"
+    ).value =
+        incubation.embryonsMorts || 0;
+
+
+    document.getElementById(
+        "poussinsEclosInput"
+    ).value =
+        incubation.poussinsEclos || 0;
+
+
+    const modal =
+        document.getElementById(
+            "modalSuiviIncubation"
+        );
+
+
+    if (modal) {
+
+        modal.style.display = "flex";
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   FERMER LE SUIVI
+----------------------------------------- */
+
+function fermerSuiviIncubation() {
+
+    const modal =
+        document.getElementById(
+            "modalSuiviIncubation"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.style.display = "none";
+
+}
+
+
+/* -----------------------------------------
+   ENREGISTRER LE SUIVI
+----------------------------------------- */
+
+function enregistrerSuiviIncubation(event) {
+
+    event.preventDefault();
+
+
+    const id =
+        document.getElementById(
+            "suiviIncubationId"
+        ).value;
+
+
+    const oeufsRetires =
+        Number(
+            document.getElementById(
+                "oeufsRetires"
+            ).value
+        );
+
+
+    const oeufsNonFecondes =
+        Number(
+            document.getElementById(
+                "oeufsNonFecondes"
+            ).value
+        );
+
+
+    const embryonsMorts =
+        Number(
+            document.getElementById(
+                "embryonsMorts"
+            ).value
+        );
+
+
+    const poussinsEclos =
+        Number(
+            document.getElementById(
+                "poussinsEclosInput"
+            ).value
+        );
+
+
+    const incubations =
+        getDataLocale(
+            "incubations"
+        );
+
+
+    const index =
+        incubations.findIndex(
+            function (element) {
+
+                return element.id === id;
+
+            }
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const incubation =
+        incubations[index];
+
+
+    const totalSorties =
+        oeufsRetires +
+        oeufsNonFecondes +
+        embryonsMorts +
+        poussinsEclos;
+
+
+    if (
+        totalSorties >
+        Number(incubation.oeufsInitial)
+    ) {
+
+        alert(
+            "Erreur : le total des œufs retirés, non fécondés, morts et poussins éclos dépasse le nombre initial d'œufs."
+        );
+
+        return;
+
+    }
+
+
+    incubation.oeufsRetires =
+        oeufsRetires;
+
+
+    incubation.oeufsNonFecondes =
+        oeufsNonFecondes;
+
+
+    incubation.embryonsMorts =
+        embryonsMorts;
+
+
+    incubation.poussinsEclos =
+        poussinsEclos;
+
+
+    if (poussinsEclos > 0) {
+
+        incubation.statut =
+            "Éclosion";
+
+    }
+
+
+    if (
+        totalSorties ===
+        Number(incubation.oeufsInitial)
+    ) {
+
+        incubation.statut =
+            "Terminée";
+
+    }
+
+
+    incubations[index] =
+        incubation;
+
+
+    sauvegarderDataLocale(
+        "incubations",
+        incubations
+    );
+
+
+    fermerSuiviIncubation();
+
+
+    chargerIncubations();
+
+
+    alert(
+        "Suivi de l'incubation enregistré avec succès."
+    );
+
+}
+
+
+/* =========================================================
+   POUSSINIÈRE / BROODER
+   ========================================================= */
+
+
+/* -----------------------------------------
+   OUVRIR FORMULAIRE
+----------------------------------------- */
+
+function ouvrirFormulairePoussiniere() {
+
+    const modal =
+        document.getElementById(
+            "modalPoussiniere"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.style.display = "flex";
+
+
+    const date =
+        document.getElementById(
+            "brooderDate"
+        );
+
+
+    if (date && !date.value) {
+
+        date.value =
+            obtenirDateAujourdhui();
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   FERMER FORMULAIRE
+----------------------------------------- */
+
+function fermerFormulairePoussiniere() {
+
+    const modal =
+        document.getElementById(
+            "modalPoussiniere"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.style.display = "none";
+
+}
+
+
+/* -----------------------------------------
+   CRÉER LOT POUSSINIÈRE
+----------------------------------------- */
+
+function enregistrerPoussiniere(event) {
+
+    event.preventDefault();
+
+
+    const espece =
+        document.getElementById(
+            "brooderEspece"
+        ).value;
+
+
+    const origine =
+        document.getElementById(
+            "brooderOrigine"
+        ).value.trim();
+
+
+    const nombre =
+        Number(
+            document.getElementById(
+                "brooderNombre"
+            ).value
+        );
+
+
+    const dateEntree =
+        document.getElementById(
+            "brooderDate"
+        ).value;
+
+
+    const emplacement =
+        document.getElementById(
+            "brooderEmplacement"
+        ).value;
+
+
+    const temperature =
+        Number(
+            document.getElementById(
+                "brooderTemperature"
+            ).value || 0
+        );
+
+
+    if (
+        !espece ||
+        !origine ||
+        nombre <= 0 ||
+        !dateEntree ||
+        !emplacement
+    ) {
+
+        alert(
+            "Veuillez remplir correctement tous les champs."
+        );
+
+        return;
+
+    }
+
+
+    const poussiniere =
+        getDataLocale(
+            "poussiniere"
+        );
+
+
+    const nouveauLot = {
+
+        id: genererId(
+            "BRD",
+            poussiniere
+        ),
+
+        espece: espece,
+
+        origine: origine,
+
+        emplacement: emplacement,
+
+        dateEntree: dateEntree,
+
+        nombreInitial: nombre,
+
+        presents: nombre,
+
+        mortalite: 0,
+
+        transferes: 0,
+
+        temperature: temperature,
+
+        alimentTotal: 0,
+
+        statut: "Actif",
+
+        suivi: [],
+
+        dateCreation:
+            new Date().toISOString()
+
+    };
+
+
+    poussiniere.push(
+        nouveauLot
+    );
+
+
+    sauvegarderDataLocale(
+        "poussiniere",
+        poussiniere
+    );
+
+
+    document.getElementById(
+        "formPoussiniere"
+    ).reset();
+
+
+    fermerFormulairePoussiniere();
+
+
+    chargerPoussiniere();
+
+
+    alert(
+        `Lot ${nouveauLot.id} créé avec succès.`
+    );
+
+}
+
+
+/* -----------------------------------------
+   CHARGER LA POUSSINIÈRE
+----------------------------------------- */
+
+function chargerPoussiniere() {
+
+    const tableau =
+        document.getElementById(
+            "listePoussiniere"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    const poussiniere =
+        getDataLocale(
+            "poussiniere"
+        );
+
+
+    tableau.innerHTML = "";
+
+
+    poussiniere.forEach(
+        function (lot) {
+
+            let badgeStatut =
+                "bg-success";
+
+
+            if (
+                lot.statut === "Transféré"
+            ) {
+
+                badgeStatut =
+                    "bg-secondary";
+
+            }
+
+
+            const ligne =
+                document.createElement(
+                    "tr"
+                );
+
+
+            ligne.innerHTML = `
+
+                <td>${lot.id}</td>
+
+                <td>${lot.espece}</td>
+
+                <td>${lot.origine}</td>
+
+                <td>
+                    ${formaterDate(
+                        lot.dateEntree
+                    )}
+                </td>
+
+                <td>
+                    ${lot.nombreInitial}
+                </td>
+
+                <td>
+                    ${lot.presents}
+                </td>
+
+                <td>
+                    ${lot.mortalite}
+                </td>
+
+                <td>
+                    ${lot.temperature || 0} °C
+                </td>
+
+                <td>
+
+                    <span class="badge ${badgeStatut}">
+
+                        ${lot.statut}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-sm btn-primary"
+                        onclick="ouvrirSuiviPoussiniere('${lot.id}')">
+
+                        <i class="fa-solid fa-clipboard-check"></i>
+
+                        Suivi
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableau.appendChild(
+                ligne
+            );
+
+        }
+    );
+
+
+    mettreAJourStatistiquesPoussiniere();
+
+}
+
+
+/* -----------------------------------------
+   STATISTIQUES POUSSINIÈRE
+----------------------------------------- */
+
+function mettreAJourStatistiquesPoussiniere() {
+
+    const poussiniere =
+        getDataLocale(
+            "poussiniere"
+        );
+
+
+    const lotsActifs =
+        poussiniere.filter(
+            function (lot) {
+
+                return lot.statut === "Actif";
+
+            }
+        );
+
+
+    const presents =
+        lotsActifs.reduce(
+            function (total, lot) {
+
+                return (
+                    total +
+                    Number(
+                        lot.presents || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const mortalite =
+        poussiniere.reduce(
+            function (total, lot) {
+
+                return (
+                    total +
+                    Number(
+                        lot.mortalite || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const transferes =
+        poussiniere.reduce(
+            function (total, lot) {
+
+                return (
+                    total +
+                    Number(
+                        lot.transferes || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const elementLots =
+        document.getElementById(
+            "brooderLotsActifs"
+        );
+
+
+    const elementPresents =
+        document.getElementById(
+            "brooderPoussinsPresents"
+        );
+
+
+    const elementMortalite =
+        document.getElementById(
+            "brooderMortalite"
+        );
+
+
+    const elementTransferes =
+        document.getElementById(
+            "brooderTransferes"
+        );
+
+
+    if (elementLots) {
+
+        elementLots.textContent =
+            lotsActifs.length;
+
+    }
+
+
+    if (elementPresents) {
+
+        elementPresents.textContent =
+            presents;
+
+    }
+
+
+    if (elementMortalite) {
+
+        elementMortalite.textContent =
+            mortalite;
+
+    }
+
+
+    if (elementTransferes) {
+
+        elementTransferes.textContent =
+            transferes;
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   OUVRIR SUIVI JOURNALIER
+----------------------------------------- */
+
+function ouvrirSuiviPoussiniere(id) {
+
+    const poussiniere =
+        getDataLocale(
+            "poussiniere"
+        );
+
+
+    const lot =
+        poussiniere.find(
+            function (element) {
+
+                return element.id === id;
+
+            }
+        );
+
+
+    if (!lot) {
+
+        alert(
+            "Lot introuvable."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "suiviBrooderId"
+    ).value = id;
+
+
+    document.getElementById(
+        "brooderMorts"
+    ).value = 0;
+
+
+    document.getElementById(
+        "brooderTransfert"
+    ).value = 0;
+
+
+    document.getElementById(
+        "brooderAliment"
+    ).value = 0;
+
+
+    document.getElementById(
+        "brooderTempJour"
+    ).value =
+        lot.temperature || "";
+
+
+    const modal =
+        document.getElementById(
+            "modalSuiviPoussiniere"
+        );
+
+
+    if (modal) {
+
+        modal.style.display = "flex";
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   FERMER SUIVI JOURNALIER
+----------------------------------------- */
+
+function fermerSuiviPoussiniere() {
+
+    const modal =
+        document.getElementById(
+            "modalSuiviPoussiniere"
+        );
+
+
+    if (!modal) return;
+
+
+    modal.style.display = "none";
+
+}
+
+
+/* -----------------------------------------
+   ENREGISTRER SUIVI JOURNALIER
+----------------------------------------- */
+
+function enregistrerSuiviPoussiniere(event) {
+
+    event.preventDefault();
+
+
+    const id =
+        document.getElementById(
+            "suiviBrooderId"
+        ).value;
+
+
+    const morts =
+        Number(
+            document.getElementById(
+                "brooderMorts"
+            ).value
+        );
+
+
+    const transfert =
+        Number(
+            document.getElementById(
+                "brooderTransfert"
+            ).value
+        );
+
+
+    const aliment =
+        Number(
+            document.getElementById(
+                "brooderAliment"
+            ).value
+        );
+
+
+    const temperature =
+        Number(
+            document.getElementById(
+                "brooderTempJour"
+            ).value
+        );
+
+
+    const poussiniere =
+        getDataLocale(
+            "poussiniere"
+        );
+
+
+    const index =
+        poussiniere.findIndex(
+            function (element) {
+
+                return element.id === id;
+
+            }
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Lot introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const lot =
+        poussiniere[index];
+
+
+    const totalSortie =
+        morts + transfert;
+
+
+    if (
+        totalSortie >
+        Number(lot.presents)
+    ) {
+
+        alert(
+            `Erreur : le lot contient seulement ${lot.presents} animaux présents.`
+        );
+
+        return;
+
+    }
+
+
+    lot.presents =
+        Number(lot.presents) -
+        totalSortie;
+
+
+    lot.mortalite =
+        Number(lot.mortalite || 0) +
+        morts;
+
+
+    lot.transferes =
+        Number(lot.transferes || 0) +
+        transfert;
+
+
+    lot.alimentTotal =
+        Number(lot.alimentTotal || 0) +
+        aliment;
+
+
+    lot.temperature =
+        temperature;
+
+
+    if (
+        Number(lot.presents) === 0
+    ) {
+
+        lot.statut =
+            "Transféré";
+
+    }
+
+
+    if (!lot.suivi) {
+
+        lot.suivi = [];
+
+    }
+
+
+    lot.suivi.push({
+
+        date:
+            obtenirDateAujourdhui(),
+
+        morts: morts,
+
+        transfert: transfert,
+
+        aliment: aliment,
+
+        temperature: temperature,
+
+        presentsApresSuivi:
+            lot.presents
+
+    });
+
+
+    poussiniere[index] =
+        lot;
+
+
+    sauvegarderDataLocale(
+        "poussiniere",
+        poussiniere
+    );
+
+
+    fermerSuiviPoussiniere();
+
+
+    chargerPoussiniere();
+
+
+    alert(
+        "Suivi journalier enregistré avec succès."
+    );
+
+}
+
+
+/* =========================================================
+   INITIALISATION DES PAGES
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* -----------------------------------------
+           PAGE INCUBATION
+        ----------------------------------------- */
+
+        const formIncubation =
+            document.getElementById(
+                "formIncubation"
+            );
+
+
+        if (formIncubation) {
+
+            formIncubation.addEventListener(
+                "submit",
+                enregistrerIncubation
+            );
+
+        }
+
+
+        const formSuiviIncubation =
+            document.getElementById(
+                "formSuiviIncubation"
+            );
+
+
+        if (formSuiviIncubation) {
+
+            formSuiviIncubation.addEventListener(
+                "submit",
+                enregistrerSuiviIncubation
+            );
+
+        }
+
+
+        if (
+            document.getElementById(
+                "listeIncubations"
+            )
+        ) {
+
+            chargerIncubations();
+
+        }
+
+
+
+        /* -----------------------------------------
+           PAGE POUSSINIÈRE
+        ----------------------------------------- */
+
+        const formPoussiniere =
+            document.getElementById(
+                "formPoussiniere"
+            );
+
+
+        if (formPoussiniere) {
+
+            formPoussiniere.addEventListener(
+                "submit",
+                enregistrerPoussiniere
+            );
+
+        }
+
+
+        const formSuiviPoussiniere =
+            document.getElementById(
+                "formSuiviPoussiniere"
+            );
+
+
+        if (formSuiviPoussiniere) {
+
+            formSuiviPoussiniere.addEventListener(
+                "submit",
+                enregistrerSuiviPoussiniere
+            );
+
+        }
+
+
+        if (
+            document.getElementById(
+                "listePoussiniere"
+            )
+        ) {
+
+            chargerPoussiniere();
+
+        }
+
+    }
+);
