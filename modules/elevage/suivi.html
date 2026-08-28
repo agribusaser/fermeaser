@@ -1,1 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Suivi Élevage | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/elevage.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid py-4">
+
+
+<!-- EN-TÊTE -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2>
+
+<i class="fa-solid fa-chart-line text-success"></i>
+
+Suivi général de l'élevage
+
+</h2>
+
+<p class="text-muted">
+
+Vue globale des performances de votre élevage.
+
+</p>
+
+</div>
+
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+
+<!-- INDICATEURS -->
+
+<div class="row mb-4">
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-paw fa-2x text-success mb-2"></i>
+
+<h3 id="suiviAnimaux">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Animaux actuels
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-egg fa-2x text-warning mb-2"></i>
+
+<h3 id="suiviProduction">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Production totale
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-heart-pulse fa-2x text-danger mb-2"></i>
+
+<h3 id="suiviMortalite">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Mortalité enregistrée
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-wheat-awn fa-2x text-warning mb-2"></i>
+
+<h3 id="suiviAlimentation">
+
+0 Kg
+
+</h3>
+
+<p class="mb-0">
+
+Aliment consommé
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- RESUME PAR LOT -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+<div class="card-header bg-success text-white">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-layer-group"></i>
+
+Résumé des lots
+
+</h5>
+
+</div>
+
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Lot</th>
+
+<th>Espèce</th>
+
+<th>Quantité initiale</th>
+
+<th>Quantité actuelle</th>
+
+<th>Production</th>
+
+<th>Alimentation</th>
+
+<th>Statut</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="listeSuiviLots">
+
+</tbody>
+
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ACTIVITES RECENTES -->
+
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-primary text-white">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+Activités récentes
+
+</h5>
+
+</div>
+
+
+<div class="card-body">
+
+<div
+id="listeActivites"
+class="list-group">
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<script src="../../js/elevage.js"></script>
+
+
+<script>
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+    chargerSuiviElevage();
+
+});
+
+</script>
+
+
+</body>
+
+</html>
