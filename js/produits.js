@@ -5,69 +5,42 @@
 
 
 /* =========================================================
-   CONSTANTES
+   CONSTANTE LOCALSTORAGE
    ========================================================= */
 
 const PRODUITS_KEY = "produits";
 
 
 /* =========================================================
-   INITIALISATION
+   LECTURE SECURISEE DES PRODUITS
    ========================================================= */
 
-function initialiserProduits() {
+function lireProduits() {
 
-    const produits = JSON.parse(
-        localStorage.getItem(PRODUITS_KEY)
-    );
+    try {
 
-    if (!produits) {
+        const donnees = localStorage.getItem(PRODUITS_KEY);
 
-        const produitsParDefaut = [
-            {
-                id: "PROD0001",
-                nom: "Œufs de caille",
-                categorie: "Élevage",
-                prix: 9000,
-                stock: 0,
-                minimum: 5,
-                unite: "Plateau",
-                description: "Plateau de 15 œufs de caille",
-                actif: true,
-                dateCreation: new Date().toISOString()
-            },
+        if (!donnees) {
+            return null;
+        }
 
-            {
-                id: "PROD0002",
-                nom: "Cailles",
-                categorie: "Élevage",
-                prix: 6000,
-                stock: 0,
-                minimum: 10,
-                unite: "Unité",
-                description: "Caille vivante",
-                actif: true,
-                dateCreation: new Date().toISOString()
-            },
+        const produits = JSON.parse(donnees);
 
-            {
-                id: "PROD0003",
-                nom: "Soja",
-                categorie: "Agriculture",
-                prix: 0,
-                stock: 0,
-                minimum: 0,
-                unite: "Kg",
-                description: "Soja produit à la ferme",
-                actif: true,
-                dateCreation: new Date().toISOString()
-            }
-        ];
+        if (!Array.isArray(produits)) {
+            return null;
+        }
 
-        localStorage.setItem(
-            PRODUITS_KEY,
-            JSON.stringify(produitsParDefaut)
+        return produits;
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur de lecture des produits :",
+            erreur
         );
+
+        return null;
 
     }
 
@@ -75,16 +48,84 @@ function initialiserProduits() {
 
 
 /* =========================================================
-   RECUPERER TOUS LES PRODUITS
+   INITIALISATION DES PRODUITS
+   ========================================================= */
+
+function initialiserProduits() {
+
+    const produitsExistants = lireProduits();
+
+
+    if (produitsExistants !== null) {
+
+        return;
+
+    }
+
+
+    const produitsParDefaut = [
+
+        {
+            id: "PROD0001",
+            nom: "Œufs de caille",
+            categorie: "Élevage",
+            prix: 9000,
+            stock: 0,
+            minimum: 5,
+            unite: "Plateau",
+            description: "Plateau de 15 œufs de caille",
+            actif: true,
+            dateCreation: new Date().toISOString()
+        },
+
+        {
+            id: "PROD0002",
+            nom: "Cailles",
+            categorie: "Élevage",
+            prix: 6000,
+            stock: 0,
+            minimum: 10,
+            unite: "Unité",
+            description: "Caille vivante",
+            actif: true,
+            dateCreation: new Date().toISOString()
+        },
+
+        {
+            id: "PROD0003",
+            nom: "Soja",
+            categorie: "Agriculture",
+            prix: 0,
+            stock: 0,
+            minimum: 0,
+            unite: "Kg",
+            description: "Soja produit à la ferme",
+            actif: true,
+            dateCreation: new Date().toISOString()
+        }
+
+    ];
+
+
+    localStorage.setItem(
+        PRODUITS_KEY,
+        JSON.stringify(produitsParDefaut)
+    );
+
+}
+
+
+/* =========================================================
+   OBTENIR TOUS LES PRODUITS
    ========================================================= */
 
 function obtenirProduits() {
 
     initialiserProduits();
 
-    return JSON.parse(
-        localStorage.getItem(PRODUITS_KEY)
-    ) || [];
+    const produits = lireProduits();
+
+    return produits || [];
 
 }
 
@@ -104,37 +145,58 @@ function enregistrerProduits(produits) {
 
 
 /* =========================================================
-   GENERER ID PRODUIT
+   GENERER UN ID PRODUIT UNIQUE
    ========================================================= */
 
 function genererIdProduit() {
 
     const produits = obtenirProduits();
 
-    let numero = 1;
 
-    if (produits.length > 0) {
+    let numeroMaximum = 0;
 
-        const dernierProduit =
-            produits[produits.length - 1];
 
-        const dernierNumero =
-            parseInt(
-                dernierProduit.id.replace("PROD", "")
-            );
+    produits.forEach(function (produit) {
 
-        numero = dernierNumero + 1;
+        if (!produit.id) {
+            return;
+        }
 
-    }
 
-    return "PROD" +
-        String(numero).padStart(4, "0");
+        const numero = parseInt(
+            String(produit.id)
+                .replace("PROD", ""),
+            10
+        );
+
+
+        if (
+            !isNaN(numero) &&
+            numero > numeroMaximum
+        ) {
+
+            numeroMaximum = numero;
+
+        }
+
+    });
+
+
+    const nouveauNumero =
+        numeroMaximum + 1;
+
+
+    return (
+        "PROD" +
+        String(nouveauNumero)
+            .padStart(4, "0")
+    );
 
 }
 
 
 /* =========================================================
-   TROUVER PRODUIT
+   TROUVER UN PRODUIT
    ========================================================= */
 
 function trouverProduit(id) {
@@ -142,7 +204,8 @@ function trouverProduit(id) {
     const produits = obtenirProduits();
 
     return produits.find(
-        produit => produit.id === id
+        produit =>
+            String(produit.id) === String(id)
     );
 
 }
@@ -156,41 +219,53 @@ function ajouterProduit(event) {
 
     event.preventDefault();
 
-    const nom =
-        document.getElementById("nom").value.trim();
 
-    const categorie =
-        document.getElementById("categorie").value;
+    /* =============================================
+       RECUPERATION DES CHAMPS
+    ============================================= */
 
-    const prix =
-        Number(
-            document.getElementById("prix").value
+    const champNom =
+        document.getElementById("nom");
+
+    const champCategorie =
+        document.getElementById("categorie");
+
+    const champPrix =
+        document.getElementById("prix");
+
+    const champStock =
+        document.getElementById("stock");
+
+    const champMinimum =
+        document.getElementById("minimum");
+
+    const champUnite =
+        document.getElementById("unite");
+
+    const champDescription =
+        document.getElementById("description");
+
+
+    /* =============================================
+       VERIFICATION DES CHAMPS
+    ============================================= */
+
+    if (
+        !champNom ||
+        !champCategorie ||
+        !champPrix ||
+        !champStock ||
+        !champMinimum ||
+        !champUnite ||
+        !champDescription
+    ) {
+
+        console.error(
+            "Un ou plusieurs champs du formulaire sont introuvables."
         );
-
-    const stock =
-        Number(
-            document.getElementById("stock").value
-        );
-
-    const minimum =
-        Number(
-            document.getElementById("minimum").value
-        );
-
-    const unite =
-        document.getElementById("unite").value;
-
-    const description =
-        document
-            .getElementById("description")
-            .value
-            .trim();
-
-
-    if (!nom) {
 
         alert(
-            "Veuillez entrer le nom du produit."
+            "Erreur : certains champs du formulaire sont introuvables."
         );
 
         return;
@@ -198,14 +273,118 @@ function ajouterProduit(event) {
     }
 
 
-    const produits = obtenirProduits();
+    /* =============================================
+       RECUPERATION DES VALEURS
+    ============================================= */
+
+    const nom =
+        champNom.value.trim();
+
+    const categorie =
+        champCategorie.value;
+
+    const prix =
+        Number(champPrix.value);
+
+    const stock =
+        Number(champStock.value);
+
+    const minimum =
+        Number(champMinimum.value);
+
+    const unite =
+        champUnite.value;
+
+    const description =
+        champDescription.value.trim();
 
 
-    const produitExiste = produits.some(
-        produit =>
-            produit.nom.toLowerCase() ===
-            nom.toLowerCase()
-    );
+    /* =============================================
+       VALIDATIONS
+    ============================================= */
+
+    if (!nom) {
+
+        alert(
+            "Veuillez entrer le nom du produit."
+        );
+
+        champNom.focus();
+
+        return;
+
+    }
+
+
+    if (
+        isNaN(prix) ||
+        prix < 0
+    ) {
+
+        alert(
+            "Le prix unitaire est invalide."
+        );
+
+        champPrix.focus();
+
+        return;
+
+    }
+
+
+    if (
+        isNaN(stock) ||
+        stock < 0
+    ) {
+
+        alert(
+            "Le stock initial est invalide."
+        );
+
+        champStock.focus();
+
+        return;
+
+    }
+
+
+    if (
+        isNaN(minimum) ||
+        minimum < 0
+    ) {
+
+        alert(
+            "Le stock minimum est invalide."
+        );
+
+        champMinimum.focus();
+
+        return;
+
+    }
+
+
+    /* =============================================
+       RECUPERATION DES PRODUITS
+    ============================================= */
+
+    const produits =
+        obtenirProduits();
+
+
+    /* =============================================
+       VERIFICATION DOUBLON
+    ============================================= */
+
+    const produitExiste =
+        produits.some(
+            produit =>
+                produit.nom
+                    .trim()
+                    .toLowerCase()
+                ===
+                nom.toLowerCase()
+        );
 
 
     if (produitExiste) {
@@ -218,6 +397,10 @@ function ajouterProduit(event) {
 
     }
 
+
+    /* =============================================
+       CREATION DU PRODUIT
+    ============================================= */
 
     const nouveauProduit = {
 
@@ -245,9 +428,45 @@ function ajouterProduit(event) {
     };
 
 
-    produits.push(nouveauProduit);
+    /* =============================================
+       ENREGISTREMENT
+    ============================================= */
 
-    enregistrerProduits(produits);
+    produits.push(
+        nouveauProduit
+    );
+
+
+    enregistrerProduits(
+        produits
+    );
+
+
+    /* =============================================
+       VERIFICATION
+    ============================================= */
+
+    const produitsVerification =
+        obtenirProduits();
+
+
+    const produitEnregistre =
+        produitsVerification.find(
+            produit =>
+                produit.id ===
+                nouveauProduit.id
+        );
+
+
+    if (!produitEnregistre) {
+
+        alert(
+            "Erreur : le produit n'a pas pu être enregistré."
+        );
+
+        return;
+
+    }
 
 
     alert(
@@ -262,19 +481,19 @@ function ajouterProduit(event) {
 
 
 /* =========================================================
-   CHARGER LISTE DES PRODUITS
+   CHARGER LA LISTE DES PRODUITS
    ========================================================= */
 
 function chargerProduits() {
 
     const table =
-        document.getElementById("tableProduits");
+        document.getElementById(
+            "tableProduits"
+        );
 
 
     if (!table) {
-
         return;
-
     }
 
 
@@ -283,17 +502,23 @@ function chargerProduits() {
 
 
     const rechercheElement =
-        document.getElementById("recherche");
+        document.getElementById(
+            "recherche"
+        );
 
 
     const recherche =
         rechercheElement
-            ? rechercheElement.value.toLowerCase()
+            ? rechercheElement.value
+                .trim()
+                .toLowerCase()
             : "";
 
 
     const categorieElement =
-        document.getElementById("filtreCategorie");
+        document.getElementById(
+            "filtreCategorie"
+        );
 
 
     const categorie =
@@ -303,43 +528,51 @@ function chargerProduits() {
 
 
     const produitsFiltres =
-        produits.filter(produit => {
+        produits.filter(
+            function (produit) {
 
 
-            const correspondRecherche =
-
-                produit.nom
-                    .toLowerCase()
-                    .includes(recherche)
-
-                ||
-
-                produit.id
-                    .toLowerCase()
-                    .includes(recherche);
+                const nom =
+                    String(
+                        produit.nom || ""
+                    ).toLowerCase();
 
 
-            const correspondCategorie =
-
-                !categorie
-
-                ||
-
-                produit.categorie === categorie;
+                const id =
+                    String(
+                        produit.id || ""
+                    ).toLowerCase();
 
 
-            return
-                correspondRecherche
-                &&
-                correspondCategorie;
+                const correspondRecherche =
+                    nom.includes(recherche)
+                    ||
+                    id.includes(recherche);
 
-        });
+
+                const correspondCategorie =
+                    !categorie
+                    ||
+                    produit.categorie ===
+                    categorie;
+
+
+                return (
+                    correspondRecherche
+                    &&
+                    correspondCategorie
+                );
+
+            }
+        );
 
 
     table.innerHTML = "";
 
 
-    if (produitsFiltres.length === 0) {
+    if (
+        produitsFiltres.length === 0
+    ) {
 
         table.innerHTML = `
 
@@ -357,6 +590,7 @@ function chargerProduits() {
 
         `;
 
+
         mettreAJourNombreProduits(0);
 
         return;
@@ -364,142 +598,134 @@ function chargerProduits() {
     }
 
 
-    produitsFiltres.forEach(produit => {
+    produitsFiltres.forEach(
+        function (produit) {
 
 
-        let statutStock = "";
+            const stock =
+                Number(produit.stock) || 0;
+
+            const minimum =
+                Number(produit.minimum) || 0;
 
 
-        if (produit.stock <= 0) {
+            let statutStock = "";
 
-            statutStock = `
-                <span class="badge bg-danger">
-                    Rupture
-                </span>
+
+            if (stock <= 0) {
+
+                statutStock = `
+                    <span class="badge bg-danger">
+                        Rupture
+                    </span>
+                `;
+
+            }
+
+            else if (
+                stock <= minimum
+            ) {
+
+                statutStock = `
+                    <span class="badge bg-warning text-dark">
+                        Stock faible
+                    </span>
+                `;
+
+            }
+
+            else {
+
+                statutStock = `
+                    <span class="badge bg-success">
+                        Disponible
+                    </span>
+                `;
+
+            }
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${produit.id}
+                    </td>
+
+                    <td>
+                        ${produit.nom}
+                    </td>
+
+                    <td>
+                        ${produit.categorie}
+                    </td>
+
+                    <td>
+                        ${stock}
+                    </td>
+
+                    <td>
+                        ${minimum}
+                    </td>
+
+                    <td>
+                        ${produit.unite}
+                    </td>
+
+                    <td>
+
+                        ${Number(
+                            produit.prix
+                        ).toLocaleString(
+                            "fr-FR"
+                        )} FC
+
+                    </td>
+
+                    <td>
+
+                        ${statutStock}
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="detail.html?id=${produit.id}"
+                            class="btn btn-sm btn-info">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </a>
+
+
+                        <a
+                            href="modifier.html?id=${produit.id}"
+                            class="btn btn-sm btn-warning">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                        </a>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            onclick="supprimerProduit('${produit.id}')">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
             `;
 
         }
-
-        else if (
-            produit.stock <= produit.minimum
-        ) {
-
-            statutStock = `
-                <span class="badge bg-warning text-dark">
-                    Stock faible
-                </span>
-            `;
-
-        }
-
-        else {
-
-            statutStock = `
-                <span class="badge bg-success">
-                    Disponible
-                </span>
-            `;
-
-        }
-
-
-        table.innerHTML += `
-
-            <tr>
-
-                <td>
-
-                    ${produit.id}
-
-                </td>
-
-
-                <td>
-
-                    ${produit.nom}
-
-                </td>
-
-
-                <td>
-
-                    ${produit.categorie}
-
-                </td>
-
-
-                <td>
-
-                    ${produit.stock}
-
-                </td>
-
-
-                <td>
-
-                    ${produit.minimum}
-
-                </td>
-
-
-                <td>
-
-                    ${produit.unite}
-
-                </td>
-
-
-                <td>
-
-                    ${Number(produit.prix)
-                        .toLocaleString("fr-FR")
-                    } FC
-
-                </td>
-
-
-                <td>
-
-                    ${statutStock}
-
-                </td>
-
-
-                <td>
-
-                    <a
-                        href="detail.html?id=${produit.id}"
-                        class="btn btn-sm btn-info">
-
-                        <i class="fa-solid fa-eye"></i>
-
-                    </a>
-
-
-                    <a
-                        href="modifier.html?id=${produit.id}"
-                        class="btn btn-sm btn-warning">
-
-                        <i class="fa-solid fa-pen"></i>
-
-                    </a>
-
-
-                    <button
-                        class="btn btn-sm btn-danger"
-                        onclick="supprimerProduit('${produit.id}')">
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
+    );
 
 
     mettreAJourNombreProduits(
@@ -531,7 +757,7 @@ function mettreAJourNombreProduits(nombre) {
 
 
 /* =========================================================
-   SUPPRIMER PRODUIT
+   SUPPRIMER UN PRODUIT
    ========================================================= */
 
 function supprimerProduit(id) {
@@ -553,30 +779,30 @@ function supprimerProduit(id) {
 
     const confirmation =
         confirm(
-            `Voulez-vous vraiment supprimer :
-
-${produit.nom} ?`
+            `Voulez-vous vraiment supprimer "${produit.nom}" ?`
         );
 
 
     if (!confirmation) {
-
         return;
-
     }
 
 
-    let produits =
+    const produits =
         obtenirProduits();
 
 
-    produits =
+    const nouveauxProduits =
         produits.filter(
-            produit => produit.id !== id
+            produit =>
+                String(produit.id) !==
+                String(id)
         );
 
 
-    enregistrerProduits(produits);
+    enregistrerProduits(
+        nouveauxProduits
+    );
 
 
     alert(
@@ -590,7 +816,7 @@ ${produit.nom} ?`
 
 
 /* =========================================================
-   CHARGER PRODUIT A MODIFIER
+   CHARGER PRODUIT POUR MODIFICATION
    ========================================================= */
 
 function chargerProduitModification() {
@@ -602,9 +828,7 @@ function chargerProduitModification() {
 
 
     if (!form) {
-
         return;
-
     }
 
 
@@ -687,7 +911,8 @@ function chargerProduitModification() {
 
     document.getElementById(
         "description"
-    ).value = produit.description || "";
+    ).value =
+        produit.description || "";
 
 }
 
@@ -713,7 +938,9 @@ function modifierProduit(event) {
 
     const index =
         produits.findIndex(
-            produit => produit.id === id
+            produit =>
+                String(produit.id) ===
+                String(id)
         );
 
 
@@ -728,17 +955,29 @@ function modifierProduit(event) {
     }
 
 
-    produits[index].nom =
+    const nom =
         document.getElementById(
             "nom"
         ).value.trim();
 
 
+    if (!nom) {
+
+        alert(
+            "Le nom du produit est obligatoire."
+        );
+
+        return;
+
+    }
+
+
+    produits[index].nom = nom;
+
     produits[index].categorie =
         document.getElementById(
             "categorie"
         ).value;
-
 
     produits[index].prix =
         Number(
@@ -747,14 +986,12 @@ function modifierProduit(event) {
             ).value
         );
 
-
     produits[index].stock =
         Number(
             document.getElementById(
                 "stock"
             ).value
         );
-
 
     produits[index].minimum =
         Number(
@@ -763,12 +1000,10 @@ function modifierProduit(event) {
             ).value
         );
 
-
     produits[index].unite =
         document.getElementById(
             "unite"
         ).value;
-
 
     produits[index].description =
         document.getElementById(
@@ -776,7 +1011,9 @@ function modifierProduit(event) {
         ).value.trim();
 
 
-    enregistrerProduits(produits);
+    enregistrerProduits(
+        produits
+    );
 
 
     alert(
@@ -803,9 +1040,7 @@ function chargerDetailProduit() {
 
 
     if (!contenu) {
-
         return;
-
     }
 
 
@@ -844,7 +1079,6 @@ function chargerDetailProduit() {
 
         <div class="row g-3">
 
-
             <div class="col-md-6">
 
                 <strong>ID :</strong>
@@ -876,9 +1110,9 @@ function chargerDetailProduit() {
 
                 <strong>Prix :</strong>
 
-                ${Number(produit.prix)
-                    .toLocaleString("fr-FR")
-                } FC
+                ${Number(
+                    produit.prix
+                ).toLocaleString("fr-FR")} FC
 
             </div>
 
@@ -888,7 +1122,6 @@ function chargerDetailProduit() {
                 <strong>Stock :</strong>
 
                 ${produit.stock}
-
                 ${produit.unite}
 
             </div>
@@ -899,7 +1132,6 @@ function chargerDetailProduit() {
                 <strong>Stock minimum :</strong>
 
                 ${produit.minimum}
-
                 ${produit.unite}
 
             </div>
@@ -912,8 +1144,7 @@ function chargerDetailProduit() {
                 <p>
 
                     ${
-                        produit.description
-                        ||
+                        produit.description ||
                         "Aucune description."
                     }
 
@@ -927,11 +1158,15 @@ function chargerDetailProduit() {
 
 }
 
+
 /* =========================================================
    DIMINUER LE STOCK APRES UNE VENTE
-========================================================= */
+   ========================================================= */
 
-function diminuerStockProduit(idProduit, quantiteVendue) {
+function diminuerStockProduit(
+    idProduit,
+    quantiteVendue
+) {
 
     const produits =
         obtenirProduits();
@@ -948,40 +1183,61 @@ function diminuerStockProduit(idProduit, quantiteVendue) {
     if (index === -1) {
 
         return {
+
             succes: false,
-            message: "Produit introuvable."
+
+            message:
+                "Produit introuvable."
+
         };
 
     }
 
 
     const stockActuel =
-        Number(produits[index].stock) || 0;
+        Number(
+            produits[index].stock
+        ) || 0;
 
 
     const quantite =
-        Number(quantiteVendue) || 0;
+        Number(
+            quantiteVendue
+        );
 
 
-    if (quantite <= 0) {
+    if (
+        !Number.isFinite(quantite)
+        ||
+        quantite <= 0
+    ) {
 
         return {
+
             succes: false,
-            message: "Quantité invalide."
+
+            message:
+                "Quantité invalide."
+
         };
 
     }
 
 
-    if (stockActuel < quantite) {
+    if (
+        stockActuel < quantite
+    ) {
 
         return {
+
             succes: false,
+
             message:
                 "Stock insuffisant. Stock disponible : " +
                 stockActuel +
                 " " +
                 produits[index].unite
+
         };
 
     }
@@ -991,15 +1247,22 @@ function diminuerStockProduit(idProduit, quantiteVendue) {
         stockActuel - quantite;
 
 
-    enregistrerProduits(produits);
+    enregistrerProduits(
+        produits
+    );
 
 
     return {
+
         succes: true,
-        produit: produits[index]
+
+        produit:
+            produits[index]
+
     };
 
 }
+
 
 /* =========================================================
    INITIALISATION AUTOMATIQUE
