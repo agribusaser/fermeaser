@@ -1,1 +1,619 @@
+<!DOCTYPE html>
 
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Santé Animale | Ferme Asher ERP
+</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/elevage.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid py-4">
+
+
+<!-- =========================================
+     EN-TÊTE
+========================================= -->
+
+<div class="d-flex
+justify-content-between
+align-items-center
+mb-4">
+
+    <div>
+
+        <h2>
+
+            <i class="fa-solid fa-heart-pulse text-danger"></i>
+
+            Santé animale
+
+        </h2>
+
+        <p class="text-muted">
+
+            Suivez les maladies, traitements,
+            vaccinations et interventions sanitaires.
+
+        </p>
+
+    </div>
+
+
+    <a
+    href="index.html"
+    class="btn btn-secondary">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Retour
+
+    </a>
+
+</div>
+
+
+
+<!-- =========================================
+     STATISTIQUES
+========================================= -->
+
+<div class="row mb-4">
+
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card
+        shadow-sm
+        border-0
+        text-center">
+
+            <div class="card-body">
+
+                <i class="fa-solid fa-notes-medical
+                fa-2x
+                text-primary
+                mb-2"></i>
+
+                <h2 id="nbSuiviSante">
+
+                    0
+
+                </h2>
+
+                <p class="mb-0">
+
+                    Interventions enregistrées
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card
+        shadow-sm
+        border-0
+        text-center">
+
+            <div class="card-body">
+
+                <i class="fa-solid fa-syringe
+                fa-2x
+                text-success
+                mb-2"></i>
+
+                <h2 id="totalVaccinations">
+
+                    0
+
+                </h2>
+
+                <p class="mb-0">
+
+                    Vaccinations
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-md-4 mb-3">
+
+        <div class="card
+        shadow-sm
+        border-0
+        text-center">
+
+            <div class="card-body">
+
+                <i class="fa-solid fa-virus
+                fa-2x
+                text-danger
+                mb-2"></i>
+
+                <h2 id="totalMaladies">
+
+                    0
+
+                </h2>
+
+                <p class="mb-0">
+
+                    Cas de maladie
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================
+     FORMULAIRE
+========================================= -->
+
+<div class="card
+shadow-sm
+border-0
+mb-4">
+
+<div class="card-header
+bg-success
+text-white">
+
+    <h5 class="mb-0">
+
+        <i class="fa-solid fa-plus"></i>
+
+        Nouvelle intervention sanitaire
+
+    </h5>
+
+</div>
+
+
+<div class="card-body">
+
+
+<form onsubmit="ajouterSante(event)">
+
+
+<div class="row">
+
+
+<!-- ANIMAL -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Animal
+
+</label>
+
+<select
+id="animalSante"
+class="form-select"
+required>
+
+<option value="">
+
+Sélectionner
+
+</option>
+
+<option value="Poules">
+
+Poules
+
+</option>
+
+<option value="Cailles">
+
+Cailles
+
+</option>
+
+<option value="Poulets de chair">
+
+Poulets de chair
+
+</option>
+
+<option value="Poussins">
+
+Poussins
+
+</option>
+
+<option value="Autre">
+
+Autre
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- TYPE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Type d'intervention
+
+</label>
+
+<select
+id="typeSoin"
+class="form-select"
+required>
+
+<option value="">
+
+Sélectionner
+
+</option>
+
+<option value="Vaccination">
+
+Vaccination
+
+</option>
+
+<option value="Traitement">
+
+Traitement
+
+</option>
+
+<option value="Maladie">
+
+Maladie
+
+</option>
+
+<option value="Prévention">
+
+Prévention
+
+</option>
+
+<option value="Contrôle">
+
+Contrôle
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- DATE -->
+
+<div class="col-md-4 mb-3">
+
+<label class="form-label">
+
+Date
+
+</label>
+
+<input
+type="date"
+id="dateSante"
+class="form-control">
+
+</div>
+
+
+
+<!-- DESCRIPTION -->
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Description / Symptômes
+
+</label>
+
+<input
+type="text"
+id="descriptionSante"
+class="form-control"
+placeholder="Ex : diarrhée, faiblesse, contrôle général">
+
+</div>
+
+
+
+<!-- TRAITEMENT -->
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Médicament / Traitement
+
+</label>
+
+<input
+type="text"
+id="traitementSante"
+class="form-control"
+placeholder="Ex : vaccin, antibiotique, vitamines">
+
+</div>
+
+
+
+<!-- QUANTITÉ -->
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Nombre d'animaux concernés
+
+</label>
+
+<input
+type="number"
+id="quantiteSante"
+class="form-control"
+min="0"
+value="0">
+
+</div>
+
+
+</div>
+
+
+
+<div class="text-end">
+
+<button
+type="submit"
+class="btn btn-success">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer
+
+</button>
+
+</div>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+
+<!-- =========================================
+     HISTORIQUE SANITAIRE
+========================================= -->
+
+<div class="card
+shadow-sm
+border-0">
+
+
+<div class="card-header
+bg-danger
+text-white">
+
+<h5 class="mb-0">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+Historique sanitaire
+
+</h5>
+
+</div>
+
+
+<div class="card-body">
+
+
+<div class="table-responsive">
+
+
+<table class="table table-hover
+align-middle">
+
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Animal</th>
+
+<th>Type</th>
+
+<th>Description</th>
+
+<th>Traitement</th>
+
+<th>Quantité</th>
+
+<th>Utilisateur</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody id="listeSante">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<script src="../../js/elevage.js"></script>
+
+
+<script>
+
+
+/* ==========================================
+   DATE AUTOMATIQUE
+========================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+    const dateSante =
+        document.getElementById("dateSante");
+
+
+    if (dateSante &&
+        !dateSante.value) {
+
+        dateSante.value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+    }
+
+
+    chargerStatistiquesSante();
+
+});
+
+
+/* ==========================================
+   STATISTIQUES SANTÉ
+========================================== */
+
+function chargerStatistiquesSante() {
+
+    const sante =
+        obtenirSante();
+
+
+    const vaccinations =
+        sante.filter(
+            item =>
+                item.type === "Vaccination"
+        ).length;
+
+
+    const maladies =
+        sante.filter(
+            item =>
+                item.type === "Maladie"
+        ).length;
+
+
+    const totalVaccinations =
+        document.getElementById(
+            "totalVaccinations"
+        );
+
+
+    const totalMaladies =
+        document.getElementById(
+            "totalMaladies"
+        );
+
+
+    if (totalVaccinations) {
+
+        totalVaccinations.textContent =
+            vaccinations;
+
+    }
+
+
+    if (totalMaladies) {
+
+        totalMaladies.textContent =
+            maladies;
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
