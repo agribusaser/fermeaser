@@ -1,1 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dépenses Agricoles | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+<div class="container-fluid py-4">
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="text-success">
+
+<i class="fa-solid fa-money-bill-wave"></i>
+
+Dépenses Agricoles
+
+</h2>
+
+<p class="text-muted">
+
+Suivez toutes les dépenses de vos activités agricoles.
+
+</p>
+
+</div>
+
+
+<a
+href="index.html"
+class="btn btn-secondary">
+
+<i class="fa-solid fa-arrow-left"></i>
+
+Retour
+
+</a>
+
+</div>
+
+
+
+<div class="row mb-4">
+
+
+<div class="col-md-4">
+
+<div class="card text-center shadow-sm">
+
+<div class="card-body">
+
+<h3 id="totalDepenses">
+
+0 FC
+
+</h3>
+
+<p>Total dépenses</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<div class="card text-center shadow-sm">
+
+<div class="card-body">
+
+<h3 id="depensesMois">
+
+0 FC
+
+</h3>
+
+<p>Dépenses du mois</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<button
+class="btn btn-success w-100 h-100"
+data-bs-toggle="modal"
+data-bs-target="#modalDepense">
+
+<i class="fa-solid fa-plus"></i>
+
+Nouvelle dépense
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Catégorie</th>
+
+<th>Description</th>
+
+<th>Montant</th>
+
+<th>Responsable</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="listeDepenses">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<div
+class="modal fade"
+id="modalDepense"
+tabindex="-1">
+
+
+<div class="modal-dialog">
+
+
+<div class="modal-content">
+
+
+<div class="modal-header bg-success text-white">
+
+<h5>
+
+Nouvelle dépense
+
+</h5>
+
+<button
+type="button"
+class="btn-close btn-close-white"
+data-bs-dismiss="modal">
+
+</button>
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="formDepense">
+
+
+<div class="mb-3">
+
+<label>
+
+Date
+
+</label>
+
+<input
+type="date"
+id="dateDepense"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+
+Catégorie
+
+</label>
+
+<select
+id="categorieDepense"
+class="form-select">
+
+<option>Semences</option>
+
+<option>Engrais</option>
+
+<option>Produits phytosanitaires</option>
+
+<option>Main-d'œuvre</option>
+
+<option>Carburant</option>
+
+<option>Transport</option>
+
+<option>Matériel</option>
+
+<option>Autre</option>
+
+</select>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+
+Description
+
+</label>
+
+<textarea
+id="descriptionDepense"
+class="form-control">
+
+</textarea>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+
+Montant FC
+
+</label>
+
+<input
+type="number"
+id="montantDepense"
+class="form-control"
+min="0"
+required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+
+Responsable
+
+</label>
+
+<input
+type="text"
+id="responsableDepense"
+class="form-control">
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<div class="modal-footer">
+
+<button
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+class="btn btn-success"
+onclick="ajouterDepense()">
+
+Enregistrer
+
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+
+</script>
+
+<script src="../../js/agriculture.js"></script>
+
+</body>
+
+</html>
