@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Alimentation | Ferme Asher ERP</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="../../css/elevage.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid py-4">
+
+
+<!-- EN-TÊTE -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2>
+
+            <i class="fa-solid fa-wheat-awn text-warning"></i>
+
+            Alimentation
+
+        </h2>
+
+        <p class="text-muted">
+
+            Suivi de la consommation d'aliments par lot.
+
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <a
+        href="index.html"
+        class="btn btn-secondary me-2">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Retour
+
+        </a>
+
+
+        <button
+        class="btn btn-success"
+        data-bs-toggle="modal"
+        data-bs-target="#modalAlimentation">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Ajouter une consommation
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- STATISTIQUES -->
+
+<div class="row mb-4">
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-calendar-day fa-2x text-success mb-2"></i>
+
+<h3 id="alimentJour">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Consommation du jour
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-calendar-days fa-2x text-primary mb-2"></i>
+
+<h3 id="alimentMois">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Consommation du mois
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-weight-scale fa-2x text-warning mb-2"></i>
+
+<h3 id="alimentTotal">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Consommation totale
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-lg-3 col-md-6 mb-3">
+
+<div class="card shadow-sm border-0 text-center">
+
+<div class="card-body">
+
+<i class="fa-solid fa-layer-group fa-2x text-success mb-2"></i>
+
+<h3 id="lotsNourris">
+
+0
+
+</h3>
+
+<p class="mb-0">
+
+Lots nourris
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- TABLEAU -->
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-success">
+
+<tr>
+
+<th>Date</th>
+
+<th>Lot</th>
+
+<th>Aliment</th>
+
+<th>Quantité</th>
+
+<th>Unité</th>
+
+<th>Notes</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="listeAlimentation">
+
+</tbody>
+
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- MODAL -->
+
+<div
+class="modal fade"
+id="modalAlimentation"
+tabindex="-1">
+
+<div class="modal-dialog">
+
+<div class="modal-content">
+
+
+<div class="modal-header bg-success text-white">
+
+<h5 class="modal-title">
+
+<i class="fa-solid fa-wheat-awn"></i>
+
+Nouvelle consommation
+
+</h5>
+
+
+<button
+type="button"
+class="btn-close btn-close-white"
+data-bs-dismiss="modal">
+
+</button>
+
+</div>
+
+
+
+<div class="modal-body">
+
+
+<form id="formAlimentation">
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Date
+
+</label>
+
+<input
+type="date"
+id="alimentDate"
+class="form-control"
+required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Lot
+
+</label>
+
+<select
+id="alimentLot"
+class="form-select"
+required>
+
+<option value="">
+
+Sélectionner un lot
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Nom de l'aliment
+
+</label>
+
+<input
+type="text"
+id="alimentProduit"
+class="form-control"
+placeholder="Ex : Aliment ponte"
+
+required>
+
+</div>
+
+
+
+<div class="row">
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Quantité
+
+</label>
+
+<input
+type="number"
+id="alimentQuantite"
+class="form-control"
+min="0.01"
+step="0.01"
+required>
+
+</div>
+
+
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label">
+
+Unité
+
+</label>
+
+<select
+id="alimentUnite"
+class="form-select">
+
+<option value="Kg">
+
+Kg
+
+</option>
+
+<option value="g">
+
+g
+
+</option>
+
+<option value="Sac">
+
+Sac
+
+</option>
+
+</select>
+
+</div>
+
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label class="form-label">
+
+Notes
+
+</label>
+
+<textarea
+id="alimentNotes"
+class="form-control"
+rows="3">
+
+</textarea>
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Annuler
+
+</button>
+
+
+<button
+type="button"
+class="btn btn-success"
+onclick="enregistrerAlimentation()">
+
+<i class="fa-solid fa-floppy-disk"></i>
+
+Enregistrer
+
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+
+</script>
+
+<script src="../../js/elevage.js"></script>
+
+
+<script>
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+    document.getElementById("alimentDate").value =
+        new Date().toISOString().split("T")[0];
+
+    chargerAlimentation();
+
+    chargerLotsAlimentation();
+
+});
+
+</script>
+
+
+</body>
+
+</html>
