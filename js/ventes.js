@@ -1,704 +1,196 @@
-/*====================================================
- FERME ASHER ERP
- MODULE : VENTES
- FICHIER : ventes.js
-
- Système unique :
- - ventes
- - produits
- - mouvementsStock
-
- Toutes les données sont stockées dans localStorage.
-====================================================*/
+/*==================================================
+FERME ASHER ERP
+VENTES.JS
+VERSION 2.0
+==================================================*/
 
 
-/*====================================================
- CONFIGURATION
-====================================================*/
+/*==================================================
+CONFIGURATION
+==================================================*/
 
 const CLE_VENTES = "ventes";
+const CLE_PRODUITS_VENTES = "produits";
 
-const CLE_PRODUITS = "  "produits";
 
-const CLE_MOUVEMENTS_STOCK = "mouvementsStock";
-
-
-/*====================================================
- VARIABLES GLOBALES
-====================================================*/
-
-let ventes = [];
-
-
-/*====================================================
- OUTIL : LIRE LOCALSTORAGE
-====================================================*/
-
-function lireDonnees(cle) {
-
-    try {
-
-        const donnees =
-            localStorage.getItem(cle);
-
-        if (!donnees) {
-
-            return [];
-
-        }
-
-        const resultat =
-            JSON.parse(donnees);
-
-        if (!Array.isArray(resultat)) {
-
-            return [];
-
-        }
-
-        return resultat;
-
-    }
-
-    catch (erreur) {
-
-        console.error(
-            "Erreur de lecture : " + cle,
-            erreur
-        );
-
-        return [];
-
-    }
-
-}
-
-
-/*====================================================
- OUTIL : ENREGISTRER LOCALSTORAGE
-====================================================*/
-
-function enregistrerDonnees(
-    cle,
-    donnees
-) {
-
-    try {
-
-        localStorage.setItem(
-            cle,
-            JSON.stringify(donnees)
-        );
-
-        return true;
-
-    }
-
-    catch (erreur) {
-
-        console.error(
-            "Erreur de sauvegarde : " + cle,
-            erreur
-        );
-
-        alert(
-            "Erreur lors de la sauvegarde des données."
-        );
-
-        return false;
-
-    }
-
-}
-
-
-/*====================================================
- FORMATER UN MONTANT
-====================================================*/
-
-function formatFC(montant) {
-
-    const valeur =
-        Number(montant) || 0;
-
-    return valeur.toLocaleString(
-        "fr-FR"
-    ) + " FC";
-
-}
-
-
-/*====================================================
- FORMATER UNE DATE
-
- Accepte :
- 2026-08-22
-
- Retourne :
- 22/08/2026
-====================================================*/
-
-function formatDate(date) {
-
-    if (!date) {
-
-        return "-";
-
-    }
-
-    const morceaux =
-        String(date).split("-");
-
-    if (morceaux.length === 3) {
-
-        return (
-            morceaux[2] +
-            "/" +
-            morceaux[1] +
-            "/" +
-            morceaux[0]
-        );
-
-    }
-
-    return date;
-
-}
-
-
-/*====================================================
- GENERER UN IDENTIFIANT UNIQUE
-====================================================*/
-
-function genererId() {
-
-    return (
-        Date.now() +
-        Math.floor(
-            Math.random() * 1000
-        )
-    );
-
-}
-
-
-/*====================================================
- CHARGER LES VENTES
-
- C'est l'unique fonction officielle
- pour récupérer les ventes.
-====================================================*/
+/*==================================================
+LECTURE DES VENTES
+==================================================*/
 
 function obtenirVentes() {
 
-    ventes =
-        lireDonnees(
+    return JSON.parse(
+        localStorage.getItem(
             CLE_VENTES
-        );
-
-    return ventes;
-
-}
-
-
-/*====================================================
- TROUVER UNE VENTE
-====================================================*/
-
-function trouverVente(id) {
-
-    const toutesLesVentes =
-        obtenirVentes();
-
-    return toutesLesVentes.find(
-        vente =>
-            String(vente.id) ===
-            String(id)
-    );
-
-}
-
-
-/*====================================================
- CHARGER LES PRODUITS
-====================================================*/
-
-function obtenirProduits() {
-
-    return lireDonnees(
-        CLE_PRODUITS
-    );
-
-}
-
-
-/*====================================================
- TROUVER UN PRODUIT
-
- La vente peut contenir :
- - produitId
- OU
- - produit = nom du produit
-
- Nous acceptons les deux systèmes
- pour rester compatible avec les
- données déjà enregistrées.
-====================================================*/
-
-function trouverIndexProduit(
-    produits,
-    vente
-) {
-
-    if (
-        vente.produitId !== undefined &&
-        vente.produitId !== null &&
-        vente.produitId !== ""
-    ) {
-
-        const indexParId =
-            produits.findIndex(
-                produit =>
-                    String(produit.id) ===
-                    String(vente.produitId)
-            );
-
-        if (indexParId !== -1) {
-
-            return indexParId;
-
-        }
-
-    }
-
-
-    const nomProduit =
-        String(
-            vente.produit || ""
         )
-        .trim()
-        .toLowerCase();
+    ) || [];
+
+}
 
 
-    return produits.findIndex(
-        produit => {
+/*==================================================
+ENREGISTRER LES VENTES
+==================================================*/
 
-            const nom =
-                String(
-                    produit.nom ||
-                    produit.produit ||
-                    produit.name ||
-                    ""
-                )
-                .trim()
-                .toLowerCase();
+function enregistrerVentes(ventes) {
 
-            return nom === nomProduit;
-
-        }
+    localStorage.setItem(
+        CLE_VENTES,
+        JSON.stringify(ventes)
     );
 
 }
 
 
-/*====================================================
- AJOUTER UNE QUANTITE AU STOCK
+/*==================================================
+LECTURE DES PRODUITS
+==================================================*/
 
- Utilisé uniquement lors de
- l'annulation d'une vente.
+function obtenirProduitsVente() {
 
- Exemple :
-
- Stock avant vente : 20
- Vente : 4
- Stock après vente : 16
-
- Annulation :
- Stock revient à 20
-====================================================*/
-
-function remettreStockApresAnnulation(
-    vente
-) {
-
-    const produits =
-        obtenirProduits();
-
-
-    const indexProduit =
-        trouverIndexProduit(
-            produits,
-            vente
-        );
-
-
-    if (indexProduit === -1) {
-
-        alert(
-            "Produit introuvable.\n\n" +
-            "Impossible de remettre le stock après l'annulation."
-        );
-
-        return false;
-
-    }
-
-
-    const quantite =
-        Number(
-            vente.quantite
-        );
-
-
-    if (
-        !Number.isFinite(quantite) ||
-        quantite <= 0
-    ) {
-
-        alert(
-            "Quantité de vente invalide."
-        );
-
-        return false;
-
-    }
-
-
-    const stockActuel =
-        Number(
-            produits[indexProduit].stock
-        ) || 0;
-
-
-    produits[indexProduit].stock =
-        stockActuel +
-        quantite;
-
-
-    const sauvegarde =
-        enregistrerDonnees(
-            CLE_PRODUITS,
-            produits
-        );
-
-
-    if (!sauvegarde) {
-
-        return false;
-
-    }
-
-
-    enregistrerMouvementStock({
-        id: genererId(),
-
-        date: new Date()
-            .toISOString(),
-
-        produitId:
-            produits[indexProduit].id,
-
-        produit:
-            produits[indexProduit].nom ||
-            vente.produit,
-
-        type:
-            "Entrée",
-
-        nature:
-            "Annulation vente",
-
-        quantite:
-            quantite,
-
-        prix:
-            Number(vente.prix) || 0,
-
-        montant:
-            Number(vente.total) || 0,
-
-        reference:
-            "VENTE-" +
-            vente.id,
-
-        observation:
-            "Remise en stock suite à l'annulation de la vente.",
-
-        utilisateur:
-            "Administrateur"
-    });
-
-
-    return true;
+    return JSON.parse(
+        localStorage.getItem(
+            CLE_PRODUITS_VENTES
+        )
+    ) || [];
 
 }
 
 
-/*====================================================
- ENREGISTRER UN MOUVEMENT DE STOCK
-====================================================*/
+/*==================================================
+DATE DU JOUR
+==================================================*/
 
-function enregistrerMouvementStock(
-    mouvement
-) {
+function obtenirDateVente() {
 
-    const mouvements =
-        lireDonnees(
-            CLE_MOUVEMENTS_STOCK
-        );
+    const maintenant = new Date();
 
+    const annee =
+        maintenant.getFullYear();
 
-    mouvements.push(
-        mouvement
-    );
+    const mois =
+        String(
+            maintenant.getMonth() + 1
+        ).padStart(2, "0");
 
+    const jour =
+        String(
+            maintenant.getDate()
+        ).padStart(2, "0");
 
-    return enregistrerDonnees(
-        CLE_MOUVEMENTS_STOCK,
-        mouvements
-    );
-
-}
-
-/*====================================================
- DIMINUER LE STOCK APRES UNE VENTE
-====================================================*/
-
-function retirerStockApresVente(vente) {
-
-    const produits =
-        obtenirProduits();
-
-
-    const indexProduit =
-        trouverIndexProduit(
-            produits,
-            vente
-        );
-
-
-    if (indexProduit === -1) {
-
-        alert(
-            "Produit introuvable dans le stock.\n\n" +
-            "La vente ne peut pas être enregistrée."
-        );
-
-        return false;
-
-    }
-
-
-    const quantiteVendue =
-        Number(vente.quantite);
-
-
-    const stockActuel =
-        Number(
-            produits[indexProduit].stock
-        ) || 0;
-
-
-    /*--------------------------------------------
-     VERIFICATION DU STOCK
-    --------------------------------------------*/
-
-    if (
-        !Number.isFinite(quantiteVendue) ||
-        quantiteVendue <= 0
-    ) {
-
-        alert(
-            "La quantité de vente est invalide."
-        );
-
-        return false;
-
-    }
-
-
-    if (
-        stockActuel < quantiteVendue
-    ) {
-
-        alert(
-            "Stock insuffisant.\n\n" +
-            "Stock disponible : " +
-            stockActuel +
-            "\nQuantité demandée : " +
-            quantiteVendue
-        );
-
-        return false;
-
-    }
-
-
-    /*--------------------------------------------
-     DIMINUTION DU STOCK
-    --------------------------------------------*/
-
-    produits[indexProduit].stock =
-        stockActuel -
-        quantiteVendue;
-
-
-    const sauvegarde =
-        enregistrerDonnees(
-            CLE_PRODUITS,
-            produits
-        );
-
-
-    if (!sauvegarde) {
-
-        return false;
-
-    }
-
-
-    /*--------------------------------------------
-     CREATION DU MOUVEMENT DE STOCK
-    --------------------------------------------*/
-
-    enregistrerMouvementStock({
-
-        id:
-            genererId(),
-
-        date:
-            new Date()
-                .toISOString(),
-
-        produitId:
-            produits[indexProduit].id,
-
-        produit:
-            produits[indexProduit].nom ||
-            vente.produit,
-
-        type:
-            "Sortie",
-
-        nature:
-            "Vente",
-
-        quantite:
-            quantiteVendue,
-
-        prix:
-            Number(vente.prix) || 0,
-
-        montant:
-            Number(vente.total) || 0,
-
-        reference:
-            "VENTE-" +
-            vente.id,
-
-        observation:
-            "Sortie de stock suite à une vente.",
-
-        utilisateur:
-            "Administrateur"
-
-    });
-
-
-    return true;
+    return annee + "-" + mois + "-" + jour;
 
 }
 
 
-/*====================================================
- CALCULER LE TOTAL DE LA VENTE
-====================================================*/
+/*==================================================
+FORMAT MONNAIE
+==================================================*/
 
-function calculerTotalVente() {
+function formatMonnaie(montant) {
 
-    const champQuantite =
+    return (
+        Number(montant) || 0
+    ).toLocaleString("fr-FR") + " FC";
+
+}
+
+
+/*==================================================
+INITIALISATION
+==================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        chargerProduitsVente();
+
+        initialiserFormulaireVente();
+
+        chargerVentes();
+
+        initialiserRechercheVentes();
+
+        initialiserFiltreDate();
+
+    }
+);
+
+
+/*==================================================
+CHARGER PRODUITS DANS LE FORMULAIRE
+==================================================*/
+
+function chargerProduitsVente() {
+
+    const select =
         document.getElementById(
-            "quantite"
+            "produit"
         );
 
-    const champPrix =
-        document.getElementById(
-            "prix"
-        );
-
-    const champRemise =
-        document.getElementById(
-            "remise"
-        );
-
-    const affichageTotal =
-        document.getElementById(
-            "total"
-        );
-
-
-    if (
-        !champQuantite ||
-        !champPrix ||
-        !champRemise ||
-        !affichageTotal
-    ) {
+    if (!select) {
 
         return;
 
     }
 
+    const produits =
+        obtenirProduitsVente();
 
-    const quantite =
-        Number(
-            champQuantite.value
-        ) || 0;
+    select.innerHTML = `
+        <option value="">
+            Sélectionner un produit
+        </option>
+    `;
 
-    const prix =
-        Number(
-            champPrix.value
-        ) || 0;
+    produits.forEach(
+        produit => {
 
-    const remise =
-        Number(
-            champRemise.value
-        ) || 0;
+            const stock =
+                Number(produit.stock) || 0;
 
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-    let total =
-        (quantite * prix) -
-        remise;
+            option.value =
+                produit.id;
 
+            option.textContent =
+                `${produit.nom} — Stock : ${stock} ${produit.unite || ""}`;
 
-    if (total < 0) {
+            option.dataset.prix =
+                Number(
+                    produit.prixVente ||
+                    produit.prix ||
+                    0
+                );
 
-        total = 0;
+            option.dataset.stock =
+                stock;
 
-    }
+            select.appendChild(
+                option
+            );
 
-
-    affichageTotal.textContent =
-        formatFC(total);
+        }
+    );
 
 }
 
 
-/*====================================================
- INITIALISER LE FORMULAIRE
- DE NOUVELLE VENTE
-====================================================*/
+/*==================================================
+INITIALISER FORMULAIRE VENTE
+==================================================*/
 
-function initialiserNouvelleVente() {
+function initialiserFormulaireVente() {
 
     const formulaire =
         document.getElementById(
             "venteForm"
         );
-
-
-    /*--------------------------------------------
-     Cette page n'est pas nouvelle.html
-    --------------------------------------------*/
 
     if (!formulaire) {
 
@@ -747,121 +239,132 @@ function initialiserNouvelleVente() {
             "date"
         );
 
+    const total =
+        document.getElementById(
+            "total"
+        );
 
-    /*--------------------------------------------
-     DATE DU JOUR
-    --------------------------------------------*/
+
+    /*------------------------------------------
+    DATE PAR DEFAUT
+    ------------------------------------------*/
 
     if (date && !date.value) {
 
-        const maintenant =
-            new Date();
-
-        const annee =
-            maintenant.getFullYear();
-
-        const mois =
-            String(
-                maintenant.getMonth() + 1
-            ).padStart(
-                2,
-                "0"
-            );
-
-        const jour =
-            String(
-                maintenant.getDate()
-            ).padStart(
-                2,
-                "0"
-            );
-
-
         date.value =
-            annee +
-            "-" +
-            mois +
-            "-" +
-            jour;
+            obtenirDateVente();
 
     }
 
 
-    /*--------------------------------------------
-     CALCUL AUTOMATIQUE DU TOTAL
-    --------------------------------------------*/
+    /*------------------------------------------
+    CALCUL TOTAL
+    ------------------------------------------*/
 
-    if (quantite) {
+    function calculerTotal() {
 
-        quantite.addEventListener(
-            "input",
-            calculerTotalVente
-        );
+        const qte =
+            Number(
+                quantite.value
+            ) || 0;
+
+        const prixUnitaire =
+            Number(
+                prix.value
+            ) || 0;
+
+        const montantRemise =
+            Number(
+                remise.value
+            ) || 0;
+
+        let montant =
+            qte *
+            prixUnitaire;
+
+        montant =
+            montant -
+            montantRemise;
+
+        if (montant < 0) {
+
+            montant = 0;
+
+        }
+
+        total.textContent =
+            formatMonnaie(
+                montant
+            );
+
+        return montant;
 
     }
 
 
-    if (prix) {
+    /*------------------------------------------
+    PRODUIT CHANGE
+    ------------------------------------------*/
 
-        prix.addEventListener(
-            "input",
-            calculerTotalVente
-        );
+    produit.addEventListener(
+        "change",
+        function () {
 
-    }
+            const option =
+                produit.options[
+                    produit.selectedIndex
+                ];
+
+            if (!option.value) {
+
+                prix.value = "";
+
+                calculerTotal();
+
+                return;
+
+            }
+
+            prix.value =
+                option.dataset.prix || 0;
+
+            calculerTotal();
+
+        }
+    );
 
 
-    if (remise) {
-
-        remise.addEventListener(
-            "input",
-            calculerTotalVente
-        );
-
-    }
+    quantite.addEventListener(
+        "input",
+        calculerTotal
+    );
 
 
-    calculerTotalVente();
+    prix.addEventListener(
+        "input",
+        calculerTotal
+    );
 
 
-    /*--------------------------------------------
-     ENREGISTREMENT DE LA VENTE
-    --------------------------------------------*/
+    remise.addEventListener(
+        "input",
+        calculerTotal
+    );
+
+
+    /*------------------------------------------
+    ENREGISTRER LA VENTE
+    ------------------------------------------*/
 
     formulaire.addEventListener(
         "submit",
-        function(event) {
+        function (event) {
 
             event.preventDefault();
 
 
-            const nomClient =
-                client.value.trim();
-
-           const produitId =
-    produit.value.trim();
-
-
-const produits =
-    obtenirProduits();
-
-
-const produitSelectionne =
-    produits.find(
-        p =>
-            String(p.id) ===
-            String(produitId)
-    );
-
-
-const nomProduit =
-    produitSelectionne
-        ? (
-            produitSelectionne.nom ||
-            produitSelectionne.produit ||
-            ""
-        )
-        : "";
+            const idProduit =
+                produit.value;
 
             const quantiteVendue =
                 Number(
@@ -879,24 +382,9 @@ const nomProduit =
                 ) || 0;
 
 
-            /*--------------------------------
-             VALIDATION
-            --------------------------------*/
+            /* VALIDATION PRODUIT */
 
-            if (!nomClient) {
-
-                alert(
-                    "Veuillez saisir le nom du client."
-                );
-
-                client.focus();
-
-                return;
-
-            }
-
-
-            if (!nomProduit) {
+            if (!idProduit) {
 
                 alert(
                     "Veuillez sélectionner un produit."
@@ -908,6 +396,8 @@ const nomProduit =
 
             }
 
+
+            /* VALIDATION QUANTITE */
 
             if (
                 !Number.isFinite(
@@ -927,6 +417,8 @@ const nomProduit =
             }
 
 
+            /* VALIDATION PRIX */
+
             if (
                 !Number.isFinite(
                     prixUnitaire
@@ -935,7 +427,7 @@ const nomProduit =
             ) {
 
                 alert(
-                    "Veuillez saisir un prix valide."
+                    "Le prix est invalide."
                 );
 
                 prix.focus();
@@ -945,23 +437,70 @@ const nomProduit =
             }
 
 
-            if (montantRemise < 0) {
+            /* RECHERCHER PRODUIT */
 
-                alert(
-                    "La remise ne peut pas être négative."
+            const produits =
+                obtenirProduitsVente();
+
+            const produitSelectionne =
+                produits.find(
+                    p =>
+                        String(p.id) ===
+                        String(idProduit)
                 );
 
-                remise.focus();
+
+            if (!produitSelectionne) {
+
+                alert(
+                    "Produit introuvable."
+                );
 
                 return;
 
             }
 
 
-            let montantTotal =
-                (quantiteVendue * prixUnitaire) -
-                montantRemise;
+            /* VERIFIER STOCK */
 
+            const stockDisponible =
+                Number(
+                    produitSelectionne.stock
+                ) || 0;
+
+
+            if (
+                quantiteVendue >
+                stockDisponible
+            ) {
+
+                alert(
+                    "Stock insuffisant.\n\n" +
+                    "Produit : " +
+                    produitSelectionne.nom +
+                    "\nStock disponible : " +
+                    stockDisponible +
+                    " " +
+                    (
+                        produitSelectionne.unite ||
+                        ""
+                    )
+                );
+
+                return;
+
+            }
+
+
+            /* CALCUL TOTAL */
+
+            let montantTotal =
+                quantiteVendue *
+                prixUnitaire;
+
+            montantTotal =
+                montantTotal -
+                montantRemise;
 
             if (montantTotal < 0) {
 
@@ -969,307 +508,36 @@ const nomProduit =
 
             }
 
-         /*--------------------------------
-    VERIFIER LE STOCK
---------------------------------*/
 
-const verificationStock =
-    verifierStockDisponible(
-        produitId,
-        quantiteVendue
-    );
+            /* CREATION VENTE */
 
-if (!verificationStock.disponible) {
-
-    alert(
-        "Stock insuffisant !\n\n" +
-        "Produit : " +
-        nomProduit +
-        "\n\nStock disponible : " +
-        verificationStock.stockDisponible
-    );
-
-    return;
-
-}
-
-
-/*--------------------------------
-    CREATION DE LA VENTE
---------------------------------*/
-
-const vente = {
-
-    id:
-        Date.now(),
-
-    date:
-        date.value,
-
-    client:
-        nomClient,
-
-    telephone:
-        telephone.value.trim(),
-
-    produitId:
-        produitId,
-
-    produit:
-        nomProduit,
-
-    quantite:
-        quantiteVendue,
-
-    prix:
-        prixUnitaire,
-
-    remise:
-        montantRemise,
-
-    total:
-        montantTotal,
-
-    paiement:
-        paiement.value,
-
-    statut:
-        "Validée"
-
-};
-
-
-/*--------------------------------
-    RECUPERER LES VENTES
---------------------------------*/
-
-const ventes =
-    obtenirVentes();
-
-
-/*--------------------------------
-    AJOUTER LA NOUVELLE VENTE
---------------------------------*/
-
-ventes.push(
-    vente
-);
-
-
-/*--------------------------------
-    ENREGISTRER LES VENTES
---------------------------------*/
-
-localStorage.setItem(
-
-    "ventes",
-
-    JSON.stringify(
-        ventes
-    )
-
-);
-
-
-/*--------------------------------
-    DIMINUER LE STOCK
---------------------------------*/
-
-diminuerStock(
-
-    produitId,
-
-    quantiteVendue
-
-);
-
-
-/*--------------------------------
-    MESSAGE DE CONFIRMATION
---------------------------------*/
-
-alert(
-
-    "Vente enregistrée avec succès !\n\n" +
-
-    "Client : " +
-    nomClient +
-
-    "\nProduit : " +
-    nomProduit +
-
-    "\nQuantité : " +
-    quantiteVendue +
-
-    "\nTotal : " +
-    montantTotal.toLocaleString() +
-    " FC"
-
-);
-
-         /*====================================================
-    OBTENIR LES VENTES
-====================================================*/
-
-function obtenirVentes() {
-
-    const donnees =
-        localStorage.getItem(
-            "ventes"
-        );
-
-    if (!donnees) {
-
-        return [];
-
-    }
-
-    try {
-
-        return JSON.parse(
-            donnees
-        );
-
-    } catch (erreur) {
-
-        console.error(
-            "Erreur lecture ventes :",
-            erreur
-        );
-
-        return [];
-
-    }
-
-}
-
- /*====================================================
-    VERIFIER LE STOCK DISPONIBLE
-====================================================*/
-
-function verifierStockDisponible(
-
-    produitId,
-
-    quantiteDemandee
-
-) {
-
-    const produits =
-        obtenirProduits();
-
-    const produit =
-        produits.find(
-
-            p =>
-
-                String(p.id) ===
-                String(produitId)
-
-        );
-
-
-    if (!produit) {
-
-        return {
-
-            disponible: false,
-
-            stockDisponible: 0
-
-        };
-
-    }
-
-
-    const stockDisponible =
-        Number(
-
-            produit.stock ||
-            produit.quantite ||
-            0
-
-        );
-
-
-    return {
-
-        disponible:
-
-            stockDisponible >=
-            quantiteDemandee,
-
-        stockDisponible:
-            stockDisponible
-
-    };
-
-}
-
-    /*--------------------------------
-        METTRE A JOUR LE PRODUIT
-    --------------------------------*/
-
-    produits[index].stock =
-        nouveauStock;
-
-
-    /*--------------------------------
-        ENREGISTRER
-    --------------------------------*/
-
-    localStorage.setItem(
-
-        "produits",
-
-        JSON.stringify(
-            produits
-        )
-
-    );
-
-
-    console.log(
-
-        "Stock mis à jour :",
-
-        produits[index]
-
-    );
-
-}
-
-
-            /*--------------------------------
-             CREATION DE LA VENTE
-            --------------------------------*/
-
-            const nouvelleVente = {
+            const vente = {
 
                 id:
-                    genererId(),
-
-                facture:
                     "VTE-" +
                     Date.now(),
 
                 date:
-                    date.value,
+                    date.value ||
+                    obtenirDateVente(),
 
                 client:
-                    nomClient,
+                    client.value.trim(),
 
                 telephone:
                     telephone.value.trim(),
 
-             produitId:
-    produitId,
+                produitId:
+                    produitSelectionne.id,
 
                 produit:
-                    nomProduit,
+                    produitSelectionne.nom,
 
                 quantite:
                     quantiteVendue,
+
+                unite:
+                    produitSelectionne.unite || "",
 
                 prix:
                     prixUnitaire,
@@ -1287,92 +555,75 @@ function verifierStockDisponible(
                     "Validée",
 
                 dateCreation:
-                    new Date()
-                        .toISOString()
+                    new Date().toISOString()
 
             };
 
 
-            /*--------------------------------
-             1. RETIRER LE STOCK
+            /*--------------------------------------
+            DIMINUER LE STOCK
+            --------------------------------------*/
 
-             Si cette opération échoue,
-             la vente n'est PAS enregistrée.
-            --------------------------------*/
+            if (
+                typeof retirerStockApresVente !==
+                "function"
+            ) {
+
+                alert(
+                    "Erreur : la fonction de gestion du stock est introuvable.\n\n" +
+                    "Vérifie que stocks.js est chargé avant ventes.js."
+                );
+
+                return;
+
+            }
+
 
             const stockRetire =
                 retirerStockApresVente(
-                    nouvelleVente
+                    vente
                 );
 
 
             if (!stockRetire) {
 
+                /*
+
+                IMPORTANT :
+
+                Le stock n'a pas été modifié
+                ou la quantité est insuffisante.
+
+                Donc la vente ne doit PAS
+                être enregistrée.
+
+                */
+
                 return;
 
             }
 
 
-            /*--------------------------------
-             2. ENREGISTRER LA VENTE
-            --------------------------------*/
+            /*--------------------------------------
+            ENREGISTRER LA VENTE
+            --------------------------------------*/
 
-            const toutesLesVentes =
+            const ventes =
                 obtenirVentes();
 
-
-            toutesLesVentes.push(
-                nouvelleVente
+            ventes.push(
+                vente
             );
 
+            enregistrerVentes(
+                ventes
+            );
 
-            const venteSauvegardee =
-                enregistrerDonnees(
-                    CLE_VENTES,
-                    toutesLesVentes
-                );
-
-
-            if (!venteSauvegardee) {
-
-                alert(
-                    "Erreur : le stock a été modifié, " +
-                    "mais la vente n'a pas pu être sauvegardée."
-                );
-
-                return;
-
-            }
-
-
-            /*--------------------------------
-             3. CONFIRMATION
-            --------------------------------*/
 
             alert(
-
-                "Vente enregistrée avec succès.\n\n" +
-
-                "Facture : " +
-                nouvelleVente.facture +
-
-                "\nProduit : " +
-                nouvelleVente.produit +
-
-                "\nQuantité : " +
-                nouvelleVente.quantite +
-
-                "\nTotal : " +
-                formatFC(
-                    nouvelleVente.total
-                )
-
+                "Vente enregistrée avec succès."
             );
 
-
-            /*--------------------------------
-             4. REDIRECTION
-            --------------------------------*/
 
             window.location.href =
                 "index.html";
@@ -1382,120 +633,10 @@ function verifierStockDisponible(
 
 }
 
-/*====================================================
- CHARGER LES PRODUITS DANS LE FORMULAIRE DE VENTE
-====================================================*/
 
-function chargerProduitsDansVente() {
-
-    const selectProduit =
-        document.getElementById(
-            "produit"
-        );
-
-
-    if (!selectProduit) {
-
-        return;
-
-    }
-
-
-    const produits =
-        obtenirProduits();
-
-
-    /*--------------------------------------------
-     VIDER LA LISTE
-    --------------------------------------------*/
-
-    selectProduit.innerHTML =
-
-        '<option value="">Sélectionner un produit</option>';
-
-
-    /*--------------------------------------------
-     AJOUTER LES PRODUITS
-    --------------------------------------------*/
-
-    produits.forEach(
-        function(produit) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-           option.value =
-              produit.id;
-
-
-            option.textContent =
-                produit.nom +
-                " — Stock : " +
-                (Number(produit.stock) || 0);
-
-
-            option.dataset.id =
-                produit.id;
-
-
-            option.dataset.prix =
-                produit.prix ||
-                produit.prixVente ||
-                0;
-
-
-            selectProduit.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    /*--------------------------------------------
-     CHARGER LE PRIX DU PRODUIT
-    --------------------------------------------*/
-
-    selectProduit.addEventListener(
-        "change",
-        function() {
-
-            const option =
-                selectProduit.options[
-                    selectProduit.selectedIndex
-                ];
-
-
-            const champPrix =
-                document.getElementById(
-                    "prix"
-                );
-
-
-            if (
-                champPrix &&
-                option.dataset.prix
-            ) {
-
-                champPrix.value =
-                    option.dataset.prix;
-
-            }
-
-
-            calculerTotalVente();
-
-        }
-    );
-
-}
-
-/*====================================================
- CHARGER ET AFFICHER LES VENTES
-====================================================*/
+/*==================================================
+CHARGER LES VENTES
+==================================================*/
 
 function chargerVentes() {
 
@@ -1504,136 +645,80 @@ function chargerVentes() {
             "tableVentes"
         );
 
-    const compteur =
-        document.getElementById(
-            "nombreVentes"
-        );
-
-
-    /*--------------------------------------------
-     Cette page n'est pas index.html
-    --------------------------------------------*/
-
     if (!table) {
 
         return;
 
     }
 
-
-    /*--------------------------------------------
-     RECUPERER TOUTES LES VENTES
-    --------------------------------------------*/
-
-    const toutesLesVentes =
+    const ventes =
         obtenirVentes();
 
-
-    /*--------------------------------------------
-     RECUPERER LES FILTRES
-    --------------------------------------------*/
-
-    const champRecherche =
+    const recherche =
         document.getElementById(
             "recherche"
         );
 
-    const champDate =
+    const filtreDate =
         document.getElementById(
             "filtreDate"
         );
 
 
-    const recherche =
-        champRecherche
-            ? champRecherche.value
+    const texteRecherche =
+        recherche
+            ? recherche.value
                 .trim()
                 .toLowerCase()
             : "";
 
-
-    const dateFiltre =
-        champDate
-            ? champDate.value
+    const dateRecherche =
+        filtreDate
+            ? filtreDate.value
             : "";
 
 
-    /*--------------------------------------------
-     FILTRER LES VENTES
-    --------------------------------------------*/
-
     const ventesFiltrees =
-        toutesLesVentes.filter(
+        ventes.filter(
             vente => {
 
-                const client =
+                const correspondRecherche =
+                    !texteRecherche ||
+
                     String(
                         vente.client || ""
-                    ).toLowerCase();
-
-
-                const produit =
-                    String(
-                        vente.produit || ""
-                    ).toLowerCase();
-
-
-                const correspondRecherche =
-
-                    !recherche ||
-
-                    client.includes(
-                        recherche
+                    )
+                    .toLowerCase()
+                    .includes(
+                        texteRecherche
                     ) ||
 
-                    produit.includes(
-                        recherche
+                    String(
+                        vente.produit || ""
+                    )
+                    .toLowerCase()
+                    .includes(
+                        texteRecherche
                     );
 
 
                 const correspondDate =
-
-                    !dateFiltre ||
-
-                    String(
-                        vente.date || ""
-                    ) === dateFiltre;
+                    !dateRecherche ||
+                    vente.date ===
+                    dateRecherche;
 
 
                 return (
-
                     correspondRecherche &&
-
                     correspondDate
-
                 );
 
             }
         );
 
 
-    /*--------------------------------------------
-     METTRE A JOUR LE COMPTEUR
-    --------------------------------------------*/
-
-    if (compteur) {
-
-        compteur.textContent =
-            ventesFiltrees.length;
-
-    }
-
-
-    /*--------------------------------------------
-     VIDER LE TABLEAU
-    --------------------------------------------*/
-
     table.innerHTML = "";
 
-
-    /*--------------------------------------------
-     AUCUNE VENTE
-    --------------------------------------------*/
 
     if (
         ventesFiltrees.length === 0
@@ -1641,357 +726,515 @@ function chargerVentes() {
 
         table.innerHTML = `
 
-            <tr>
+<tr>
 
-                <td
-                    colspan="9"
-                    class="text-center text-muted py-4"
-                >
+<td
+colspan="9"
+class="text-center text-muted py-4">
 
-                    <i class="fa-solid fa-circle-info"></i>
+Aucune vente trouvée.
 
-                    Aucune vente trouvée.
+</td>
 
-                </td>
+</tr>
 
-            </tr>
-
-        `;
-
-        return;
+`;
 
     }
 
 
-    /*--------------------------------------------
-     TRIER LES VENTES
-     Les plus récentes en premier
-    --------------------------------------------*/
+    ventesFiltrees
+        .slice()
+        .reverse()
+        .forEach(
+            vente => {
 
-    ventesFiltrees.sort(
-        function(a, b) {
+                let badgeStatut =
+                    "success";
 
-            const dateA =
-                new Date(
-                    a.dateCreation ||
-                    a.date ||
-                    0
-                );
+                if (
+                    vente.statut ===
+                    "Annulée"
+                ) {
 
-            const dateB =
-                new Date(
-                    b.dateCreation ||
-                    b.date ||
-                    0
-                );
+                    badgeStatut =
+                        "danger";
 
-            return dateB - dateA;
-
-        }
-    );
+                }
 
 
-    /*--------------------------------------------
-     AFFICHER CHAQUE VENTE
-    --------------------------------------------*/
+                table.innerHTML += `
 
-    ventesFiltrees.forEach(
-        function(vente, index) {
+<tr>
 
-            let classeStatut =
-                "bg-success";
+<td>
+${vente.id}
+</td>
 
+<td>
+${vente.date || ""}
+</td>
 
-            if (
-                vente.statut ===
-                "Annulée"
-            ) {
+<td>
+${vente.client || ""}
+</td>
 
-                classeStatut =
-                    "bg-danger";
+<td>
+${vente.produit || ""}
+</td>
+
+<td>
+${Number(
+    vente.quantite
+) || 0}
+</td>
+
+<td>
+${formatMonnaie(
+    vente.total
+)}
+</td>
+
+<td>
+${vente.paiement || ""}
+</td>
+
+<td>
+
+<span class="badge bg-${badgeStatut}">
+
+${vente.statut || ""}
+
+</span>
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="btn btn-primary btn-sm"
+onclick="voirVente('${vente.id}')"
+title="Voir">
+
+<i class="fa-solid fa-eye"></i>
+
+</button>
+
+<button
+type="button"
+class="btn btn-secondary btn-sm"
+onclick="imprimerFacture('${vente.id}')"
+title="Facture">
+
+<i class="fa-solid fa-print"></i>
+
+</button>
+
+${
+    vente.statut !== "Annulée"
+    ? `
+<button
+type="button"
+class="btn btn-danger btn-sm"
+onclick="annulerVente('${vente.id}')"
+title="Annuler">
+
+<i class="fa-solid fa-ban"></i>
+
+</button>
+`
+    : ""
+}
+
+</td>
+
+</tr>
+
+`;
 
             }
+        );
 
 
-            table.innerHTML += `
+    const nombreVentes =
+        document.getElementById(
+            "nombreVentes"
+        );
 
-                <tr>
+    if (nombreVentes) {
 
-                    <td>
+        nombreVentes.textContent =
+            ventesFiltrees.length;
 
-                        ${vente.facture || vente.id || index + 1}
-
-                    </td>
-
-
-                    <td>
-
-                        ${formatDate(
-                            vente.date
-                        )}
-
-                    </td>
-
-
-                    <td>
-
-                        ${vente.client || "-"}
-
-                    </td>
-
-
-                    <td>
-
-                        ${vente.produit || "-"}
-
-                    </td>
-
-
-                    <td>
-
-                        ${vente.quantite || 0}
-
-                    </td>
-
-
-                    <td>
-
-                        <strong>
-
-                            ${formatFC(
-                                vente.total
-                            )}
-
-                        </strong>
-
-                    </td>
-
-
-                    <td>
-
-                        ${vente.paiement || "-"}
-
-                    </td>
-
-
-                    <td>
-
-                        <span
-                            class="badge ${classeStatut}"
-                        >
-
-                            ${vente.statut ||
-                            "Validée"}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-primary"
-                            title="Détails"
-                            onclick="voirVente('${vente.id}')"
-                        >
-
-                            <i class="fa-solid fa-eye"></i>
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-success"
-                            title="Facture"
-                            onclick="ouvrirFacture('${vente.id}')"
-                        >
-
-                            <i class="fa-solid fa-file-invoice"></i>
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-warning"
-                            title="Annuler"
-                            onclick="annulerVente('${vente.id}')"
-                        >
-
-                            <i class="fa-solid fa-ban"></i>
-
-                        </button>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-    );
+    }
 
 }
 
 
-/*====================================================
- INITIALISER LA RECHERCHE
-====================================================*/
+/*==================================================
+RECHERCHE VENTES
+==================================================*/
 
-function initialiserFiltresVentes() {
+function initialiserRechercheVentes() {
 
-    const champRecherche =
+    const recherche =
         document.getElementById(
             "recherche"
         );
 
-    const champDate =
+    if (!recherche) {
+
+        return;
+
+    }
+
+    recherche.addEventListener(
+        "input",
+        chargerVentes
+    );
+
+}
+
+
+/*==================================================
+FILTRE DATE
+==================================================*/
+
+function initialiserFiltreDate() {
+
+    const filtreDate =
         document.getElementById(
             "filtreDate"
         );
 
-
-    /*--------------------------------------------
-     RECHERCHE CLIENT / PRODUIT
-    --------------------------------------------*/
-
-    if (champRecherche) {
-
-        champRecherche.addEventListener(
-            "input",
-            function() {
-
-                chargerVentes();
-
-            }
-        );
-
-    }
-
-
-    /*--------------------------------------------
-     FILTRE PAR DATE
-    --------------------------------------------*/
-
-    if (champDate) {
-
-        champDate.addEventListener(
-            "change",
-            function() {
-
-                chargerVentes();
-
-            }
-        );
-
-    }
-
-}
-
-
-/*====================================================
- AFFICHER LES DETAILS D'UNE VENTE
-====================================================*/
-
-function voirVente(id) {
-
-    const vente =
-        trouverVente(id);
-
-
-    if (!vente) {
-
-        alert(
-            "Vente introuvable."
-        );
+    if (!filtreDate) {
 
         return;
 
     }
 
-
-    /*
-     On mémorise l'ID de la vente,
-     puis on ouvre detail.html.
-    */
-
-    localStorage.setItem(
-        "venteSelectionnee",
-        String(id)
+    filtreDate.addEventListener(
+        "change",
+        chargerVentes
     );
-
-
-    window.location.href =
-        "detail.html?id=" +
-        encodeURIComponent(id);
 
 }
 
 
-/*====================================================
- OUVRIR LA FACTURE
-====================================================*/
+/*==================================================
+VOIR UNE VENTE
+==================================================*/
 
-function ouvrirFacture(id) {
+function voirVente(idVente) {
 
-    const vente =
-        trouverVente(id);
-
-
-    if (!vente) {
-
-        alert(
-            "Vente introuvable."
-        );
-
-        return;
-
-    }
-
-
-    /*
-     On mémorise l'ID,
-     puis on ouvre facture.html.
-    */
-
-    localStorage.setItem(
-        "venteSelectionnee",
-        String(id)
-    );
-
-
-    window.location.href =
-        "facture.html?id=" +
-        encodeURIComponent(id);
-
-}
-
-/*====================================================
- ANNULER UNE VENTE
-====================================================*/
-
-function annulerVente(id) {
-
-    const toutesLesVentes =
+    const ventes =
         obtenirVentes();
 
-
-    const indexVente =
-        toutesLesVentes.findIndex(
-            vente =>
-                String(vente.id) ===
-                String(id)
+    const vente =
+        ventes.find(
+            v =>
+                String(v.id) ===
+                String(idVente)
         );
 
 
-    /*--------------------------------------------
-     VERIFIER SI LA VENTE EXISTE
-    --------------------------------------------*/
+    if (!vente) {
 
-    if (indexVente === -1) {
+        alert(
+            "Vente introuvable."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+
+        "DÉTAILS DE LA VENTE\n\n" +
+
+        "ID : " +
+        vente.id +
+
+        "\nDate : " +
+        vente.date +
+
+        "\nClient : " +
+        vente.client +
+
+        "\nTéléphone : " +
+        (
+            vente.telephone ||
+            "-"
+        ) +
+
+        "\nProduit : " +
+        vente.produit +
+
+        "\nQuantité : " +
+        vente.quantite +
+        " " +
+        (
+            vente.unite ||
+            ""
+        ) +
+
+        "\nPrix unitaire : " +
+        formatMonnaie(
+            vente.prix
+        ) +
+
+        "\nRemise : " +
+        formatMonnaie(
+            vente.remise
+        ) +
+
+        "\nTotal : " +
+        formatMonnaie(
+            vente.total
+        ) +
+
+        "\nPaiement : " +
+        vente.paiement +
+
+        "\nStatut : " +
+        vente.statut
+
+    );
+
+}
+
+
+/*==================================================
+IMPRIMER FACTURE
+==================================================*/
+
+function imprimerFacture(idVente) {
+
+    const ventes =
+        obtenirVentes();
+
+    const vente =
+        ventes.find(
+            v =>
+                String(v.id) ===
+                String(idVente)
+        );
+
+
+    if (!vente) {
+
+        alert(
+            "Vente introuvable."
+        );
+
+        return;
+
+    }
+
+
+    const facture =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    facture.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Facture ${vente.id}
+</title>
+
+<style>
+
+body{
+
+font-family:Arial,sans-serif;
+
+padding:40px;
+
+}
+
+h1{
+
+margin-bottom:5px;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+margin-top:30px;
+
+}
+
+th,
+td{
+
+border:1px solid #000;
+
+padding:10px;
+
+text-align:left;
+
+}
+
+.total{
+
+margin-top:20px;
+
+font-size:20px;
+
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+FERME ASHER ERP
+</h1>
+
+<p>
+
+<strong>Facture :</strong>
+
+${vente.id}
+
+</p>
+
+<p>
+
+<strong>Date :</strong>
+
+${vente.date}
+
+</p>
+
+<p>
+
+<strong>Client :</strong>
+
+${vente.client}
+
+</p>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Produit</th>
+
+<th>Quantité</th>
+
+<th>Prix</th>
+
+<th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>
+${vente.produit}
+</td>
+
+<td>
+${vente.quantite}
+${vente.unite || ""}
+</td>
+
+<td>
+${formatMonnaie(
+    vente.prix
+)}
+</td>
+
+<td>
+${formatMonnaie(
+    vente.total
+)}
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p class="total">
+
+TOTAL :
+
+${formatMonnaie(
+    vente.total
+)}
+
+</p>
+
+<script>
+
+window.onload = function(){
+
+window.print();
+
+};
+
+<\/script>
+
+</body>
+
+</html>
+
+`);
+
+
+    facture.document.close();
+
+}
+
+
+/*==================================================
+ANNULER UNE VENTE
+==================================================*/
+
+function annulerVente(idVente) {
+
+    const ventes =
+        obtenirVentes();
+
+    const index =
+        ventes.findIndex(
+            vente =>
+                String(vente.id) ===
+                String(idVente)
+        );
+
+
+    if (index === -1) {
 
         alert(
             "Vente introuvable."
@@ -2003,12 +1246,12 @@ function annulerVente(id) {
 
 
     const vente =
-        toutesLesVentes[indexVente];
+        ventes[index];
 
 
-    /*--------------------------------------------
-     PROTECTION CONTRE DOUBLE ANNULATION
-    --------------------------------------------*/
+    /*------------------------------------------
+    PROTECTION DOUBLE ANNULATION
+    ------------------------------------------*/
 
     if (
         vente.statut ===
@@ -2024,30 +1267,12 @@ function annulerVente(id) {
     }
 
 
-    /*--------------------------------------------
-     CONFIRMATION
-    --------------------------------------------*/
-
     const confirmation =
         confirm(
 
             "Voulez-vous vraiment annuler cette vente ?\n\n" +
 
-            "Client : " +
-            vente.client +
-
-            "\nProduit : " +
-            vente.produit +
-
-            "\nQuantité : " +
-            vente.quantite +
-
-            "\nTotal : " +
-            formatFC(
-                vente.total
-            ) +
-
-            "\n\nLe stock sera automatiquement remis."
+            "Le stock sera remis automatiquement."
 
         );
 
@@ -2059,9 +1284,24 @@ function annulerVente(id) {
     }
 
 
-    /*--------------------------------------------
-     REMETTRE LE PRODUIT EN STOCK
-    --------------------------------------------*/
+    /*------------------------------------------
+    REMETTRE LE STOCK
+    ------------------------------------------*/
+
+    if (
+        typeof remettreStockApresAnnulation !==
+        "function"
+    ) {
+
+        alert(
+            "Erreur : la fonction de remise du stock est introuvable.\n\n" +
+            "Vérifie que stocks.js est chargé avant ventes.js."
+        );
+
+        return;
+
+    }
+
 
     const stockRemis =
         remettreStockApresAnnulation(
@@ -2072,8 +1312,7 @@ function annulerVente(id) {
     if (!stockRemis) {
 
         alert(
-            "L'annulation a été arrêtée car " +
-            "le stock n'a pas pu être remis."
+            "Impossible de remettre le stock."
         );
 
         return;
@@ -2081,167 +1320,38 @@ function annulerVente(id) {
     }
 
 
-    /*--------------------------------------------
-     MODIFIER LE STATUT
-    --------------------------------------------*/
+    /*------------------------------------------
+    CHANGER LE STATUT
+    ------------------------------------------*/
 
-    toutesLesVentes[
-        indexVente
-    ].statut =
+    ventes[index].statut =
         "Annulée";
 
-
-    toutesLesVentes[
-        indexVente
-    ].dateAnnulation =
+    ventes[index].dateAnnulation =
         new Date()
             .toISOString();
 
 
-    /*--------------------------------------------
-     SAUVEGARDER LA VENTE ANNULÉE
-    --------------------------------------------*/
-
-    const sauvegarde =
-        enregistrerDonnees(
-            CLE_VENTES,
-            toutesLesVentes
-        );
+    enregistrerVentes(
+        ventes
+    );
 
 
-    if (!sauvegarde) {
+    alert(
+        "Vente annulée.\n\n" +
+        "Le stock a été remis."
+    );
 
-        alert(
-            "Attention : le stock a été remis, " +
-            "mais le statut de la vente n'a pas pu être sauvegardé."
-        );
-
-        return;
-
-    }
-
-
-    /*--------------------------------------------
-     ENREGISTRER L'HISTORIQUE
-    --------------------------------------------*/
-
-    enregistrerHistoriqueVente({
-
-        id:
-            genererId(),
-
-        date:
-            new Date()
-                .toISOString(),
-
-        action:
-            "Annulation",
-
-        venteId:
-            vente.id,
-
-        facture:
-            vente.facture,
-
-        client:
-            vente.client,
-
-        produit:
-            vente.produit,
-
-        quantite:
-            vente.quantite,
-
-        montant:
-            vente.total,
-
-        observation:
-            "Vente annulée et stock remis automatiquement."
-
-    });
-
-
-    /*--------------------------------------------
-     METTRE A JOUR LA LISTE
-    --------------------------------------------*/
 
     chargerVentes();
 
-
-    /*--------------------------------------------
-     CONFIRMATION
-    --------------------------------------------*/
-
-    alert(
-
-        "Vente annulée avec succès.\n\n" +
-
-        "Le produit a été remis en stock."
-
-    );
-
 }
 
 
-/*====================================================
- ENREGISTRER HISTORIQUE DES VENTES
-====================================================*/
+/*==================================================
+FIN
+==================================================*/
 
-function enregistrerHistoriqueVente(
-    historique
-) {
-
-    const CLE_HISTORIQUE_VENTES =
-        "historiqueVentes";
-
-
-    const historiqueVentes =
-        lireDonnees(
-            CLE_HISTORIQUE_VENTES
-        );
-
-
-    historiqueVentes.push(
-        historique
-    );
-
-
-    return enregistrerDonnees(
-        CLE_HISTORIQUE_VENTES,
-        historiqueVentes
-    );
-
-}
-
-/*====================================================
- DEMARRAGE AUTOMATIQUE DU MODULE
-====================================================*/
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        /*----------------------------------------
-         CHARGER LES PRODUITS
-        ----------------------------------------*/
-
-        chargerProduitsDansVente();
-
-
-        /*----------------------------------------
-         PAGE : nouvelle.html
-        ----------------------------------------*/
-
-        initialiserNouvelleVente();
-
-
-        /*----------------------------------------
-         PAGE : index.html
-        ----------------------------------------*/
-
-        initialiserFiltresVentes();
-
-        chargerVentes();
-
-    }
+console.log(
+    "Ferme Asher ERP - Ventes.js Version 2.0 chargé."
 );
