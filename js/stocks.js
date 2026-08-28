@@ -1886,7 +1886,61 @@ function chargerHistorique() {
             }
         );
 
+/*==================================================
+FILTRES HISTORIQUE
+==================================================*/
 
+function initialiserFiltresHistorique() {
+
+    const date =
+        document.getElementById(
+            "filtreDate"
+        );
+
+
+    const produit =
+        document.getElementById(
+            "filtreProduit"
+        );
+
+
+    const type =
+        document.getElementById(
+            "filtreType"
+        );
+
+
+    if (date) {
+
+        date.addEventListener(
+            "change",
+            chargerHistorique
+        );
+
+    }
+
+
+    if (produit) {
+
+        produit.addEventListener(
+            "input",
+            chargerHistorique
+        );
+
+    }
+
+
+    if (type) {
+
+        type.addEventListener(
+            "change",
+            chargerHistorique
+        );
+
+    }
+
+}
+    
     /*==================================================
     TRI DU PLUS RECENT AU PLUS ANCIEN
     ==================================================*/
