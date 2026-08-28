@@ -1,1 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Incubation | Ferme Asher ERP</title>
+
+    <link rel="stylesheet" href="../../css/style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- EN-TÊTE -->
+    <div class="module-header">
+
+        <div>
+            <h1>
+                <i class="fa-solid fa-egg"></i>
+                Gestion Incubation
+            </h1>
+
+            <p>
+                Gérez les œufs incubés, les couveuses et les éclosions.
+            </p>
+        </div>
+
+        <a href="index.html" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour à l'élevage
+        </a>
+
+    </div>
+
+
+    <!-- STATISTIQUES -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div>
+                <p>Incubations actives</p>
+
+                <h2 id="incubationsActives">
+                    0
+                </h2>
+            </div>
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-egg"></i>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div>
+                <p>Œufs en incubation</p>
+
+                <h2 id="oeufsIncubation">
+                    0
+                </h2>
+            </div>
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-box"></i>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div>
+                <p>Éclosions prévues</p>
+
+                <h2 id="eclosionsPrevues">
+                    0
+                </h2>
+            </div>
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div>
+                <p>Poussins éclos</p>
+
+                <h2 id="poussinsEclos">
+                    0
+                </h2>
+            </div>
+
+            <div class="stat-icon">
+                <i class="fa-solid fa-feather"></i>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="section-header">
+
+        <div>
+            <h2>
+                <i class="fa-solid fa-egg"></i>
+                Incubations
+            </h2>
+
+            <p>
+                Créez et suivez vos lots d'incubation.
+            </p>
+        </div>
+
+
+        <button
+            class="btn-primary"
+            onclick="ouvrirFormulaireIncubation()">
+
+            <i class="fa-solid fa-plus"></i>
+            Nouvelle incubation
+
+        </button>
+
+    </div>
+
+
+    <!-- TABLEAU -->
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Espèce</th>
+
+                    <th>Lot</th>
+
+                    <th>Couveuse</th>
+
+                    <th>Œufs</th>
+
+                    <th>Date entrée</th>
+
+                    <th>Éclosion prévue</th>
+
+                    <th>Statut</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="listeIncubations">
+
+                <!-- Les incubations apparaîtront ici -->
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- MODAL NOUVELLE INCUBATION -->
+
+<div
+    id="modalIncubation"
+    class="modal">
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <h2>
+                <i class="fa-solid fa-egg"></i>
+                Nouvelle incubation
+            </h2>
+
+
+            <button
+                class="close-btn"
+                onclick="fermerFormulaireIncubation()">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+
+        <form id="formIncubation">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Espèce
+                    </label>
+
+                    <select
+                        id="incubationEspece"
+                        required>
+
+                        <option value="">
+                            Sélectionner
+                        </option>
+
+                        <option value="Cailles">
+                            Cailles
+                        </option>
+
+                        <option value="Poules">
+                            Poules
+                        </option>
+
+                        <option value="Canards">
+                            Canards
+                        </option>
+
+                        <option value="Pintades">
+                            Pintades
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Lot d'origine
+                    </label>
+
+                    <input
+                        type="text"
+                        id="incubationLot"
+                        placeholder="Exemple : LOT-CAILLE-001"
+                        required>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Couveuse
+                    </label>
+
+                    <select
+                        id="incubationCouveuse"
+                        required>
+
+                        <option value="">
+                            Sélectionner une couveuse
+                        </option>
+
+                        <option value="Couveuse 1056 œufs">
+                            Couveuse 1056 œufs
+                        </option>
+
+                        <option value="Couveuse 01">
+                            Couveuse 01
+                        </option>
+
+                        <option value="Couveuse 02">
+                            Couveuse 02
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Nombre d'œufs
+                    </label>
+
+                    <input
+                        type="number"
+                        id="incubationOeufs"
+                        min="1"
+                        required>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Date d'entrée
+                    </label>
+
+                    <input
+                        type="date"
+                        id="incubationDate"
+                        required>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Durée d'incubation (jours)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="incubationDuree"
+                        placeholder="17"
+                        required>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fermerFormulaireIncubation()">
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Enregistrer
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- MODAL SUIVI INCUBATION -->
+
+<div
+    id="modalSuiviIncubation"
+    class="modal">
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <h2>
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Suivi incubation
+            </h2>
+
+
+            <button
+                class="close-btn"
+                onclick="fermerSuiviIncubation()">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <form id="formSuiviIncubation">
+
+
+            <input
+                type="hidden"
+                id="suiviIncubationId">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Œufs retirés
+                    </label>
+
+                    <input
+                        type="number"
+                        id="oeufsRetires"
+                        value="0"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Œufs non fécondés
+                    </label>
+
+                    <input
+                        type="number"
+                        id="oeufsNonFecondes"
+                        value="0"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Embryons morts
+                    </label>
+
+                    <input
+                        type="number"
+                        id="embryonsMorts"
+                        value="0"
+                        min="0">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Poussins éclos
+                    </label>
+
+                    <input
+                        type="number"
+                        id="poussinsEclosInput"
+                        value="0"
+                        min="0">
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="fermerSuiviIncubation()">
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Enregistrer le suivi
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+
+<script src="../../js/elevage.js"></script>
+
+</body>
+</html>
