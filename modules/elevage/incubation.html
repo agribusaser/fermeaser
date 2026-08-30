@@ -5,40 +5,55 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Incubation | Ferme Asher ERP</title>
 
+
     <!-- BOOTSTRAP -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
 
     <!-- STYLE APPLICATION -->
-    <link rel="stylesheet" href="../../css/style.css">
+
+    <link
+        rel="stylesheet"
+        href="../../css/style.css">
+
 
     <!-- FONT AWESOME -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
 
 <body>
 
+
 <div class="container-fluid py-4">
 
 
-    <!-- =========================
+    <!-- =====================================================
          EN-TÊTE
-    ========================== -->
+    ====================================================== -->
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
 
             <h2>
+
                 <i class="fa-solid fa-egg text-success"></i>
+
                 Gestion Incubation
+
             </h2>
 
             <p class="text-muted mb-0">
@@ -50,8 +65,9 @@
         </div>
 
 
-        <a href="index.html"
-           class="btn btn-secondary">
+        <a
+            href="index.html"
+            class="btn btn-secondary">
 
             <i class="fa-solid fa-arrow-left"></i>
 
@@ -63,9 +79,9 @@
 
 
 
-    <!-- =========================
+    <!-- =====================================================
          STATISTIQUES
-    ========================== -->
+    ====================================================== -->
 
     <div class="row mb-4">
 
@@ -76,7 +92,10 @@
 
             <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body
+                            d-flex
+                            justify-content-between
+                            align-items-center">
 
                     <div>
 
@@ -95,7 +114,9 @@
                     </div>
 
 
-                    <i class="fa-solid fa-egg fa-2x text-success"></i>
+                    <i class="fa-solid fa-egg
+                              fa-2x
+                              text-success"></i>
 
                 </div>
 
@@ -111,7 +132,10 @@
 
             <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body
+                            d-flex
+                            justify-content-between
+                            align-items-center">
 
                     <div>
 
@@ -130,7 +154,9 @@
                     </div>
 
 
-                    <i class="fa-solid fa-box fa-2x text-warning"></i>
+                    <i class="fa-solid fa-box
+                              fa-2x
+                              text-warning"></i>
 
                 </div>
 
@@ -146,7 +172,10 @@
 
             <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body
+                            d-flex
+                            justify-content-between
+                            align-items-center">
 
                     <div>
 
@@ -165,7 +194,9 @@
                     </div>
 
 
-                    <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
+                    <i class="fa-solid fa-calendar-days
+                              fa-2x
+                              text-primary"></i>
 
                 </div>
 
@@ -181,7 +212,10 @@
 
             <div class="card shadow-sm border-0 h-100">
 
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-body
+                            d-flex
+                            justify-content-between
+                            align-items-center">
 
                     <div>
 
@@ -200,7 +234,9 @@
                     </div>
 
 
-                    <i class="fa-solid fa-feather fa-2x text-success"></i>
+                    <i class="fa-solid fa-feather
+                              fa-2x
+                              text-success"></i>
 
                 </div>
 
@@ -213,17 +249,18 @@
 
 
 
-    <!-- =========================
+    <!-- =====================================================
          LISTE DES INCUBATIONS
-    ========================== -->
+    ====================================================== -->
 
     <div class="card shadow-sm border-0">
 
 
-        <!-- EN-TÊTE CARTE -->
+        <!-- EN-TÊTE -->
 
         <div class="card-header bg-white
-                    d-flex justify-content-between
+                    d-flex
+                    justify-content-between
                     align-items-center
                     py-3">
 
@@ -246,15 +283,16 @@
             </div>
 
 
-           <button
-    type="button"
-    class="btn btn-success"
-    onclick="ouvrirModalIncubation()">
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="ouvrirModalIncubation()">
 
-    <i class="fa-solid fa-plus"></i>
-    Nouvelle incubation
+                <i class="fa-solid fa-plus"></i>
 
-</button>
+                Nouvelle incubation
+
+            </button>
 
         </div>
 
@@ -301,7 +339,7 @@
 
                     <tbody id="listeIncubations">
 
-                        <!-- Les incubations apparaîtront ici -->
+                        <!-- Rempli automatiquement par elevage.js -->
 
                     </tbody>
 
@@ -310,7 +348,6 @@
             </div>
 
         </div>
-
 
     </div>
 
@@ -321,15 +358,17 @@
 
 <!-- =====================================================
      MODAL : NOUVELLE INCUBATION
-===================================================== -->
+====================================================== -->
 
-<div class="modal fade"
-     id="modalIncubation"
-     tabindex="-1"
-     aria-hidden="true">
+<div
+    class="modal fade"
+    id="modalIncubation"
+    tabindex="-1"
+    aria-hidden="true">
 
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered">
 
 
         <div class="modal-content border-0 shadow">
@@ -348,9 +387,10 @@
                 </h5>
 
 
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        onclick="fermerFormulaireIncubation()">
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    onclick="fermerModalIncubation()">
 
                 </button>
 
@@ -369,20 +409,27 @@
                     <div class="row">
 
 
-                        <!-- ESPÈCE -->
+                        <!-- =================================================
+                             ESPÈCE
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationEspece"
+                                class="form-label">
 
                                 Espèce
+
+                                <span class="text-danger">*</span>
 
                             </label>
 
 
-                            <select id="incubationEspece"
-                                    class="form-select"
-                                    required>
+                            <select
+                                id="incubationEspece"
+                                class="form-select"
+                                required>
 
                                 <option value="">
 
@@ -390,11 +437,13 @@
 
                                 </option>
 
+
                                 <option value="Cailles">
 
                                     Cailles
 
                                 </option>
+
 
                                 <option value="Poules">
 
@@ -402,11 +451,13 @@
 
                                 </option>
 
+
                                 <option value="Canards">
 
                                     Canards
 
                                 </option>
+
 
                                 <option value="Pintades">
 
@@ -420,41 +471,68 @@
 
 
 
-                        <!-- LOT D'ORIGINE -->
+                        <!-- =================================================
+                             LOT D'ORIGINE
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationLot"
+                                class="form-label">
 
                                 Lot d'origine
+
+                                <span class="text-danger">*</span>
 
                             </label>
 
 
-                            <input type="text"
-                                   id="incubationLot"
-                                   class="form-control"
-                                   placeholder="Exemple : LOT-CAILLE-001"
-                                   required>
+                            <select
+                                id="incubationLot"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Sélectionner un lot
+
+                                </option>
+
+                            </select>
+
+                            <small class="text-muted">
+
+                                Seuls les lots ayant des œufs disponibles
+                                pour incubation seront utilisés.
+
+                            </small>
 
                         </div>
 
 
 
-                        <!-- COUVEUSE -->
+                        <!-- =================================================
+                             COUVEUSE
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationCouveuse"
+                                class="form-label">
 
                                 Couveuse
+
+                                <span class="text-danger">*</span>
 
                             </label>
 
 
-                            <select id="incubationCouveuse"
-                                    class="form-select"
-                                    required>
+                            <select
+                                id="incubationCouveuse"
+                                class="form-select"
+                                required>
 
                                 <option value="">
 
@@ -462,17 +540,20 @@
 
                                 </option>
 
+
                                 <option value="Couveuse 1056 œufs">
 
                                     Couveuse 1056 œufs
 
                                 </option>
 
+
                                 <option value="Couveuse 01">
 
                                     Couveuse 01
 
                                 </option>
+
 
                                 <option value="Couveuse 02">
 
@@ -486,93 +567,178 @@
 
 
 
-                        <!-- NOMBRE D'ŒUFS -->
+                        <!-- =================================================
+                             NOMBRE D'ŒUFS
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationOeufs"
+                                class="form-label">
 
                                 Nombre d'œufs
 
+                                <span class="text-danger">*</span>
+
                             </label>
 
 
-                            <input type="number"
-                                   id="incubationOeufs"
-                                   class="form-control"
-                                   min="1"
-                                   required>
+                            <input
+                                type="number"
+                                id="incubationOeufs"
+                                class="form-control"
+                                min="1"
+                                step="1"
+                                required>
+
+
+                            <small
+                                id="incubationStockDisponible"
+                                class="text-muted">
+
+                                Stock disponible : 0 œuf
+
+                            </small>
 
                         </div>
 
 
 
-                        <!-- DATE D'ENTRÉE -->
+                        <!-- =================================================
+                             DATE D'ENTRÉE
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationDateEntree"
+                                class="form-label">
 
                                 Date d'entrée
 
+                                <span class="text-danger">*</span>
+
                             </label>
 
 
-                            <input type="date"
-                                   id="incubationDate"
-                                   class="form-control"
-                                   required>
+                            <input
+                                type="date"
+                                id="incubationDateEntree"
+                                class="form-control"
+                                required>
 
                         </div>
 
 
 
-                        <!-- DURÉE -->
+                        <!-- =================================================
+                             DURÉE
+                        ================================================== -->
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="incubationDuree"
+                                class="form-label">
 
-                                Durée d'incubation (jours)
+                                Durée d'incubation
+
+                                <span class="text-danger">*</span>
 
                             </label>
 
 
-                            <input type="number"
-                                   id="incubationDuree"
-                                   class="form-control"
-                                   placeholder="Exemple : 17"
-                                   min="1"
-                                   required>
+                            <select
+                                id="incubationDuree"
+                                class="form-select"
+                                required>
+
+
+                                <option value="17">
+
+                                    Caille — 17 jours
+
+                                </option>
+
+
+                                <option value="21">
+
+                                    Poule — 21 jours
+
+                                </option>
+
+
+                                <option value="28">
+
+                                    Canard — 28 jours
+
+                                </option>
+
+
+                                <option value="28">
+
+                                    Pintade — 28 jours
+
+                                </option>
+
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- =================================================
+                             NOTES
+                        ================================================== -->
+
+                        <div class="col-12 mb-3">
+
+                            <label
+                                for="incubationNotes"
+                                class="form-label">
+
+                                Notes
+
+                            </label>
+
+
+                            <textarea
+                                id="incubationNotes"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Informations complémentaires..."></textarea>
 
                         </div>
 
 
                     </div>
 
-
                 </div>
 
 
 
-                <!-- BOUTONS -->
+                <!-- FOOTER -->
 
                 <div class="modal-footer">
 
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            onclick="fermerFormulaireIncubation()">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="fermerModalIncubation()">
 
                         Annuler
 
                     </button>
 
 
-                    <button type="submit"
-                            class="btn btn-success">
+                    <button
+                        type="submit"
+                        class="btn btn-success">
 
-                        <i class="fa-solid fa-save"></i>
+                        <i class="fa-solid fa-floppy-disk"></i>
 
                         Enregistrer l'incubation
 
@@ -584,12 +750,9 @@
 
             </form>
 
-
         </div>
 
-
     </div>
-
 
 </div>
 
@@ -597,15 +760,17 @@
 
 <!-- =====================================================
      MODAL : SUIVI INCUBATION
-===================================================== -->
+====================================================== -->
 
-<div class="modal fade"
-     id="modalSuiviIncubation"
-     tabindex="-1"
-     aria-hidden="true">
+<div
+    class="modal fade"
+    id="modalSuiviIncubation"
+    tabindex="-1"
+    aria-hidden="true">
 
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered">
 
 
         <div class="modal-content border-0 shadow">
@@ -624,9 +789,10 @@
                 </h5>
 
 
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        onclick="fermerSuiviIncubation()">
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    onclick="fermerSuiviIncubation()">
 
                 </button>
 
@@ -634,11 +800,14 @@
 
 
 
+            <!-- FORMULAIRE -->
+
             <form id="formSuiviIncubation">
 
 
-                <input type="hidden"
-                       id="suiviIncubationId">
+                <input
+                    type="hidden"
+                    id="suiviIncubationId">
 
 
                 <div class="modal-body">
@@ -651,18 +820,21 @@
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="oeufsRetires"
+                                class="form-label">
 
                                 Œufs retirés
 
                             </label>
 
 
-                            <input type="number"
-                                   id="oeufsRetires"
-                                   class="form-control"
-                                   value="0"
-                                   min="0">
+                            <input
+                                type="number"
+                                id="oeufsRetires"
+                                class="form-control"
+                                value="0"
+                                min="0">
 
                         </div>
 
@@ -672,18 +844,21 @@
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="oeufsNonFecondes"
+                                class="form-label">
 
                                 Œufs non fécondés
 
                             </label>
 
 
-                            <input type="number"
-                                   id="oeufsNonFecondes"
-                                   class="form-control"
-                                   value="0"
-                                   min="0">
+                            <input
+                                type="number"
+                                id="oeufsNonFecondes"
+                                class="form-control"
+                                value="0"
+                                min="0">
 
                         </div>
 
@@ -693,18 +868,21 @@
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="embryonsMorts"
+                                class="form-label">
 
                                 Embryons morts
 
                             </label>
 
 
-                            <input type="number"
-                                   id="embryonsMorts"
-                                   class="form-control"
-                                   value="0"
-                                   min="0">
+                            <input
+                                type="number"
+                                id="embryonsMorts"
+                                class="form-control"
+                                value="0"
+                                min="0">
 
                         </div>
 
@@ -714,45 +892,49 @@
 
                         <div class="col-md-6 mb-3">
 
-                            <label class="form-label">
+                            <label
+                                for="poussinsEclosInput"
+                                class="form-label">
 
                                 Poussins éclos
 
                             </label>
 
 
-                            <input type="number"
-                                   id="poussinsEclosInput"
-                                   class="form-control"
-                                   value="0"
-                                   min="0">
+                            <input
+                                type="number"
+                                id="poussinsEclosInput"
+                                class="form-control"
+                                value="0"
+                                min="0">
 
                         </div>
 
 
                     </div>
 
-
                 </div>
 
 
 
-                <!-- BOUTONS -->
+                <!-- FOOTER -->
 
                 <div class="modal-footer">
 
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            onclick="fermerSuiviIncubation()">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="fermerSuiviIncubation()">
 
                         Annuler
 
                     </button>
 
 
-                    <button type="submit"
-                            class="btn btn-primary">
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
 
                         <i class="fa-solid fa-save"></i>
 
@@ -766,525 +948,31 @@
 
             </form>
 
-
-        </div>
-
-
-    </div>
-
-
-</div>
-
-
-
-<!-- BOOTSTRAP JAVASCRIPT -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<!-- JAVASCRIPT ÉLEVAGE -->
-
-<!-- MODALE NOUVELLE INCUBATION -->
-
-<div class="modal fade" id="modalIncubation" tabindex="-1">
-
-    <div class="modal-dialog modal-lg">
-
-        <div class="modal-content">
-
-            <!-- HEADER -->
-
-            <div class="modal-header bg-success text-white">
-
-                <h5 class="modal-title">
-
-                    <i class="fa-solid fa-egg"></i>
-
-                    Nouvelle incubation
-
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    onclick="fermerModalIncubation()">
-                </button>
-
-            </div>
-
-
-            <!-- BODY -->
-
-            <div class="modal-body">
-
-                <form id="formIncubation">
-
-                    <div class="row">
-
-
-                        <!-- ESPECE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Espèce
-
-                            </label>
-
-                            <select
-                                id="incubationEspece"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Sélectionner
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- LOT -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Lot d'origine
-
-                            </label>
-
-                            <select
-                                id="incubationLot"
-                                class="form-select">
-
-                                <option value="">
-
-                                    Sélectionner un lot
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- COUVEUSE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Couveuse
-
-                            </label>
-
-                            <select
-                                id="incubationCouveuse"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Sélectionner une couveuse
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- NOMBRE OEUFS -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Nombre d'œufs
-
-                            </label>
-
-                            <input
-                                type="number"
-                                id="incubationOeufs"
-                                class="form-control"
-                                min="1"
-                                required>
-
-                        </div>
-
-
-                        <!-- DATE ENTREE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Date d'entrée
-
-                            </label>
-
-                            <input
-                                type="date"
-                                id="incubationDateEntree"
-                                class="form-control"
-                                required>
-
-                        </div>
-
-
-                        <!-- DUREE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Durée d'incubation
-
-                            </label>
-
-                            <select
-                                id="incubationDuree"
-                                class="form-select">
-
-                                <option value="17">
-
-                                    Caille — 17 jours
-
-                                </option>
-
-                                <option value="21">
-
-                                    Poule — 21 jours
-
-                                </option>
-
-                                <option value="28">
-
-                                    Canard — 28 jours
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- NOTES -->
-
-                        <div class="col-12 mb-3">
-
-                            <label class="form-label">
-
-                                Notes
-
-                            </label>
-
-                            <textarea
-                                id="incubationNotes"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Informations complémentaires..."></textarea>
-
-                        </div>
-
-
-                    </div>
-
-                </form>
-
-            </div>
-
-
-            <!-- FOOTER -->
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="fermerModalIncubation()">
-
-                    Annuler
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="btn btn-success"
-                    onclick="enregistrerIncubation()">
-
-                    <i class="fa-solid fa-floppy-disk"></i>
-
-                    Enregistrer l'incubation
-
-                </button>
-
-            </div>
-
         </div>
 
     </div>
 
 </div>
 
-<!-- MODALE NOUVELLE INCUBATION -->
 
-<div class="modal fade" id="modalIncubation" tabindex="-1">
 
-    <div class="modal-dialog modal-lg">
+<!-- =====================================================
+     BOOTSTRAP JS
+====================================================== -->
 
-        <div class="modal-content">
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
 
-            <!-- HEADER -->
 
-            <div class="modal-header bg-success text-white">
 
-                <h5 class="modal-title">
+<!-- =====================================================
+     ELEVAGE JS
+====================================================== -->
 
-                    <i class="fa-solid fa-egg"></i>
-
-                    Nouvelle incubation
-
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    onclick="fermerModalIncubation()">
-                </button>
-
-            </div>
-
-
-            <!-- BODY -->
-
-            <div class="modal-body">
-
-                <form id="formIncubation">
-
-                    <div class="row">
-
-
-                        <!-- ESPECE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Espèce
-
-                            </label>
-
-                            <select
-                                id="incubationEspece"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Sélectionner
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- LOT -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Lot d'origine
-
-                            </label>
-
-                            <select
-                                id="incubationLot"
-                                class="form-select">
-
-                                <option value="">
-
-                                    Sélectionner un lot
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- COUVEUSE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Couveuse
-
-                            </label>
-
-                            <select
-                                id="incubationCouveuse"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Sélectionner une couveuse
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- NOMBRE OEUFS -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Nombre d'œufs
-
-                            </label>
-
-                            <input
-                                type="number"
-                                id="incubationOeufs"
-                                class="form-control"
-                                min="1"
-                                required>
-
-                        </div>
-
-
-                        <!-- DATE ENTREE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Date d'entrée
-
-                            </label>
-
-                            <input
-                                type="date"
-                                id="incubationDateEntree"
-                                class="form-control"
-                                required>
-
-                        </div>
-
-
-                        <!-- DUREE -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Durée d'incubation
-
-                            </label>
-
-                            <select
-                                id="incubationDuree"
-                                class="form-select">
-
-                                <option value="17">
-
-                                    Caille — 17 jours
-
-                                </option>
-
-                                <option value="21">
-
-                                    Poule — 21 jours
-
-                                </option>
-
-                                <option value="28">
-
-                                    Canard — 28 jours
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- NOTES -->
-
-                        <div class="col-12 mb-3">
-
-                            <label class="form-label">
-
-                                Notes
-
-                            </label>
-
-                            <textarea
-                                id="incubationNotes"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Informations complémentaires..."></textarea>
-
-                        </div>
-
-
-                    </div>
-
-                </form>
-
-            </div>
-
-
-            <!-- FOOTER -->
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="fermerModalIncubation()">
-
-                    Annuler
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="btn btn-success"
-                    onclick="enregistrerIncubation()">
-
-                    <i class="fa-solid fa-floppy-disk"></i>
-
-                    Enregistrer l'incubation
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-    
-<script src="../../js/elevage.js"></script>
+<script
+    src="../../js/elevage.js">
+</script>
 
 
 </body>
