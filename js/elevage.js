@@ -3376,6 +3376,43 @@ function fermerFormulaireIncubation() {
 
 }
 
+/* =========================================================
+   COMPATIBILITÉ MODAL INCUBATION
+   Corrige les boutons Fermer / Annuler
+========================================================= */
+
+function fermerModalIncubation() {
+
+    const modal = document.getElementById(
+        "modalIncubation"
+    );
+
+    if (!modal) {
+        return;
+    }
+
+    modal.style.display = "none";
+
+}
+
+
+/* Alias : permet d'utiliser les deux noms */
+function fermerFormulaireIncubationModal() {
+
+    fermerModalIncubation();
+
+}
+
+
+/* =========================================================
+   COMPATIBILITÉ DATE POUSSINIÈRE
+========================================================= */
+
+function obtenirDateAujourdhui() {
+
+    return obtenirDateAujourdHui();
+
+}
 
 /* -----------------------------------------
    CALCUL DATE D'ÉCLOSION
