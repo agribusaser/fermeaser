@@ -3415,44 +3415,140 @@ function calculerDateEclosion(
    PRODUCTION → STOCK ŒUFS → INCUBATION
 ========================================================= */
 
+/* =========================================================
+   ENREGISTRER UNE INCUBATION
+   LIAISON :
+   PRODUCTION → STOCK ŒUFS → INCUBATION
+========================================================= */
+
+function enregistrerIncubation(event) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
 
 
-    /* -----------------------------------------------------
-       RÉCUPÉRER LES CHAMPS DU FORMULAIRE
-    ----------------------------------------------------- */
+    /* =====================================================
+       1. RÉCUPÉRER LES CHAMPS
+    ===================================================== */
+
+    const especeElement =
+        document.getElementById(
+            "incubationEspece"
+        );
+
+
+    const lotElement =
+        document.getElementById(
+            "incubationLot"
+        );
+
+
+    const couveuseElement =
+        document.getElementById(
+            "incubationCouveuse"
+        );
+
+
+    const oeufsElement =
+        document.getElementById(
+            "incubationOeufs"
+        );
+
+
+    const dateElement =
+        document.getElementById(
+            "incubationDateEntree"
+        );
+
+
+    const dureeElement =
+        document.getElementById(
+            "incubationDuree"
+        );
+
+
+    const notesElement =
+        document.getElementById(
+            "incubationNotes"
+        );
+
+
+    /* =====================================================
+       2. VÉRIFIER QUE LES CHAMPS EXISTENT
+    ===================================================== */
+
+    if (
+        !especeElement ||
+        !lotElement ||
+        !couveuseElement ||
+        !oeufsElement ||
+        !dateElement ||
+        !dureeElement
+    ) {
+
+        alert(
+            "Erreur : certains champs du formulaire d'incubation sont introuvables."
+        );
+
+        console.error(
+            "Champs incubation manquants."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       3. RÉCUPÉRER LES VALEURS
+    ===================================================== */
 
     const espece =
-        document.getElementById("incubationEspece")?.value.trim() || "";
+        especeElement.value.trim();
+
 
     const lotId =
-        document.getElementById("incubationLot")?.value || "";
+        lotElement.value;
+
 
     const couveuse =
-        document.getElementById("incubationCouveuse")?.value.trim() || "";
+        couveuseElement.value.trim();
+
 
     const nombreOeufs =
         Number(
-            document.getElementById("incubationOeufs")?.value
+            oeufsElement.value
         );
 
-    const dateEntree =
-        document.getElementById("incubationDate")?.value ||
-        obtenirDateAujourdhui();
 
-    const dateEclosion =
-        document.getElementById("incubationDateEclosion")?.value || "";
+    const dateEntree =
+        dateElement.value;
+
+
+    const duree =
+        Number(
+            dureeElement.value
+        );
+
 
     const notes =
-        document.getElementById("incubationNotes")?.value.trim() || "";
+        notesElement
+            ? notesElement.value.trim()
+            : "";
 
 
-    /* -----------------------------------------------------
-       VALIDATIONS
-    ----------------------------------------------------- */
+    /* =====================================================
+       4. VALIDATION
+    ===================================================== */
 
     if (!espece) {
 
-        alert("Veuillez sélectionner l'espèce.");
+        alert(
+            "Veuillez sélectionner l'espèce."
+        );
 
         return;
 
@@ -3461,17 +3557,8 @@ function calculerDateEclosion(
 
     if (!lotId) {
 
-        alert("Veuillez sélectionner le lot producteur.");
-
-        return;
-
-    }
-
-
-    if (!nombreOeufs || nombreOeufs <= 0) {
-
         alert(
-            "Le nombre d'œufs doit être supérieur à zéro."
+            "Veuillez sélectionner le lot d'origine."
         );
 
         return;
@@ -3479,18 +3566,100 @@ function calculerDateEclosion(
     }
 
 
-    /* -----------------------------------------------------
-       RÉCUPÉRER LE STOCK D'ŒUFS DESTINÉS À L'INCUBATION
-    ----------------------------------------------------- */
+    if (!couveuse) {
+
+        alert(
+            "Veuillez sélectionner la couveuse."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(nombreOeufs) ||
+        nombreOeufs <= 0
+    ) {
+
+        alert(
+            "Veuillez indiquer un nombre d'œufs valide."
+        );
+
+        return;
+
+    }
+
+
+    if (!dateEntree) {
+
+        alert(
+            "Veuillez indiquer la date d'entrée."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(duree) ||
+        duree <= 0
+    ) {
+
+        alert(
+            "La durée d'incubation est invalide."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       5. RÉCUPÉRER LES LOTS
+    ===================================================== */
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    const lot =
+        lots.find(
+            function (element) {
+
+                return (
+                    String(element.id) ===
+                    String(lotId)
+                );
+
+            }
+        );
+
+
+    if (!lot) {
+
+        alert(
+            "Le lot sélectionné est introuvable."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       6. RÉCUPÉRER LE STOCK D'ŒUFS
+    ===================================================== */
 
     const stock =
         obtenirStockOeufsIncubation();
 
 
-    if (!stock.length) {
+    if (!Array.isArray(stock)) {
 
         alert(
-            "Aucun œuf n'est actuellement disponible pour l'incubation."
+            "Impossible de lire le stock d'œufs destiné à l'incubation."
         );
 
         return;
@@ -3498,32 +3667,40 @@ function calculerDateEclosion(
     }
 
 
-    /* -----------------------------------------------------
-       RECHERCHER LES ŒUFS DU LOT SÉLECTIONNÉ
-    ----------------------------------------------------- */
+    /* =====================================================
+       7. TROUVER LES ŒUFS DISPONIBLES DU LOT
+    ===================================================== */
 
     const stocksDisponibles =
-        stock.filter(function (ligne) {
+        stock.filter(
+            function (ligne) {
 
-            return (
+                return (
 
-                String(ligne.lotId) ===
-                String(lotId)
+                    String(ligne.lotId) ===
+                    String(lotId)
 
-                &&
+                    &&
 
-                Number(ligne.quantiteDisponible || 0) > 0
+                    Number(
+                        ligne.quantiteDisponible
+                    ) > 0
 
-            );
+                );
 
-        });
+            }
+        );
 
 
-    if (!stocksDisponibles.length) {
+    if (
+        stocksDisponibles.length === 0
+    ) {
 
         alert(
+
             "Aucun œuf disponible pour l'incubation " +
-            "dans le lot sélectionné."
+            "dans ce lot."
+
         );
 
         return;
@@ -3531,30 +3708,40 @@ function calculerDateEclosion(
     }
 
 
-    /* -----------------------------------------------------
-       CALCULER LA QUANTITÉ DISPONIBLE
-    ----------------------------------------------------- */
+    /* =====================================================
+       8. CALCULER LE STOCK DISPONIBLE
+    ===================================================== */
 
     const totalDisponible =
         stocksDisponibles.reduce(
-
-            function (total, ligne) {
+            function (
+                total,
+                ligne
+            ) {
 
                 return (
+
                     total +
+
                     Number(
-                        ligne.quantiteDisponible || 0
+                        ligne.quantiteDisponible
                     )
+
                 );
 
             },
-
             0
-
         );
 
 
-    if (nombreOeufs > totalDisponible) {
+    /* =====================================================
+       9. EMPÊCHER LE SUR-PRÉLÈVEMENT
+    ===================================================== */
+
+    if (
+        nombreOeufs >
+        totalDisponible
+    ) {
 
         alert(
 
@@ -3575,115 +3762,148 @@ function calculerDateEclosion(
     }
 
 
-    /* -----------------------------------------------------
-       RÉCUPÉRER LE LOT PRODUCTEUR
-    ----------------------------------------------------- */
+    /* =====================================================
+       10. CALCULER LA DATE D'ÉCLOSION
+    ===================================================== */
 
-    const lots =
-        obtenirLotsElevage();
-
-
-    const lot =
-        lots.find(function (element) {
-
-            return (
-                String(element.id) ===
-                String(lotId)
-            );
-
-        });
-
-
-    if (!lot) {
-
-        alert(
-            "Le lot producteur est introuvable."
-        );
-
-        return;
-
-    }
-
-
-    /* -----------------------------------------------------
-       ID DE L'INCUBATION
-    ----------------------------------------------------- */
-
-    const idIncubation =
-        "INC-" +
-        Date.now() +
-        "-" +
-        Math.floor(
-            Math.random() * 1000
+    const dateEclosion =
+        calculerDateEclosion(
+            dateEntree,
+            duree
         );
 
 
-    /* -----------------------------------------------------
-       CRÉER L'INCUBATION
-    ----------------------------------------------------- */
+    /* =====================================================
+       11. RÉCUPÉRER LES INCUBATIONS
+    ===================================================== */
 
     const incubations =
-        obtenirIncubations();
+        getDataLocale(
+            "incubations"
+        );
 
+
+    /* =====================================================
+       12. CRÉER L'ID
+    ===================================================== */
+
+    const idIncubation =
+        genererId(
+            "INC",
+            incubations
+        );
+
+
+    /* =====================================================
+       13. CRÉER L'INCUBATION
+    ===================================================== */
 
     const nouvelleIncubation = {
 
         id:
             idIncubation,
 
+
         productionId:
             null,
+
 
         stockOeufsIds:
             [],
 
+
+        espece:
+            espece,
+
+
         lotId:
             lot.id,
+
+
+        lot:
+            lot.nom ||
+            lot.nomLot ||
+            lot.id,
+
 
         lotNom:
             lot.nom ||
             lot.nomLot ||
             "",
 
-        espece:
-            espece,
 
         race:
             lot.race ||
             "",
 
+
         couveuse:
             couveuse,
+
+
+        oeufsInitial:
+            nombreOeufs,
+
 
         oeufs:
             nombreOeufs,
 
-        oeufsInitiaux:
-            nombreOeufs,
+
+        oeufsRetires:
+            0,
+
+
+        oeufsNonFecondes:
+            0,
+
+
+        embryonsMorts:
+            0,
+
+
+        poussinsEclos:
+            0,
+
 
         eclos:
             0,
 
-        nonEclos:
-            0,
 
         pertes:
             0,
 
+
         dateEntree:
             dateEntree,
+
+
+        duree:
+            duree,
+
+
+        dateEclosion:
+            dateEclosion,
+
 
         dateEclosionPrevue:
             dateEclosion,
 
+
         statut:
             "En incubation",
+
+
+        brooderCree:
+            false,
+
 
         notes:
             notes,
 
+
         utilisateur:
             obtenirUtilisateur(),
+
 
         dateCreation:
             new Date().toISOString()
@@ -3691,24 +3911,27 @@ function calculerDateEclosion(
     };
 
 
-    /* -----------------------------------------------------
-       CONSOMMER LE STOCK D'ŒUFS
+    /* =====================================================
+       14. CONSOMMER LE STOCK
        
        IMPORTANT :
-       On diminue réellement le stock.
-       Une deuxième incubation ne pourra donc
-       pas utiliser les mêmes œufs.
-    ----------------------------------------------------- */
+       Les œufs sont retirés du stock disponible
+       seulement maintenant.
+       
+       Cela empêche une deuxième incubation
+       d'utiliser les mêmes œufs.
+    ===================================================== */
 
     let resteAUtiliser =
         nombreOeufs;
 
 
     stocksDisponibles.forEach(
-
         function (ligne) {
 
-            if (resteAUtiliser <= 0) {
+            if (
+                resteAUtiliser <= 0
+            ) {
 
                 return;
 
@@ -3717,8 +3940,8 @@ function calculerDateEclosion(
 
             const disponible =
                 Number(
-                    ligne.quantiteDisponible || 0
-                );
+                    ligne.quantiteDisponible
+                ) || 0;
 
 
             const utilise =
@@ -3728,16 +3951,31 @@ function calculerDateEclosion(
                 );
 
 
-            ligne.quantiteDisponible =
-                disponible - utilise;
+            /* -----------------------------------------
+               DIMINUER LE STOCK DISPONIBLE
+            ----------------------------------------- */
 
+            ligne.quantiteDisponible =
+                disponible -
+                utilise;
+
+
+            /* -----------------------------------------
+               AUGMENTER LA QUANTITÉ UTILISÉE
+            ----------------------------------------- */
 
             ligne.quantiteUtilisee =
                 Number(
-                    ligne.quantiteUtilisee || 0
-                ) +
+                    ligne.quantiteUtilisee ||
+                    0
+                )
+                +
                 utilise;
 
+
+            /* -----------------------------------------
+               STATUT DU STOCK
+            ----------------------------------------- */
 
             if (
                 ligne.quantiteDisponible <= 0
@@ -3746,11 +3984,22 @@ function calculerDateEclosion(
                 ligne.quantiteDisponible =
                     0;
 
+
                 ligne.statut =
                     "Utilisé";
 
             }
+            else {
 
+                ligne.statut =
+                    "Disponible";
+
+            }
+
+
+            /* -----------------------------------------
+               CONSERVER LE LIEN
+            ----------------------------------------- */
 
             nouvelleIncubation
                 .stockOeufsIds
@@ -3758,6 +4007,10 @@ function calculerDateEclosion(
                     ligne.id
                 );
 
+
+            /* -----------------------------------------
+               CONSERVER LE PREMIER ID PRODUCTION
+            ----------------------------------------- */
 
             if (
                 !nouvelleIncubation.productionId
@@ -3773,18 +4026,19 @@ function calculerDateEclosion(
                 utilise;
 
         }
-
     );
 
 
-    /* -----------------------------------------------------
-       SÉCURITÉ
-    ----------------------------------------------------- */
+    /* =====================================================
+       15. CONTRÔLE FINAL
+    ===================================================== */
 
-    if (resteAUtiliser > 0) {
+    if (
+        resteAUtiliser > 0
+    ) {
 
         alert(
-            "Erreur interne : la quantité d'œufs n'a pas pu être entièrement affectée."
+            "Erreur : les œufs n'ont pas pu être entièrement affectés."
         );
 
         return;
@@ -3792,49 +4046,70 @@ function calculerDateEclosion(
     }
 
 
-    /* -----------------------------------------------------
-       SAUVEGARDER LE STOCK
-    ----------------------------------------------------- */
+    /* =====================================================
+       16. SAUVEGARDER LE STOCK
+    ===================================================== */
 
     sauvegarderStockOeufsIncubation(
         stock
     );
 
 
-    /* -----------------------------------------------------
-       ENREGISTRER L'INCUBATION
-    ----------------------------------------------------- */
+    /* =====================================================
+       17. AJOUTER L'INCUBATION
+    ===================================================== */
 
     incubations.push(
         nouvelleIncubation
     );
 
 
-    sauvegarderIncubations(
+    sauvegarderDataLocale(
+        "incubations",
         incubations
     );
 
 
-    /* -----------------------------------------------------
-       FERMER LE MODAL
-    ----------------------------------------------------- */
+    /* =====================================================
+       18. FERMER LE FORMULAIRE
+    ===================================================== */
+
+    const formulaire =
+        document.getElementById(
+            "formIncubation"
+        );
+
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
 
     fermerModalIncubation();
 
 
-    /* -----------------------------------------------------
-       ACTUALISER LA LISTE
-    ----------------------------------------------------- */
+    /* =====================================================
+       19. ACTUALISER LA PAGE
+    ===================================================== */
+
+    chargerIncubations();
+
 
     if (
-        typeof chargerIncubations ===
+        typeof chargerLotsIncubation ===
         "function"
     ) {
 
-        chargerIncubations();
+        chargerLotsIncubation();
 
     }
 
+
+    /* =====================================================
+       20. MESSAGE DE CONFIRMATION
+    ===================================================== */
 
     alert(
 
@@ -3844,21 +4119,22 @@ function calculerDateEclosion(
         idIncubation +
         "\n" +
 
-        "Œufs utilisés : " +
+        "Espèce : " +
+        espece +
+        "\n" +
+
+        "Œufs incubés : " +
         nombreOeufs +
         "\n" +
 
-        "Lot producteur : " +
-        (
-            lot.nom ||
-            lot.nomLot ||
-            lot.id
+        "Éclosion prévue : " +
+        formaterDate(
+            dateEclosion
         )
 
     );
 
 }
-
 
 /* -----------------------------------------
    CHARGER LES INCUBATIONS
