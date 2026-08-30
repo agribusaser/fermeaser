@@ -3320,12 +3320,6 @@ function formaterDate(date) {
 
 }
 
-
-/* =========================================================
-   INCUBATION
-   ========================================================= */
-
-
 /* -----------------------------------------
    OUVRIR LE FORMULAIRE
 ----------------------------------------- */
@@ -3353,6 +3347,16 @@ function ouvrirFormulaireIncubation() {
 
 }
 
+/* -----------------------------------------
+   OUVRIR LE MODAL INCUBATION
+   Compatibilité avec incubation.html
+----------------------------------------- */
+
+function ouvrirModalIncubation() {
+
+    ouvrirFormulaireIncubation();
+
+}
 
 /* -----------------------------------------
    FERMER LE FORMULAIRE
