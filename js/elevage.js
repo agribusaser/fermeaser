@@ -3267,20 +3267,6 @@ function sauvegarderDataLocale(cle, donnees) {
 
 }
 
-
-function genererId(prefixe, donnees) {
-
-    const annee = new Date().getFullYear();
-
-    const numero = String(
-        donnees.length + 1
-    ).padStart(3, "0");
-
-    return `${prefixe}-${annee}-${numero}`;
-
-}
-
-
 function obtenirDateAujourdhui() {
 
     const aujourdHui = new Date();
