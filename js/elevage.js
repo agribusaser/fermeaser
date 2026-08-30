@@ -3523,6 +3523,26 @@ function chargerLotsIncubation() {
 
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    const especeSelect =
+        document.getElementById("incubationEspece");
+
+    if (especeSelect) {
+
+        especeSelect.addEventListener(
+            "change",
+            function () {
+
+                chargerLotsIncubation();
+
+            }
+        );
+
+    }
+
+});
+
 /* =========================================================
    CHARGER LES LOTS DANS LE FORMULAIRE D'INCUBATION
    SOURCE : Animaux & Lots
