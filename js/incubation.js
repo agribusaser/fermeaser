@@ -1676,3 +1676,5 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 });
+
+<script src="../../js/incubation.js"></script>
