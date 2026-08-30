@@ -3523,6 +3523,86 @@ function chargerLotsIncubation() {
 
 }
 
+/* =========================================================
+   CHARGER LES LOTS DANS LE FORMULAIRE D'INCUBATION
+   SOURCE : Animaux & Lots
+========================================================= */
+
+function chargerLotsIncubation() {
+
+    const select = document.getElementById("incubationLot");
+
+    if (!select) {
+        return;
+    }
+
+    const especeSelect =
+        document.getElementById("incubationEspece");
+
+    const especeSelectionnee =
+        especeSelect ? especeSelect.value : "";
+
+    const lots = obtenirLotsElevage();
+
+    select.innerHTML = `
+        <option value="">
+            Sélectionner un lot
+        </option>
+    `;
+
+    lots
+        .filter(function (lot) {
+
+            const espece =
+                lot.espece ||
+                lot.type ||
+                "";
+
+            const statut =
+                lot.statut ||
+                "Actif";
+
+            return (
+                statut === "Actif" &&
+                (
+                    !especeSelectionnee ||
+                    espece === especeSelectionnee
+                )
+            );
+
+        })
+        .forEach(function (lot) {
+
+            const quantite =
+                Number(
+                    lot.quantiteActuelle ??
+                    lot.quantite ??
+                    0
+                );
+
+            const nom =
+                lot.nom ||
+                lot.nomLot ||
+                lot.code ||
+                lot.id;
+
+            select.innerHTML += `
+                <option
+                    value="${lot.id}"
+                    data-espece="${lot.espece || lot.type || ""}"
+                >
+                    ${nom}
+                    —
+                    ${lot.espece || lot.type || ""}
+                    ${lot.race ? " / " + lot.race : ""}
+                    — ${quantite} animaux
+                </option>
+            `;
+
+        });
+
+}
+
 function enregistrerIncubation(event) {
 
     if (event) {
