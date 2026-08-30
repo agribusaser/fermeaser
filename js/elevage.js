@@ -3415,12 +3415,6 @@ function calculerDateEclosion(
    PRODUCTION → STOCK ŒUFS → INCUBATION
 ========================================================= */
 
-/* =========================================================
-   ENREGISTRER UNE INCUBATION
-   LIAISON :
-   PRODUCTION → STOCK ŒUFS → INCUBATION
-========================================================= */
-
 function enregistrerIncubation(event) {
 
     if (event) {
