@@ -1677,4 +1677,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+<script src="../../js/elevage.js"></script>
 <script src="../../js/incubation.js"></script>
