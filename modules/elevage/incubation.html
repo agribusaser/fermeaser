@@ -5,31 +5,359 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Incubation | Ferme Asher ERP</title>
+    <title>Gestion Incubation | Ferme Asher ERP</title>
 
 
-    <!-- BOOTSTRAP -->
+    <!-- =====================================================
+         BOOTSTRAP
+    ====================================================== -->
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
 
-    <!-- STYLE APPLICATION -->
+    <!-- =====================================================
+         STYLE FERME ASHER
+    ====================================================== -->
 
     <link
         rel="stylesheet"
         href="../../css/style.css">
 
 
-    <!-- FONT AWESOME -->
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
 
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+    <!-- =====================================================
+         STYLE LOCAL DE LA PAGE
+    ====================================================== -->
+
+    <style>
+
+        body {
+            background: #f8f9fa;
+        }
+
+
+        .page-container {
+            padding: 25px;
+        }
+
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+
+        .module-header h1 {
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+
+        .module-header p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow:
+                0 2px 10px rgba(0,0,0,0.08);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .stat-card p {
+            margin: 0 0 8px;
+            color: #6c757d;
+        }
+
+
+        .stat-card h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 22px;
+        }
+
+
+        .section-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow:
+                0 2px 10px rgba(0,0,0,0.08);
+
+            overflow: hidden;
+        }
+
+
+        .section-header {
+            padding: 24px;
+            border-bottom: 1px solid #e9ecef;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+        }
+
+
+        .section-header h2 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+
+        .section-header p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+
+        .table-container {
+            padding: 0 20px 20px;
+        }
+
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+
+        table {
+            min-width: 900px;
+        }
+
+
+        th {
+            white-space: nowrap;
+        }
+
+
+        td {
+            vertical-align: middle;
+        }
+
+
+        /* =====================================================
+           MODALES
+        ====================================================== */
+
+        .modal-ferme-asher {
+            position: fixed;
+            inset: 0;
+
+            z-index: 1055;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(0, 0, 0, 0.55);
+        }
+
+
+        .modal-ferme-asher.active {
+            display: flex;
+        }
+
+
+        .modal-ferme-asher-content {
+            width: 100%;
+            max-width: 850px;
+
+            max-height: 92vh;
+            overflow-y: auto;
+
+            background: #ffffff;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.30);
+
+            animation:
+                apparitionModal 0.18s ease-out;
+        }
+
+
+        @keyframes apparitionModal {
+
+            from {
+                opacity: 0;
+                transform: translateY(-15px)
+                           scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+                           scale(1);
+            }
+
+        }
+
+
+        .modal-fa-header {
+            background: #198754;
+            color: #ffffff;
+
+            padding: 18px 22px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            border-radius:
+                12px 12px 0 0;
+        }
+
+
+        .modal-fa-header h3 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+
+        .modal-fa-close {
+            border: 0;
+            background: transparent;
+
+            color: #ffffff;
+
+            font-size: 27px;
+
+            cursor: pointer;
+
+            width: 40px;
+            height: 40px;
+
+            border-radius: 50%;
+        }
+
+
+        .modal-fa-close:hover {
+            background:
+                rgba(255,255,255,0.15);
+        }
+
+
+        .modal-fa-body {
+            padding: 25px;
+        }
+
+
+        .modal-fa-footer {
+            padding: 18px 25px;
+
+            border-top:
+                1px solid #e9ecef;
+
+            display: flex;
+            justify-content: flex-end;
+
+            gap: 10px;
+        }
+
+
+        .form-label {
+            font-weight: 600;
+        }
+
+
+        .help-text {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+
+
+        @media (max-width: 992px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .page-container {
+                padding: 15px;
+            }
+
+
+            .module-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -37,29 +365,31 @@
 <body>
 
 
-<div class="container-fluid py-4">
+<div class="page-container">
 
 
     <!-- =====================================================
          EN-TÊTE
     ====================================================== -->
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="module-header">
 
         <div>
 
-            <h2>
+            <h1>
 
-                <i class="fa-solid fa-egg text-success"></i>
+                <i
+                    class="fa-solid fa-egg text-success">
+                </i>
 
                 Gestion Incubation
 
-            </h2>
+            </h1>
 
-            <p class="text-muted mb-0">
 
-                Gérez les œufs incubés, les couveuses et les éclosions.
-
+            <p>
+                Gérez les œufs incubés,
+                les couveuses et les éclosions.
             </p>
 
         </div>
@@ -83,42 +413,34 @@
          STATISTIQUES
     ====================================================== -->
 
-    <div class="row mb-4">
+    <div class="stats-grid">
 
 
         <!-- INCUBATIONS ACTIVES -->
 
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
 
-            <div class="card shadow-sm border-0 h-100">
+            <div>
 
-                <div class="card-body
-                            d-flex
-                            justify-content-between
-                            align-items-center">
+                <p>
+                    Incubations actives
+                </p>
 
-                    <div>
+                <h2 id="incubationsActives">
+                    0
+                </h2>
 
-                        <p class="text-muted mb-1">
-
-                            Incubations actives
-
-                        </p>
-
-                        <h3 id="incubationsActives">
-
-                            0
-
-                        </h3>
-
-                    </div>
+            </div>
 
 
-                    <i class="fa-solid fa-egg
-                              fa-2x
-                              text-success"></i>
+            <div
+                class="stat-icon"
+                style="
+                    background:#e8f5e9;
+                    color:#198754;
+                ">
 
-                </div>
+                <i class="fa-solid fa-egg"></i>
 
             </div>
 
@@ -126,39 +448,31 @@
 
 
 
-        <!-- ŒUFS EN INCUBATION -->
+        <!-- OEUFS -->
 
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
 
-            <div class="card shadow-sm border-0 h-100">
+            <div>
 
-                <div class="card-body
-                            d-flex
-                            justify-content-between
-                            align-items-center">
+                <p>
+                    Œufs en incubation
+                </p>
 
-                    <div>
+                <h2 id="oeufsIncubation">
+                    0
+                </h2>
 
-                        <p class="text-muted mb-1">
-
-                            Œufs en incubation
-
-                        </p>
-
-                        <h3 id="oeufsIncubation">
-
-                            0
-
-                        </h3>
-
-                    </div>
+            </div>
 
 
-                    <i class="fa-solid fa-box
-                              fa-2x
-                              text-warning"></i>
+            <div
+                class="stat-icon"
+                style="
+                    background:#fff3cd;
+                    color:#ffc107;
+                ">
 
-                </div>
+                <i class="fa-solid fa-box"></i>
 
             </div>
 
@@ -166,39 +480,31 @@
 
 
 
-        <!-- ÉCLOSIONS PRÉVUES -->
+        <!-- ECLOSIONS -->
 
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
 
-            <div class="card shadow-sm border-0 h-100">
+            <div>
 
-                <div class="card-body
-                            d-flex
-                            justify-content-between
-                            align-items-center">
+                <p>
+                    Éclosions prévues
+                </p>
 
-                    <div>
+                <h2 id="eclosionsPrevues">
+                    0
+                </h2>
 
-                        <p class="text-muted mb-1">
-
-                            Éclosions prévues
-
-                        </p>
-
-                        <h3 id="eclosionsPrevues">
-
-                            0
-
-                        </h3>
-
-                    </div>
+            </div>
 
 
-                    <i class="fa-solid fa-calendar-days
-                              fa-2x
-                              text-primary"></i>
+            <div
+                class="stat-icon"
+                style="
+                    background:#e7f1ff;
+                    color:#0d6efd;
+                ">
 
-                </div>
+                <i class="fa-solid fa-calendar-days"></i>
 
             </div>
 
@@ -206,128 +512,142 @@
 
 
 
-        <!-- POUSSINS ÉCLOS -->
+        <!-- POUSSINS -->
 
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
 
-            <div class="card shadow-sm border-0 h-100">
+            <div>
 
-                <div class="card-body
-                            d-flex
-                            justify-content-between
-                            align-items-center">
+                <p>
+                    Poussins éclos
+                </p>
 
-                    <div>
+                <h2 id="poussinsEclos">
+                    0
+                </h2>
 
-                        <p class="text-muted mb-1">
-
-                            Poussins éclos
-
-                        </p>
-
-                        <h3 id="poussinsEclos">
-
-                            0
-
-                        </h3>
-
-                    </div>
+            </div>
 
 
-                    <i class="fa-solid fa-feather
-                              fa-2x
-                              text-success"></i>
+            <div
+                class="stat-icon"
+                style="
+                    background:#e8f5e9;
+                    color:#198754;
+                ">
 
-                </div>
+                <i class="fa-solid fa-feather"></i>
 
             </div>
 
         </div>
-
 
     </div>
 
 
 
     <!-- =====================================================
-         LISTE DES INCUBATIONS
+         SECTION INCUBATIONS
     ====================================================== -->
 
-    <div class="card shadow-sm border-0">
+    <div class="section-card">
 
 
-        <!-- EN-TÊTE -->
-
-        <div class="card-header bg-white
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                    py-3">
+        <div class="section-header">
 
             <div>
 
-                <h4 class="mb-1">
+                <h2>
 
-                    <i class="fa-solid fa-egg text-success"></i>
+                    <i
+                        class="fa-solid fa-egg text-success">
+                    </i>
 
                     Incubations
 
-                </h4>
+                </h2>
 
-                <p class="text-muted mb-0">
 
-                    Créez et suivez vos lots d'incubation.
-
+                <p>
+                    Créez et suivez vos lots
+                    d'incubation.
                 </p>
 
             </div>
 
 
-        <button
-    type="button"
-    class="btn btn-success"
-    data-bs-toggle="modal"
-    data-bs-target="#modalIncubation">
+            <!-- =================================================
+                 BOUTON NOUVELLE INCUBATION
+            ================================================== -->
 
-    <i class="fa-solid fa-plus"></i>
+            <button
+                type="button"
+                class="btn btn-success btn-lg"
+                onclick="ouvrirModalIncubation()">
 
-    Nouvelle incubation
+                <i class="fa-solid fa-plus"></i>
 
-</button>
+                Nouvelle incubation
 
-              
-        <!-- TABLEAU -->
+            </button>
 
-        <div class="card-body">
+        </div>
+
+
+
+        <!-- =====================================================
+             TABLEAU
+        ====================================================== -->
+
+        <div class="table-container">
+
 
             <div class="table-responsive">
 
-                <table class="table table-hover align-middle">
+
+                <table
+                    class="table table-hover align-middle">
+
 
                     <thead class="table-light">
 
+
                         <tr>
 
-                            <th>ID</th>
+                            <th>
+                                ID
+                            </th>
 
-                            <th>Espèce</th>
+                            <th>
+                                Espèce
+                            </th>
 
-                            <th>Lot</th>
+                            <th>
+                                Lot
+                            </th>
 
-                            <th>Couveuse</th>
+                            <th>
+                                Couveuse
+                            </th>
 
-                            <th>Œufs</th>
+                            <th>
+                                Œufs
+                            </th>
 
-                            <th>Date entrée</th>
+                            <th>
+                                Date entrée
+                            </th>
 
-                            <th>Éclosion prévue</th>
+                            <th>
+                                Éclosion prévue
+                            </th>
 
-                            <th>Statut</th>
+                            <th>
+                                Statut
+                            </th>
 
                             <th class="text-center">
-
                                 Actions
-
                             </th>
 
                         </tr>
@@ -335,11 +655,19 @@
                     </thead>
 
 
-                    <tbody id="listeIncubations">
+                    <tbody
+                        id="listeIncubations">
 
-                        <!-- Rempli automatiquement par elevage.js -->
+
+                        <!--
+                            Les incubations seront
+                            ajoutées automatiquement
+                            par elevage.js
+                        -->
+
 
                     </tbody>
+
 
                 </table>
 
@@ -350,566 +678,508 @@
     </div>
 
 
+
 </div>
 
 
 
-<!-- =====================================================
-     MODAL : NOUVELLE INCUBATION
-====================================================== -->
+<!-- =========================================================
+     MODALE : NOUVELLE INCUBATION
+     
+     IMPORTANT :
+     UNE SEULE modale avec cet ID.
+========================================================= -->
 
+<div
+    id="modalIncubation"
+    class="modal-ferme-asher"
+    aria-hidden="true">
 
-            <!-- FORMULAIRE -->
 
-            <form id="formIncubation">
+    <div
+        class="modal-ferme-asher-content">
 
 
-                <div class="modal-body">
+        <!-- =================================================
+             HEADER
+        ================================================== -->
 
+        <div class="modal-fa-header">
 
-                    <div class="row">
 
+            <h3>
 
-                        <!-- =================================================
-                             ESPÈCE
-                        ================================================== -->
+                <i class="fa-solid fa-egg"></i>
 
-                        <div class="col-md-6 mb-3">
+                Nouvelle incubation
 
-                            <label
-                                for="incubationEspece"
-                                class="form-label">
+            </h3>
 
-                                Espèce
 
-                                <span class="text-danger">*</span>
+            <button
+                type="button"
+                class="modal-fa-close"
+                onclick="fermerModalIncubation()"
+                aria-label="Fermer">
 
-                            </label>
+                &times;
 
+            </button>
 
-                            <select
-                                id="incubationEspece"
-                                class="form-select"
-                                required>
 
-                                <option value="">
+        </div>
 
-                                    Sélectionner
 
-                                </option>
 
+        <!-- =================================================
+             FORMULAIRE
+        ================================================== -->
 
-                                <option value="Cailles">
+        <form
+            id="formIncubation"
+            onsubmit="enregistrerIncubation(event)">
 
-                                    Cailles
 
-                                </option>
+            <div class="modal-fa-body">
 
 
-                                <option value="Poules">
+                <div class="row g-3">
 
-                                    Poules
 
-                                </option>
+                    <!-- =================================================
+                         ESPÈCE
+                    ================================================== -->
 
+                    <div class="col-md-6">
 
-                                <option value="Canards">
 
-                                    Canards
+                        <label
+                            for="incubationEspece"
+                            class="form-label">
 
-                                </option>
+                            Espèce
+                            <span class="text-danger">
+                                *
+                            </span>
 
+                        </label>
 
-                                <option value="Pintades">
 
-                                    Pintades
+                        <select
+                            id="incubationEspece"
+                            class="form-select"
+                            required>
 
-                                </option>
 
-                            </select>
+                            <option value="">
+                                Sélectionner
+                            </option>
 
-                        </div>
 
+                            <option value="Cailles">
+                                Cailles
+                            </option>
 
 
-                        <!-- =================================================
-                             LOT D'ORIGINE
-                        ================================================== -->
+                            <option value="Poules">
+                                Poules
+                            </option>
 
-                        <div class="col-md-6 mb-3">
 
-                            <label
-                                for="incubationLot"
-                                class="form-label">
+                            <option value="Canards">
+                                Canards
+                            </option>
 
-                                Lot d'origine
 
-                                <span class="text-danger">*</span>
+                            <option value="Pintades">
+                                Pintades
+                            </option>
 
-                            </label>
 
+                            <option value="Dindes">
+                                Dindes
+                            </option>
 
-                            <select
-                                id="incubationLot"
-                                class="form-select"
-                                required>
 
-                                <option value="">
+                            <option value="Autres">
+                                Autres
+                            </option>
 
-                                    Sélectionner un lot
 
-                                </option>
+                        </select>
 
-                            </select>
 
-                            <small class="text-muted">
+                    </div>
 
-                                Seuls les lots ayant des œufs disponibles
-                                pour incubation seront utilisés.
 
-                            </small>
 
-                        </div>
+                    <!-- =================================================
+                         LOT
+                    ================================================== -->
 
+                    <div class="col-md-6">
 
 
-                        <!-- =================================================
-                             COUVEUSE
-                        ================================================== -->
+                        <label
+                            for="incubationLot"
+                            class="form-label">
 
-                        <div class="col-md-6 mb-3">
+                            Lot d'origine
+                            <span class="text-danger">
+                                *
+                            </span>
 
-                            <label
-                                for="incubationCouveuse"
-                                class="form-label">
+                        </label>
 
-                                Couveuse
 
-                                <span class="text-danger">*</span>
+                        <select
+                            id="incubationLot"
+                            class="form-select"
+                            required>
 
-                            </label>
 
+                            <option value="">
+                                Sélectionner un lot
+                            </option>
 
-                            <select
-                                id="incubationCouveuse"
-                                class="form-select"
-                                required>
 
-                                <option value="">
+                        </select>
 
-                                    Sélectionner une couveuse
 
-                                </option>
+                        <div class="help-text">
 
-
-                                <option value="Couveuse 1056 œufs">
-
-                                    Couveuse 1056 œufs
-
-                                </option>
-
-
-                                <option value="Couveuse 01">
-
-                                    Couveuse 01
-
-                                </option>
-
-
-                                <option value="Couveuse 02">
-
-                                    Couveuse 02
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-
-                        <!-- =================================================
-                             NOMBRE D'ŒUFS
-                        ================================================== -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="incubationOeufs"
-                                class="form-label">
-
-                                Nombre d'œufs
-
-                                <span class="text-danger">*</span>
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                id="incubationOeufs"
-                                class="form-control"
-                                min="1"
-                                step="1"
-                                required>
-
-
-                            <small
-                                id="incubationStockDisponible"
-                                class="text-muted">
-
-                                Stock disponible : 0 œuf
-
-                            </small>
-
-                        </div>
-
-
-
-                        <!-- =================================================
-                             DATE D'ENTRÉE
-                        ================================================== -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="incubationDateEntree"
-                                class="form-label">
-
-                                Date d'entrée
-
-                                <span class="text-danger">*</span>
-
-                            </label>
-
-
-                            <input
-                                type="date"
-                                id="incubationDateEntree"
-                                class="form-control"
-                                required>
-
-                        </div>
-
-
-
-                        <!-- =================================================
-                             DURÉE
-                        ================================================== -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="incubationDuree"
-                                class="form-label">
-
-                                Durée d'incubation
-
-                                <span class="text-danger">*</span>
-
-                            </label>
-
-
-                            <select
-                                id="incubationDuree"
-                                class="form-select"
-                                required>
-
-
-                                <option value="17">
-
-                                    Caille — 17 jours
-
-                                </option>
-
-
-                                <option value="21">
-
-                                    Poule — 21 jours
-
-                                </option>
-
-
-                                <option value="28">
-
-                                    Canard — 28 jours
-
-                                </option>
-
-
-                                <option value="28">
-
-                                    Pintade — 28 jours
-
-                                </option>
-
-
-                            </select>
-
-                        </div>
-
-
-
-                        <!-- =================================================
-                             NOTES
-                        ================================================== -->
-
-                        <div class="col-12 mb-3">
-
-                            <label
-                                for="incubationNotes"
-                                class="form-label">
-
-                                Notes
-
-                            </label>
-
-
-                            <textarea
-                                id="incubationNotes"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Informations complémentaires..."></textarea>
+                            Seuls les lots disposant
+                            d'œufs disponibles pour
+                            l'incubation seront proposés.
 
                         </div>
 
 
                     </div>
 
+
+
+                    <!-- =================================================
+                         COUVEUSE
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="incubationCouveuse"
+                            class="form-label">
+
+                            Couveuse
+                            <span class="text-danger">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <select
+                            id="incubationCouveuse"
+                            class="form-select"
+                            required>
+
+
+                            <option value="">
+                                Sélectionner une couveuse
+                            </option>
+
+
+                            <option
+                                value="Couveuse 1056 œufs">
+
+                                Couveuse 1056 œufs
+
+                            </option>
+
+
+                            <option
+                                value="Couveuse 01">
+
+                                Couveuse 01
+
+                            </option>
+
+
+                            <option
+                                value="Couveuse 02">
+
+                                Couveuse 02
+
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         NOMBRE OEUFS
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="incubationOeufs"
+                            class="form-label">
+
+                            Nombre d'œufs
+                            <span class="text-danger">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="incubationOeufs"
+                            class="form-control"
+                            min="1"
+                            step="1"
+                            placeholder="Exemple : 100"
+                            required>
+
+
+                        <div
+                            id="stockOeufsDisponible"
+                            class="help-text">
+
+                            Stock disponible :
+                            0 œuf
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         DATE D'ENTRÉE
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="incubationDate"
+                            class="form-label">
+
+                            Date d'entrée
+                            <span class="text-danger">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <input
+                            type="date"
+                            id="incubationDate"
+                            class="form-control"
+                            required>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         DURÉE
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="incubationDuree"
+                            class="form-label">
+
+                            Durée d'incubation
+                            <span class="text-danger">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <select
+                            id="incubationDuree"
+                            class="form-select"
+                            required>
+
+
+                            <option value="">
+                                Sélectionner la durée
+                            </option>
+
+
+                            <option value="17">
+                                Caille — 17 jours
+                            </option>
+
+
+                            <option value="21">
+                                Poule — 21 jours
+                            </option>
+
+
+                            <option value="28">
+                                Canard — 28 jours
+                            </option>
+
+
+                            <option value="28">
+                                Pintade — 28 jours
+                            </option>
+
+
+                            <option value="28">
+                                Dinde — 28 jours
+                            </option>
+
+
+                            <option value="30">
+                                Autre — 30 jours
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         DATE ECLOSION CALCULÉE
+                    ================================================== -->
+
+                    <div class="col-12">
+
+
+                        <div
+                            class="alert alert-success
+                                   d-flex
+                                   align-items-center
+                                   mb-0">
+
+
+                            <i
+                                class="fa-solid fa-calendar-check
+                                       me-2">
+                            </i>
+
+
+                            <div>
+
+
+                                <strong>
+                                    Éclosion prévue :
+                                </strong>
+
+
+                                <span
+                                    id="dateEclosionPreview">
+
+                                    -
+
+                                </span>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         NOTES
+                    ================================================== -->
+
+                    <div class="col-12">
+
+
+                        <label
+                            for="incubationNotes"
+                            class="form-label">
+
+                            Notes
+
+                        </label>
+
+
+                        <textarea
+                            id="incubationNotes"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Informations complémentaires...">
+                        </textarea>
+
+
+                    </div>
+
+
                 </div>
 
-
-
-                <!-- FOOTER -->
-
-                <div class="modal-footer">
-
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        onclick="fermerModalIncubation()">
-
-                        Annuler
-
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-success">
-
-                        <i class="fa-solid fa-floppy-disk"></i>
-
-                        Enregistrer l'incubation
-
-                    </button>
-
-
-                </div>
-
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     MODAL : SUIVI INCUBATION
-====================================================== -->
-
-<div
-    class="modal fade"
-    id="modalSuiviIncubation"
-    tabindex="-1"
-    aria-hidden="true">
-
-
-    <div
-        class="modal-dialog modal-lg modal-dialog-centered">
-
-
-        <div class="modal-content border-0 shadow">
-
-
-            <!-- HEADER -->
-
-            <div class="modal-header bg-primary text-white">
-
-                <h5 class="modal-title">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    Suivi incubation
-
-                </h5>
-
-
-                <button
-                    type="button"
-                    class="btn-close btn-close-white"
-                    onclick="fermerSuiviIncubation()">
-
-                </button>
 
             </div>
 
 
 
-            <!-- FORMULAIRE -->
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
 
-            <form id="formSuiviIncubation">
+            <div class="modal-fa-footer">
 
 
-                <input
-                    type="hidden"
-                    id="suiviIncubationId">
+                <!-- ANNULER -->
 
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="fermerModalIncubation()">
 
-                <div class="modal-body">
+                    <i class="fa-solid fa-xmark"></i>
 
+                    Annuler
 
-                    <div class="row">
+                </button>
 
 
-                        <!-- ŒUFS RETIRÉS -->
 
-                        <div class="col-md-6 mb-3">
+                <!-- ENREGISTRER -->
 
-                            <label
-                                for="oeufsRetires"
-                                class="form-label">
+                <button
+                    type="submit"
+                    class="btn btn-success">
 
-                                Œufs retirés
+                    <i class="fa-solid fa-floppy-disk"></i>
 
-                            </label>
+                    Enregistrer l'incubation
 
+                </button>
 
-                            <input
-                                type="number"
-                                id="oeufsRetires"
-                                class="form-control"
-                                value="0"
-                                min="0">
 
-                        </div>
+            </div>
 
 
+        </form>
 
-                        <!-- ŒUFS NON FÉCONDÉS -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="oeufsNonFecondes"
-                                class="form-label">
-
-                                Œufs non fécondés
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                id="oeufsNonFecondes"
-                                class="form-control"
-                                value="0"
-                                min="0">
-
-                        </div>
-
-
-
-                        <!-- EMBRYONS MORTS -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="embryonsMorts"
-                                class="form-label">
-
-                                Embryons morts
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                id="embryonsMorts"
-                                class="form-control"
-                                value="0"
-                                min="0">
-
-                        </div>
-
-
-
-                        <!-- POUSSINS ÉCLOS -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <label
-                                for="poussinsEclosInput"
-                                class="form-label">
-
-                                Poussins éclos
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                id="poussinsEclosInput"
-                                class="form-control"
-                                value="0"
-                                min="0">
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- FOOTER -->
-
-                <div class="modal-footer">
-
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        onclick="fermerSuiviIncubation()">
-
-                        Annuler
-
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-
-                        <i class="fa-solid fa-save"></i>
-
-                        Enregistrer le suivi
-
-                    </button>
-
-
-                </div>
-
-
-            </form>
-
-        </div>
 
     </div>
 
@@ -917,9 +1187,221 @@
 
 
 
-<!-- =====================================================
-     BOOTSTRAP JS
-====================================================== -->
+<!-- =========================================================
+     MODALE : SUIVI INCUBATION
+========================================================= -->
+
+<div
+    id="modalSuiviIncubation"
+    class="modal-ferme-asher"
+    aria-hidden="true">
+
+
+    <div
+        class="modal-ferme-asher-content">
+
+
+        <!-- HEADER -->
+
+        <div
+            class="modal-fa-header"
+            style="background:#0d6efd;">
+
+
+            <h3>
+
+                <i class="fa-solid fa-clipboard-check"></i>
+
+                Suivi incubation
+
+            </h3>
+
+
+            <button
+                type="button"
+                class="modal-fa-close"
+                onclick="fermerSuiviIncubation()">
+
+                &times;
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- FORMULAIRE -->
+
+        <form
+            id="formSuiviIncubation"
+            onsubmit="enregistrerSuiviIncubation(event)">
+
+
+            <input
+                type="hidden"
+                id="suiviIncubationId">
+
+
+            <div class="modal-fa-body">
+
+
+                <div class="row g-3">
+
+
+                    <!-- OEUFS RETIRES -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="oeufsRetires"
+                            class="form-label">
+
+                            Œufs retirés
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="oeufsRetires"
+                            class="form-control"
+                            value="0"
+                            min="0">
+
+
+                    </div>
+
+
+
+                    <!-- OEUFS NON FECONDES -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="oeufsNonFecondes"
+                            class="form-label">
+
+                            Œufs non fécondés
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="oeufsNonFecondes"
+                            class="form-control"
+                            value="0"
+                            min="0">
+
+
+                    </div>
+
+
+
+                    <!-- EMBRYONS MORTS -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="embryonsMorts"
+                            class="form-label">
+
+                            Embryons morts
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="embryonsMorts"
+                            class="form-control"
+                            value="0"
+                            min="0">
+
+
+                    </div>
+
+
+
+                    <!-- POUSSINS ECLOS -->
+
+                    <div class="col-md-6">
+
+
+                        <label
+                            for="poussinsEclosInput"
+                            class="form-label">
+
+                            Poussins éclos
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="poussinsEclosInput"
+                            class="form-control"
+                            value="0"
+                            min="0">
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-fa-footer">
+
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="fermerSuiviIncubation()">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                    Annuler
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Enregistrer le suivi
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT BOOTSTRAP
+========================================================= -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
@@ -927,12 +1409,434 @@
 
 
 
-<!-- =====================================================
-     ELEVAGE JS
-====================================================== -->
+<!-- =========================================================
+     JAVASCRIPT ÉLEVAGE
+========================================================= -->
 
 <script
     src="../../js/elevage.js">
+</script>
+
+
+
+<!-- =========================================================
+     CORRECTIFS D'INTERFACE
+     
+     Ce petit bloc ne remplace PAS elevage.js.
+     Il assure seulement l'ouverture / fermeture propre
+     de la modale.
+========================================================= -->
+
+<script>
+
+(function () {
+
+
+    /* =====================================================
+       OUVRIR LA MODALE
+    ====================================================== */
+
+    window.ouvrirModalIncubation = function () {
+
+        const modal =
+            document.getElementById(
+                "modalIncubation"
+            );
+
+
+        if (!modal) {
+
+            console.error(
+                "modalIncubation introuvable."
+            );
+
+            return;
+
+        }
+
+
+        modal.classList.add("active");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        /* ---------------------------------------------
+           DATE DU JOUR
+        --------------------------------------------- */
+
+        const champDate =
+            document.getElementById(
+                "incubationDate"
+            );
+
+
+        if (
+            champDate &&
+            !champDate.value
+        ) {
+
+            const maintenant =
+                new Date();
+
+
+            const annee =
+                maintenant.getFullYear();
+
+
+            const mois =
+                String(
+                    maintenant.getMonth() + 1
+                ).padStart(2, "0");
+
+
+            const jour =
+                String(
+                    maintenant.getDate()
+                ).padStart(2, "0");
+
+
+            champDate.value =
+                `${annee}-${mois}-${jour}`;
+
+        }
+
+
+        /* ---------------------------------------------
+           CHARGER LES LOTS
+           
+           On laisse d'abord elevage.js essayer
+           de remplir le select.
+        --------------------------------------------- */
+
+        try {
+
+            if (
+                typeof chargerLotsIncubation ===
+                "function"
+            ) {
+
+                chargerLotsIncubation();
+
+            }
+
+        } catch (erreur) {
+
+            console.error(
+                "Erreur chargement lots :",
+                erreur
+            );
+
+        }
+
+
+        /* ---------------------------------------------
+           CHARGER LES LOTS DISPONIBLES
+           depuis les fonctions existantes
+        --------------------------------------------- */
+
+        try {
+
+            if (
+                typeof chargerLotsDisponibles ===
+                "function"
+            ) {
+
+                chargerLotsDisponibles();
+
+            }
+
+        } catch (erreur) {
+
+            console.error(
+                "Erreur lots disponibles :",
+                erreur
+            );
+
+        }
+
+    };
+
+
+
+    /* =====================================================
+       FERMER LA MODALE
+    ====================================================== */
+
+    window.fermerModalIncubation = function () {
+
+        const modal =
+            document.getElementById(
+                "modalIncubation"
+            );
+
+
+        if (!modal) {
+
+            return;
+
+        }
+
+
+        modal.classList.remove("active");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+    };
+
+
+
+    /* =====================================================
+       FERMER AVEC ECHAP
+    ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                fermerModalIncubation();
+
+                fermerSuiviIncubation();
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       FERMER EN CLIQUANT SUR LE FOND
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+
+            const modal =
+                document.getElementById(
+                    "modalIncubation"
+                );
+
+
+            if (
+                modal &&
+                event.target === modal
+            ) {
+
+                fermerModalIncubation();
+
+            }
+
+
+            const modalSuivi =
+                document.getElementById(
+                    "modalSuiviIncubation"
+                );
+
+
+            if (
+                modalSuivi &&
+                event.target === modalSuivi
+            ) {
+
+                fermerSuiviIncubation();
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       DATE D'ÉCLOSION AUTOMATIQUE
+    ====================================================== */
+
+    function mettreAJourDateEclosion() {
+
+
+        const date =
+            document.getElementById(
+                "incubationDate"
+            );
+
+
+        const duree =
+            document.getElementById(
+                "incubationDuree"
+            );
+
+
+        const preview =
+            document.getElementById(
+                "dateEclosionPreview"
+            );
+
+
+        if (
+            !date ||
+            !duree ||
+            !preview
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !date.value ||
+            !duree.value
+        ) {
+
+            preview.textContent =
+                "-";
+
+            return;
+
+        }
+
+
+        const nouvelleDate =
+            new Date(
+                date.value +
+                "T00:00:00"
+            );
+
+
+        nouvelleDate.setDate(
+            nouvelleDate.getDate() +
+            Number(duree.value)
+        );
+
+
+        const annee =
+            nouvelleDate.getFullYear();
+
+
+        const mois =
+            String(
+                nouvelleDate.getMonth() + 1
+            ).padStart(2, "0");
+
+
+        const jour =
+            String(
+                nouvelleDate.getDate()
+            ).padStart(2, "0");
+
+
+        preview.textContent =
+            `${jour}/${mois}/${annee}`;
+
+    }
+
+
+
+    /* =====================================================
+       EVENEMENTS DATE / DURÉE
+    ====================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+
+            const date =
+                document.getElementById(
+                    "incubationDate"
+                );
+
+
+            const duree =
+                document.getElementById(
+                    "incubationDuree"
+                );
+
+
+            if (date) {
+
+                date.addEventListener(
+                    "change",
+                    mettreAJourDateEclosion
+                );
+
+            }
+
+
+            if (duree) {
+
+                duree.addEventListener(
+                    "change",
+                    mettreAJourDateEclosion
+                );
+
+            }
+
+
+            /* -----------------------------------------
+               CHARGER LA PAGE
+            ----------------------------------------- */
+
+            try {
+
+                if (
+                    typeof chargerIncubations ===
+                    "function"
+                ) {
+
+                    chargerIncubations();
+
+                }
+
+            } catch (erreur) {
+
+                console.error(
+                    "Erreur chargement incubations :",
+                    erreur
+                );
+
+            }
+
+
+            try {
+
+                if (
+                    typeof mettreAJourStatistiquesIncubation ===
+                    "function"
+                ) {
+
+                    mettreAJourStatistiquesIncubation();
+
+                }
+
+            } catch (erreur) {
+
+                console.error(
+                    "Erreur statistiques incubation :",
+                    erreur
+                );
+
+            }
+
+        }
+    );
+
+
+})();
+
 </script>
 
 
