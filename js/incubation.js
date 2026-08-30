@@ -503,9 +503,23 @@ function obtenirOeufsDisponiblesPourLotIncubation(
 }
 
 
-/* =========================================================
-   CHARGER LES LOTS DANS LE FORMULAIRE
+/* ============================================================
+   CHARGER LES LOTS D'ORIGINE POUR INCUBATION
 ========================================================= */
+
+   CHAÎNE :
+   ANIMAUX & LOTS
+        ↓
+   PRODUCTION ŒUFS
+        ↓
+   STOCK ŒUFS INCUBATION
+        ↓
+   INCUBATION
+
+   IMPORTANT :
+   On affiche uniquement les lots qui possèdent
+   réellement des œufs disponibles pour incubation.
+============================================================ */
 
 function chargerLotsIncubation() {
 
@@ -514,7 +528,6 @@ function chargerLotsIncubation() {
             "incubationLot"
         );
 
-
     if (!select) {
 
         return;
@@ -522,25 +535,45 @@ function chargerLotsIncubation() {
     }
 
 
-    const especeSelect =
+    const especeElement =
         document.getElementById(
             "incubationEspece"
         );
 
 
     const especeSelectionnee =
-        especeSelect
-            ? especeSelect.value
+        especeElement
+            ? especeElement.value
             : "";
 
+
+    /*
+     * Récupérer les lots d'élevage.
+     */
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    /*
+     * Récupérer le stock d'œufs.
+     */
+
+    const stock =
+        obtenirStockOeufsIncubation();
+
+
+    /*
+     * Mémoriser le lot actuellement sélectionné.
+     */
 
     const ancienneValeur =
         select.value;
 
 
-    const lots =
-        incubationObtenirLots();
-
+    /*
+     * Réinitialiser la liste.
+     */
 
     select.innerHTML = `
 
@@ -551,16 +584,17 @@ function chargerLotsIncubation() {
     `;
 
 
-    let nombre = 0;
+    /*
+     * Construire la liste.
+     */
 
-
-    lots.forEach(
-        function (lot) {
+    lots
+        .filter(function (lot) {
 
             const espece =
-                incubationEspeceLot(
-                    lot
-                );
+                lot.espece ||
+                lot.type ||
+                "";
 
 
             const statut =
@@ -569,75 +603,158 @@ function chargerLotsIncubation() {
 
 
             /*
-             * Un lot terminé n'est pas
-             * proposé.
+             * Stock disponible appartenant
+             * à ce lot.
              */
 
-            if (
-                statut !== "Actif"
-            ) {
+            const stockLot =
+                stock.filter(
+                    function (ligne) {
 
-                return;
+                        return (
 
-            }
+                            String(
+                                ligne.lotId
+                            ) ===
+                            String(
+                                lot.id
+                            )
 
+                            &&
 
-            /*
-             * Filtre espèce.
-             */
+                            Number(
+                                ligne.quantiteDisponible ||
+                                0
+                            ) > 0
 
-            if (
-                especeSelectionnee &&
-                espece !==
-                especeSelectionnee
-            ) {
+                        );
 
-                return;
-
-            }
-
-
-            const lotId =
-                lot.id;
-
-
-            const oeufs =
-                obtenirOeufsDisponiblesPourLotIncubation(
-                    lotId
+                    }
                 );
 
 
             /*
-             * IMPORTANT :
-             * même si le stock d'œufs n'est
-             * pas encore créé, le lot reste
-             * visible.
-             *
-             * Cela permet de vérifier la
-             * liaison Lot → Incubation.
+             * Quantité totale disponible.
              */
 
+            const disponible =
+                stockLot.reduce(
+                    function (
+                        total,
+                        ligne
+                    ) {
 
-            const animal =
-                incubationTrouverAnimalOrigine(
-                    lot
-                );
+                        return (
+                            total +
+                            Number(
+                                ligne.quantiteDisponible ||
+                                0
+                            )
+                        );
 
-
-            const race =
-                incubationRaceLot(
-                    lot
-                );
-
-
-            const quantiteAnimaux =
-                Number(
-                    lot.quantiteActuelle ??
-                    lot.quantite ??
-                    lot.quantiteInitiale ??
+                    },
                     0
                 );
 
+
+            /*
+             * Le lot doit :
+             *
+             * 1. être actif
+             * 2. correspondre à l'espèce
+             * 3. avoir des œufs disponibles
+             */
+
+            return (
+
+                statut === "Actif"
+
+                &&
+
+                (
+                    !especeSelectionnee ||
+                    espece === especeSelectionnee
+                )
+
+                &&
+
+                disponible > 0
+
+            );
+
+        })
+
+
+        .forEach(function (lot) {
+
+
+            const stockLot =
+                stock.filter(
+                    function (ligne) {
+
+                        return (
+
+                            String(
+                                ligne.lotId
+                            ) ===
+                            String(
+                                lot.id
+                            )
+
+                            &&
+
+                            Number(
+                                ligne.quantiteDisponible ||
+                                0
+                            ) > 0
+
+                        );
+
+                    }
+                );
+
+
+            const disponible =
+                stockLot.reduce(
+                    function (
+                        total,
+                        ligne
+                    ) {
+
+                        return (
+                            total +
+                            Number(
+                                ligne.quantiteDisponible ||
+                                0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+
+            const nom =
+                lot.nom ||
+                lot.nomLot ||
+                lot.code ||
+                lot.id;
+
+
+            const espece =
+                lot.espece ||
+                lot.type ||
+                "";
+
+
+            const race =
+                lot.race ||
+                "";
+
+
+            /*
+             * Affichage du lot.
+             */
 
             const option =
                 document.createElement(
@@ -646,109 +763,101 @@ function chargerLotsIncubation() {
 
 
             option.value =
-                lotId;
-
-
-            option.dataset.lotId =
-                lotId;
-
-
-            option.dataset.animalId =
-                animal
-                    ? animal.id
-                    : "";
-
-
-            option.dataset.stock =
-                oeufs;
+                lot.id;
 
 
             option.dataset.espece =
                 espece;
 
 
-            option.dataset.race =
-                race;
+            option.dataset.lotId =
+                lot.id;
+
+
+            option.dataset.nom =
+                nom;
 
 
             option.textContent =
-
-                incubationNomLot(
-                    lot
-                ) +
-
+                nom +
                 " — " +
-
                 espece +
-
                 (
                     race
                         ? " / " + race
                         : ""
                 ) +
-
                 " — " +
-
-                quantiteAnimaux +
-
-                " animaux" +
-
-                (
-                    oeufs > 0
-                        ? " — " +
-                          oeufs +
-                          " œufs disponibles"
-                        : ""
-                );
+                disponible +
+                " œufs disponibles";
 
 
             select.appendChild(
                 option
             );
 
-
-            nombre++;
-
-        }
-    );
+        });
 
 
     /*
-     * Restaurer l'ancienne sélection.
+     * Restaurer la sélection précédente
+     * si elle existe encore.
      */
 
     if (
-        ancienneValeur &&
-        Array.from(
-            select.options
-        ).some(
-            function (option) {
-
-                return (
-                    option.value ===
-                    ancienneValeur
-                );
-
-            }
-        )
+        ancienneValeur
     ) {
 
-        select.value =
-            ancienneValeur;
+        const existe =
+            Array.from(
+                select.options
+            ).some(
+                function (option) {
+
+                    return (
+                        option.value ===
+                        ancienneValeur
+                    );
+
+                }
+            );
+
+
+        if (existe) {
+
+            select.value =
+                ancienneValeur;
+
+        }
 
     }
 
 
-    afficherStockDisponible();
+    /*
+     * Actualiser les informations
+     * du lot sélectionné.
+     */
+
+    if (
+        typeof afficherStockDisponible ===
+        "function"
+    ) {
+
+        afficherStockDisponible();
+
+    }
 
 
-    console.log(
-        "Lots d'origine chargés :",
-        nombre
-    );
+    if (
+        typeof afficherInformationsLotOrigine ===
+        "function"
+    ) {
+
+        afficherInformationsLotOrigine();
+
+    }
 
 }
-
 
 /* =========================================================
    AFFICHER LES INFORMATIONS DU LOT
