@@ -3335,7 +3335,7 @@ function ouvrirFormulaireIncubation() {
     modal.style.display = "flex";
 
     const champDate = document.getElementById(
-        "incubationDate"
+        "incubationDateEntree"
     );
 
     if (champDate && !champDate.value) {
@@ -3347,6 +3347,7 @@ function ouvrirFormulaireIncubation() {
 
 }
 
+
 /* -----------------------------------------
    OUVRIR LE MODAL INCUBATION
    Compatibilité avec incubation.html
@@ -3357,6 +3358,7 @@ function ouvrirModalIncubation() {
     ouvrirFormulaireIncubation();
 
 }
+
 
 /* -----------------------------------------
    FERMER LE FORMULAIRE
