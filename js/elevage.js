@@ -1,24 +1,26 @@
 /* =========================================================
    FERME ASHER ERP
-   MODULE : ÉLEVAGE
-   FICHIER : js/elevage.js
+   MODULE ÉLEVAGE
+   Fichier : js/elevage.js
 
-   CHAÎNE DES DONNÉES :
+   ARCHITECTURE :
 
    ANIMAUX & LOTS
-        ↓ lotId
-   PRODUCTION D'ŒUFS
-        ↓ productionId + lotId
+        ↓
+   PRODUCTION DES ŒUFS
+        ↓
    STOCK ŒUFS POUR INCUBATION
-        ↓ lotId
-   INCUBATION
+        ↓
+   incubation.js
         ↓
    ÉCLOSION
         ↓
    POUSSINIÈRE
 
    IMPORTANT :
-   L'INTERFACE INCUBATION EST DANS incubation.js
+   - AUCUNE INTERFACE D'INCUBATION ICI
+   - incubation.js gère l'incubation
+   - elevage.js fournit les lots et le stock d'œufs
 ========================================================= */
 
 "use strict";
@@ -26,76 +28,6 @@
 
 /* =========================================================
    1. OUTILS GÉNÉRAUX
-========================================================= */
-
-function getDataLocale(cle) {
-
-    try {
-
-        const donnees =
-            localStorage.getItem(cle);
-
-        if (!donnees) {
-            return [];
-        }
-
-        const resultat =
-            JSON.parse(donnees);
-
-        return Array.isArray(resultat)
-            ? resultat
-            : [];
-
-    } catch (erreur) {
-
-        console.error(
-            "Erreur lecture localStorage :",
-            cle,
-            erreur
-        );
-
-        return [];
-
-    }
-
-}
-
-
-function sauvegarderDataLocale(
-    cle,
-    donnees
-) {
-
-    try {
-
-        localStorage.setItem(
-            cle,
-            JSON.stringify(donnees)
-        );
-
-        return true;
-
-    } catch (erreur) {
-
-        console.error(
-            "Erreur sauvegarde localStorage :",
-            cle,
-            erreur
-        );
-
-        alert(
-            "Impossible d'enregistrer les données."
-        );
-
-        return false;
-
-    }
-
-}
-
-
-/* =========================================================
-   ID UNIQUE
 ========================================================= */
 
 function genererId(prefixe) {
@@ -106,18 +38,14 @@ function genererId(prefixe) {
         Date.now() +
         "-" +
         Math.floor(
-            Math.random() * 100000
+            Math.random() * 10000
         )
     );
 
 }
 
 
-/* =========================================================
-   DATES
-========================================================= */
-
-function obtenirDateAujourdhui() {
+function obtenirDateAujourdHui() {
 
     const date =
         new Date();
@@ -128,18 +56,12 @@ function obtenirDateAujourdhui() {
     const mois =
         String(
             date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     const jour =
         String(
             date.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     return (
         annee +
@@ -151,50 +73,6 @@ function obtenirDateAujourdhui() {
 
 }
 
-
-/* Compatibilité avec ancien code */
-
-function obtenirDateAujourdHui() {
-
-    return obtenirDateAujourdhui();
-
-}
-
-
-function formaterDate(date) {
-
-    if (!date) {
-        return "";
-    }
-
-    const texte =
-        String(date);
-
-    const parties =
-        texte.split("-");
-
-    if (
-        parties.length !== 3
-    ) {
-
-        return texte;
-
-    }
-
-    return (
-        parties[2] +
-        "/" +
-        parties[1] +
-        "/" +
-        parties[0]
-    );
-
-}
-
-
-/* =========================================================
-   UTILISATEUR
-========================================================= */
 
 function obtenirUtilisateur() {
 
@@ -213,9 +91,73 @@ function obtenirUtilisateur() {
 }
 
 
-/* =========================================================
-   NOMBRE
-========================================================= */
+function obtenirDonnees(nom) {
+
+    try {
+
+        const donnees =
+            localStorage.getItem(nom);
+
+        if (!donnees) {
+
+            return [];
+
+        }
+
+        const resultat =
+            JSON.parse(donnees);
+
+        return Array.isArray(resultat)
+            ? resultat
+            : [];
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur lecture localStorage :",
+            nom,
+            erreur
+        );
+
+        return [];
+
+    }
+
+}
+
+
+function sauvegarderDonnees(
+    nom,
+    donnees
+) {
+
+    try {
+
+        localStorage.setItem(
+            nom,
+            JSON.stringify(donnees)
+        );
+
+        return true;
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur sauvegarde localStorage :",
+            nom,
+            erreur
+        );
+
+        alert(
+            "Impossible d'enregistrer les données."
+        );
+
+        return false;
+
+    }
+
+}
+
 
 function formaterNombre(nombre) {
 
@@ -223,6 +165,36 @@ function formaterNombre(nombre) {
         nombre || 0
     ).toLocaleString(
         "fr-FR"
+    );
+
+}
+
+
+function formaterDate(date) {
+
+    if (!date) {
+
+        return "";
+
+    }
+
+    const parties =
+        String(date).split("-");
+
+    if (
+        parties.length !== 3
+    ) {
+
+        return date;
+
+    }
+
+    return (
+        parties[2] +
+        "/" +
+        parties[1] +
+        "/" +
+        parties[0]
     );
 
 }
@@ -252,20 +224,22 @@ function initialiserElevage() {
 
         "croissanceElevage",
 
-        "poussiniereElevage"
+        "poussiniere"
 
     ];
 
 
     bases.forEach(
-        function (cle) {
+        function (base) {
 
             if (
-                localStorage.getItem(cle) === null
+                localStorage.getItem(base)
+                ===
+                null
             ) {
 
                 localStorage.setItem(
-                    cle,
+                    base,
                     JSON.stringify([])
                 );
 
@@ -286,7 +260,7 @@ initialiserElevage();
 
 function obtenirAnimaux() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "animaux"
     );
 
@@ -297,7 +271,7 @@ function sauvegarderAnimaux(
     animaux
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "animaux",
         animaux
     );
@@ -314,44 +288,64 @@ function ajouterAnimal(event) {
     }
 
 
-    const type =
+    const typeElement =
         document.getElementById(
             "typeAnimal"
-        )?.value
-        ?.trim()
-        || "";
+        );
 
-
-    const race =
+    const raceElement =
         document.getElementById(
             "raceAnimal"
-        )?.value
-        ?.trim()
-        || "";
+        );
 
+    const quantiteElement =
+        document.getElementById(
+            "quantiteAnimal"
+        );
 
-    const quantite =
-        Number(
-            document.getElementById(
-                "quantiteAnimal"
-            )?.value
+    const dateElement =
+        document.getElementById(
+            "dateAnimal"
+        );
+
+    const statutElement =
+        document.getElementById(
+            "statutAnimal"
         );
 
 
+    const type =
+        typeElement
+        ? typeElement.value.trim()
+        : "";
+
+
+    const race =
+        raceElement
+        ? raceElement.value.trim()
+        : "";
+
+
+    const quantite =
+        quantiteElement
+        ? Number(
+            quantiteElement.value
+        )
+        : 0;
+
+
     const date =
-        document.getElementById(
-            "dateAnimal"
-        )?.value
-        ||
-        obtenirDateAujourdhui();
+        dateElement
+        && dateElement.value
+        ? dateElement.value
+        : obtenirDateAujourdHui();
 
 
     const statut =
-        document.getElementById(
-            "statutAnimal"
-        )?.value
-        ||
-        "Actif";
+        statutElement
+        && statutElement.value
+        ? statutElement.value
+        : "Actif";
 
 
     if (!type) {
@@ -366,7 +360,9 @@ function ajouterAnimal(event) {
 
 
     if (
-        !Number.isFinite(quantite)
+        !Number.isFinite(
+            quantite
+        )
         ||
         quantite <= 0
     ) {
@@ -387,7 +383,9 @@ function ajouterAnimal(event) {
     const animal = {
 
         id:
-            genererId("ANI"),
+            genererId(
+                "ANI"
+            ),
 
         type:
             type,
@@ -427,22 +425,30 @@ function ajouterAnimal(event) {
     );
 
 
-    alert(
-        "Animal enregistré avec succès."
-    );
+    const formulaire =
+        document.getElementById(
+            "formAnimal"
+        );
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
 
 
     chargerAnimaux();
+
+
+    alert(
+        "Animal enregistré avec succès."
+    );
 
 
     return true;
 
 }
 
-
-/* =========================================================
-   CHARGER ANIMAUX
-========================================================= */
 
 function chargerAnimaux() {
 
@@ -492,94 +498,50 @@ function chargerAnimaux() {
     }
 
 
-    animaux.forEach(
-        function (animal) {
+    animaux
+        .slice()
+        .reverse()
+        .forEach(
+            function (animal) {
 
-            const statut =
-                animal.statut ||
-                "Actif";
+                tableau.innerHTML += `
 
+                    <tr>
 
-            let classe =
-                "success";
+                        <td>
+                            ${animal.id || "-"}
+                        </td>
 
+                        <td>
+                            ${animal.type || "-"}
+                        </td>
 
-            if (
-                statut === "Malade"
-            ) {
+                        <td>
+                            ${animal.race || "-"}
+                        </td>
 
-                classe =
-                    "danger";
+                        <td>
+                            ${formaterNombre(
+                                animal.quantite
+                            )}
+                        </td>
+
+                        <td>
+                            ${formaterDate(
+                                animal.date
+                            )}
+                        </td>
+
+                        <td>
+                            ${animal.statut || "-"}
+                        </td>
+
+                    </tr>
+
+                `;
 
             }
-
-
-            if (
-                statut === "Vendu"
-                ||
-                statut === "Inactif"
-            ) {
-
-                classe =
-                    "secondary";
-
-            }
-
-
-            tableau.innerHTML += `
-
-                <tr>
-
-                    <td>
-                        ${animal.id || "-"}
-                    </td>
-
-                    <td>
-                        ${animal.type || "-"}
-                    </td>
-
-                    <td>
-                        ${animal.race || "-"}
-                    </td>
-
-                    <td>
-                        ${formaterNombre(
-                            animal.quantiteInitiale ||
-                            animal.quantite ||
-                            0
-                        )}
-                    </td>
-
-                    <td>
-                        ${formaterNombre(
-                            animal.quantite ||
-                            0
-                        )}
-                    </td>
-
-                    <td>
-                        ${formaterDate(
-                            animal.date
-                        )}
-                    </td>
-
-                    <td>
-
-                        <span
-                            class="badge bg-${classe}">
-
-                            ${statut}
-
-                        </span>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-    );
+        );
 
 }
 
@@ -588,18 +550,9 @@ function chargerAnimaux() {
    4. LOTS D'ÉLEVAGE
 ========================================================= */
 
-/*
-   C'EST CETTE BASE QUI EST UTILISÉE PAR incubation.js.
-
-   Clé localStorage :
-
-   lotsElevage
-*/
-
-
 function obtenirLotsElevage() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "lotsElevage"
     );
 
@@ -610,7 +563,7 @@ function sauvegarderLotsElevage(
     lots
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "lotsElevage",
         lots
     );
@@ -618,70 +571,42 @@ function sauvegarderLotsElevage(
 }
 
 
-/*
-   Alias utilisé par la production.
-*/
-
-function obtenirLotsConnectes() {
-
-    return obtenirLotsElevage();
-
-}
-
-
-/* =========================================================
-   GÉNÉRER CODE LOT
-========================================================= */
-
 function genererCodeLot() {
 
-    const date =
+    const maintenant =
         new Date();
 
-
     const annee =
-        date.getFullYear();
-
+        maintenant.getFullYear();
 
     const mois =
         String(
-            date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
+            maintenant.getMonth() + 1
+        ).padStart(2, "0");
 
     const jour =
         String(
-            date.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
+            maintenant.getDate()
+        ).padStart(2, "0");
 
     const heure =
         String(
-            date.getHours()
-        ).padStart(
-            2,
-            "0"
-        );
-
+            maintenant.getHours()
+        ).padStart(2, "0");
 
     const minute =
         String(
-            date.getMinutes()
-        ).padStart(
-            2,
-            "0"
-        );
+            maintenant.getMinutes()
+        ).padStart(2, "0");
 
+    const seconde =
+        String(
+            maintenant.getSeconds()
+        ).padStart(2, "0");
 
     const aleatoire =
         Math.floor(
-            Math.random() * 1000
+            Math.random() * 900 + 100
         );
 
 
@@ -693,6 +618,7 @@ function genererCodeLot() {
         "-" +
         heure +
         minute +
+        seconde +
         "-" +
         aleatoire
     );
@@ -700,9 +626,64 @@ function genererCodeLot() {
 }
 
 
-/* =========================================================
-   ENREGISTRER UN LOT
-========================================================= */
+function obtenirNomLot(lot) {
+
+    if (!lot) {
+
+        return "";
+
+    }
+
+    return (
+        lot.nom
+        ||
+        lot.nomLot
+        ||
+        ""
+    );
+
+}
+
+
+function obtenirEspeceLot(lot) {
+
+    if (!lot) {
+
+        return "";
+
+    }
+
+    return (
+        lot.espece
+        ||
+        lot.type
+        ||
+        ""
+    );
+
+}
+
+
+function obtenirQuantiteLot(lot) {
+
+    if (!lot) {
+
+        return 0;
+
+    }
+
+    return Number(
+        lot.quantiteActuelle
+        ??
+        lot.quantite
+        ??
+        lot.quantiteInitiale
+        ??
+        0
+    );
+
+}
+
 
 function enregistrerLot(event) {
 
@@ -713,82 +694,154 @@ function enregistrerLot(event) {
     }
 
 
-    const espece =
+    const especeElement =
+        document.getElementById(
+            "lotEspece"
+        )
+        ||
         document.getElementById(
             "especeLot"
-        )?.value
-        ?.trim()
-        || "";
-
-
-    const race =
-        document.getElementById(
-            "raceLot"
-        )?.value
-        ?.trim()
-        || "";
-
-
-    const nom =
-        document.getElementById(
-            "nomLot"
-        )?.value
-        ?.trim()
-        || "";
-
-
-    const dateEntree =
-        document.getElementById(
-            "dateEntreeLot"
-        )?.value
-        ||
-        obtenirDateAujourdhui();
-
-
-    const quantite =
-        Number(
-            document.getElementById(
-                "quantiteLot"
-            )?.value
         );
 
 
-    const origine =
+    const raceElement =
+        document.getElementById(
+            "lotRace"
+        )
+        ||
+        document.getElementById(
+            "raceLot"
+        );
+
+
+    const nomElement =
+        document.getElementById(
+            "lotNom"
+        )
+        ||
+        document.getElementById(
+            "nomLot"
+        );
+
+
+    const dateElement =
+        document.getElementById(
+            "lotDateEntree"
+        )
+        ||
+        document.getElementById(
+            "dateEntreeLot"
+        );
+
+
+    const quantiteElement =
+        document.getElementById(
+            "lotQuantite"
+        )
+        ||
+        document.getElementById(
+            "quantiteLot"
+        );
+
+
+    const origineElement =
+        document.getElementById(
+            "lotOrigine"
+        )
+        ||
         document.getElementById(
             "origineLot"
-        )?.value
+        );
+
+
+    const coutElement =
+        document.getElementById(
+            "lotCout"
+        )
         ||
-        "Achat";
+        document.getElementById(
+            "coutLot"
+        );
+
+
+    const statutElement =
+        document.getElementById(
+            "lotStatut"
+        )
+        ||
+        document.getElementById(
+            "statutLot"
+        );
+
+
+    const notesElement =
+        document.getElementById(
+            "lotNotes"
+        )
+        ||
+        document.getElementById(
+            "notesLot"
+        );
+
+
+    const espece =
+        especeElement
+        ? especeElement.value.trim()
+        : "";
+
+
+    const race =
+        raceElement
+        ? raceElement.value.trim()
+        : "";
+
+
+    const nom =
+        nomElement
+        ? nomElement.value.trim()
+        : "";
+
+
+    const dateEntree =
+        dateElement
+        ? dateElement.value
+        : obtenirDateAujourdHui();
+
+
+    const quantite =
+        quantiteElement
+        ? Number(
+            quantiteElement.value
+        )
+        : 0;
+
+
+    const origine =
+        origineElement
+        ? origineElement.value
+        : "Achat";
 
 
     const cout =
-        Number(
-            document.getElementById(
-                "coutLot"
-            )?.value
+        coutElement
+        ? Number(
+            coutElement.value || 0
         )
-        || 0;
+        : 0;
 
 
     const statut =
-        document.getElementById(
-            "statutLot"
-        )?.value
-        ||
-        "Actif";
+        statutElement
+        && statutElement.value
+        ? statutElement.value
+        : "Actif";
 
 
     const notes =
-        document.getElementById(
-            "notesLot"
-        )?.value
-        ?.trim()
-        || "";
+        notesElement
+        ? notesElement.value.trim()
+        : "";
 
-
-    /* -----------------------------------------
-       VALIDATION
-    ----------------------------------------- */
 
     if (!espece) {
 
@@ -813,7 +866,9 @@ function enregistrerLot(event) {
 
 
     if (
-        !Number.isFinite(quantite)
+        !Number.isFinite(
+            quantite
+        )
         ||
         quantite <= 0
     ) {
@@ -827,34 +882,55 @@ function enregistrerLot(event) {
     }
 
 
-    /* -----------------------------------------
-       CHARGER LES LOTS EXISTANTS
-    ----------------------------------------- */
-
     const lots =
         obtenirLotsElevage();
 
 
-    /* -----------------------------------------
-       ID UNIQUE
-    ----------------------------------------- */
+    const doublon =
+        lots.some(
+            function (lot) {
 
-    const id =
-        genererId("LOT");
+                return (
+                    String(
+                        obtenirNomLot(lot)
+                    ).toLowerCase()
+                    ===
+                    nom.toLowerCase()
+                );
+
+            }
+        );
+
+
+    if (doublon) {
+
+        const continuer =
+            confirm(
+
+                `Un lot nommé "${nom}" existe déjà.
+
+Voulez-vous quand même créer ce nouveau lot ?`
+
+            );
+
+
+        if (!continuer) {
+
+            return false;
+
+        }
+
+    }
 
 
     const code =
         genererCodeLot();
 
 
-    /* -----------------------------------------
-       CRÉER LE LOT
-    ----------------------------------------- */
-
     const nouveauLot = {
 
         id:
-            id,
+            code,
 
         code:
             code,
@@ -902,6 +978,12 @@ function enregistrerLot(event) {
         notes:
             notes,
 
+        mortalite:
+            0,
+
+        transferes:
+            0,
+
         utilisateur:
             obtenirUtilisateur(),
 
@@ -911,68 +993,21 @@ function enregistrerLot(event) {
     };
 
 
-    /* -----------------------------------------
-       ENREGISTRER
-    ----------------------------------------- */
-
     lots.push(
         nouveauLot
     );
 
 
-    const sauvegarde =
-        sauvegarderLotsElevage(
+    if (
+        !sauvegarderLotsElevage(
             lots
-        );
-
-
-    if (!sauvegarde) {
+        )
+    ) {
 
         return false;
 
     }
 
-
-    console.log(
-        "LOT ENREGISTRÉ :",
-        nouveauLot
-    );
-
-
-    /* -----------------------------------------
-       FERMER MODAL BOOTSTRAP
-    ----------------------------------------- */
-
-    const modalElement =
-        document.getElementById(
-            "modalLot"
-        );
-
-
-    if (
-        modalElement &&
-        typeof bootstrap !==
-        "undefined"
-    ) {
-
-        const modal =
-            bootstrap.Modal.getInstance(
-                modalElement
-            );
-
-
-        if (modal) {
-
-            modal.hide();
-
-        }
-
-    }
-
-
-    /* -----------------------------------------
-       RÉINITIALISER
-    ----------------------------------------- */
 
     const formulaire =
         document.getElementById(
@@ -987,19 +1022,43 @@ function enregistrerLot(event) {
     }
 
 
-    /* -----------------------------------------
-       ACTUALISER
-    ----------------------------------------- */
+    const modalElement =
+        document.getElementById(
+            "modalLot"
+        );
+
+
+    if (
+        modalElement
+        &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        const modal =
+            bootstrap.Modal.getInstance(
+                modalElement
+            );
+
+        if (modal) {
+
+            modal.hide();
+
+        }
+
+    }
+
 
     chargerLots();
+
 
     chargerLotsProduction();
 
 
     alert(
-        'Le lot "' +
-        nom +
-        '" a été enregistré avec succès.'
+
+        `Le lot "${nom}" a été enregistré avec succès.`
+
     );
 
 
@@ -1007,10 +1066,6 @@ function enregistrerLot(event) {
 
 }
 
-
-/* =========================================================
-   CHARGER LES LOTS
-========================================================= */
 
 function chargerLots() {
 
@@ -1055,9 +1110,7 @@ function chargerLots() {
 
         `;
 
-
         mettreAJourStatistiquesLots();
-
 
         return;
 
@@ -1070,37 +1123,28 @@ function chargerLots() {
         .forEach(
             function (lot) {
 
-                const statut =
-                    lot.statut ||
-                    "Actif";
-
-
-                const quantiteInitiale =
-                    Number(
-                        lot.quantiteInitiale ??
-                        lot.quantite ??
-                        0
-                    );
-
-
-                const quantiteActuelle =
-                    Number(
-                        lot.quantiteActuelle ??
-                        lot.quantite ??
-                        0
-                    );
-
-
-                let classe =
+                let couleur =
                     "success";
 
 
                 if (
-                    statut !== "Actif"
+                    lot.statut ===
+                    "Terminé"
                 ) {
 
-                    classe =
+                    couleur =
                         "secondary";
+
+                }
+
+
+                if (
+                    lot.statut ===
+                    "Transféré"
+                ) {
+
+                    couleur =
+                        "warning";
 
                 }
 
@@ -1111,47 +1155,77 @@ function chargerLots() {
 
                         <td>
                             <strong>
-                                ${lot.code || lot.id}
+                                ${
+                                    lot.code ||
+                                    lot.id ||
+                                    "-"
+                                }
                             </strong>
                         </td>
 
                         <td>
-                            ${lot.espece || lot.type || "-"}
+                            ${
+                                obtenirEspeceLot(
+                                    lot
+                                )
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${lot.race || "-"}
+                            ${
+                                lot.race ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${lot.nom || lot.nomLot || "-"}
+                            ${
+                                obtenirNomLot(
+                                    lot
+                                )
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${formaterDate(
-                                lot.dateEntree ||
-                                lot.date
-                            )}
+                            ${
+                                formaterDate(
+                                    lot.dateEntree ||
+                                    lot.date
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                quantiteInitiale
-                            )}
+                            ${
+                                formaterNombre(
+                                    lot.quantiteInitiale
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                quantiteActuelle
-                            )}
+                            ${
+                                formaterNombre(
+                                    obtenirQuantiteLot(
+                                        lot
+                                    )
+                                )
+                            }
                         </td>
 
                         <td>
 
                             <span
-                                class="badge bg-${classe}">
+                                class="badge bg-${couleur}">
 
-                                ${statut}
+                                ${
+                                    lot.statut ||
+                                    "Actif"
+                                }
 
                             </span>
 
@@ -1161,10 +1235,12 @@ function chargerLots() {
 
                             <button
                                 type="button"
-                                class="btn btn-sm btn-primary"
-                                onclick="voirLot('${lot.id}')">
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerLot('${lot.id}')">
 
-                                <i class="fa-solid fa-eye"></i>
+                                <i
+                                    class="fa-solid fa-trash">
+                                </i>
 
                             </button>
 
@@ -1183,9 +1259,59 @@ function chargerLots() {
 }
 
 
-/* =========================================================
-   STATISTIQUES LOTS
-========================================================= */
+function supprimerLot(id) {
+
+    const confirmer =
+        confirm(
+
+            "Voulez-vous vraiment supprimer ce lot ?\n\n" +
+            "Cette opération ne supprime pas les productions déjà enregistrées."
+
+        );
+
+
+    if (!confirmer) {
+
+        return;
+
+    }
+
+
+    let lots =
+        obtenirLotsElevage();
+
+
+    lots =
+        lots.filter(
+            function (lot) {
+
+                return (
+                    String(lot.id)
+                    !==
+                    String(id)
+                );
+
+            }
+        );
+
+
+    sauvegarderLotsElevage(
+        lots
+    );
+
+
+    chargerLots();
+
+
+    chargerLotsProduction();
+
+
+    alert(
+        "Lot supprimé."
+    );
+
+}
+
 
 function mettreAJourStatistiquesLots() {
 
@@ -1217,10 +1343,8 @@ function mettreAJourStatistiquesLots() {
 
                 return (
                     total +
-                    Number(
-                        lot.quantiteActuelle ??
-                        lot.quantite ??
-                        0
+                    obtenirQuantiteLot(
+                        lot
                     )
                 );
 
@@ -1229,27 +1353,51 @@ function mettreAJourStatistiquesLots() {
         );
 
 
-    const totalLots =
-        document.getElementById(
-            "totalLots"
-        );
-
-
-    const totalAnimauxElement =
+    const elementAnimaux =
         document.getElementById(
             "totalAnimaux"
         );
 
 
-    const animauxActifs =
+    const elementLots =
+        document.getElementById(
+            "totalLots"
+        )
+        ||
+        document.getElementById(
+            "lotsActifs"
+        );
+
+
+    const elementActifs =
         document.getElementById(
             "animauxActifs"
         );
 
 
-    if (totalLots) {
+    const elementMortalite =
+        document.getElementById(
+            "totalMortalite"
+        )
+        ||
+        document.getElementById(
+            "mortalite"
+        );
 
-        totalLots.textContent =
+
+    if (elementAnimaux) {
+
+        elementAnimaux.textContent =
+            formaterNombre(
+                totalAnimaux
+            );
+
+    }
+
+
+    if (elementLots) {
+
+        elementLots.textContent =
             formaterNombre(
                 lots.length
             );
@@ -1257,139 +1405,85 @@ function mettreAJourStatistiquesLots() {
     }
 
 
-    if (totalAnimauxElement) {
+    if (elementActifs) {
 
-        totalAnimauxElement.textContent =
+        elementActifs.textContent =
             formaterNombre(
-                totalAnimaux
+                actifs.length
             );
 
     }
 
 
-    if (animauxActifs) {
+    if (elementMortalite) {
 
-        animauxActifs.textContent =
-            formaterNombre(
-                totalAnimaux
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-   VOIR LOT
-========================================================= */
-
-function voirLot(id) {
-
-    const lot =
-        obtenirLotsElevage()
-            .find(
-                function (element) {
+        const mortalite =
+            lots.reduce(
+                function (
+                    total,
+                    lot
+                ) {
 
                     return (
-                        String(
-                            element.id
-                        ) ===
-                        String(id)
+                        total +
+                        Number(
+                            lot.mortalite ||
+                            0
+                        )
                     );
 
-                }
+                },
+                0
             );
 
 
-    if (!lot) {
-
-        alert(
-            "Lot introuvable."
-        );
-
-        return;
+        elementMortalite.textContent =
+            formaterNombre(
+                mortalite
+            );
 
     }
 
-
-    alert(
-
-        "LOT\n\n" +
-
-        "Code : " +
-        (lot.code || lot.id) +
-
-        "\nNom : " +
-        (lot.nom || lot.nomLot || "-") +
-
-        "\nEspèce : " +
-        (lot.espece || lot.type || "-") +
-
-        "\nRace : " +
-        (lot.race || "-") +
-
-        "\nQuantité actuelle : " +
-        (
-            lot.quantiteActuelle ??
-            lot.quantite ??
-            0
-        )
-
-    );
-
 }
 
 
 /* =========================================================
-   5. PRODUCTION
+   5. LOTS CONNECTÉS À LA PRODUCTION
 ========================================================= */
 
-/*
-   LA PRODUCTION EST OBLIGATOIREMENT LIÉE À UN LOT.
+function obtenirLotsConnectes() {
 
-   Chaque production contient :
-
-   production.id
-   production.lotId
-   production.lotNom
-   production.espece
-
-   Cela permet à incubation.js de remonter
-   jusqu'au lot d'origine.
-*/
-
-
-function obtenirProductions() {
-
-    return getDataLocale(
-        "productionsElevage"
-    );
+    return obtenirLotsElevage();
 
 }
 
 
-function obtenirProductionsConnectees() {
-
-    return obtenirProductions();
-
-}
-
-
-function sauvegarderProductions(
-    productions
+function trouverLotParId(
+    lotId
 ) {
 
-    return sauvegarderDataLocale(
-        "productionsElevage",
-        productions
+    const lots =
+        obtenirLotsConnectes();
+
+
+    return (
+        lots.find(
+            function (lot) {
+
+                return (
+                    String(lot.id)
+                    ===
+                    String(lotId)
+                );
+
+            }
+        )
+        ||
+        null
     );
 
 }
 
-
-/* =========================================================
-   CHARGER LOTS DANS PRODUCTION
-========================================================= */
 
 function chargerLotsProduction() {
 
@@ -1411,15 +1505,13 @@ function chargerLotsProduction() {
 
 
     const lots =
-        obtenirLotsElevage();
+        obtenirLotsConnectes();
 
 
     select.innerHTML = `
 
         <option value="">
-
             Sélectionner un lot
-
         </option>
 
     `;
@@ -1441,45 +1533,67 @@ function chargerLotsProduction() {
         .forEach(
             function (lot) {
 
-                const quantite =
-                    Number(
-                        lot.quantiteActuelle ??
-                        lot.quantite ??
-                        0
+                const nom =
+                    obtenirNomLot(
+                        lot
                     );
 
 
-                const nom =
-                    lot.nom ||
-                    lot.nomLot ||
-                    lot.code ||
+                const espece =
+                    obtenirEspeceLot(
+                        lot
+                    );
+
+
+                const quantite =
+                    obtenirQuantiteLot(
+                        lot
+                    );
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
                     lot.id;
 
 
-                const espece =
-                    lot.espece ||
-                    lot.type ||
+                option.dataset.espece =
+                    espece;
+
+
+                option.dataset.nom =
+                    nom;
+
+
+                option.dataset.race =
+                    lot.race ||
                     "";
 
 
-                select.innerHTML += `
+                option.textContent =
 
-                    <option
-                        value="${lot.id}"
-                        data-espece="${espece}"
-                        data-nom="${nom}">
+                    nom
+                    +
+                    " — "
+                    +
+                    espece
+                    +
+                    " ("
+                    +
+                    formaterNombre(
+                        quantite
+                    )
+                    +
+                    " animaux)";
 
-                        ${nom}
-                        —
-                        ${espece}
-                        —
-                        ${formaterNombre(
-                            quantite
-                        )} animaux
 
-                    </option>
-
-                `;
+                select.appendChild(
+                    option
+                );
 
             }
         );
@@ -1487,31 +1601,8 @@ function chargerLotsProduction() {
 
     if (ancienneValeur) {
 
-        const existe =
-            Array.from(
-                select.options
-            ).some(
-                function (option) {
-
-                    return (
-                        String(
-                            option.value
-                        ) ===
-                        String(
-                            ancienneValeur
-                        )
-                    );
-
-                }
-            );
-
-
-        if (existe) {
-
-            select.value =
-                ancienneValeur;
-
-        }
+        select.value =
+            ancienneValeur;
 
     }
 
@@ -1519,36 +1610,124 @@ function chargerLotsProduction() {
 
 
 /* =========================================================
-   TROUVER UN LOT
+   6. PRODUCTION
 ========================================================= */
 
-function trouverLotParId(
-    lotId
+function obtenirProductions() {
+
+    return obtenirDonnees(
+        "productionsElevage"
+    );
+
+}
+
+
+function sauvegarderProductions(
+    productions
 ) {
 
-    return obtenirLotsElevage()
-        .find(
-            function (lot) {
-
-                return (
-                    String(
-                        lot.id
-                    ) ===
-                    String(
-                        lotId
-                    )
-                );
-
-            }
-        )
-        || null;
+    return sauvegarderDonnees(
+        "productionsElevage",
+        productions
+    );
 
 }
 
 
 /* =========================================================
-   CALCUL RESTE
+   STOCK ŒUFS DESTINÉS À L'INCUBATION
+
+   IMPORTANT :
+
+   Cette partie est volontairement conservée ici.
+
+   elevage.js = production crée le stock.
+
+   incubation.js = consomme ce stock.
+
+   Donc :
+
+   production → stockOeufsIncubation
 ========================================================= */
+
+function obtenirStockOeufsIncubation() {
+
+    return obtenirDonnees(
+        "stockOeufsIncubation"
+    );
+
+}
+
+
+function sauvegarderStockOeufsIncubation(
+    stock
+) {
+
+    return sauvegarderDonnees(
+        "stockOeufsIncubation",
+        stock
+    );
+
+}
+
+
+function obtenirOeufsDisponiblesPourLot(
+    lotId
+) {
+
+    const stock =
+        obtenirStockOeufsIncubation();
+
+
+    return stock
+        .filter(
+            function (ligne) {
+
+                return (
+
+                    String(
+                        ligne.lotId
+                    )
+                    ===
+                    String(
+                        lotId
+                    )
+
+                    &&
+
+                    Number(
+                        ligne.quantiteDisponible
+                        ||
+                        0
+                    )
+                    >
+                    0
+
+                );
+
+            }
+        )
+        .reduce(
+            function (
+                total,
+                ligne
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        ligne.quantiteDisponible
+                        ||
+                        0
+                    )
+                );
+
+            },
+            0
+        );
+
+}
+
 
 function calculerResteProduction(
     quantite,
@@ -1558,26 +1737,37 @@ function calculerResteProduction(
     autre
 ) {
 
-    return (
-        Number(quantite || 0)
-        -
-        (
-            Number(incubation || 0)
-            +
-            Number(vente || 0)
-            +
-            Number(consommation || 0)
-            +
-            Number(autre || 0)
+    const total =
+        Number(
+            quantite || 0
+        );
+
+
+    const utilise =
+        Number(
+            incubation || 0
         )
+        +
+        Number(
+            vente || 0
+        )
+        +
+        Number(
+            consommation || 0
+        )
+        +
+        Number(
+            autre || 0
+        );
+
+
+    return Math.max(
+        0,
+        total - utilise
     );
 
 }
 
-
-/* =========================================================
-   ENREGISTRER PRODUCTION
-========================================================= */
 
 function enregistrerProduction(
     event
@@ -1590,100 +1780,148 @@ function enregistrerProduction(
     }
 
 
-    const date =
-        document.getElementById(
-            "productionDate"
-        )?.value
-        ||
-        obtenirDateAujourdhui();
-
-
-    const lotId =
+    const lotElement =
         document.getElementById(
             "productionLot"
-        )?.value
-        || "";
-
-
-    const type =
-        document.getElementById(
-            "productionType"
-        )?.value
-        ?.trim()
-        || "";
-
-
-    const produit =
-        document.getElementById(
-            "productionProduit"
-        )?.value
-        ?.trim()
-        || "";
-
-
-    const quantite =
-        Number(
-            document.getElementById(
-                "productionQuantite"
-            )?.value
         );
 
 
-    const unite =
+    const dateElement =
+        document.getElementById(
+            "productionDate"
+        );
+
+
+    const typeElement =
+        document.getElementById(
+            "productionType"
+        );
+
+
+    const produitElement =
+        document.getElementById(
+            "productionProduit"
+        );
+
+
+    const quantiteElement =
+        document.getElementById(
+            "productionQuantite"
+        );
+
+
+    const uniteElement =
         document.getElementById(
             "productionUnite"
-        )?.value
-        ||
-        "Unité";
+        );
 
 
-    const notes =
+    const incubationElement =
+        document.getElementById(
+            "productionIncubation"
+        );
+
+
+    const venteElement =
+        document.getElementById(
+            "productionVente"
+        );
+
+
+    const consommationElement =
+        document.getElementById(
+            "productionConsommation"
+        );
+
+
+    const autreElement =
+        document.getElementById(
+            "productionAutre"
+        );
+
+
+    const notesElement =
         document.getElementById(
             "productionNotes"
-        )?.value
-        ?.trim()
-        || "";
+        );
+
+
+    const lotId =
+        lotElement
+        ? lotElement.value
+        : "";
+
+
+    const date =
+        dateElement
+        && dateElement.value
+        ? dateElement.value
+        : obtenirDateAujourdHui();
+
+
+    const type =
+        typeElement
+        ? typeElement.value
+        : "Œufs";
+
+
+    const produit =
+        produitElement
+        ? produitElement.value.trim()
+        : "";
+
+
+    const quantite =
+        quantiteElement
+        ? Number(
+            quantiteElement.value
+        )
+        : 0;
+
+
+    const unite =
+        uniteElement
+        ? uniteElement.value
+        : "Unité";
 
 
     const incubation =
-        Number(
-            document.getElementById(
-                "productionIncubation"
-            )?.value
+        incubationElement
+        ? Number(
+            incubationElement.value || 0
         )
-        || 0;
+        : 0;
 
 
     const vente =
-        Number(
-            document.getElementById(
-                "productionVente"
-            )?.value
+        venteElement
+        ? Number(
+            venteElement.value || 0
         )
-        || 0;
+        : 0;
 
 
     const consommation =
-        Number(
-            document.getElementById(
-                "productionConsommation"
-            )?.value
+        consommationElement
+        ? Number(
+            consommationElement.value || 0
         )
-        || 0;
+        : 0;
 
 
     const autre =
-        Number(
-            document.getElementById(
-                "productionAutre"
-            )?.value
+        autreElement
+        ? Number(
+            autreElement.value || 0
         )
-        || 0;
+        : 0;
 
 
-    /* -----------------------------------------
-       VALIDATIONS
-    ----------------------------------------- */
+    const notes =
+        notesElement
+        ? notesElement.value.trim()
+        : "";
+
 
     if (!lotId) {
 
@@ -1705,7 +1943,7 @@ function enregistrerProduction(
     if (!lot) {
 
         alert(
-            "Le lot sélectionné est introuvable."
+            "Le lot producteur sélectionné est introuvable."
         );
 
         return false;
@@ -1713,10 +1951,16 @@ function enregistrerProduction(
     }
 
 
-    if (!type) {
+    if (
+        !Number.isFinite(
+            quantite
+        )
+        ||
+        quantite <= 0
+    ) {
 
         alert(
-            "Veuillez sélectionner le type de production."
+            "La quantité doit être supérieure à zéro."
         );
 
         return false;
@@ -1727,7 +1971,7 @@ function enregistrerProduction(
     if (!produit) {
 
         alert(
-            "Veuillez indiquer le produit."
+            "Veuillez saisir le produit."
         );
 
         return false;
@@ -1736,13 +1980,17 @@ function enregistrerProduction(
 
 
     if (
-        !Number.isFinite(quantite)
+        incubation < 0
         ||
-        quantite <= 0
+        vente < 0
+        ||
+        consommation < 0
+        ||
+        autre < 0
     ) {
 
         alert(
-            "La quantité produite doit être supérieure à zéro."
+            "Les quantités de répartition ne peuvent pas être négatives."
         );
 
         return false;
@@ -1750,58 +1998,69 @@ function enregistrerProduction(
     }
 
 
-    const reste =
-        calculerResteProduction(
-            quantite,
-            incubation,
-            vente,
-            consommation,
-            autre
-        );
+    const totalRepartition =
+        incubation +
+        vente +
+        consommation +
+        autre;
 
 
-    if (reste < 0) {
+    if (
+        totalRepartition >
+        quantite
+    ) {
 
         alert(
-            "Erreur : la répartition dépasse la quantité totale produite."
+
+            "Erreur de répartition.\n\n" +
+
+            "Production totale : " +
+            formaterNombre(
+                quantite
+            ) +
+
+            "\nRépartition : " +
+
+            formaterNombre(
+                totalRepartition
+            )
+
         );
 
         return false;
 
     }
 
-
-    /* -----------------------------------------
-       CRÉER PRODUCTION
-    ----------------------------------------- */
 
     const productions =
         obtenirProductions();
 
 
-    const productionId =
+    const idProduction =
         genererId(
             "PROD"
         );
 
 
-    const nomLot =
-        lot.nom ||
-        lot.nomLot ||
-        lot.code ||
-        lot.id;
+    /* =====================================================
+       ENREGISTREMENT DE LA PRODUCTION
 
+       IMPORTANT :
+       Le lot est enregistré par son ID.
 
-    const espece =
-        lot.espece ||
-        lot.type ||
-        "";
+       lotId
+       lotNom
+       espece
+       race
 
+       Ainsi la production reste liée au lot même si
+       son nom est modifié plus tard.
+    ===================================================== */
 
     const nouvelleProduction = {
 
         id:
-            productionId,
+            idProduction,
 
         date:
             date,
@@ -1810,10 +2069,14 @@ function enregistrerProduction(
             lot.id,
 
         lotNom:
-            nomLot,
+            obtenirNomLot(
+                lot
+            ),
 
         espece:
-            espece,
+            obtenirEspeceLot(
+                lot
+            ),
 
         race:
             lot.race ||
@@ -1846,7 +2109,13 @@ function enregistrerProduction(
                 autre,
 
             reste:
-                reste
+                calculerResteProduction(
+                    quantite,
+                    incubation,
+                    vente,
+                    consommation,
+                    autre
+                )
 
         },
 
@@ -1867,40 +2136,111 @@ function enregistrerProduction(
     );
 
 
-    sauvegarderProductions(
-        productions
-    );
+    if (
+        !sauvegarderProductions(
+            productions
+        )
+    ) {
+
+        return false;
+
+    }
 
 
     /* =====================================================
        STOCK ŒUFS POUR INCUBATION
+
+       Si par exemple :
+
+       Production = 68 œufs
+       Incubation = 40
+
+       alors :
+
+       stockOeufsIncubation
+       = 40 œufs
+
+       avec :
+
+       lotId = lot.id
+       lotNom = nom du lot
+       espece = espèce
+       race = race
+       productionId = production.id
+
+       incubation.js pourra ensuite retrouver
+       exactement ce lot.
     ===================================================== */
 
     if (
         incubation > 0
     ) {
 
-        ajouterOeufsAuStockIncubation(
+        const stock =
+            obtenirStockOeufsIncubation();
 
-            nouvelleProduction,
 
-            lot,
+        stock.push({
 
-            incubation
+            id:
+                genererId(
+                    "STKINC"
+                ),
 
-        );
+            productionId:
+                nouvelleProduction.id,
+
+            lotId:
+                lot.id,
+
+            lotNom:
+                obtenirNomLot(
+                    lot
+                ),
+
+            espece:
+                obtenirEspeceLot(
+                    lot
+                ),
+
+            race:
+                lot.race ||
+                "",
+
+            produit:
+                produit,
+
+            quantiteInitiale:
+                incubation,
+
+            quantiteDisponible:
+                incubation,
+
+            quantiteUtilisee:
+                0,
+
+            dateProduction:
+                date,
+
+            statut:
+                "Disponible"
+
+        });
+
+
+        if (
+            !sauvegarderStockOeufsIncubation(
+                stock
+            )
+        ) {
+
+            console.error(
+                "La production a été enregistrée mais le stock d'incubation n'a pas pu être sauvegardé."
+            );
+
+        }
 
     }
-
-
-    /* -----------------------------------------
-       ACTUALISER
-    ----------------------------------------- */
-
-    chargerProductions();
-
-
-    chargerLotsProduction();
 
 
     const formulaire =
@@ -1916,8 +2256,62 @@ function enregistrerProduction(
     }
 
 
+    const modalElement =
+        document.getElementById(
+            "modalProduction"
+        );
+
+
+    if (
+        modalElement
+        &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        const modal =
+            bootstrap.Modal.getInstance(
+                modalElement
+            );
+
+        if (modal) {
+
+            modal.hide();
+
+        }
+
+    }
+
+
+    chargerProductions();
+
+
     alert(
-        "Production enregistrée avec succès."
+
+        "Production enregistrée avec succès.\n\n" +
+
+        "Lot : " +
+        obtenirNomLot(
+            lot
+        ) +
+
+        "\n" +
+
+        "Production : " +
+        formaterNombre(
+            quantite
+        ) +
+
+        " " +
+        unite +
+
+        "\n" +
+
+        "Œufs destinés à l'incubation : " +
+        formaterNombre(
+            incubation
+        )
+
     );
 
 
@@ -1926,344 +2320,156 @@ function enregistrerProduction(
 }
 
 
-/* =========================================================
-   6. STOCK ŒUFS POUR INCUBATION
-========================================================= */
+function chargerProductions() {
 
-/*
-   CETTE BASE EST LUE PAR incubation.js.
-
-   Clé :
-
-   stockOeufsIncubation
-
-   Chaque ligne possède :
-
-   id
-   productionId
-   lotId
-   lotNom
-   espece
-   produit
-   quantiteInitiale
-   quantiteDisponible
-   quantiteUtilisee
-   dateProduction
-   statut
-*/
+    const tableau =
+        document.getElementById(
+            "listeProductions"
+        );
 
 
-function obtenirStockOeufsIncubation() {
+    if (!tableau) {
 
-    return getDataLocale(
-        "stockOeufsIncubation"
-    );
+        return;
 
-}
+    }
 
 
-function sauvegarderStockOeufsIncubation(
-    stock
-) {
-
-    return sauvegarderDataLocale(
-        "stockOeufsIncubation",
-        stock
-    );
-
-}
+    const productions =
+        obtenirProductions();
 
 
-/* =========================================================
-   AJOUTER ŒUFS AU STOCK INCUBATION
-========================================================= */
-
-function ajouterOeufsAuStockIncubation(
-    production,
-    lot,
-    quantite
-) {
-
-    const stock =
-        obtenirStockOeufsIncubation();
+    tableau.innerHTML =
+        "";
 
 
-    const ligne = {
+    if (
+        productions.length === 0
+    ) {
 
-        id:
-            genererId(
-                "STKINC"
-            ),
+        tableau.innerHTML = `
 
-        productionId:
-            production.id,
+            <tr>
 
-        lotId:
-            lot.id,
+                <td
+                    colspan="10"
+                    class="text-center text-muted">
 
-        lotNom:
-            lot.nom ||
-            lot.nomLot ||
-            lot.code ||
-            lot.id,
+                    Aucune production enregistrée.
 
-        espece:
-            lot.espece ||
-            lot.type ||
-            "",
+                </td>
 
-        race:
-            lot.race ||
-            "",
+            </tr>
 
-        produit:
-            production.produit,
+        `;
 
-        quantiteInitiale:
-            Number(
-                quantite
-            ),
+        return;
 
-        quantiteDisponible:
-            Number(
-                quantite
-            ),
-
-        quantiteUtilisee:
-            0,
-
-        dateProduction:
-            production.date,
-
-        statut:
-            "Disponible",
-
-        utilisateur:
-            obtenirUtilisateur(),
-
-        dateCreation:
-            new Date().toISOString()
-
-    };
+    }
 
 
-    stock.push(
-        ligne
-    );
+    productions
+        .slice()
+        .reverse()
+        .forEach(
+            function (production) {
+
+                const repartition =
+                    production.repartition
+                    ||
+                    {};
 
 
-    sauvegarderStockOeufsIncubation(
-        stock
-    );
+                tableau.innerHTML += `
 
+                    <tr>
 
-    console.log(
-        "Œufs ajoutés au stock incubation :",
-        ligne
-    );
+                        <td>
+                            ${
+                                formaterDate(
+                                    production.date
+                                )
+                            }
+                        </td>
 
+                        <td>
+                            ${
+                                production.lotNom
+                                ||
+                                "-"
+                            }
+                        </td>
 
-    return ligne;
+                        <td>
+                            ${
+                                production.espece
+                                ||
+                                "-"
+                            }
+                        </td>
 
-}
+                        <td>
+                            ${
+                                production.type
+                                ||
+                                "-"
+                            }
+                        </td>
 
+                        <td>
+                            ${
+                                production.produit
+                                ||
+                                "-"
+                            }
+                        </td>
 
-/* =========================================================
-   ŒUFS DISPONIBLES POUR UN LOT
-========================================================= */
+                        <td>
+                            ${
+                                formaterNombre(
+                                    production.quantite
+                                )
+                            }
+                        </td>
 
-function obtenirOeufsDisponiblesPourLot(
-    lotId
-) {
+                        <td>
+                            ${
+                                production.unite
+                                ||
+                                ""
+                            }
+                        </td>
 
-    const stock =
-        obtenirStockOeufsIncubation();
+                        <td>
+                            ${
+                                formaterNombre(
+                                    repartition.incubation
+                                )
+                            }
+                        </td>
 
+                        <td>
+                            ${
+                                formaterNombre(
+                                    repartition.vente
+                                )
+                            }
+                        </td>
 
-    return stock
-        .filter(
-            function (ligne) {
+                        <td>
+                            ${
+                                formaterNombre(
+                                    repartition.reste
+                                )
+                            }
+                        </td>
 
-                return (
+                    </tr>
 
-                    String(
-                        ligne.lotId
-                    ) ===
-                    String(
-                        lotId
-                    )
-
-                    &&
-
-                    Number(
-                        ligne.quantiteDisponible ||
-                        0
-                    ) > 0
-
-                );
+                `;
 
             }
-        )
-        .reduce(
-            function (
-                total,
-                ligne
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        ligne.quantiteDisponible ||
-                        0
-                    )
-                );
-
-            },
-            0
         );
-
-}
-
-
-/*
-   Alias utilisé par incubation.js
-*/
-
-function obtenirOeufsDisponiblesPourLotIncubation(
-    lotId
-) {
-
-    return obtenirOeufsDisponiblesPourLot(
-        lotId
-    );
-
-}
-
-
-/* =========================================================
-   RETIRER ŒUFS DU STOCK
-========================================================= */
-
-function retirerOeufsDuStockIncubation(
-    lotId,
-    quantite
-) {
-
-    let reste =
-        Number(
-            quantite
-        );
-
-
-    if (
-        !Number.isFinite(reste)
-        ||
-        reste <= 0
-    ) {
-
-        return false;
-
-    }
-
-
-    const stock =
-        obtenirStockOeufsIncubation();
-
-
-    for (
-        let i = 0;
-        i < stock.length && reste > 0;
-        i++
-    ) {
-
-        const ligne =
-            stock[i];
-
-
-        if (
-            String(
-                ligne.lotId
-            ) !==
-            String(
-                lotId
-            )
-        ) {
-
-            continue;
-
-        }
-
-
-        const disponible =
-            Number(
-                ligne.quantiteDisponible ||
-                0
-            );
-
-
-        if (
-            disponible <= 0
-        ) {
-
-            continue;
-
-        }
-
-
-        const retrait =
-            Math.min(
-                disponible,
-                reste
-            );
-
-
-        ligne.quantiteDisponible =
-            disponible -
-            retrait;
-
-
-        ligne.quantiteUtilisee =
-            Number(
-                ligne.quantiteUtilisee ||
-                0
-            ) +
-            retrait;
-
-
-        if (
-            ligne.quantiteDisponible <= 0
-        ) {
-
-            ligne.quantiteDisponible =
-                0;
-
-            ligne.statut =
-                "Épuisé";
-
-        }
-
-
-        reste -=
-            retrait;
-
-    }
-
-
-    sauvegarderStockOeufsIncubation(
-        stock
-    );
-
-
-    if (
-        reste > 0
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
 
 }
 
@@ -2274,7 +2480,7 @@ function retirerOeufsDuStockIncubation(
 
 function obtenirSante() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "santeElevage"
     );
 
@@ -2282,12 +2488,12 @@ function obtenirSante() {
 
 
 function sauvegarderSante(
-    donnees
+    sante
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "santeElevage",
-        donnees
+        sante
     );
 
 }
@@ -2308,7 +2514,7 @@ function chargerSante() {
     }
 
 
-    const donnees =
+    const sante =
         obtenirSante();
 
 
@@ -2316,37 +2522,145 @@ function chargerSante() {
         "";
 
 
-    donnees
+    if (
+        sante.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted">
+
+                    Aucun suivi sanitaire enregistré.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    sante
         .slice()
         .reverse()
         .forEach(
             function (item) {
+
+                let couleur =
+                    "success";
+
+
+                if (
+                    item.type ===
+                    "Maladie"
+                ) {
+
+                    couleur =
+                        "danger";
+
+                }
+
+
+                if (
+                    item.type ===
+                    "Traitement"
+                ) {
+
+                    couleur =
+                        "warning";
+
+                }
+
 
                 tableau.innerHTML += `
 
                     <tr>
 
                         <td>
-                            ${formaterDate(
-                                item.date
-                            )}
+                            ${
+                                formaterDate(
+                                    item.date
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.animal ||
-                            item.lot ||
-                            "-"}
+                            ${
+                                item.animal
+                                ||
+                                item.lot
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.type ||
-                            "-"}
+
+                            <span
+                                class="badge bg-${couleur}">
+
+                                ${
+                                    item.type
+                                    ||
+                                    "-"
+                                }
+
+                            </span>
+
                         </td>
 
                         <td>
-                            ${item.description ||
-                            item.traitement ||
-                            "-"}
+                            ${
+                                item.description
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                item.traitement
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    item.quantite
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                item.utilisateur
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerSante('${item.id}')">
+
+                                <i
+                                    class="fa-solid fa-trash">
+                                </i>
+
+                            </button>
+
                         </td>
 
                     </tr>
@@ -2359,13 +2673,54 @@ function chargerSante() {
 }
 
 
+function supprimerSante(id) {
+
+    if (
+        !confirm(
+            "Voulez-vous supprimer cet enregistrement ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    let sante =
+        obtenirSante();
+
+
+    sante =
+        sante.filter(
+            function (item) {
+
+                return (
+                    String(item.id)
+                    !==
+                    String(id)
+                );
+
+            }
+        );
+
+
+    sauvegarderSante(
+        sante
+    );
+
+
+    chargerSante();
+
+}
+
+
 /* =========================================================
    8. ALIMENTATION
 ========================================================= */
 
 function obtenirAlimentation() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "alimentationElevage"
     );
 
@@ -2373,13 +2728,90 @@ function obtenirAlimentation() {
 
 
 function sauvegarderAlimentation(
-    donnees
+    alimentation
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "alimentationElevage",
-        donnees
+        alimentation
     );
+
+}
+
+
+function chargerLotsAlimentation() {
+
+    const select =
+        document.getElementById(
+            "alimentLot"
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Sélectionner un lot
+        </option>
+
+    `;
+
+
+    lots
+        .filter(
+            function (lot) {
+
+                return (
+                    lot.statut ===
+                    "Actif"
+                    ||
+                    !lot.statut
+                );
+
+            }
+        )
+        .forEach(
+            function (lot) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    lot.id;
+
+
+                option.textContent =
+
+                    obtenirNomLot(
+                        lot
+                    )
+                    +
+                    " — "
+                    +
+                    obtenirEspeceLot(
+                        lot
+                    );
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
 
 }
 
@@ -2407,6 +2839,31 @@ function chargerAlimentation() {
         "";
 
 
+    if (
+        donnees.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted">
+
+                    Aucune alimentation enregistrée.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
     donnees
         .slice()
         .reverse()
@@ -2418,27 +2875,45 @@ function chargerAlimentation() {
                     <tr>
 
                         <td>
-                            ${formaterDate(
-                                item.date
-                            )}
+                            ${
+                                formaterDate(
+                                    item.date
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.lot ||
-                            item.lotNom ||
-                            "-"}
+                            ${
+                                item.lotNom
+                                ||
+                                item.lot
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.produit ||
-                            "-"}
+                            ${
+                                item.produit
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                item.quantite
-                            )}
-                            ${item.unite || ""}
+                            ${
+                                formaterNombre(
+                                    item.quantite
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                item.unite
+                                ||
+                                ""
+                            }
                         </td>
 
                     </tr>
@@ -2457,7 +2932,7 @@ function chargerAlimentation() {
 
 function obtenirReproduction() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "reproductionElevage"
     );
 
@@ -2468,7 +2943,7 @@ function sauvegarderReproduction(
     donnees
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "reproductionElevage",
         donnees
     );
@@ -2491,7 +2966,7 @@ function chargerReproduction() {
     }
 
 
-    const donnees =
+    const reproduction =
         obtenirReproduction();
 
 
@@ -2499,7 +2974,32 @@ function chargerReproduction() {
         "";
 
 
-    donnees
+    if (
+        reproduction.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted">
+
+                    Aucune reproduction enregistrée.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    reproduction
         .slice()
         .reverse()
         .forEach(
@@ -2510,38 +3010,53 @@ function chargerReproduction() {
                     <tr>
 
                         <td>
-                            ${formaterDate(
-                                item.date
-                            )}
+                            ${
+                                formaterDate(
+                                    item.date
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.lot ||
-                            "-"}
+                            ${
+                                item.lot
+                                ||
+                                item.lotNom
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.espece ||
-                            "-"}
+                            ${
+                                item.espece
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                item.oeufs ||
-                                0
-                            )}
+                            ${
+                                formaterNombre(
+                                    item.oeufs
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                item.eclos ||
-                                0
-                            )}
+                            ${
+                                formaterNombre(
+                                    item.eclos
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.statut ||
-                            "-"}
+                            ${
+                                item.statut
+                                ||
+                                "-"
+                            }
                         </td>
 
                     </tr>
@@ -2560,7 +3075,7 @@ function chargerReproduction() {
 
 function obtenirCroissance() {
 
-    return getDataLocale(
+    return obtenirDonnees(
         "croissanceElevage"
     );
 
@@ -2571,7 +3086,7 @@ function sauvegarderCroissance(
     donnees
 ) {
 
-    return sauvegarderDataLocale(
+    return sauvegarderDonnees(
         "croissanceElevage",
         donnees
     );
@@ -2602,6 +3117,31 @@ function chargerCroissance() {
         "";
 
 
+    if (
+        donnees.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted">
+
+                    Aucune donnée de croissance.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
     donnees
         .slice()
         .reverse()
@@ -2613,25 +3153,37 @@ function chargerCroissance() {
                     <tr>
 
                         <td>
-                            ${formaterDate(
-                                item.date
-                            )}
+                            ${
+                                formaterDate(
+                                    item.date
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.lot ||
-                            item.lotNom ||
-                            "-"}
+                            ${
+                                item.lot
+                                ||
+                                item.lotNom
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.espece ||
-                            "-"}
+                            ${
+                                item.espece
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.poids ||
-                            0}
+                            ${
+                                item.poids
+                                ||
+                                0
+                            }
                             kg
                         </td>
 
@@ -2651,8 +3203,8 @@ function chargerCroissance() {
 
 function obtenirPoussiniere() {
 
-    return getDataLocale(
-        "poussiniereElevage"
+    return obtenirDonnees(
+        "poussiniere"
     );
 
 }
@@ -2662,10 +3214,247 @@ function sauvegarderPoussiniere(
     donnees
 ) {
 
-    return sauvegarderDataLocale(
-        "poussiniereElevage",
+    return sauvegarderDonnees(
+        "poussiniere",
         donnees
     );
+
+}
+
+
+function ouvrirFormulairePoussiniere() {
+
+    const modal =
+        document.getElementById(
+            "modalPoussiniere"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.style.display =
+        "flex";
+
+
+    const date =
+        document.getElementById(
+            "brooderDate"
+        );
+
+
+    if (
+        date
+        &&
+        !date.value
+    ) {
+
+        date.value =
+            obtenirDateAujourdHui();
+
+    }
+
+}
+
+
+function fermerFormulairePoussiniere() {
+
+    const modal =
+        document.getElementById(
+            "modalPoussiniere"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.style.display =
+        "none";
+
+}
+
+
+function enregistrerPoussiniere(
+    event
+) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    const espece =
+        document.getElementById(
+            "brooderEspece"
+        )?.value
+        ||
+        "";
+
+
+    const origine =
+        document.getElementById(
+            "brooderOrigine"
+        )?.value
+        ?.trim()
+        ||
+        "";
+
+
+    const nombre =
+        Number(
+            document.getElementById(
+                "brooderNombre"
+            )?.value
+        );
+
+
+    const dateEntree =
+        document.getElementById(
+            "brooderDate"
+        )?.value
+        ||
+        obtenirDateAujourdHui();
+
+
+    const emplacement =
+        document.getElementById(
+            "brooderEmplacement"
+        )?.value
+        ||
+        "";
+
+
+    const temperature =
+        Number(
+            document.getElementById(
+                "brooderTemperature"
+            )?.value
+            ||
+            0
+        );
+
+
+    if (
+        !espece
+        ||
+        !origine
+        ||
+        !Number.isFinite(
+            nombre
+        )
+        ||
+        nombre <= 0
+        ||
+        !emplacement
+    ) {
+
+        alert(
+            "Veuillez remplir correctement tous les champs."
+        );
+
+        return false;
+
+    }
+
+
+    const poussiniere =
+        obtenirPoussiniere();
+
+
+    const nouveauLot = {
+
+        id:
+            genererId(
+                "BRD"
+            ),
+
+        espece:
+            espece,
+
+        origine:
+            origine,
+
+        emplacement:
+            emplacement,
+
+        dateEntree:
+            dateEntree,
+
+        nombreInitial:
+            nombre,
+
+        presents:
+            nombre,
+
+        mortalite:
+            0,
+
+        transferes:
+            0,
+
+        temperature:
+            temperature,
+
+        alimentTotal:
+            0,
+
+        statut:
+            "Actif",
+
+        suivi:
+            [],
+
+        dateCreation:
+            new Date().toISOString()
+
+    };
+
+
+    poussiniere.push(
+        nouveauLot
+    );
+
+
+    sauvegarderPoussiniere(
+        poussiniere
+    );
+
+
+    const formulaire =
+        document.getElementById(
+            "formPoussiniere"
+        );
+
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
+
+    fermerFormulairePoussiniere();
+
+
+    chargerPoussiniere();
+
+
+    alert(
+        `Lot ${nouveauLot.id} créé avec succès.`
+    );
+
+
+    return true;
 
 }
 
@@ -2685,7 +3474,7 @@ function chargerPoussiniere() {
     }
 
 
-    const donnees =
+    const poussiniere =
         obtenirPoussiniere();
 
 
@@ -2693,51 +3482,111 @@ function chargerPoussiniere() {
         "";
 
 
-    donnees
+    if (
+        poussiniere.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="10"
+                    class="text-center text-muted">
+
+                    Aucun lot en poussinière.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    poussiniere
         .slice()
         .reverse()
         .forEach(
-            function (item) {
+            function (lot) {
 
                 tableau.innerHTML += `
 
                     <tr>
 
                         <td>
-                            ${formaterDate(
-                                item.date
-                            )}
+                            ${
+                                lot.id
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.lotNom ||
-                            item.lot ||
-                            "-"}
+                            ${
+                                lot.espece
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${item.espece ||
-                            "-"}
+                            ${
+                                lot.origine
+                                ||
+                                "-"
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                item.presents ||
-                                item.quantite ||
-                                0
-                            )}
+                            ${
+                                formaterDate(
+                                    lot.dateEntree
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${formaterNombre(
-                                item.mortalite ||
-                                0
-                            )}
+                            ${
+                                formaterNombre(
+                                    lot.nombreInitial
+                                )
+                            }
                         </td>
 
                         <td>
-                            ${item.statut ||
-                            "-"}
+                            ${
+                                formaterNombre(
+                                    lot.presents
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    lot.mortalite
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                lot.emplacement
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                lot.statut
+                                ||
+                                "-"
+                            }
                         </td>
 
                     </tr>
@@ -2751,7 +3600,7 @@ function chargerPoussiniere() {
 
 
 /* =========================================================
-   12. DASHBOARD ÉLEVAGE
+   12. TABLEAU DE BORD ÉLEVAGE
 ========================================================= */
 
 function chargerDashboardElevage() {
@@ -2792,10 +3641,8 @@ function chargerDashboardElevage() {
 
                 return (
                     total +
-                    Number(
-                        lot.quantiteActuelle ??
-                        lot.quantite ??
-                        0
+                    obtenirQuantiteLot(
+                        lot
                     )
                 );
 
@@ -2805,7 +3652,7 @@ function chargerDashboardElevage() {
 
 
     const aujourdHui =
-        obtenirDateAujourdhui();
+        obtenirDateAujourdHui();
 
 
     const productionJour =
@@ -2814,13 +3661,7 @@ function chargerDashboardElevage() {
                 function (item) {
 
                     return (
-                        String(
-                            item.date
-                        )
-                        .substring(
-                            0,
-                            10
-                        )
+                        item.date
                         ===
                         aujourdHui
                     );
@@ -2836,7 +3677,8 @@ function chargerDashboardElevage() {
                     return (
                         total +
                         Number(
-                            item.quantite ||
+                            item.quantite
+                            ||
                             0
                         )
                     );
@@ -2863,13 +3705,6 @@ function chargerDashboardElevage() {
             .filter(
                 function (item) {
 
-                    if (!item.date) {
-
-                        return false;
-
-                    }
-
-
                     const date =
                         new Date(
                             item.date
@@ -2878,23 +3713,27 @@ function chargerDashboardElevage() {
 
                     return (
 
-                        date.getMonth() ===
+                        date.getMonth()
+                        ===
                         mois
 
                         &&
 
-                        date.getFullYear() ===
+                        date.getFullYear()
+                        ===
                         annee
 
                         &&
 
                         (
-                            item.type ===
+                            item.type
+                            ===
                             "Mortalité"
 
                             ||
 
-                            item.nature ===
+                            item.nature
+                            ===
                             "Mortalité"
                         )
 
@@ -2911,7 +3750,8 @@ function chargerDashboardElevage() {
                     return (
                         total +
                         Number(
-                            item.quantite ||
+                            item.quantite
+                            ||
                             1
                         )
                     );
@@ -3020,7 +3860,10 @@ function chargerActivitesRecentes() {
                         item.date,
 
                     texte:
-                        `${item.quantite || 0} ${item.type || "animaux"} ajoutés`
+                        `${item.quantite || 0} ${
+                            item.type ||
+                            "animaux"
+                        } ajoutés`
 
                 });
 
@@ -3038,7 +3881,21 @@ function chargerActivitesRecentes() {
                         item.date,
 
                     texte:
-                        `Production : ${item.quantite || 0} ${item.unite || ""} de ${item.produit || item.type || ""} — ${item.lotNom || ""}`
+
+                        `Production : ${
+                            item.quantite ||
+                            0
+                        } ${
+                            item.unite ||
+                            ""
+                        } de ${
+                            item.produit ||
+                            item.type ||
+                            ""
+                        } — ${
+                            item.lotNom ||
+                            ""
+                        }`
 
                 });
 
@@ -3056,7 +3913,17 @@ function chargerActivitesRecentes() {
                         item.date,
 
                     texte:
-                        `Alimentation : ${item.quantite || 0} ${item.unite || ""} de ${item.produit || ""}`
+
+                        `Alimentation : ${
+                            item.quantite ||
+                            0
+                        } ${
+                            item.unite ||
+                            ""
+                        } de ${
+                            item.produit ||
+                            ""
+                        }`
 
                 });
 
@@ -3074,7 +3941,15 @@ function chargerActivitesRecentes() {
                         item.date,
 
                     texte:
-                        `Santé : ${item.type || ""} — ${item.animal || item.lot || ""}`
+
+                        `Santé : ${
+                            item.type ||
+                            ""
+                        } — ${
+                            item.animal ||
+                            item.lot ||
+                            ""
+                        }`
 
                 });
 
@@ -3141,16 +4016,20 @@ function chargerActivitesRecentes() {
 
                         <span>
 
-                            ${activite.texte}
+                            ${
+                                activite.texte
+                            }
 
                         </span>
 
                         <small
                             class="text-muted">
 
-                            ${formaterDate(
-                                activite.date
-                            )}
+                            ${
+                                formaterDate(
+                                    activite.date
+                                )
+                            }
 
                         </small>
 
@@ -3165,24 +4044,376 @@ function chargerActivitesRecentes() {
 
 
 /* =========================================================
-   14. INITIALISATION DES PAGES
+   14. SUIVI ÉLEVAGE
+========================================================= */
+
+function chargerSuiviElevage() {
+
+    const tableau =
+        document.getElementById(
+            "listeSuiviElevage"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    tableau.innerHTML =
+        "";
+
+
+    const lots =
+        obtenirLotsElevage();
+
+
+    if (
+        lots.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    class="text-center text-muted">
+
+                    Aucun lot à suivre.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    lots
+        .slice()
+        .reverse()
+        .forEach(
+            function (lot) {
+
+                tableau.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            ${
+                                obtenirNomLot(
+                                    lot
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                obtenirEspeceLot(
+                                    lot
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    lot.quantiteInitiale
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    obtenirQuantiteLot(
+                                        lot
+                                    )
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    lot.mortalite
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    lot.transferes
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                lot.statut ||
+                                "Actif"
+                            }
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   15. COMPATIBILITÉ
+========================================================= */
+
+/*
+ * Certaines anciennes pages de ton ERP utilisent
+ * getDataLocale() et sauvegarderDataLocale().
+ *
+ * On conserve ces noms comme alias.
+ */
+
+function getDataLocale(
+    cle
+) {
+
+    return obtenirDonnees(
+        cle
+    );
+
+}
+
+
+function sauvegarderDataLocale(
+    cle,
+    donnees
+) {
+
+    return sauvegarderDonnees(
+        cle,
+        donnees
+    );
+
+}
+
+
+function obtenirDateAujourdhui() {
+
+    return obtenirDateAujourdHui();
+
+}
+
+
+/* =========================================================
+   16. EXPORTS GLOBAUX
+   ---------------------------------------------------------
+   Nécessaire pour les onclick présents dans tes pages HTML.
+========================================================= */
+
+window.genererId =
+    genererId;
+
+window.obtenirUtilisateur =
+    obtenirUtilisateur;
+
+window.obtenirDateAujourdHui =
+    obtenirDateAujourdHui;
+
+window.formaterNombre =
+    formaterNombre;
+
+window.formaterDate =
+    formaterDate;
+
+
+/* ANIMAUX */
+
+window.obtenirAnimaux =
+    obtenirAnimaux;
+
+window.ajouterAnimal =
+    ajouterAnimal;
+
+window.chargerAnimaux =
+    chargerAnimaux;
+
+
+/* LOTS */
+
+window.obtenirLotsElevage =
+    obtenirLotsElevage;
+
+window.obtenirLotsConnectes =
+    obtenirLotsConnectes;
+
+window.enregistrerLot =
+    enregistrerLot;
+
+window.chargerLots =
+    chargerLots;
+
+window.supprimerLot =
+    supprimerLot;
+
+window.chargerLotsProduction =
+    chargerLotsProduction;
+
+
+/* PRODUCTION */
+
+window.obtenirProductions =
+    obtenirProductions;
+
+window.enregistrerProduction =
+    enregistrerProduction;
+
+window.chargerProductions =
+    chargerProductions;
+
+window.obtenirStockOeufsIncubation =
+    obtenirStockOeufsIncubation;
+
+window.sauvegarderStockOeufsIncubation =
+    sauvegarderStockOeufsIncubation;
+
+window.obtenirOeufsDisponiblesPourLot =
+    obtenirOeufsDisponiblesPourLot;
+
+
+/* SANTÉ */
+
+window.obtenirSante =
+    obtenirSante;
+
+window.chargerSante =
+    chargerSante;
+
+window.supprimerSante =
+    supprimerSante;
+
+
+/* ALIMENTATION */
+
+window.obtenirAlimentation =
+    obtenirAlimentation;
+
+window.chargerAlimentation =
+    chargerAlimentation;
+
+window.chargerLotsAlimentation =
+    chargerLotsAlimentation;
+
+
+/* REPRODUCTION */
+
+window.obtenirReproduction =
+    obtenirReproduction;
+
+window.chargerReproduction =
+    chargerReproduction;
+
+
+/* CROISSANCE */
+
+window.obtenirCroissance =
+    obtenirCroissance;
+
+window.chargerCroissance =
+    chargerCroissance;
+
+
+/* POUSSINIÈRE */
+
+window.obtenirPoussiniere =
+    obtenirPoussiniere;
+
+window.enregistrerPoussiniere =
+    enregistrerPoussiniere;
+
+window.chargerPoussiniere =
+    chargerPoussiniere;
+
+window.ouvrirFormulairePoussiniere =
+    ouvrirFormulairePoussiniere;
+
+window.fermerFormulairePoussiniere =
+    fermerFormulairePoussiniere;
+
+
+/* TABLEAU DE BORD */
+
+window.chargerDashboardElevage =
+    chargerDashboardElevage;
+
+window.chargerActivitesRecentes =
+    chargerActivitesRecentes;
+
+window.chargerSuiviElevage =
+    chargerSuiviElevage;
+
+
+/* COMPATIBILITÉ */
+
+window.getDataLocale =
+    getDataLocale;
+
+window.sauvegarderDataLocale =
+    sauvegarderDataLocale;
+
+window.obtenirDateAujourdhui =
+    obtenirDateAujourdhui;
+
+
+/* =========================================================
+   17. INITIALISATION
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        /*
+         * ANIMAUX
+         */
+
         chargerAnimaux();
+
+
+        /*
+         * LOTS
+         */
 
         chargerLots();
 
         chargerLotsProduction();
 
+
+        /*
+         * PRODUCTION
+         */
+
         chargerProductions();
+
+
+        /*
+         * AUTRES MODULES
+         */
 
         chargerSante();
 
         chargerAlimentation();
+
+        chargerLotsAlimentation();
 
         chargerReproduction();
 
@@ -3190,9 +4421,25 @@ document.addEventListener(
 
         chargerPoussiniere();
 
+
+        /*
+         * TABLEAU DE BORD
+         */
+
         chargerDashboardElevage();
 
         chargerActivitesRecentes();
+
+        chargerSuiviElevage();
+
+
+        console.log(
+            "✓ Ferme Asher ERP — elevage.js chargé."
+        );
+
+        console.log(
+            "✓ Incubation séparée dans incubation.js."
+        );
 
     }
 );
