@@ -479,27 +479,22 @@ Enregistrer
 
 
 <script
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
-<script
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-document.addEventListener(
-"DOMContentLoaded",
-function () {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("alimentDate").value =
         new Date().toISOString().split("T")[0];
 
     chargerAlimentation();
-
     chargerLotsAlimentation();
 
 });
-
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../js/supabase.js"></script>
 <script src="../../js/elevage.js"></script>
 <script src="../../js/alimentation.js"></script>
-</body>
-
-</html>
