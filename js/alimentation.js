@@ -3,120 +3,114 @@
    MODULE : ALIMENTATION
    FICHIER : alimentation.js
 
-   Fonctionnement :
-   - Les lots viennent de "lotsElevage"
-   - Chaque consommation est liée à un lot
-   - Les consommations sont enregistrées dans
-     "alimentationElevage"
+   VERSION SUPABASE
+   ---------------------------------------------------------
+   Source centrale :
+       alimentation_elevage
+       lots_elevage
+
+   OBJECTIF :
+       Tous les ordinateurs utilisent les mêmes données.
 ========================================================= */
 
 
 /* =========================================================
-   1. OUTILS DE DONNÉES
+   CONFIGURATION
 ========================================================= */
 
-function lireDonneesAlimentation(cle) {
+const TABLE_ALIMENTATION =
+    "alimentation_elevage";
 
-    try {
+const TABLE_LOTS =
+    "lots_elevage";
 
-        const donnees =
-            localStorage.getItem(cle);
 
-        if (!donnees) {
+/* =========================================================
+   VERIFICATION SUPABASE
+========================================================= */
 
-            return [];
+function verifierSupabaseAlimentation() {
 
-        }
-
-        const resultat =
-            JSON.parse(donnees);
-
-        return Array.isArray(resultat)
-            ? resultat
-            : [];
-
-    } catch (erreur) {
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
 
         console.error(
-            "Erreur lecture localStorage :",
-            erreur
+            "supabaseClient est introuvable."
         );
 
-        return [];
-
-    }
-
-}
-
-
-function sauvegarderDonneesAlimentation(
-    cle,
-    donnees
-) {
-
-    try {
-
-        localStorage.setItem(
-            cle,
-            JSON.stringify(donnees)
-        );
-
-        return true;
-
-    } catch (erreur) {
-
-        console.error(
-            "Erreur sauvegarde localStorage :",
-            erreur
+        alert(
+            "Erreur : la connexion Supabase n'est pas chargée."
         );
 
         return false;
 
     }
 
+    return true;
+
 }
 
 
 /* =========================================================
-   2. LOTS D'ÉLEVAGE
+   DATE DU JOUR
 ========================================================= */
 
-function obtenirLotsAlimentation() {
+function obtenirDateAujourdHuiAlimentation() {
 
-    return lireDonneesAlimentation(
-        "lotsElevage"
+    const maintenant =
+        new Date();
+
+    const annee =
+        maintenant.getFullYear();
+
+    const mois =
+        String(
+            maintenant.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+    const jour =
+        String(
+            maintenant.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+    return (
+        annee +
+        "-" +
+        mois +
+        "-" +
+        jour
     );
 
 }
 
 
 /* =========================================================
-   3. ALIMENTATION
+   FORMAT NOMBRE
 ========================================================= */
 
-function obtenirAlimentation() {
-
-    return lireDonneesAlimentation(
-        "alimentationElevage"
-    );
-
-}
-
-
-function sauvegarderAlimentation(
-    alimentation
+function formaterNombreAlimentation(
+    nombre
 ) {
 
-    return sauvegarderDonneesAlimentation(
-        "alimentationElevage",
-        alimentation
+    return Number(
+        nombre || 0
+    ).toLocaleString(
+        "fr-FR"
     );
 
 }
 
 
 /* =========================================================
-   4. UTILISATEUR
+   UTILISATEUR CONNECTE
 ========================================================= */
 
 function obtenirUtilisateurAlimentation() {
@@ -143,40 +137,7 @@ function obtenirUtilisateurAlimentation() {
 
 
 /* =========================================================
-   5. DATE DU JOUR
-========================================================= */
-
-function obtenirDateAujourdHuiAlimentation() {
-
-    const maintenant =
-        new Date();
-
-    const annee =
-        maintenant.getFullYear();
-
-    const mois =
-        String(
-            maintenant.getMonth() + 1
-        ).padStart(2, "0");
-
-    const jour =
-        String(
-            maintenant.getDate()
-        ).padStart(2, "0");
-
-    return (
-        annee +
-        "-" +
-        mois +
-        "-" +
-        jour
-    );
-
-}
-
-
-/* =========================================================
-   6. GÉNÉRER UN ID
+   GENERER ID
 ========================================================= */
 
 function genererIdAlimentation() {
@@ -190,7 +151,7 @@ function genererIdAlimentation() {
         "-" +
 
         Math.floor(
-            Math.random() * 10000
+            Math.random() * 100000
         )
 
     );
@@ -199,226 +160,342 @@ function genererIdAlimentation() {
 
 
 /* =========================================================
-   7. FORMATER UN NOMBRE
+   ECHAPPER HTML
 ========================================================= */
 
-function formaterNombreAlimentation(
-    nombre
+function echapperHTMLAlimentation(
+    valeur
 ) {
 
-    return Number(
-        nombre || 0
-    ).toLocaleString(
-        "fr-FR"
-    );
+    if (
+        valeur === null ||
+        valeur === undefined
+    ) {
 
-}
-
-
-/* =========================================================
-   8. TROUVER LE NOM DU LOT
-========================================================= */
-
-function obtenirNomLotAlimentation(
-    lot
-) {
-
-    if (!lot) {
-
-        return "Lot inconnu";
+        return "";
 
     }
 
-
-    return (
-
-        lot.nomLot
-
-        ||
-
-        lot.nom
-
-        ||
-
-        lot.code
-
-        ||
-
-        lot.id
-
-        ||
-
-        "Lot sans nom"
-
-    );
+    return String(valeur)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
 /* =========================================================
-   9. CHARGER LES LOTS DANS LE FORMULAIRE
+   CHARGER LES LOTS DEPUIS SUPABASE
 ========================================================= */
 
-function chargerLotsAlimentation() {
+async function chargerLotsAlimentation() {
 
     const select =
         document.getElementById(
             "alimentLot"
         );
 
-
     if (!select) {
 
-        console.warn(
-            "Champ alimentLot introuvable."
-        );
+        return;
+
+    }
+
+    if (
+        !verifierSupabaseAlimentation()
+    ) {
 
         return;
 
     }
 
 
-    const lots =
-        obtenirLotsAlimentation();
+    const ancienneValeur =
+        select.value;
 
 
     select.innerHTML = `
 
         <option value="">
-
-            Sélectionner un lot
-
+            Chargement des lots...
         </option>
 
     `;
 
 
-    /*
-       Afficher uniquement les lots actifs.
-    */
+    try {
 
-    const lotsActifs =
-        lots.filter(function (lot) {
-
-            return (
-
-                !lot.statut
-
-                ||
-
-                lot.statut === "Actif"
-
-            );
-
-        });
-
-
-    lotsActifs.forEach(
-        function (lot) {
-
-            const id =
-                lot.id
-                ||
-                lot.code
-                ||
-                "";
-
-
-            const nom =
-                obtenirNomLotAlimentation(
-                    lot
+        const resultat =
+            await supabaseClient
+                .from(
+                    TABLE_LOTS
+                )
+                .select(
+                    `
+                    id,
+                    code,
+                    espece,
+                    race_type,
+                    nom_lot,
+                    quantite_actuelle,
+                    statut
+                    `
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
                 );
 
 
-            const espece =
-                lot.espece
-                ||
-                lot.type
-                ||
-                "";
+        if (resultat.error) {
 
-
-            const race =
-                lot.race
-                ||
-                "";
-
-
-            const quantite =
-                lot.quantiteActuelle
-                ??
-                lot.quantite
-                ??
-                lot.quantiteInitiale
-                ??
-                0;
-
-
-            let texte =
-                nom;
-
-
-            if (espece) {
-
-                texte +=
-                    " — " +
-                    espece;
-
-            }
-
-
-            if (race) {
-
-                texte +=
-                    " — " +
-                    race;
-
-            }
-
-
-            texte +=
-                " (" +
-                formaterNombreAlimentation(
-                    quantite
-                ) +
-                " animaux)";
-
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                id;
-
-
-            option.textContent =
-                texte;
-
-
-            select.appendChild(
-                option
-            );
+            throw resultat.error;
 
         }
-    );
 
 
-    console.log(
-        "Lots disponibles pour alimentation :",
-        lotsActifs
-    );
+        const lots =
+            resultat.data || [];
+
+
+        const lotsActifs =
+            lots.filter(
+                function (lot) {
+
+                    return (
+                        !lot.statut ||
+                        lot.statut === "Actif"
+                    );
+
+                }
+            );
+
+
+        select.innerHTML = `
+
+            <option value="">
+                Sélectionner un lot
+            </option>
+
+        `;
+
+
+        if (
+            lotsActifs.length === 0
+        ) {
+
+            select.innerHTML += `
+
+                <option
+                    value=""
+                    disabled
+                >
+                    Aucun lot actif disponible
+                </option>
+
+            `;
+
+            return;
+
+        }
+
+
+        lotsActifs.forEach(
+            function (lot) {
+
+                const code =
+                    lot.code ||
+                    lot.id;
+
+                const nom =
+                    lot.nom_lot ||
+                    "Lot sans nom";
+
+                const espece =
+                    lot.espece ||
+                    "";
+
+                const race =
+                    lot.race_type ||
+                    "";
+
+                const quantite =
+                    Number(
+                        lot.quantite_actuelle ||
+                        0
+                    );
+
+
+                let texte =
+                    code +
+                    " — " +
+                    nom;
+
+
+                if (espece) {
+
+                    texte +=
+                        " — " +
+                        espece;
+
+                }
+
+
+                if (race) {
+
+                    texte +=
+                        " — " +
+                        race;
+
+                }
+
+
+                texte +=
+                    " (" +
+                    formaterNombreAlimentation(
+                        quantite
+                    ) +
+                    " animaux)";
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                /*
+                 * IMPORTANT :
+                 * la valeur est l'ID
+                 * numérique Supabase.
+                 */
+
+                option.value =
+                    lot.id;
+
+
+                option.textContent =
+                    texte;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        if (ancienneValeur) {
+
+            const existe =
+                Array.from(
+                    select.options
+                ).some(
+                    function (option) {
+
+                        return (
+                            String(
+                                option.value
+                            ) ===
+                            String(
+                                ancienneValeur
+                            )
+                        );
+
+                    }
+                );
+
+
+            if (existe) {
+
+                select.value =
+                    ancienneValeur;
+
+            }
+
+        }
+
+
+        console.log(
+            "Lots alimentation chargés depuis Supabase :",
+            lotsActifs.length
+        );
+
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur chargement lots alimentation :",
+            erreur
+        );
+
+
+        select.innerHTML = `
+
+            <option value="">
+                Erreur de chargement des lots
+            </option>
+
+        `;
+
+
+        alert(
+            "Impossible de charger les lots depuis Supabase."
+        );
+
+    }
 
 }
 
 
 /* =========================================================
-   10. ENREGISTRER UNE CONSOMMATION
+   ENREGISTRER UNE CONSOMMATION
 ========================================================= */
 
-function enregistrerAlimentation() {
+async function enregistrerAlimentation(
+    evenement
+) {
+
+    if (
+        evenement &&
+        typeof evenement.preventDefault ===
+        "function"
+    ) {
+
+        evenement.preventDefault();
+
+    }
+
+
+    if (
+        !verifierSupabaseAlimentation()
+    ) {
+
+        return false;
+
+    }
+
 
     try {
 
@@ -427,40 +504,31 @@ function enregistrerAlimentation() {
                 "alimentDate"
             );
 
-
         const champLot =
             document.getElementById(
                 "alimentLot"
             );
-
 
         const champProduit =
             document.getElementById(
                 "alimentProduit"
             );
 
-
         const champQuantite =
             document.getElementById(
                 "alimentQuantite"
             );
-
 
         const champUnite =
             document.getElementById(
                 "alimentUnite"
             );
 
-
         const champNotes =
             document.getElementById(
                 "alimentNotes"
             );
 
-
-        /*
-           Vérification des champs.
-        */
 
         if (
             !champDate ||
@@ -475,18 +543,13 @@ function enregistrerAlimentation() {
                 "Erreur : un ou plusieurs champs du formulaire sont introuvables."
             );
 
-            console.error(
-                "Champs alimentation manquants."
-            );
-
             return false;
 
         }
 
 
         const date =
-            champDate.value
-            ||
+            champDate.value ||
             obtenirDateAujourdHuiAlimentation();
 
 
@@ -505,8 +568,7 @@ function enregistrerAlimentation() {
 
 
         const unite =
-            champUnite.value
-            ||
+            champUnite.value ||
             "Kg";
 
 
@@ -514,15 +576,17 @@ function enregistrerAlimentation() {
             champNotes.value.trim();
 
 
-        /*
-           Vérification.
-        */
+        /* -----------------------------------------
+           VALIDATION
+        ----------------------------------------- */
 
         if (!lotId) {
 
             alert(
                 "Veuillez sélectionner un lot."
             );
+
+            champLot.focus();
 
             return false;
 
@@ -545,8 +609,7 @@ function enregistrerAlimentation() {
         if (
             !Number.isFinite(
                 quantite
-            )
-            ||
+            ) ||
             quantite <= 0
         ) {
 
@@ -561,33 +624,42 @@ function enregistrerAlimentation() {
         }
 
 
-        /*
-           Rechercher le lot.
-        */
+        /* -----------------------------------------
+           RECUPERER LE LOT
+        ----------------------------------------- */
 
-        const lots =
-            obtenirLotsAlimentation();
+        const resultatLot =
+            await supabaseClient
+                .from(
+                    TABLE_LOTS
+                )
+                .select(
+                    `
+                    id,
+                    code,
+                    espece,
+                    race_type,
+                    nom_lot,
+                    quantite_actuelle,
+                    statut
+                    `
+                )
+                .eq(
+                    "id",
+                    Number(lotId)
+                )
+                .single();
+
+
+        if (resultatLot.error) {
+
+            throw resultatLot.error;
+
+        }
 
 
         const lot =
-            lots.find(
-                function (element) {
-
-                    const idLot =
-                        element.id
-                        ||
-                        element.code
-                        ||
-                        "";
-
-                    return (
-                        String(idLot)
-                        ===
-                        String(lotId)
-                    );
-
-                }
-            );
+            resultatLot.data;
 
 
         if (!lot) {
@@ -596,35 +668,26 @@ function enregistrerAlimentation() {
                 "Le lot sélectionné est introuvable."
             );
 
-            console.error(
-                "Lot introuvable :",
-                lotId
-            );
-
             return false;
 
         }
 
 
-        /*
-           Nom du lot.
-        */
+        /* -----------------------------------------
+           NOM DU LOT
+        ----------------------------------------- */
 
         const nomLot =
-            obtenirNomLotAlimentation(
-                lot
-            );
+            lot.nom_lot ||
+            lot.code ||
+            "Lot";
 
 
-        /*
-           Créer l'enregistrement.
-        */
+        /* -----------------------------------------
+           ENREGISTREMENT SUPABASE
+        ----------------------------------------- */
 
-        const alimentation =
-            obtenirAlimentation();
-
-
-        const nouvelEnregistrement = {
+        const nouvelleAlimentation = {
 
             id:
                 genererIdAlimentation(),
@@ -632,26 +695,11 @@ function enregistrerAlimentation() {
             date:
                 date,
 
-            lotId:
-                lotId,
+            lot_id:
+                Number(lot.id),
 
-            lot:
-                lotId,
-
-            lotNom:
+            lot_nom:
                 nomLot,
-
-            espece:
-                lot.espece
-                ||
-                lot.type
-                ||
-                "",
-
-            race:
-                lot.race
-                ||
-                "",
 
             produit:
                 produit,
@@ -666,136 +714,96 @@ function enregistrerAlimentation() {
                 notes,
 
             utilisateur:
-                obtenirUtilisateurAlimentation(),
-
-            dateCreation:
-                new Date().toISOString()
+                obtenirUtilisateurAlimentation()
 
         };
 
 
-        /*
-           Ajouter.
-        */
-
-        alimentation.push(
-            nouvelEnregistrement
-        );
-
-
-        /*
-           Sauvegarder.
-        */
-
-        const sauvegarde =
-            sauvegarderAlimentation(
-                alimentation
-            );
-
-
-        if (!sauvegarde) {
-
-            alert(
-                "Impossible d'enregistrer la consommation."
-            );
-
-            return false;
-
-        }
-
-
         console.log(
-            "Consommation enregistrée :",
-            nouvelEnregistrement
+            "Enregistrement alimentation :",
+            nouvelleAlimentation
         );
 
 
-        /*
-           Réinitialiser le formulaire.
-        */
-
-        const formulaire =
-            document.getElementById(
-                "formAlimentation"
-            );
-
-
-        if (formulaire) {
-
-            formulaire.reset();
-
-        }
-
-
-        /*
-           Remettre la date du jour.
-        */
-
-        if (champDate) {
-
-            champDate.value =
-                obtenirDateAujourdHuiAlimentation();
-
-        }
-
-
-        /*
-           Fermer le modal Bootstrap.
-        */
-
-        const modalElement =
-            document.getElementById(
-                "modalAlimentation"
-            );
-
-
-        if (
-            modalElement
-            &&
-            typeof bootstrap !==
-            "undefined"
-        ) {
-
-            const modal =
-                bootstrap.Modal.getInstance(
-                    modalElement
+        const resultat =
+            await supabaseClient
+                .from(
+                    TABLE_ALIMENTATION
+                )
+                .insert(
+                    nouvelleAlimentation
                 );
 
 
-            if (modal) {
+        if (resultat.error) {
 
-                modal.hide();
-
-            }
+            throw resultat.error;
 
         }
 
 
-        /*
-           Actualiser l'affichage.
-        */
-
-        chargerAlimentation();
-
+        /* -----------------------------------------
+           SUCCES
+        ----------------------------------------- */
 
         alert(
             "Consommation enregistrée avec succès."
         );
 
 
+        if (
+            champProduit
+        ) {
+
+            champProduit.value =
+                "";
+
+        }
+
+
+        if (
+            champQuantite
+        ) {
+
+            champQuantite.value =
+                "";
+
+        }
+
+
+        if (
+            champNotes
+        ) {
+
+            champNotes.value =
+                "";
+
+        }
+
+
+        await chargerAlimentation();
+
+        await chargerStatistiquesAlimentation();
+
+
         return true;
 
 
-    } catch (erreur) {
+    }
+    catch (erreur) {
 
         console.error(
-            "Erreur enregistrerAlimentation :",
+            "Erreur enregistrement alimentation :",
             erreur
         );
 
 
         alert(
-            "Une erreur est survenue pendant l'enregistrement."
+            "Erreur lors de l'enregistrement de l'alimentation.\n\n" +
+            (
+                erreur.message ||
+                erreur
+            )
         );
 
 
@@ -807,10 +815,10 @@ function enregistrerAlimentation() {
 
 
 /* =========================================================
-   11. CHARGER LE TABLEAU
+   CHARGER LES ALIMENTATIONS
 ========================================================= */
 
-function chargerAlimentation() {
+async function chargerAlimentation() {
 
     const tableau =
         document.getElementById(
@@ -825,17 +833,182 @@ function chargerAlimentation() {
     }
 
 
-    const alimentation =
-        obtenirAlimentation();
-
-
-    tableau.innerHTML =
-        "";
-
-
     if (
-        alimentation.length === 0
+        !verifierSupabaseAlimentation()
     ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const resultat =
+            await supabaseClient
+                .from(
+                    TABLE_ALIMENTATION
+                )
+                .select(
+                    "*"
+                )
+                .order(
+                    "date",
+                    {
+                        ascending: false
+                    }
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+        const alimentation =
+            resultat.data || [];
+
+
+        tableau.innerHTML =
+            "";
+
+
+        if (
+            alimentation.length === 0
+        ) {
+
+            tableau.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center text-muted py-4"
+                    >
+
+                        Aucune consommation enregistrée.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+        else {
+
+            alimentation.forEach(
+                function (item) {
+
+                    const date =
+                        echapperHTMLAlimentation(
+                            item.date
+                        );
+
+                    const lot =
+                        echapperHTMLAlimentation(
+                            item.lot_nom
+                        );
+
+                    const produit =
+                        echapperHTMLAlimentation(
+                            item.produit
+                        );
+
+                    const quantite =
+                        formaterNombreAlimentation(
+                            item.quantite
+                        );
+
+                    const unite =
+                        echapperHTMLAlimentation(
+                            item.unite
+                        );
+
+                    const notes =
+                        echapperHTMLAlimentation(
+                            item.notes ||
+                            "-"
+                        );
+
+
+                    tableau.innerHTML += `
+
+                        <tr>
+
+                            <td>
+                                ${date}
+                            </td>
+
+                            <td>
+                                ${lot}
+                            </td>
+
+                            <td>
+                                ${produit}
+                            </td>
+
+                            <td>
+                                ${quantite}
+                            </td>
+
+                            <td>
+                                ${unite}
+                            </td>
+
+                            <td>
+                                ${notes}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="supprimerAlimentation('${item.id}')"
+                                    title="Supprimer"
+                                >
+
+                                    <i
+                                        class="fa-solid fa-trash"
+                                    ></i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            );
+
+        }
+
+
+        console.log(
+            "Alimentations chargées depuis Supabase :",
+            alimentation.length
+        );
+
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur chargement alimentation :",
+            erreur
+        );
+
 
         tableau.innerHTML = `
 
@@ -843,9 +1016,10 @@ function chargerAlimentation() {
 
                 <td
                     colspan="7"
-                    class="text-center text-muted py-4">
+                    class="text-center text-danger py-4"
+                >
 
-                    Aucune consommation enregistrée.
+                    Impossible de charger les données.
 
                 </td>
 
@@ -853,246 +1027,19 @@ function chargerAlimentation() {
 
         `;
 
-        chargerStatistiquesAlimentation();
-
-        return;
-
-    }
-
-
-    alimentation
-        .slice()
-        .reverse()
-        .forEach(
-            function (item) {
-
-                tableau.innerHTML += `
-
-                    <tr>
-
-                        <td>
-                            ${item.date || "-"}
-                        </td>
-
-                        <td>
-                            ${item.lotNom || item.lot || "-"}
-                        </td>
-
-                        <td>
-                            ${item.produit || "-"}
-                        </td>
-
-                        <td>
-                            ${formaterNombreAlimentation(
-                                item.quantite
-                            )}
-                        </td>
-
-                        <td>
-                            ${item.unite || "-"}
-                        </td>
-
-                        <td>
-                            ${item.notes || "-"}
-                        </td>
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-danger"
-                                onclick="supprimerAlimentation('${item.id}')">
-
-                                <i
-                                    class="fa-solid fa-trash">
-                                </i>
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-
-    chargerStatistiquesAlimentation();
-
-}
-
-
-/* =========================================================
-   12. STATISTIQUES
-========================================================= */
-
-function chargerStatistiquesAlimentation() {
-
-    const alimentation =
-        obtenirAlimentation();
-
-
-    const aujourdHui =
-        obtenirDateAujourdHuiAlimentation();
-
-
-    const moisActuel =
-        aujourdHui.substring(
-            0,
-            7
-        );
-
-
-    let consommationJour =
-        0;
-
-
-    let consommationMois =
-        0;
-
-
-    let consommationTotale =
-        0;
-
-
-    const lots =
-        new Set();
-
-
-    alimentation.forEach(
-        function (item) {
-
-            const quantite =
-                Number(
-                    item.quantite
-                )
-                ||
-                0;
-
-
-            consommationTotale +=
-                quantite;
-
-
-            if (item.lotId) {
-
-                lots.add(
-                    String(
-                        item.lotId
-                    )
-                );
-
-            }
-
-
-            if (
-                item.date
-                ===
-                aujourdHui
-            ) {
-
-                consommationJour +=
-                    quantite;
-
-            }
-
-
-            if (
-                item.date
-                &&
-                item.date.substring(
-                    0,
-                    7
-                )
-                ===
-                moisActuel
-            ) {
-
-                consommationMois +=
-                    quantite;
-
-            }
-
-        }
-    );
-
-
-    const elementJour =
-        document.getElementById(
-            "alimentJour"
-        );
-
-
-    const elementMois =
-        document.getElementById(
-            "alimentMois"
-        );
-
-
-    const elementTotal =
-        document.getElementById(
-            "alimentTotal"
-        );
-
-
-    const elementLots =
-        document.getElementById(
-            "lotsNourris"
-        );
-
-
-    if (elementJour) {
-
-        elementJour.textContent =
-            formaterNombreAlimentation(
-                consommationJour
-            );
-
-    }
-
-
-    if (elementMois) {
-
-        elementMois.textContent =
-            formaterNombreAlimentation(
-                consommationMois
-            );
-
-    }
-
-
-    if (elementTotal) {
-
-        elementTotal.textContent =
-            formaterNombreAlimentation(
-                consommationTotale
-            );
-
-    }
-
-
-    if (elementLots) {
-
-        elementLots.textContent =
-            lots.size;
-
     }
 
 }
 
 
 /* =========================================================
-   13. SUPPRIMER UNE CONSOMMATION
+   STATISTIQUES
 ========================================================= */
 
-function supprimerAlimentation(id) {
+async function chargerStatistiquesAlimentation() {
 
     if (
-        !confirm(
-            "Voulez-vous supprimer cette consommation ?"
-        )
+        !verifierSupabaseAlimentation()
     ) {
 
         return;
@@ -1100,55 +1047,319 @@ function supprimerAlimentation(id) {
     }
 
 
-    let alimentation =
-        obtenirAlimentation();
+    try {
+
+        const resultat =
+            await supabaseClient
+                .from(
+                    TABLE_ALIMENTATION
+                )
+                .select(
+                    "date, lot_id, quantite"
+                );
 
 
-    alimentation =
-        alimentation.filter(
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+        const alimentation =
+            resultat.data || [];
+
+
+        const aujourdHui =
+            obtenirDateAujourdHuiAlimentation();
+
+
+        const moisActuel =
+            aujourdHui.substring(
+                0,
+                7
+            );
+
+
+        let consommationJour =
+            0;
+
+
+        let consommationMois =
+            0;
+
+
+        let consommationTotale =
+            0;
+
+
+        const lots =
+            new Set();
+
+
+        alimentation.forEach(
             function (item) {
 
-                return (
-                    String(item.id)
-                    !==
-                    String(id)
-                );
+                const quantite =
+                    Number(
+                        item.quantite
+                    ) || 0;
+
+
+                consommationTotale +=
+                    quantite;
+
+
+                if (
+                    item.lot_id !== null &&
+                    item.lot_id !== undefined
+                ) {
+
+                    lots.add(
+                        String(
+                            item.lot_id
+                        )
+                    );
+
+                }
+
+
+                if (
+                    item.date ===
+                    aujourdHui
+                ) {
+
+                    consommationJour +=
+                        quantite;
+
+                }
+
+
+                if (
+                    String(
+                        item.date || ""
+                    ).substring(
+                        0,
+                        7
+                    ) ===
+                    moisActuel
+                ) {
+
+                    consommationMois +=
+                        quantite;
+
+                }
 
             }
         );
 
 
-    sauvegarderAlimentation(
-        alimentation
-    );
+        const elementJour =
+            document.getElementById(
+                "alimentJour"
+            );
 
 
-    chargerAlimentation();
+        const elementMois =
+            document.getElementById(
+                "alimentMois"
+            );
 
 
-    alert(
-        "Consommation supprimée."
-    );
+        const elementTotal =
+            document.getElementById(
+                "alimentTotal"
+            );
+
+
+        const elementLots =
+            document.getElementById(
+                "lotsNourris"
+            );
+
+
+        if (elementJour) {
+
+            elementJour.textContent =
+                formaterNombreAlimentation(
+                    consommationJour
+                );
+
+        }
+
+
+        if (elementMois) {
+
+            elementMois.textContent =
+                formaterNombreAlimentation(
+                    consommationMois
+                );
+
+        }
+
+
+        if (elementTotal) {
+
+            elementTotal.textContent =
+                formaterNombreAlimentation(
+                    consommationTotale
+                );
+
+        }
+
+
+        if (elementLots) {
+
+            elementLots.textContent =
+                lots.size;
+
+        }
+
+
+        console.log(
+            "Statistiques alimentation actualisées."
+        );
+
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur statistiques alimentation :",
+            erreur
+        );
+
+    }
 
 }
 
 
 /* =========================================================
-   14. INITIALISATION
+   SUPPRIMER UNE CONSOMMATION
+========================================================= */
+
+async function supprimerAlimentation(
+    id
+) {
+
+    if (
+        !verifierSupabaseAlimentation()
+    ) {
+
+        return;
+
+    }
+
+
+    const confirmation =
+        confirm(
+            "Voulez-vous supprimer cette consommation ?"
+        );
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const resultat =
+            await supabaseClient
+                .from(
+                    TABLE_ALIMENTATION
+                )
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+        alert(
+            "Consommation supprimée."
+        );
+
+
+        await chargerAlimentation();
+
+        await chargerStatistiquesAlimentation();
+
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur suppression alimentation :",
+            erreur
+        );
+
+
+        alert(
+            "Impossible de supprimer cette consommation.\n\n" +
+            (
+                erreur.message ||
+                erreur
+            )
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTUALISATION MANUELLE
+========================================================= */
+
+async function actualiserAlimentation() {
+
+    await chargerLotsAlimentation();
+
+    await chargerAlimentation();
+
+    await chargerStatistiquesAlimentation();
+
+}
+
+
+/* =========================================================
+   INITIALISATION
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    async function () {
 
         console.log(
-            "Module alimentation.js chargé."
+            "========================================"
         );
 
+        console.log(
+            "Ferme Asher ERP"
+        );
 
-        /*
-           Date du jour.
-        */
+        console.log(
+            "Module alimentation.js"
+        );
+
+        console.log(
+            "Version Supabase"
+        );
+
+        console.log(
+            "========================================"
+        );
+
 
         const champDate =
             document.getElementById(
@@ -1156,7 +1367,10 @@ document.addEventListener(
             );
 
 
-        if (champDate) {
+        if (
+            champDate &&
+            !champDate.value
+        ) {
 
             champDate.value =
                 obtenirDateAujourdHuiAlimentation();
@@ -1164,19 +1378,69 @@ document.addEventListener(
         }
 
 
-        /*
-           Charger les lots.
-        */
+        const formulaire =
+            document.getElementById(
+                "formAlimentation"
+            );
 
-        chargerLotsAlimentation();
+
+        if (formulaire) {
+
+            formulaire.addEventListener(
+                "submit",
+                enregistrerAlimentation
+            );
+
+        }
 
 
-        /*
-           Charger le tableau.
-        */
+        await chargerLotsAlimentation();
 
-        chargerAlimentation();
+        await chargerAlimentation();
 
+        await chargerStatistiquesAlimentation();
+
+
+        console.log(
+            "✓ alimentation.js connecté à Supabase."
+        );
 
     }
+);
+
+
+/* =========================================================
+   EXPORTS GLOBAUX
+========================================================= */
+
+window.chargerLotsAlimentation =
+    chargerLotsAlimentation;
+
+
+window.enregistrerAlimentation =
+    enregistrerAlimentation;
+
+
+window.chargerAlimentation =
+    chargerAlimentation;
+
+
+window.chargerStatistiquesAlimentation =
+    chargerStatistiquesAlimentation;
+
+
+window.supprimerAlimentation =
+    supprimerAlimentation;
+
+
+window.actualiserAlimentation =
+    actualiserAlimentation;
+
+
+window.formaterNombreAlimentation =
+    formaterNombreAlimentation;
+
+
+console.log(
+    "✓ Ferme Asher ERP — alimentation.js prêt."
 );
