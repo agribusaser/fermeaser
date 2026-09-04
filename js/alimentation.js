@@ -1,39 +1,83 @@
 // ============================================================
-// FERME ASHER ERP
-// MODULE : ALIMENTATION ÉLEVAGE
-// Base de données : Supabase
+// ALIMENTATION ELEVAGE - FERME ASER ERP
+// Connexion avec Supabase
 // ============================================================
 
+// Vérification de la connexion Supabase
+if (typeof supabaseClient === "undefined") {
+    console.error("Supabase n'est pas chargé.");
+    alert("Erreur : Supabase n'est pas correctement chargé.");
+}
 
-// ------------------------------------------------------------
-// CHARGER LES LOTS DANS LE SELECT
-// ------------------------------------------------------------
+
+// ============================================================
+// INITIALISATION
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+    console.log("Module Alimentation démarré.");
+
+    // Date du jour
+    const dateInput = document.getElementById("alimentDate");
+
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split("T")[0];
+    }
+
+    // Charger les données
+    await chargerLotsAlimentation();
+    await chargerAlimentation();
+
+});
+
+
+// ============================================================
+// CHARGER LES LOTS DEPUIS SUPABASE
+// ============================================================
 
 async function chargerLotsAlimentation() {
 
     const select = document.getElementById("alimentLot");
 
-    if (!select) return;
+    if (!select) {
+        console.error("Champ alimentLot introuvable.");
+        return;
+    }
 
+    // Message temporaire
     select.innerHTML = `
-        <option value="">
-            Sélectionner un lot
-        </option>
+        <option value="">Chargement des lots...</option>
     `;
 
     try {
 
         const { data, error } = await supabaseClient
             .from("lots_elevage")
-            .select("id, code, espece, race_type, nom_lot")
+            .select(`
+                id,
+                code,
+                espece,
+                race_type,
+                nom_lot,
+                quantite_actuelle,
+                statut
+            `)
             .order("id", { ascending: false });
 
         if (error) {
             console.error("Erreur chargement lots :", error);
-            alert("Impossible de charger les lots.");
+
+            select.innerHTML = `
+                <option value="">
+                    Erreur de chargement des lots
+                </option>
+            `;
+
             return;
         }
 
+        // Aucun lot
         if (!data || data.length === 0) {
 
             select.innerHTML = `
@@ -42,76 +86,106 @@ async function chargerLotsAlimentation() {
                 </option>
             `;
 
+            console.log("Aucun lot trouvé dans lots_elevage.");
+
             return;
         }
 
-        data.forEach(lot => {
+
+        // Réinitialiser
+        select.innerHTML = `
+            <option value="">
+                Sélectionner un lot
+            </option>
+        `;
+
+
+        // Ajouter les lots
+        data.forEach(function (lot) {
 
             const option = document.createElement("option");
 
             option.value = lot.id;
 
-            option.textContent =
-                `${lot.code || ""} - ${lot.nom_lot || lot.espece || "Lot"}`;
+            // Nom affiché
+            let nom = lot.nom_lot || lot.code || "Lot sans nom";
 
-            option.dataset.nom =
-                lot.nom_lot || lot.espece || "";
+            // Informations complémentaires
+            let informations = [];
+
+            if (lot.espece) {
+                informations.push(lot.espece);
+            }
+
+            if (lot.race_type) {
+                informations.push(lot.race_type);
+            }
+
+            if (lot.quantite_actuelle !== null &&
+                lot.quantite_actuelle !== undefined) {
+
+                informations.push(
+                    lot.quantite_actuelle + " animaux"
+                );
+            }
+
+            option.textContent =
+                nom +
+                (informations.length
+                    ? " — " + informations.join(" | ")
+                    : "");
+
+            // Sauvegarder le nom du lot
+            option.dataset.nomLot = nom;
 
             select.appendChild(option);
 
         });
 
+
+        console.log(
+            data.length + " lot(s) chargé(s) depuis Supabase."
+        );
+
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur inattendue lors du chargement des lots :",
+            error
+        );
 
-        alert("Erreur de connexion à Supabase.");
-
+        select.innerHTML = `
+            <option value="">
+                Erreur de connexion
+            </option>
+        `;
     }
 }
 
 
-
-// ------------------------------------------------------------
+// ============================================================
 // CHARGER LES CONSOMMATIONS
-// ------------------------------------------------------------
+// ============================================================
 
 async function chargerAlimentation() {
-
-    const tbody = document.getElementById("listeAlimentation");
-
-    if (!tbody) return;
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="7" class="text-center">
-                Chargement...
-            </td>
-        </tr>
-    `;
 
     try {
 
         const { data, error } = await supabaseClient
             .from("alimentation_elevage")
             .select("*")
-            .order("date", { ascending: false })
-            .order("created_at", { ascending: false });
+            .order("date", { ascending: false });
 
         if (error) {
-
-            console.error("Erreur chargement alimentation :", error);
-
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="text-center text-danger">
-                        Erreur de chargement
-                    </td>
-                </tr>
-            `;
+            console.error(
+                "Erreur chargement alimentation :",
+                error
+            );
 
             return;
         }
+
 
         afficherAlimentation(data || []);
 
@@ -119,38 +193,39 @@ async function chargerAlimentation() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur inattendue alimentation :",
+            error
+        );
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center text-danger">
-                    Erreur de connexion
-                </td>
-            </tr>
-        `;
     }
 }
 
 
-
-// ------------------------------------------------------------
-// AFFICHER LE TABLEAU
-// ------------------------------------------------------------
+// ============================================================
+// AFFICHER LES CONSOMMATIONS
+// ============================================================
 
 function afficherAlimentation(data) {
 
-    const tbody = document.getElementById("listeAlimentation");
+    const tbody =
+        document.getElementById("listeAlimentation");
 
-    if (!tbody) return;
+    if (!tbody) {
+        return;
+    }
 
-    tbody.innerHTML = "";
 
-    if (data.length === 0) {
+    // Aucune donnée
+    if (!data || data.length === 0) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted py-4">
+                <td colspan="7"
+                    class="text-center text-muted py-4">
+
                     Aucune consommation enregistrée.
+
                 </td>
             </tr>
         `;
@@ -158,15 +233,24 @@ function afficherAlimentation(data) {
         return;
     }
 
-    data.forEach(item => {
+
+    tbody.innerHTML = "";
+
+
+    data.forEach(function (item) {
 
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${formaterDate(item.date)}</td>
 
             <td>
-                <strong>${echapperHTML(item.lot_nom || "-")}</strong>
+                ${formaterDate(item.date)}
+            </td>
+
+            <td>
+                <strong>
+                    ${echapperHTML(item.lot_nom || "-")}
+                </strong>
             </td>
 
             <td>
@@ -178,7 +262,7 @@ function afficherAlimentation(data) {
             </td>
 
             <td>
-                ${echapperHTML(item.unite || "-")}
+                ${echapperHTML(item.unite || "Kg")}
             </td>
 
             <td>
@@ -198,16 +282,16 @@ function afficherAlimentation(data) {
             </td>
         `;
 
+
         tbody.appendChild(tr);
 
     });
 }
 
 
-
-// ------------------------------------------------------------
+// ============================================================
 // ENREGISTRER UNE CONSOMMATION
-// ------------------------------------------------------------
+// ============================================================
 
 async function enregistrerAlimentation() {
 
@@ -232,133 +316,72 @@ async function enregistrerAlimentation() {
         document.getElementById("alimentNotes").value.trim();
 
 
-    // --------------------------------------------------------
-    // VALIDATION
-    // --------------------------------------------------------
-
+    // Vérifications
     if (!date) {
-
         alert("Veuillez sélectionner une date.");
         return;
     }
 
     if (!lotSelect.value) {
-
         alert("Veuillez sélectionner un lot.");
         return;
     }
 
     if (!produit) {
-
         alert("Veuillez indiquer le nom de l'aliment.");
         return;
     }
 
     if (!quantite || quantite <= 0) {
-
         alert("Veuillez entrer une quantité valide.");
         return;
     }
 
 
-    // --------------------------------------------------------
-    // RÉCUPÉRER LE LOT
-    // --------------------------------------------------------
+    // Lot sélectionné
+    const lotId = lotSelect.value;
 
-    const lotId =
-        parseInt(lotSelect.value);
-
-    const option =
+    const selectedOption =
         lotSelect.options[lotSelect.selectedIndex];
 
     const lotNom =
-        option.dataset.nom ||
-        option.textContent;
+        selectedOption.dataset.nomLot ||
+        selectedOption.textContent;
 
 
-    // --------------------------------------------------------
-    // UTILISATEUR CONNECTÉ
-    // --------------------------------------------------------
+    console.log("Enregistrement alimentation :", {
+        date,
+        lotId,
+        lotNom,
+        produit,
+        quantite,
+        unite,
+        notes
+    });
 
-    let utilisateur = "Utilisateur";
-
-    try {
-
-        const {
-            data: { user }
-        } = await supabaseClient.auth.getUser();
-
-        if (user) {
-
-            utilisateur =
-                user.email || user.id;
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Utilisateur non récupéré :",
-            error
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // DÉSACTIVER LE BOUTON PENDANT L'ENREGISTREMENT
-    // --------------------------------------------------------
-
-    const bouton =
-        document.querySelector(
-            '#modalAlimentation .btn-success[onclick="enregistrerAlimentation()"]'
-        );
-
-    if (bouton) {
-
-        bouton.disabled = true;
-
-        bouton.innerHTML = `
-            <span class="spinner-border spinner-border-sm"></span>
-            Enregistrement...
-        `;
-    }
-
-
-    // --------------------------------------------------------
-    // INSERTION SUPABASE
-    // --------------------------------------------------------
 
     try {
 
         const { data, error } = await supabaseClient
             .from("alimentation_elevage")
-            .insert([{
-
-                date: date,
-
-                lot_id: lotId,
-
-                lot_nom: lotNom,
-
-                produit: produit,
-
-                quantite: quantite,
-
-                unite: unite,
-
-                notes: notes,
-
-                utilisateur: utilisateur
-
-            }])
+            .insert([
+                {
+                    date: date,
+                    lot_id: lotId,
+                    lot_nom: lotNom,
+                    produit: produit,
+                    quantite: quantite,
+                    unite: unite,
+                    notes: notes
+                }
+            ])
             .select();
 
 
         if (error) {
 
             console.error(
-                "Erreur Supabase :",
+                "Erreur insertion alimentation :",
                 error
             );
 
@@ -371,101 +394,80 @@ async function enregistrerAlimentation() {
         }
 
 
-        // ----------------------------------------------------
-        // SUCCÈS
-        // ----------------------------------------------------
-
-        alert("Consommation enregistrée avec succès !");
-
-
-        // Réinitialiser le formulaire
-
-        document.getElementById(
-            "formAlimentation"
-        ).reset();
-
-
-        // Remettre la date du jour
-
-        document.getElementById(
-            "alimentDate"
-        ).value =
-            new Date()
-                .toISOString()
-                .split("T")[0];
+        console.log(
+            "Consommation enregistrée :",
+            data
+        );
 
 
         // Fermer le modal
-
         const modalElement =
-            document.getElementById(
-                "modalAlimentation"
-            );
+            document.getElementById("modalAlimentation");
 
-        const modal =
-            bootstrap.Modal.getInstance(
-                modalElement
-            );
+        if (modalElement) {
 
-        if (modal) {
+            const modal =
+                bootstrap.Modal.getInstance(modalElement);
 
-            modal.hide();
-
+            if (modal) {
+                modal.hide();
+            }
         }
 
 
-        // Actualiser le tableau
+        // Réinitialiser formulaire
+        document
+            .getElementById("formAlimentation")
+            .reset();
 
+
+        // Remettre date
+        document
+            .getElementById("alimentDate")
+            .value =
+            new Date().toISOString().split("T")[0];
+
+
+        // Actualiser
         await chargerAlimentation();
+
+
+        alert("Consommation enregistrée avec succès.");
 
 
     } catch (error) {
 
-        console.error(error);
-
-        alert(
-            "Erreur inattendue : " +
-            error.message
+        console.error(
+            "Erreur inattendue :",
+            error
         );
 
-    } finally {
-
-        if (bouton) {
-
-            bouton.disabled = false;
-
-            bouton.innerHTML = `
-                <i class="fa-solid fa-floppy-disk"></i>
-                Enregistrer
-            `;
-        }
-
+        alert(
+            "Une erreur inattendue est survenue."
+        );
     }
 }
 
 
-
-// ------------------------------------------------------------
+// ============================================================
 // SUPPRIMER UNE CONSOMMATION
-// ------------------------------------------------------------
+// ============================================================
 
 async function supprimerAlimentation(id) {
 
-    const confirmation =
-        confirm(
-            "Voulez-vous vraiment supprimer cette consommation ?"
-        );
-
-    if (!confirmation) return;
+    if (!confirm(
+        "Voulez-vous vraiment supprimer cette consommation ?"
+    )) {
+        return;
+    }
 
 
     try {
 
-        const { error } =
-            await supabaseClient
-                .from("alimentation_elevage")
-                .delete()
-                .eq("id", id);
+        const { error } = await supabaseClient
+            .from("alimentation_elevage")
+            .delete()
+            .eq("id", id);
 
 
         if (error) {
@@ -476,7 +478,7 @@ async function supprimerAlimentation(id) {
             );
 
             alert(
-                "Impossible de supprimer :\n" +
+                "Erreur lors de la suppression :\n" +
                 error.message
             );
 
@@ -484,9 +486,9 @@ async function supprimerAlimentation(id) {
         }
 
 
-        alert("Consommation supprimée.");
-
         await chargerAlimentation();
+
+        alert("Consommation supprimée.");
 
 
     } catch (error) {
@@ -494,47 +496,39 @@ async function supprimerAlimentation(id) {
         console.error(error);
 
         alert(
-            "Erreur lors de la suppression."
+            "Erreur inattendue lors de la suppression."
         );
-
     }
 }
 
 
-
-// ------------------------------------------------------------
+// ============================================================
 // STATISTIQUES
-// ------------------------------------------------------------
+// ============================================================
 
 function calculerStatistiquesAlimentation(data) {
+
+    const aujourdHui =
+        new Date().toISOString().split("T")[0];
 
     const maintenant =
         new Date();
 
-    const annee =
-        maintenant.getFullYear();
-
     const mois =
         maintenant.getMonth();
 
-    const aujourdHui =
-        maintenant
-            .toISOString()
-            .split("T")[0];
+    const annee =
+        maintenant.getFullYear();
 
 
-    let consommationJour = 0;
+    let totalJour = 0;
+    let totalMois = 0;
+    let totalGeneral = 0;
 
-    let consommationMois = 0;
-
-    let consommationTotale = 0;
-
-
-    const lotsNourris =
-        new Set();
+    const lots = new Set();
 
 
-    data.forEach(item => {
+    data.forEach(function (item) {
 
         const quantite =
             convertirEnKg(
@@ -543,209 +537,162 @@ function calculerStatistiquesAlimentation(data) {
             );
 
 
-        consommationTotale += quantite;
+        totalGeneral += quantite;
 
 
         if (item.date === aujourdHui) {
-
-            consommationJour += quantite;
-
+            totalJour += quantite;
         }
 
 
-        const date =
-            new Date(item.date + "T00:00:00");
+        if (item.date) {
 
+            const d =
+                new Date(item.date + "T00:00:00");
 
-        if (
-            date.getFullYear() === annee &&
-            date.getMonth() === mois
-        ) {
-
-            consommationMois += quantite;
-
+            if (
+                d.getMonth() === mois &&
+                d.getFullYear() === annee
+            ) {
+                totalMois += quantite;
+            }
         }
 
 
         if (item.lot_id) {
-
-            lotsNourris.add(
-                item.lot_id
-            );
-
+            lots.add(String(item.lot_id));
         }
 
     });
 
 
-    // --------------------------------------------------------
-    // AFFICHAGE
-    // --------------------------------------------------------
+    const alimentJour =
+        document.getElementById("alimentJour");
 
-    const jour =
-        document.getElementById(
-            "alimentJour"
-        );
+    const alimentMois =
+        document.getElementById("alimentMois");
 
-    const moisElement =
-        document.getElementById(
-            "alimentMois"
-        );
+    const alimentTotal =
+        document.getElementById("alimentTotal");
 
-    const total =
-        document.getElementById(
-            "alimentTotal"
-        );
-
-    const lots =
-        document.getElementById(
-            "lotsNourris"
-        );
+    const lotsNourris =
+        document.getElementById("lotsNourris");
 
 
-    if (jour) {
-
-        jour.textContent =
-            formaterQuantite(
-                consommationJour
-            ) + " Kg";
-
+    if (alimentJour) {
+        alimentJour.textContent =
+            formatKg(totalJour);
     }
 
-
-    if (moisElement) {
-
-        moisElement.textContent =
-            formaterQuantite(
-                consommationMois
-            ) + " Kg";
-
+    if (alimentMois) {
+        alimentMois.textContent =
+            formatKg(totalMois);
     }
 
-
-    if (total) {
-
-        total.textContent =
-            formaterQuantite(
-                consommationTotale
-            ) + " Kg";
-
+    if (alimentTotal) {
+        alimentTotal.textContent =
+            formatKg(totalGeneral);
     }
 
-
-    if (lots) {
-
-        lots.textContent =
-            lotsNourris.size;
-
+    if (lotsNourris) {
+        lotsNourris.textContent =
+            lots.size;
     }
-
 }
 
 
-
-// ------------------------------------------------------------
+// ============================================================
 // CONVERSION EN KG
-// ------------------------------------------------------------
+// ============================================================
 
-function convertirEnKg(
-    quantite,
-    unite
-) {
+function convertirEnKg(quantite, unite) {
 
-    if (!quantite) return 0;
-
-
-    switch (
-        String(unite || "")
-            .toLowerCase()
-    ) {
-
-        case "g":
-
-            return quantite / 1000;
-
-
-        case "sac":
-
-            // 1 sac = 50 Kg
-            return quantite * 50;
-
-
-        case "kg":
-
-        default:
-
-            return quantite;
-
+    if (!unite) {
+        return quantite;
     }
 
+
+    const u =
+        String(unite).toLowerCase();
+
+
+    if (u === "g" || u === "gramme" || u === "grammes") {
+        return quantite / 1000;
+    }
+
+
+    if (u === "sac") {
+
+        // Pour l'instant, un sac est traité comme
+        // la quantité saisie.
+        //
+        // Nous améliorerons cette partie lorsque
+        // le module STOCKS sera connecté.
+
+        return quantite;
+    }
+
+
+    // Kg
+    return quantite;
 }
 
 
+// ============================================================
+// FORMAT KG
+// ============================================================
 
-// ------------------------------------------------------------
-// FORMATAGE DATE
-// ------------------------------------------------------------
+function formatKg(value) {
+
+    return (
+        Number(value).toLocaleString("fr-FR", {
+            maximumFractionDigits: 2
+        }) + " Kg"
+    );
+}
+
+
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
 function formaterDate(date) {
 
-    if (!date) return "-";
-
-    const d =
-        new Date(
-            date + "T00:00:00"
-        );
-
-    return d.toLocaleDateString(
-        "fr-FR"
-    );
-
-}
-
-
-
-// ------------------------------------------------------------
-// FORMATAGE QUANTITÉ
-// ------------------------------------------------------------
-
-function formaterQuantite(
-    valeur
-) {
-
-    return Number(valeur)
-        .toLocaleString(
-            "fr-FR",
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }
-        );
-
-}
-
-
-
-// ------------------------------------------------------------
-// PROTECTION AFFICHAGE HTML
-// ------------------------------------------------------------
-
-function echapperHTML(
-    texte
-) {
-
-    if (texte === null ||
-        texte === undefined) {
-
-        return "";
-
+    if (!date) {
+        return "-";
     }
 
-    return String(texte)
+
+    const d =
+        new Date(date + "T00:00:00");
+
+
+    if (isNaN(d.getTime())) {
+        return date;
+    }
+
+
+    return d.toLocaleDateString("fr-FR");
+}
+
+
+// ============================================================
+// PROTECTION AFFICHAGE HTML
+// ============================================================
+
+function echapperHTML(value) {
+
+    if (value === null ||
+        value === undefined) {
+
+        return "";
+    }
+
+
+    return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
 }
