@@ -559,6 +559,393 @@ function obtenirLotsElevage() {
 }
 
 
+/* =========================================================
+   SUPABASE — LOTS D'ÉLEVAGE
+========================================================= */
+
+function supabaseDisponible() {
+
+    return (
+        typeof supabaseClient !== "undefined" &&
+        supabaseClient !== null
+    );
+
+}
+
+
+/*
+ * Convertit un lot Supabase vers le format utilisé
+ * par le reste de l'application.
+ */
+function convertirLotSupabase(lot) {
+
+    return {
+
+        id:
+            lot.id,
+
+        code:
+            lot.code,
+
+        espece:
+            lot.espece,
+
+        type:
+            lot.espece,
+
+        race:
+            lot.race_type ||
+            "Non précisée",
+
+        nom:
+            lot.nom_lot,
+
+        nomLot:
+            lot.nom_lot,
+
+        dateEntree:
+            lot.date_entree,
+
+        date:
+            lot.date_entree,
+
+        quantiteInitiale:
+            Number(
+                lot.quantite_initiale || 0
+            ),
+
+        quantiteActuelle:
+            Number(
+                lot.quantite_actuelle || 0
+            ),
+
+        quantite:
+            Number(
+                lot.quantite_actuelle || 0
+            ),
+
+        origine:
+            lot.origine || "",
+
+        cout:
+            Number(
+                lot.cout_acquisition || 0
+            ),
+
+        statut:
+            lot.statut || "Actif",
+
+        notes:
+            lot.notes || "",
+
+        mortalite:
+            0,
+
+        transferes:
+            0,
+
+        dateCreation:
+            lot.created_at || null,
+
+        dateModification:
+            lot.updated_at || null
+
+    };
+
+}
+
+
+/*
+ * Charge tous les lots depuis Supabase.
+ */
+async function chargerLotsSupabase() {
+
+    if (!supabaseDisponible()) {
+
+        console.error(
+            "supabaseClient n'est pas disponible."
+        );
+
+        return [];
+
+    }
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("lots_elevage")
+        .select("*")
+        .order(
+            "id",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Erreur chargement lots Supabase :",
+            error
+        );
+
+        return [];
+
+    }
+
+
+    return (
+        data || []
+    ).map(
+        convertirLotSupabase
+    );
+
+}
+
+
+/*
+ * Enregistre un lot dans Supabase.
+ */
+async function enregistrerLotSupabase(
+    lot
+) {
+
+    if (!supabaseDisponible()) {
+
+        throw new Error(
+            "Supabase n'est pas disponible."
+        );
+
+    }
+
+
+    const donnees = {
+
+        code:
+            lot.code,
+
+        espece:
+            lot.espece,
+
+        race_type:
+            lot.race ||
+            "Non précisée",
+
+        nom_lot:
+            lot.nom,
+
+        date_entree:
+            lot.dateEntree,
+
+        quantite_initiale:
+            Number(
+                lot.quantiteInitiale
+            ),
+
+        quantite_actuelle:
+            Number(
+                lot.quantiteActuelle
+            ),
+
+        origine:
+            lot.origine ||
+            "Achat",
+
+        cout_acquisition:
+            Number(
+                lot.cout || 0
+            ),
+
+        statut:
+            lot.statut ||
+            "Actif",
+
+        notes:
+            lot.notes ||
+            ""
+
+    };
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("lots_elevage")
+        .insert(
+            [donnees]
+        )
+        .select()
+        .single();
+
+
+    if (error) {
+
+        console.error(
+            "Erreur insertion lot Supabase :",
+            error
+        );
+
+        throw error;
+
+    }
+
+
+    return convertirLotSupabase(
+        data
+    );
+
+}
+
+
+/*
+ * Supprime un lot dans Supabase.
+ */
+async function supprimerLotSupabase(
+    id
+) {
+
+    if (!supabaseDisponible()) {
+
+        throw new Error(
+            "Supabase n'est pas disponible."
+        );
+
+    }
+
+
+    const {
+        error
+    } = await supabaseClient
+        .from("lots_elevage")
+        .delete()
+        .eq(
+            "id",
+            id
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Erreur suppression lot Supabase :",
+            error
+        );
+
+        throw error;
+
+    }
+
+}
+
+
+/*
+ * Synchronise les anciens lots localStorage
+ * vers Supabase.
+ *
+ * Cela permet de récupérer ton lot actuel de
+ * 40 cailles Jumbo.
+ */
+async function migrerLotsLocauxVersSupabase() {
+
+    if (!supabaseDisponible()) {
+
+        return;
+
+    }
+
+
+    const anciensLots =
+        obtenirDonnees(
+            "lotsElevage"
+        );
+
+
+    if (
+        anciensLots.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    console.log(
+        "Migration des anciens lots vers Supabase..."
+    );
+
+
+    for (
+        const lot of anciensLots
+    ) {
+
+        try {
+
+            const {
+                data: existant,
+                error: erreurRecherche
+            } = await supabaseClient
+                .from("lots_elevage")
+                .select("id, code")
+                .eq(
+                    "code",
+                    lot.code
+                )
+                .maybeSingle();
+
+
+            if (erreurRecherche) {
+
+                console.error(
+                    "Erreur recherche lot :",
+                    erreurRecherche
+                );
+
+                continue;
+
+            }
+
+
+            /*
+             * Si le code existe déjà,
+             * on ne crée pas de doublon.
+             */
+            if (existant) {
+
+                continue;
+
+            }
+
+
+            await enregistrerLotSupabase(
+                lot
+            );
+
+
+            console.log(
+                "Lot migré :",
+                lot.code
+            );
+
+        }
+        catch (erreur) {
+
+            console.error(
+                "Erreur migration du lot :",
+                lot,
+                erreur
+            );
+
+        }
+
+    }
+
+}
+
+
 function sauvegarderLotsElevage(
     lots
 ) {
