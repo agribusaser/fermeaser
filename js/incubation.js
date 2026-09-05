@@ -1,13 +1,13 @@
 /* ============================================================
    FERME ASHER ERP
    MODULE : INCUBATION
-   FICHIER : js/incubation.js
+   FICHIER : /js/incubation.js
 
-   CHAÎNE DE TRAÇABILITÉ
+   Chaîne de traçabilité :
 
    ANIMAUX & LOTS
           ↓
-   PRODUCTION DES ŒUFS
+   PRODUCTION D'ŒUFS
           ↓
    INCUBATION
           ↓
@@ -17,8 +17,7 @@
           ↓
    NOUVEAU LOT
 
-   SOURCE DE DONNÉES :
-   SUPABASE
+   Version propre Supabase
 ============================================================ */
 
 "use strict";
@@ -66,6 +65,21 @@ const DUREES_INCUBATION = {
 
 
 /* ============================================================
+   CAPACITÉS CONNUES DES COUVEUSES
+============================================================ */
+
+const CAPACITES_COUVEUSES = {
+
+    "Couveuse 1056 œufs": 1056,
+    "Couveuse 1056 oeufs": 1056,
+
+    "Couveuse 01": 1056,
+    "Couveuse 02": 1056
+
+};
+
+
+/* ============================================================
    VÉRIFIER SUPABASE
 ============================================================ */
 
@@ -74,6 +88,8 @@ function incubationSupabaseDisponible() {
     return (
         typeof supabaseClient !==
         "undefined"
+        &&
+        supabaseClient !== null
     );
 
 }
@@ -81,25 +97,32 @@ function incubationSupabaseDisponible() {
 
 /* ============================================================
    DATE DU JOUR
+   Utilise la date locale du navigateur.
 ============================================================ */
 
 function incubationAujourdHui() {
 
-    const date =
+    const maintenant =
         new Date();
 
     const annee =
-        date.getFullYear();
+        maintenant.getFullYear();
 
     const mois =
         String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
+            maintenant.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
 
     const jour =
         String(
-            date.getDate()
-        ).padStart(2, "0");
+            maintenant.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
 
     return (
         annee +
@@ -113,43 +136,47 @@ function incubationAujourdHui() {
 
 
 /* ============================================================
-   FORMATER DATE
+   FORMATER UNE DATE
 ============================================================ */
 
 function formaterDateIncubation(
-    date
+    valeur
 ) {
 
-    if (!date) {
+    if (!valeur) {
 
         return "-";
 
     }
 
-    const parties =
-        String(date).split("-");
+
+    const morceaux =
+        String(valeur)
+            .split("-");
+
 
     if (
-        parties.length !== 3
+        morceaux.length === 3
     ) {
 
-        return date;
+        return (
+            morceaux[2] +
+            "/" +
+            morceaux[1] +
+            "/" +
+            morceaux[0]
+        );
 
     }
 
-    return (
-        parties[2] +
-        "/" +
-        parties[1] +
-        "/" +
-        parties[0]
-    );
+
+    return valeur;
 
 }
 
 
 /* ============================================================
-   GÉNÉRER ID
+   GÉNÉRER ID INCUBATION
 ============================================================ */
 
 function genererIdIncubation() {
@@ -167,7 +194,7 @@ function genererIdIncubation() {
 
 
 /* ============================================================
-   CALCUL DATE ÉCLOSION
+   CALCULER DATE D'ÉCLOSION
 ============================================================ */
 
 function calculerDateEclosionIncubation(
@@ -180,20 +207,49 @@ function calculerDateEclosionIncubation(
         !duree
     ) {
 
-        return "";
+        return null;
 
     }
 
+
+    const morceaux =
+        String(dateEntree)
+            .split("-");
+
+
+    if (
+        morceaux.length !== 3
+    ) {
+
+        return null;
+
+    }
+
+
     const date =
         new Date(
-            dateEntree +
-            "T00:00:00"
+            Number(morceaux[0]),
+            Number(morceaux[1]) - 1,
+            Number(morceaux[2])
         );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
 
     date.setDate(
         date.getDate() +
         Number(duree)
     );
+
 
     const annee =
         date.getFullYear();
@@ -201,12 +257,19 @@ function calculerDateEclosionIncubation(
     const mois =
         String(
             date.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
     const jour =
         String(
             date.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
+
 
     return (
         annee +
@@ -220,7 +283,7 @@ function calculerDateEclosionIncubation(
 
 
 /* ============================================================
-   OBTENIR UN LOT PAR SON ID
+   OBTENIR LOT
 ============================================================ */
 
 async function obtenirLotIncubation(
@@ -235,11 +298,13 @@ async function obtenirLotIncubation(
 
     }
 
+
     if (!lotId) {
 
         return null;
 
     }
+
 
     const {
         data,
@@ -252,20 +317,7 @@ async function obtenirLotIncubation(
             )
 
             .select(
-                `
-                id,
-                code,
-                espece,
-                race_type,
-                nom_lot,
-                date_entree,
-                quantite_initiale,
-                quantite_actuelle,
-                origine,
-                cout_acquisition,
-                statut,
-                notes
-                `
+                "*"
             )
 
             .eq(
@@ -287,13 +339,107 @@ async function obtenirLotIncubation(
 
     }
 
+
     return data || null;
 
 }
 
 
 /* ============================================================
-   CHARGER LES LOTS
+   CHERCHER PRODUCTION LIÉE
+============================================================ */
+
+async function trouverProductionLiee(
+    lotId
+) {
+
+    if (
+        !incubationSupabaseDisponible()
+    ) {
+
+        return null;
+
+    }
+
+
+    if (!lotId) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+
+                .from(
+                    TABLE_PRODUCTIONS_INCUBATION
+                )
+
+                .select(
+                    "*"
+                )
+
+                .eq(
+                    "lot_id",
+                    Number(lotId)
+                )
+
+                .order(
+                    "date",
+                    {
+                        ascending: false
+                    }
+                )
+
+                .limit(1);
+
+
+        if (error) {
+
+            console.warn(
+                "Production liée introuvable :",
+                error.message
+            );
+
+            return null;
+
+        }
+
+
+        if (
+            data &&
+            data.length > 0
+        ) {
+
+            return data[0];
+
+        }
+
+    }
+
+    catch (erreur) {
+
+        console.warn(
+            "Erreur recherche production liée :",
+            erreur
+        );
+
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   CHARGER LES LOTS POUR LE FORMULAIRE
 ============================================================ */
 
 async function chargerLotsIncubation() {
@@ -316,6 +462,7 @@ async function chargerLotsIncubation() {
     ) {
 
         select.innerHTML =
+
             `
             <option value="">
                 Supabase non initialisé
@@ -327,11 +474,20 @@ async function chargerLotsIncubation() {
     }
 
 
-    const ancienneValeur =
-        select.value;
+    const especeElement =
+        document.getElementById(
+            "incubationEspece"
+        );
+
+
+    const espece =
+        especeElement
+            ? especeElement.value.trim()
+            : "";
 
 
     select.innerHTML =
+
         `
         <option value="">
             Chargement des lots...
@@ -339,34 +495,41 @@ async function chargerLotsIncubation() {
         `;
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
+    let requete =
+        supabaseClient
 
             .from(
                 TABLE_LOTS_INCUBATION
             )
 
             .select(
-                `
-                id,
-                code,
-                espece,
-                race_type,
-                nom_lot,
-                quantite_actuelle,
-                statut
-                `
+                "id, code, espece, race_type, nom_lot, date_entree, quantite_initiale, quantite_actuelle, origine, statut"
             )
 
             .order(
-                "id",
+                "date_entree",
                 {
                     ascending: false
                 }
             );
+
+
+    if (espece) {
+
+        requete =
+            requete.eq(
+                "espece",
+                espece
+            );
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await requete;
 
 
     if (error) {
@@ -376,10 +539,12 @@ async function chargerLotsIncubation() {
             error
         );
 
+
         select.innerHTML =
+
             `
             <option value="">
-                Impossible de charger les lots
+                Erreur de chargement
             </option>
             `;
 
@@ -389,6 +554,7 @@ async function chargerLotsIncubation() {
 
 
     select.innerHTML =
+
         `
         <option value="">
             Sélectionner un lot
@@ -401,102 +567,68 @@ async function chargerLotsIncubation() {
         data.length === 0
     ) {
 
-        select.innerHTML =
+        select.innerHTML +=
+
             `
             <option value="">
                 Aucun lot disponible
             </option>
             `;
 
+        afficherInformationsLotOrigine();
+
         return;
 
     }
 
 
-    data
-        .filter(
-            function (lot) {
+    data.forEach(
+        function (lot) {
 
-                return (
-                    lot.statut === "Actif" ||
-                    !lot.statut
+            const option =
+                document.createElement(
+                    "option"
                 );
 
-            }
-        )
-        .forEach(
-            function (lot) {
 
-                const nom =
-                    lot.nom_lot ||
-                    lot.code ||
-                    "Lot sans nom";
-
-                const espece =
-                    lot.espece ||
-                    "";
-
-                const race =
-                    lot.race_type ||
-                    "";
-
-                const quantite =
-                    Number(
-                        lot.quantite_actuelle ||
-                        0
-                    );
+            option.value =
+                lot.id;
 
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
+            const nom =
+                lot.nom_lot ||
+                lot.code ||
+                ("Lot #" + lot.id);
 
 
-                option.value =
-                    String(lot.id);
+            const race =
+                lot.race_type
+                    ? " — " + lot.race_type
+                    : "";
 
 
-                option.textContent =
-                    nom +
-                    " — " +
-                    espece +
-                    (
-                        race
-                            ? " — " + race
-                            : ""
-                    ) +
-                    " (" +
-                    quantite +
-                    " animaux)";
-
-
-                option.dataset.espece =
-                    espece;
-
-
-                option.dataset.race =
-                    race;
-
-
-                option.dataset.nom =
-                    nom;
-
-
-                select.appendChild(
-                    option
+            const quantite =
+                Number(
+                    lot.quantite_actuelle ??
+                    lot.quantite_initiale ??
+                    0
                 );
 
-            }
-        );
+
+            option.textContent =
+                nom +
+                race +
+                " — " +
+                quantite +
+                " animaux";
 
 
-    if (ancienneValeur) {
+            select.appendChild(
+                option
+            );
 
-        select.value =
-            ancienneValeur;
-
-    }
+        }
+    );
 
 
     afficherInformationsLotOrigine();
@@ -505,14 +637,20 @@ async function chargerLotsIncubation() {
 
 
 /* ============================================================
-   INFORMATIONS DU LOT D'ORIGINE
+   AFFICHER INFORMATIONS LOT D'ORIGINE
 ============================================================ */
 
-function afficherInformationsLotOrigine() {
+async function afficherInformationsLotOrigine() {
 
     const select =
         document.getElementById(
             "incubationLot"
+        );
+
+
+    const zone =
+        document.getElementById(
+            "informationsLotOrigine"
         );
 
 
@@ -523,93 +661,217 @@ function afficherInformationsLotOrigine() {
     }
 
 
-    const option =
-        select.options[
-            select.selectedIndex
-        ];
+    if (!zone) {
+
+        return;
+
+    }
 
 
-    let zone =
-        document.getElementById(
-            "informationsLotOrigine"
+    const lotId =
+        select.value;
+
+
+    if (!lotId) {
+
+        zone.innerHTML = "";
+
+        return;
+
+    }
+
+
+    const lot =
+        await obtenirLotIncubation(
+            lotId
         );
 
 
-    if (!zone) {
-
-        zone =
-            document.getElementById(
-                "infoLotOrigine"
-            );
-
-    }
-
-
-    if (!zone) {
-
-        return;
-
-    }
-
-
-    if (
-        !option ||
-        !select.value
-    ) {
+    if (!lot) {
 
         zone.innerHTML =
-            "";
+
+            `
+            <div class="alert alert-warning py-2">
+                Lot introuvable.
+            </div>
+            `;
 
         return;
 
     }
 
 
-    const espece =
-        option.dataset.espece ||
-        "";
-
-
-    const race =
-        option.dataset.race ||
-        "";
-
-
-    const nom =
-        option.dataset.nom ||
-        option.textContent;
+    const quantite =
+        Number(
+            lot.quantite_actuelle ??
+            lot.quantite_initiale ??
+            0
+        );
 
 
     zone.innerHTML =
 
         `
-        <div class="alert alert-light border mt-2">
+        <div class="alert alert-info py-2 mb-0">
 
-            <strong>Lot d'origine :</strong>
-            ${nom}
+            <strong>
+                Lot d'origine :
+            </strong>
 
-            <br>
-
-            <strong>Espèce :</strong>
-            ${espece}
-
-            ${
-                race
-                    ? `
-                        <br>
-                        <strong>Race / Type :</strong>
-                        ${race}
-                      `
-                    : ""
-            }
+            ${lot.nom_lot || lot.code || "-"}
 
             <br>
 
-            <strong>ID du lot :</strong>
-            ${select.value}
+            <strong>
+                Espèce :
+            </strong>
+
+            ${lot.espece || "-"}
+
+            <br>
+
+            <strong>
+                Race :
+            </strong>
+
+            ${lot.race_type || "-"}
+
+            <br>
+
+            <strong>
+                Animaux actuellement dans le lot :
+            </strong>
+
+            ${quantite.toLocaleString("fr-FR")}
 
         </div>
         `;
+
+
+    await afficherStockDisponible();
+
+}
+
+
+/* ============================================================
+   AFFICHER STOCK / INFORMATION ŒUFS
+============================================================ */
+
+async function afficherStockDisponible() {
+
+    const lotSelect =
+        document.getElementById(
+            "incubationLot"
+        );
+
+
+    const zone =
+        document.getElementById(
+            "stockOeufsDisponible"
+        );
+
+
+    const message =
+        document.getElementById(
+            "messageStockIncubation"
+        );
+
+
+    if (!lotSelect) {
+
+        return;
+
+    }
+
+
+    if (!zone) {
+
+        return;
+
+    }
+
+
+    const lotId =
+        lotSelect.value;
+
+
+    if (!lotId) {
+
+        zone.textContent =
+            "Sélectionnez un lot pour connaître les informations disponibles.";
+
+        if (message) {
+
+            message.textContent =
+                "Sélectionnez le lot d'origine.";
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+     * Nous ne déduisons pas artificiellement
+     * un stock d'œufs à partir du nombre d'animaux.
+     *
+     * Le stock d'œufs sera géré avec le module
+     * Production d'œufs.
+     */
+
+    const production =
+        await trouverProductionLiee(
+            lotId
+        );
+
+
+    if (production) {
+
+        const quantite =
+            Number(
+                production.quantite ||
+                production.quantite_oeufs ||
+                production.nombre_oeufs ||
+                0
+            );
+
+
+        if (quantite > 0) {
+
+            zone.textContent =
+                "Dernière production liée : " +
+                quantite.toLocaleString(
+                    "fr-FR"
+                ) +
+                " œufs.";
+
+        }
+
+        else {
+
+            zone.textContent =
+                "Une production d'œufs est liée à ce lot.";
+
+        }
+
+    }
+
+    else {
+
+        zone.textContent =
+            "Aucune production d'œufs liée détectée pour ce lot.";
+
+    }
+
+
+    if (message) {
+
+        message.textContent =
+            "Lot sélectionné. Vérifiez la quantité d'œufs avant l'incubation.";
+
+    }
 
 }
 
@@ -643,28 +905,59 @@ function chargerDureeIncubation() {
 
 
     const valeur =
+        espece.value;
+
+
+    const nombreJours =
         DUREES_INCUBATION[
-            espece.value
+            valeur
         ];
 
 
-    if (!valeur) {
+    duree.innerHTML = "";
+
+
+    if (
+        !nombreJours
+    ) {
+
+        duree.innerHTML =
+
+            `
+            <option value="">
+                Sélectionner l'espèce
+            </option>
+            `;
+
+        afficherEclosionIncubation();
 
         return;
 
     }
 
 
-    duree.innerHTML =
-        `
-        <option value="${valeur}">
-            ${valeur} jours
-        </option>
-        `;
+    const option =
+        document.createElement(
+            "option"
+        );
 
 
-    duree.value =
-        String(valeur);
+    option.value =
+        nombreJours;
+
+
+    option.textContent =
+        nombreJours +
+        " jours";
+
+
+    option.selected =
+        true;
+
+
+    duree.appendChild(
+        option
+    );
 
 
     afficherEclosionIncubation();
@@ -673,7 +966,7 @@ function chargerDureeIncubation() {
 
 
 /* ============================================================
-   DATE D'ÉCLOSION PRÉVUE
+   AFFICHER DATE D'ÉCLOSION
 ============================================================ */
 
 function afficherEclosionIncubation() {
@@ -707,7 +1000,9 @@ function afficherEclosionIncubation() {
     const dateEclosion =
         calculerDateEclosionIncubation(
             date.value,
-            Number(duree.value)
+            Number(
+                duree.value
+            )
         );
 
 
@@ -727,9 +1022,17 @@ function afficherEclosionIncubation() {
     }
 
 
-    if (
-        !zone
-    ) {
+    if (!zone) {
+
+        return;
+
+    }
+
+
+    if (!dateEclosion) {
+
+        zone.innerHTML =
+            "Éclosion prévue : -";
 
         return;
 
@@ -737,24 +1040,21 @@ function afficherEclosionIncubation() {
 
 
     zone.innerHTML =
-        dateEclosion
 
-            ? `
-                Éclosion prévue :
-                <strong>
-                    ${formaterDateIncubation(
-                        dateEclosion
-                    )}
-                </strong>
-              `
-
-            : "";
+        `
+        Éclosion prévue :
+        <strong>
+            ${formaterDateIncubation(
+                dateEclosion
+            )}
+        </strong>
+        `;
 
 }
 
 
 /* ============================================================
-   CAPACITÉ DE LA COUVEUSE
+   OBTENIR CAPACITÉ COUVEUSE
 ============================================================ */
 
 function obtenirCapaciteCouveuse(
@@ -769,8 +1069,22 @@ function obtenirCapaciteCouveuse(
 
 
     const texte =
-        String(valeur)
-            .toLowerCase();
+        String(
+            valeur
+        );
+
+
+    if (
+        CAPACITES_COUVEUSES[
+            texte
+        ]
+    ) {
+
+        return CAPACITES_COUVEUSES[
+            texte
+        ];
+
+    }
 
 
     const correspondance =
@@ -788,14 +1102,17 @@ function obtenirCapaciteCouveuse(
 
     return Number(
         correspondance[1]
-            .replace(/\s/g, "")
+            .replace(
+                /\s/g,
+                ""
+            )
     );
 
 }
 
 
 /* ============================================================
-   VÉRIFIER CAPACITÉ
+   VÉRIFIER CAPACITÉ COUVEUSE
 ============================================================ */
 
 function verifierCapaciteIncubation() {
@@ -824,7 +1141,8 @@ function verifierCapaciteIncubation() {
 
     const quantite =
         Number(
-            oeufs.value || 0
+            oeufs.value ||
+            0
         );
 
 
@@ -843,12 +1161,26 @@ function verifierCapaciteIncubation() {
             "La quantité dépasse la capacité de la couveuse."
         );
 
+
+        oeufs.classList.add(
+            "is-invalid"
+        );
+
+
         return false;
 
     }
 
 
-    oeufs.setCustomValidity("");
+    oeufs.setCustomValidity(
+        ""
+    );
+
+
+    oeufs.classList.remove(
+        "is-invalid"
+    );
+
 
     return true;
 
@@ -917,6 +1249,7 @@ async function ouvrirModalIncubation() {
                     modal
                 );
 
+
         instance.show();
 
     }
@@ -973,81 +1306,6 @@ function fermerModalIncubation() {
 
 
 /* ============================================================
-   TROUVER LA DERNIÈRE PRODUCTION DU LOT
-============================================================ */
-
-async function trouverProductionLiee(
-    lotId
-) {
-
-    if (!lotId) {
-
-        return null;
-
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-
-            .from(
-                TABLE_PRODUCTIONS_INCUBATION
-            )
-
-            .select(
-                `
-                id,
-                date,
-                lot_id,
-                lot_nom,
-                espece,
-                produit,
-                quantite,
-                unite
-                `
-            )
-
-            .eq(
-                "lot_id",
-                Number(lotId)
-            )
-
-            .order(
-                "date",
-                {
-                    ascending: false
-                }
-            )
-
-            .limit(1);
-
-
-    if (error) {
-
-        console.warn(
-            "Aucune production liée :",
-            error
-        );
-
-        return null;
-
-    }
-
-
-    return (
-        data &&
-        data.length > 0
-    )
-        ? data[0]
-        : null;
-
-}
-
-
-/* ============================================================
    ENREGISTRER INCUBATION
 ============================================================ */
 
@@ -1058,19 +1316,6 @@ async function enregistrerIncubation(
     if (event) {
 
         event.preventDefault();
-
-    }
-
-
-    if (
-        !incubationSupabaseDisponible()
-    ) {
-
-        alert(
-            "Supabase n'est pas initialisé."
-        );
-
-        return false;
 
     }
 
@@ -1142,7 +1387,8 @@ async function enregistrerIncubation(
 
     const nombreOeufs =
         Number(
-            oeufsElement.value || 0
+            oeufsElement.value ||
+            0
         );
 
 
@@ -1158,7 +1404,8 @@ async function enregistrerIncubation(
 
     const duree =
         Number(
-            dureeElement.value || 0
+            dureeElement.value ||
+            0
         );
 
 
@@ -1228,7 +1475,9 @@ async function enregistrerIncubation(
 
 
     if (
-        !Number.isFinite(duree)
+        !Number.isFinite(
+            duree
+        )
         ||
         duree <= 0
     ) {
@@ -1256,7 +1505,24 @@ async function enregistrerIncubation(
 
 
     /* --------------------------------------------------------
-       RÉCUPÉRER LE LOT D'ORIGINE
+       SUPABASE
+    -------------------------------------------------------- */
+
+    if (
+        !incubationSupabaseDisponible()
+    ) {
+
+        alert(
+            "Supabase n'est pas initialisé."
+        );
+
+        return false;
+
+    }
+
+
+    /* --------------------------------------------------------
+       LOT D'ORIGINE
     -------------------------------------------------------- */
 
     const lot =
@@ -1274,22 +1540,6 @@ async function enregistrerIncubation(
         return false;
 
     }
-
-
-    /* --------------------------------------------------------
-       RÉCUPÉRER LA PRODUCTION LIÉE
-    -------------------------------------------------------- */
-
-    const production =
-        await trouverProductionLiee(
-            lotId
-        );
-
-
-    const productionId =
-        production
-            ? production.id
-            : null;
 
 
     /* --------------------------------------------------------
@@ -1328,6 +1578,42 @@ async function enregistrerIncubation(
 
 
     /* --------------------------------------------------------
+       PRODUCTION LIÉE
+    -------------------------------------------------------- */
+
+    const production =
+        await trouverProductionLiee(
+            lotId
+        );
+
+
+    const productionId =
+        production
+            ? production.id
+            : null;
+
+
+    /* --------------------------------------------------------
+       NOTES
+    -------------------------------------------------------- */
+
+    const notesElement =
+        document.getElementById(
+            "incubationNotes"
+        );
+
+
+    const notes =
+        notesElement
+            ? (
+                notesElement.value.trim()
+                ||
+                null
+            )
+            : null;
+
+
+    /* --------------------------------------------------------
        OBJET SUPABASE
     -------------------------------------------------------- */
 
@@ -1337,7 +1623,7 @@ async function enregistrerIncubation(
             idIncubation,
 
         lot_id:
-            Number(lot.id),
+            Number(lotId),
 
         lot_nom:
             lot.nom_lot ||
@@ -1345,7 +1631,6 @@ async function enregistrerIncubation(
             "",
 
         espece:
-            lot.espece ||
             espece,
 
         race:
@@ -1386,17 +1671,13 @@ async function enregistrerIncubation(
             productionId,
 
         lot_parent_id:
-            Number(lot.id),
+            Number(lotId),
 
         brooder_cree:
             false,
 
         notes:
-            document.getElementById(
-                "incubationNotes"
-            )?.value.trim()
-            ||
-            null,
+            notes,
 
         utilisateur:
             utilisateur
@@ -1404,14 +1685,8 @@ async function enregistrerIncubation(
     };
 
 
-    console.log(
-        "Données incubation à envoyer :",
-        nouvelleIncubation
-    );
-
-
     /* --------------------------------------------------------
-       INSERTION SUPABASE
+       INSERTION
     -------------------------------------------------------- */
 
     const {
@@ -1440,10 +1715,12 @@ async function enregistrerIncubation(
             error
         );
 
+
         alert(
             "Impossible d'enregistrer l'incubation.\n\n" +
             error.message
         );
+
 
         return false;
 
@@ -1451,7 +1728,7 @@ async function enregistrerIncubation(
 
 
     console.log(
-        "✓ Incubation enregistrée :",
+        "Incubation enregistrée :",
         data
     );
 
@@ -1552,15 +1829,13 @@ async function chargerIncubations() {
 
             `
             <tr>
-
                 <td
-                    colspan="10"
+                    colspan="9"
                     class="text-center text-danger py-4">
 
                     Supabase non initialisé.
 
                 </td>
-
             </tr>
             `;
 
@@ -1573,15 +1848,13 @@ async function chargerIncubations() {
 
         `
         <tr>
-
             <td
-                colspan="10"
+                colspan="9"
                 class="text-center text-muted py-4">
 
                 Chargement...
 
             </td>
-
         </tr>
         `;
 
@@ -1637,20 +1910,19 @@ async function chargerIncubations() {
             error
         );
 
+
         tableau.innerHTML =
 
             `
             <tr>
-
                 <td
-                    colspan="10"
+                    colspan="9"
                     class="text-center text-danger py-4">
 
                     Erreur de chargement :
                     ${error.message}
 
                 </td>
-
             </tr>
             `;
 
@@ -1672,15 +1944,13 @@ async function chargerIncubations() {
 
             `
             <tr>
-
                 <td
-                    colspan="10"
+                    colspan="9"
                     class="text-center text-muted py-4">
 
                     Aucune incubation enregistrée.
 
                 </td>
-
             </tr>
             `;
 
@@ -1691,6 +1961,11 @@ async function chargerIncubations() {
 
     data.forEach(
         function (incubation) {
+
+
+            /* ------------------------------------------------
+               COULEUR DU STATUT
+            ------------------------------------------------ */
 
             let classe =
                 "bg-success";
@@ -1707,7 +1982,7 @@ async function chargerIncubations() {
             }
 
 
-            if (
+            else if (
                 incubation.statut ===
                 "Éclosion"
             ) {
@@ -1718,7 +1993,7 @@ async function chargerIncubations() {
             }
 
 
-            if (
+            else if (
                 incubation.statut ===
                 "Annulée"
             ) {
@@ -1728,6 +2003,21 @@ async function chargerIncubations() {
 
             }
 
+
+            else if (
+                incubation.statut ===
+                "Éclos"
+            ) {
+
+                classe =
+                    "bg-info text-dark";
+
+            }
+
+
+            /* ------------------------------------------------
+               LIGNE
+            ------------------------------------------------ */
 
             const ligne =
                 document.createElement(
@@ -1757,7 +2047,9 @@ async function chargerIncubations() {
                 <td>
                     ${Number(
                         incubation.oeufs_initial || 0
-                    ).toLocaleString("fr-FR")}
+                    ).toLocaleString(
+                        "fr-FR"
+                    )}
                 </td>
 
                 <td>
@@ -1783,25 +2075,20 @@ async function chargerIncubations() {
 
                 </td>
 
-                <td>
-                    ${Number(
-                        incubation.poussins_eclos || 0
-                    ).toLocaleString("fr-FR")}
-                </td>
-
-                <td>
+                <td class="text-center">
 
                     <button
                         type="button"
                         class="btn btn-sm btn-info"
-                        title="Voir les détails"
-                        onclick="voirDetailsIncubation('${incubation.id}')">
+                        onclick="voirDetailsIncubation('${incubation.id}')"
+                        title="Voir les détails">
 
                         <i class="fa-solid fa-eye"></i>
 
                     </button>
 
                 </td>
+
                 `;
 
 
@@ -1823,118 +2110,6 @@ async function actualiserStatistiquesIncubation() {
 
     if (
         !incubationSupabaseDisponible()
-    ) {
-
-        return;
-
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-
-            .from(
-                TABLE_INCUBATIONS
-            )
-
-            .select(
-                "statut, oeufs_initial, poussins_eclos"
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Erreur statistiques incubation :",
-            error
-        );
-
-        return;
-
-    }
-
-
-    const incubations =
-        data || [];
-
-
-    const actives =
-        incubations.filter(
-            function (item) {
-
-                return (
-                    item.statut ===
-                    "En incubation"
-                );
-
-            }
-        );
-
-
-    const ecloses =
-        incubations.filter(
-            function (item) {
-
-                return (
-                    item.statut ===
-                    "Éclos"
-                    ||
-                    item.statut ===
-                    "Terminée"
-                );
-
-            }
-        );
-
-
-    const totalOeufs =
-        incubations.reduce(
-            function (
-                total,
-                item
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        item.oeufs_initial ||
-                        0
-                    )
-                );
-
-            },
-            0
-        );
-
-
-    const totalPoussins =
-        incubations.reduce(
-            function (
-                total,
-                item
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        item.poussins_eclos ||
-                        0
-                    )
-                );
-
-            },
-            0
-        );
-
-
-   async function actualiserStatistiquesIncubation() {
-
-    if (
-        typeof supabaseClient ===
-        "undefined"
     ) {
 
         return;
@@ -1975,9 +2150,9 @@ async function actualiserStatistiquesIncubation() {
             : [];
 
 
-    /*
-     * INCUBATIONS ACTIVES
-     */
+    /* --------------------------------------------------------
+       INCUBATIONS ACTIVES
+    -------------------------------------------------------- */
 
     const actives =
         incubations.filter(
@@ -1992,12 +2167,9 @@ async function actualiserStatistiquesIncubation() {
         );
 
 
-    /*
-     * ŒUFS ACTUELLEMENT EN INCUBATION
-     *
-     * On additionne uniquement
-     * les œufs des incubations actives.
-     */
+    /* --------------------------------------------------------
+       ŒUFS ACTUELLEMENT EN INCUBATION
+    -------------------------------------------------------- */
 
     const totalOeufs =
         actives.reduce(
@@ -2022,23 +2194,17 @@ async function actualiserStatistiquesIncubation() {
         );
 
 
-    /*
-     * DATE D'AUJOURD'HUI
-     */
+    /* --------------------------------------------------------
+       DATE DU JOUR
+    -------------------------------------------------------- */
 
     const aujourdHui =
-        new Date()
-            .toISOString()
-            .split("T")[0];
+        incubationAujourdHui();
 
 
-    /*
-     * ÉCLOSIONS PRÉVUES
-     *
-     * Incubations actives dont
-     * la date d'éclosion est aujourd'hui
-     * ou dans le futur.
-     */
+    /* --------------------------------------------------------
+       ÉCLOSIONS PRÉVUES
+    -------------------------------------------------------- */
 
     const eclosionsPrevues =
         actives.filter(
@@ -2057,11 +2223,9 @@ async function actualiserStatistiquesIncubation() {
         ).length;
 
 
-    /*
-     * POUSSINS ÉCLOS
-     *
-     * Total réel enregistré.
-     */
+    /* --------------------------------------------------------
+       POUSSINS ÉCLOS
+    -------------------------------------------------------- */
 
     const totalPoussins =
         incubations.reduce(
@@ -2086,9 +2250,9 @@ async function actualiserStatistiquesIncubation() {
         );
 
 
-    /*
-     * AFFICHAGE
-     */
+    /* --------------------------------------------------------
+       AFFICHAGE
+    -------------------------------------------------------- */
 
     const elementActives =
         document.getElementById(
@@ -2159,31 +2323,21 @@ async function actualiserStatistiquesIncubation() {
 
     }
 
-}
 
+    console.log(
+        "Statistiques incubation :",
+        {
+            actives:
+                actives.length,
 
-    Object.keys(
-        valeurs
-    ).forEach(
-        function (id) {
+            oeufs:
+                totalOeufs,
 
-            const element =
-                document.getElementById(
-                    id
-                );
+            eclosionsPrevues:
+                eclosionsPrevues,
 
-
-            if (element) {
-
-                element.textContent =
-                    Number(
-                        valeurs[id]
-                    ).toLocaleString(
-                        "fr-FR"
-                    );
-
-            }
-
+            poussins:
+                totalPoussins
         }
     );
 
@@ -2191,7 +2345,7 @@ async function actualiserStatistiquesIncubation() {
 
 
 /* ============================================================
-   VOIR DÉTAILS
+   VOIR DÉTAILS D'UNE INCUBATION
 ============================================================ */
 
 async function voirDetailsIncubation(
@@ -2199,9 +2353,12 @@ async function voirDetailsIncubation(
 ) {
 
     if (
-        !id ||
         !incubationSupabaseDisponible()
     ) {
+
+        alert(
+            "Supabase n'est pas initialisé."
+        );
 
         return;
 
@@ -2230,10 +2387,26 @@ async function voirDetailsIncubation(
             .maybeSingle();
 
 
-    if (
-        error ||
-        !data
-    ) {
+    if (error) {
+
+        console.error(
+            "Erreur détails incubation :",
+            error
+        );
+
+
+        alert(
+            "Impossible de charger les détails.\n\n" +
+            error.message
+        );
+
+
+        return;
+
+    }
+
+
+    if (!data) {
 
         alert(
             "Incubation introuvable."
@@ -2244,60 +2417,336 @@ async function voirDetailsIncubation(
     }
 
 
-    alert(
+    const zone =
+        document.getElementById(
+            "detailsIncubation"
+        );
 
-        "DÉTAILS DE L'INCUBATION\n\n" +
 
-        "ID : " +
-        (data.id || "-") +
+    if (!zone) {
 
-        "\nLot d'origine : " +
-        (data.lot_nom || "-") +
+        alert(
 
-        "\nID Lot : " +
-        (data.lot_id || "-") +
+            "ID : " +
+            data.id +
 
-        "\nEspèce : " +
-        (data.espece || "-") +
+            "\nLot : " +
+            (
+                data.lot_nom ||
+                "-"
+            ) +
 
-        "\nRace / Type : " +
-        (data.race || "-") +
+            "\nEspèce : " +
+            (
+                data.espece ||
+                "-"
+            ) +
 
-        "\nCouveuse : " +
-        (data.couveuse || "-") +
+            "\nŒufs : " +
+            (
+                data.oeufs_initial ||
+                0
+            ) +
 
-        "\nŒufs initiaux : " +
-        (data.oeufs_initial || 0) +
+            "\nPoussins éclos : " +
+            (
+                data.poussins_eclos ||
+                0
+            )
 
-        "\nŒufs retirés : " +
-        (data.oeufs_retires || 0) +
+        );
 
-        "\nŒufs non fécondés : " +
-        (data.oeufs_non_fecondes || 0) +
+        return;
 
-        "\nEmbryons morts : " +
-        (data.embryons_morts || 0) +
+    }
 
-        "\nPoussins éclos : " +
-        (data.poussins_eclos || 0) +
 
-        "\nDate d'entrée : " +
-        formaterDateIncubation(
-            data.date_entree
-        ) +
+    const taux =
+        Number(
+            data.oeufs_initial || 0
+        ) > 0
 
-        "\nÉclosion prévue : " +
-        formaterDateIncubation(
-            data.date_eclosion
-        ) +
+            ? (
 
-        "\nStatut : " +
-        (data.statut || "-") +
+                Number(
+                    data.poussins_eclos || 0
+                )
+                /
+                Number(
+                    data.oeufs_initial || 0
+                )
+                *
+                100
 
-        "\nProduction liée : " +
-        (data.production_id || "Aucune")
+            )
 
-    );
+            : 0;
+
+
+    zone.innerHTML =
+
+        `
+        <div class="row g-3">
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <h6 class="text-success">
+                        <i class="fa-solid fa-egg"></i>
+                        Identification
+                    </h6>
+
+                    <p class="mb-1">
+                        <strong>ID :</strong>
+                        ${data.id || "-"}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Espèce :</strong>
+                        ${data.espece || "-"}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Race :</strong>
+                        ${data.race || "-"}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Lot d'origine :</strong>
+                        ${data.lot_nom || "-"}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Lot parent :</strong>
+                        ${data.lot_parent_id || "-"}
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <h6 class="text-success">
+                        <i class="fa-solid fa-calendar"></i>
+                        Planification
+                    </h6>
+
+                    <p class="mb-1">
+                        <strong>Couveuse :</strong>
+                        ${data.couveuse || "-"}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Date entrée :</strong>
+                        ${formaterDateIncubation(
+                            data.date_entree
+                        )}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Durée :</strong>
+                        ${data.duree || 0} jours
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Éclosion prévue :</strong>
+                        ${formaterDateIncubation(
+                            data.date_eclosion
+                        )}
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <h6 class="text-success">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        Résultats
+                    </h6>
+
+                    <p class="mb-1">
+                        <strong>Œufs initiaux :</strong>
+                        ${Number(
+                            data.oeufs_initial || 0
+                        ).toLocaleString(
+                            "fr-FR"
+                        )}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Œufs retirés :</strong>
+                        ${Number(
+                            data.oeufs_retires || 0
+                        ).toLocaleString(
+                            "fr-FR"
+                        )}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Non fécondés :</strong>
+                        ${Number(
+                            data.oeufs_non_fecondes || 0
+                        ).toLocaleString(
+                            "fr-FR"
+                        )}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Embryons morts :</strong>
+                        ${Number(
+                            data.embryons_morts || 0
+                        ).toLocaleString(
+                            "fr-FR"
+                        )}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Poussins éclos :</strong>
+                        ${Number(
+                            data.poussins_eclos || 0
+                        ).toLocaleString(
+                            "fr-FR"
+                        )}
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="border rounded p-3 h-100">
+
+                    <h6 class="text-success">
+                        <i class="fa-solid fa-chart-line"></i>
+                        Suivi
+                    </h6>
+
+                    <p class="mb-1">
+
+                        <strong>Statut :</strong>
+
+                        <span class="badge bg-success">
+
+                            ${data.statut || "-"}
+
+                        </span>
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Taux d'éclosion :</strong>
+
+                        ${taux.toFixed(1)} %
+
+                    </p>
+
+                    <p class="mb-1">
+
+                        <strong>Poussinière créée :</strong>
+
+                        ${data.brooder_cree
+                            ? "Oui"
+                            : "Non"}
+
+                    </p>
+
+                    <p class="mb-0">
+
+                        <strong>Production liée :</strong>
+
+                        ${data.production_id || "Aucune"}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12">
+
+                <div class="alert alert-info mb-0">
+
+                    <strong>
+                        <i class="fa-solid fa-link"></i>
+                        Traçabilité
+                    </strong>
+
+                    <br>
+
+                    Cette incubation est rattachée au lot
+                    d'origine
+                    <strong>
+                        ${data.lot_nom || "-"}
+                    </strong>.
+
+                    Le nouveau lot de poussins ne sera créé
+                    qu'après l'enregistrement réel de
+                    l'éclosion.
+
+                </div>
+
+            </div>
+
+
+            ${
+                data.notes
+                    ? `
+                        <div class="col-12">
+
+                            <div class="border rounded p-3">
+
+                                <strong>Notes :</strong>
+
+                                <p class="mb-0 mt-2">
+
+                                    ${data.notes}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+                      `
+                    : ""
+            }
+
+        </div>
+        `;
+
+
+    const modal =
+        document.getElementById(
+            "modalDetailsIncubation"
+        );
+
+
+    if (
+        modal &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        bootstrap.Modal
+            .getOrCreateInstance(
+                modal
+            )
+            .show();
+
+    }
 
 }
 
@@ -2314,6 +2763,10 @@ document.addEventListener(
             "Initialisation incubation.js..."
         );
 
+
+        /* ----------------------------------------------------
+           DATE
+        ---------------------------------------------------- */
 
         const date =
             document.getElementById(
@@ -2337,32 +2790,6 @@ document.addEventListener(
 
 
         /* ----------------------------------------------------
-           BOUTON NOUVELLE INCUBATION
-        ---------------------------------------------------- */
-
-        const bouton =
-            document.getElementById(
-                "btnNouvelleIncubation"
-            );
-
-
-        if (bouton) {
-
-            bouton.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    ouvrirModalIncubation();
-
-                }
-            );
-
-        }
-
-
-        /* ----------------------------------------------------
            ESPÈCE
         ---------------------------------------------------- */
 
@@ -2376,11 +2803,13 @@ document.addEventListener(
 
             espece.addEventListener(
                 "change",
-                function () {
+                async function () {
 
                     chargerDureeIncubation();
 
-                    chargerLotsIncubation();
+                    await chargerLotsIncubation();
+
+                    afficherEclosionIncubation();
 
                 }
             );
@@ -2402,9 +2831,11 @@ document.addEventListener(
 
             lot.addEventListener(
                 "change",
-                function () {
+                async function () {
 
-                    afficherInformationsLotOrigine();
+                    await afficherInformationsLotOrigine();
+
+                    await afficherStockDisponible();
 
                 }
             );
@@ -2533,16 +2964,22 @@ document.addEventListener(
 
 
         /* ----------------------------------------------------
-           CHARGEMENT
+           CHARGEMENT INITIAL
         ---------------------------------------------------- */
 
-        await chargerLotsIncubation();
+        if (
+            incubationSupabaseDisponible()
+        ) {
 
-        chargerDureeIncubation();
+            await chargerLotsIncubation();
 
-        await chargerIncubations();
+            chargerDureeIncubation();
 
-        await actualiserStatistiquesIncubation();
+            await chargerIncubations();
+
+            await actualiserStatistiquesIncubation();
+
+        }
 
 
         console.log(
@@ -2555,46 +2992,75 @@ document.addEventListener(
 
 /* ============================================================
    EXPORTS GLOBAUX
+   Nécessaires aux onclick du HTML
 ============================================================ */
 
 window.ouvrirModalIncubation =
     ouvrirModalIncubation;
 
+
 window.fermerModalIncubation =
     fermerModalIncubation;
+
 
 window.enregistrerIncubation =
     enregistrerIncubation;
 
+
 window.chargerLotsIncubation =
     chargerLotsIncubation;
+
 
 window.chargerIncubations =
     chargerIncubations;
 
+
 window.actualiserStatistiquesIncubation =
     actualiserStatistiquesIncubation;
+
 
 window.afficherEclosionIncubation =
     afficherEclosionIncubation;
 
+
 window.chargerDureeIncubation =
     chargerDureeIncubation;
+
 
 window.afficherInformationsLotOrigine =
     afficherInformationsLotOrigine;
 
+
 window.verifierCapaciteIncubation =
     verifierCapaciteIncubation;
+
 
 window.voirDetailsIncubation =
     voirDetailsIncubation;
 
+
 window.obtenirLotIncubation =
     obtenirLotIncubation;
 
+
 window.trouverProductionLiee =
     trouverProductionLiee;
+
+
+window.afficherStockDisponible =
+    afficherStockDisponible;
+
+
+window.calculerDateEclosionIncubation =
+    calculerDateEclosionIncubation;
+
+
+window.formaterDateIncubation =
+    formaterDateIncubation;
+
+
+window.incubationAujourdHui =
+    incubationAujourdHui;
 
 
 console.log(
