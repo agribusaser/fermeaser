@@ -2073,21 +2073,37 @@ async function chargerIncubations() {
 
                     </span>
 
-                </td>
+               <td class="text-center">
 
-                <td class="text-center">
+    <!-- Voir les détails -->
+    <button
+        type="button"
+        class="btn btn-sm btn-info me-1"
+        onclick="voirDetailsIncubation('${incubation.id}')"
+        title="Voir les détails">
 
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-info"
-                        onclick="voirDetailsIncubation('${incubation.id}')"
-                        title="Voir les détails">
+        <i class="fa-solid fa-eye"></i>
 
-                        <i class="fa-solid fa-eye"></i>
+    </button>
 
-                    </button>
+    <!-- Enregistrer l'éclosion -->
+    ${
+        incubation.statut === "En incubation"
+        ? `
+            <button
+                type="button"
+                class="btn btn-sm btn-success"
+                onclick="ouvrirModalEclosion('${incubation.id}')"
+                title="Enregistrer l'éclosion">
 
-                </td>
+                <i class="fa-solid fa-egg"></i>
+
+            </button>
+          `
+        : ""
+    }
+
+</td>
 
                 `;
 
