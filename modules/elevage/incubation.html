@@ -1,1677 +1,2199 @@
-<!DOCTYPE html>
-<html lang="fr">
+/* ============================================================
+   FERME ASHER ERP
+   MODULE : INCUBATION
+   FICHIER : /js/incubation.js
 
-<head>
+   CHAÎNE DE TRAÇABILITÉ
 
-    <meta charset="UTF-8">
+   ANIMAUX & LOTS
+        ↓
+   PRODUCTION DES ŒUFS
+        ↓
+   INCUBATION
+        ↓
+   ÉCLOSION
+        ↓
+   POUSSINIÈRE
+        ↓
+   NOUVEAU LOT
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+   SOURCE DE DONNÉES :
+   Supabase
 
-    <title>Gestion Incubation | Ferme Asher ERP</title>
+   TABLES :
+   - lots_elevage
+   - productions_elevage
+   - incubations
+============================================================ */
 
+"use strict";
 
-    <!-- =====================================================
-         BOOTSTRAP
-    ====================================================== -->
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+/* ============================================================
+   CONFIGURATION
+============================================================ */
 
+const TABLE_LOTS_INCUBATION =
+    "lots_elevage";
 
-    <!-- =====================================================
-         STYLE FERME ASHER
-    ====================================================== -->
+const TABLE_PRODUCTIONS_INCUBATION =
+    "productions_elevage";
 
-    <link
-        rel="stylesheet"
-        href="../../css/style.css">
+const TABLE_INCUBATIONS =
+    "incubations";
 
 
-    <!-- =====================================================
-         FONT AWESOME
-    ====================================================== -->
+/* ============================================================
+   DURÉES D'INCUBATION
+============================================================ */
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+const DUREES_INCUBATION = {
 
+    "Caille": 17,
 
-    <!-- =====================================================
-         STYLE LOCAL DE LA PAGE
-    ====================================================== -->
+    "Cailles": 17,
 
-    <style>
+    "Poulet": 21,
 
-        body {
-            background: #f8f9fa;
-        }
+    "Poulets": 21,
 
+    "Poule": 21,
 
-        .page-container {
-            padding: 25px;
-        }
+    "Poules": 21,
 
+    "Canard": 28,
 
-        .module-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+    "Canards": 28,
 
+    "Pintade": 28,
 
-        .module-header h1 {
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
+    "Pintades": 28,
 
+    "Dinde": 28,
 
-        .module-header p {
-            margin: 0;
-            color: #6c757d;
-        }
+    "Dindes": 28
 
+};
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
 
+/* ============================================================
+   OUTILS
+============================================================ */
 
-        .stat-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow:
-                0 2px 10px rgba(0,0,0,0.08);
+function incubationAujourdHui() {
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    const date = new Date();
 
+    const annee =
+        date.getFullYear();
 
-        .stat-card p {
-            margin: 0 0 8px;
-            color: #6c757d;
-        }
+    const mois =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
 
+    const jour =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
 
-        .stat-card h2 {
-            margin: 0;
-            font-size: 32px;
-            font-weight: 700;
-        }
+    return (
+        annee +
+        "-" +
+        mois +
+        "-" +
+        jour
+    );
+}
 
 
-        .stat-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
+/* ============================================================
+   GÉNÉRER ID
+============================================================ */
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+function genererIdIncubation() {
 
-            font-size: 22px;
-        }
+    return (
+        "INC-" +
+        Date.now() +
+        "-" +
+        Math.floor(
+            Math.random() * 1000
+        )
+    );
+}
 
 
-        .section-card {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow:
-                0 2px 10px rgba(0,0,0,0.08);
+/* ============================================================
+   FORMATER DATE
+============================================================ */
 
-            overflow: hidden;
-        }
+function formaterDateIncubation(date) {
 
+    if (!date) {
 
-        .section-header {
-            padding: 24px;
-            border-bottom: 1px solid #e9ecef;
+        return "-";
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+    }
 
-            gap: 20px;
-        }
+    const parties =
+        String(date).split("-");
 
+    if (
+        parties.length !== 3
+    ) {
 
-        .section-header h2 {
-            margin: 0 0 6px;
-            font-size: 24px;
-            font-weight: 700;
-        }
+        return date;
 
+    }
 
-        .section-header p {
-            margin: 0;
-            color: #6c757d;
-        }
+    return (
+        parties[2] +
+        "/" +
+        parties[1] +
+        "/" +
+        parties[0]
+    );
+}
 
 
-        .table-container {
-            padding: 0 20px 20px;
-        }
+/* ============================================================
+   CALCUL DATE D'ÉCLOSION
+============================================================ */
 
+function calculerDateEclosionIncubation(
+    dateEntree,
+    duree
+) {
 
-        .table-responsive {
-            overflow-x: auto;
-        }
+    if (
+        !dateEntree ||
+        !duree
+    ) {
 
+        return "";
 
-        table {
-            min-width: 900px;
-        }
+    }
 
+    const date =
+        new Date(
+            dateEntree +
+            "T00:00:00"
+        );
 
-        th {
-            white-space: nowrap;
-        }
+    date.setDate(
+        date.getDate() +
+        Number(duree)
+    );
 
+    const annee =
+        date.getFullYear();
 
-        td {
-            vertical-align: middle;
-        }
+    const mois =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
 
+    const jour =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
 
-        /* =====================================================
-           MODALES
-        ====================================================== */
+    return (
+        annee +
+        "-" +
+        mois +
+        "-" +
+        jour
+    );
+}
 
-        .modal-ferme-asher {
-            position: fixed;
-            inset: 0;
 
-            z-index: 1055;
+/* ============================================================
+   CHARGER LES LOTS DEPUIS SUPABASE
+============================================================ */
 
-            display: none;
+async function chargerLotsIncubation() {
 
-            align-items: center;
-            justify-content: center;
+    const select =
+        document.getElementById(
+            "incubationLot"
+        );
 
-            padding: 20px;
+    if (!select) {
 
-            background:
-                rgba(0, 0, 0, 0.55);
-        }
+        return;
 
+    }
 
-        .modal-ferme-asher.active {
-            display: flex;
-        }
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
 
+        console.error(
+            "supabaseClient est introuvable."
+        );
 
-        .modal-ferme-asher-content {
-            width: 100%;
-            max-width: 850px;
+        select.innerHTML =
+            `<option value="">
+                Erreur Supabase
+            </option>`;
 
-            max-height: 92vh;
-            overflow-y: auto;
+        return;
 
-            background: #ffffff;
+    }
 
-            border-radius: 12px;
+    const ancienneValeur =
+        select.value;
 
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.30);
+    select.innerHTML =
+        `<option value="">
+            Chargement des lots...
+        </option>`;
 
-            animation:
-                apparitionModal 0.18s ease-out;
-        }
+    try {
 
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
 
-        @keyframes apparitionModal {
+                .from(
+                    TABLE_LOTS_INCUBATION
+                )
 
-            from {
-                opacity: 0;
-                transform: translateY(-15px)
-                           scale(0.98);
-            }
+                .select(
+                    `
+                    id,
+                    code,
+                    espece,
+                    race_type,
+                    nom_lot,
+                    quantite_actuelle,
+                    statut
+                    `
+                )
 
-            to {
-                opacity: 1;
-                transform: translateY(0)
-                           scale(1);
-            }
+                .order(
+                    "id",
+                    {
+                        ascending: false
+                    }
+                );
 
-        }
 
-
-        .modal-fa-header {
-            background: #198754;
-            color: #ffffff;
-
-            padding: 18px 22px;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            border-radius:
-                12px 12px 0 0;
-        }
-
-
-        .modal-fa-header h3 {
-            margin: 0;
-            font-size: 21px;
-            font-weight: 700;
-        }
-
-
-        .modal-fa-close {
-            border: 0;
-            background: transparent;
-
-            color: #ffffff;
-
-            font-size: 27px;
-
-            cursor: pointer;
-
-            width: 40px;
-            height: 40px;
-
-            border-radius: 50%;
-        }
-
-
-        .modal-fa-close:hover {
-            background:
-                rgba(255,255,255,0.15);
-        }
-
-
-        .modal-fa-body {
-            padding: 25px;
-        }
-
-
-        .modal-fa-footer {
-            padding: 18px 25px;
-
-            border-top:
-                1px solid #e9ecef;
-
-            display: flex;
-            justify-content: flex-end;
-
-            gap: 10px;
-        }
-
-
-        .form-label {
-            font-weight: 600;
-        }
-
-
-        .help-text {
-            font-size: 13px;
-            color: #6c757d;
-            margin-top: 6px;
-        }
-
-
-        @media (max-width: 992px) {
-
-            .stats-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }
-
-        }
-
-
-        @media (max-width: 768px) {
-
-            .page-container {
-                padding: 15px;
-            }
-
-
-            .module-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-        }
-
-    </style>
-
-</head>
-
-
-<body>
-
-
-<div class="page-container">
-
-
-    <!-- =====================================================
-         EN-TÊTE
-    ====================================================== -->
-
-    <div class="module-header">
-
-        <div>
-
-            <h1>
-
-                <i
-                    class="fa-solid fa-egg text-success">
-                </i>
-
-                Gestion Incubation
-
-            </h1>
-
-
-            <p>
-                Gérez les œufs incubés,
-                les couveuses et les éclosions.
-            </p>
-
-        </div>
-
-
-        <a
-            href="index.html"
-            class="btn btn-secondary">
-
-            <i class="fa-solid fa-arrow-left"></i>
-
-            Retour à l'élevage
-
-        </a>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         STATISTIQUES
-    ====================================================== -->
-
-    <div class="stats-grid">
-
-
-        <!-- INCUBATIONS ACTIVES -->
-
-        <div class="stat-card">
-
-            <div>
-
-                <p>
-                    Incubations actives
-                </p>
-
-                <h2 id="incubationsActives">
-                    0
-                </h2>
-
-            </div>
-
-
-            <div
-                class="stat-icon"
-                style="
-                    background:#e8f5e9;
-                    color:#198754;
-                ">
-
-                <i class="fa-solid fa-egg"></i>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- OEUFS -->
-
-        <div class="stat-card">
-
-            <div>
-
-                <p>
-                    Œufs en incubation
-                </p>
-
-                <h2 id="oeufsIncubation">
-                    0
-                </h2>
-
-            </div>
-
-
-            <div
-                class="stat-icon"
-                style="
-                    background:#fff3cd;
-                    color:#ffc107;
-                ">
-
-                <i class="fa-solid fa-box"></i>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ECLOSIONS -->
-
-        <div class="stat-card">
-
-            <div>
-
-                <p>
-                    Éclosions prévues
-                </p>
-
-                <h2 id="eclosionsPrevues">
-                    0
-                </h2>
-
-            </div>
-
-
-            <div
-                class="stat-icon"
-                style="
-                    background:#e7f1ff;
-                    color:#0d6efd;
-                ">
-
-                <i class="fa-solid fa-calendar-days"></i>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- POUSSINS -->
-
-        <div class="stat-card">
-
-            <div>
-
-                <p>
-                    Poussins éclos
-                </p>
-
-                <h2 id="poussinsEclos">
-                    0
-                </h2>
-
-            </div>
-
-
-            <div
-                class="stat-icon"
-                style="
-                    background:#e8f5e9;
-                    color:#198754;
-                ">
-
-                <i class="fa-solid fa-feather"></i>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         SECTION INCUBATIONS
-    ====================================================== -->
-
-    <div class="section-card">
-
-
-        <div class="section-header">
-
-            <div>
-
-                <h2>
-
-                    <i
-                        class="fa-solid fa-egg text-success">
-                    </i>
-
-                    Incubations
-
-                </h2>
-
-
-                <p>
-                    Créez et suivez vos lots
-                    d'incubation.
-                </p>
-
-            </div>
-
-
-            <!-- =================================================
-                 BOUTON NOUVELLE INCUBATION
-            ================================================== -->
-
-            <button
-                type="button"
-                class="btn btn-success btn-lg"
-                onclick="ouvrirModalIncubation()">
-
-                <i class="fa-solid fa-plus"></i>
-
-                Nouvelle incubation
-
-            </button>
-
-        </div>
-
-
-
-        <!-- =====================================================
-             TABLEAU
-        ====================================================== -->
-
-        <div class="table-container">
-
-
-            <div class="table-responsive">
-
-
-                <table
-                    class="table table-hover align-middle">
-
-
-                    <thead class="table-light">
-
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Espèce
-                            </th>
-
-                            <th>
-                                Lot
-                            </th>
-
-                            <th>
-                                Couveuse
-                            </th>
-
-                            <th>
-                                Œufs
-                            </th>
-
-                            <th>
-                                Date entrée
-                            </th>
-
-                            <th>
-                                Éclosion prévue
-                            </th>
-
-                            <th>
-                                Statut
-                            </th>
-
-                            <th class="text-center">
-                                Actions
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody
-                        id="listeIncubations">
-
-
-                        <!--
-                            Les incubations seront
-                            ajoutées automatiquement
-                            par elevage.js
-                        -->
-
-
-                    </tbody>
-
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-</div>
-
-
-
-<!-- =========================================================
-     MODALE : NOUVELLE INCUBATION
-     
-     IMPORTANT :
-     UNE SEULE modale avec cet ID.
-========================================================= -->
-
-<div
-    id="modalIncubation"
-    class="modal-ferme-asher"
-    aria-hidden="true">
-
-
-    <div
-        class="modal-ferme-asher-content">
-
-
-        <!-- =================================================
-             HEADER
-        ================================================== -->
-
-        <div class="modal-fa-header">
-
-
-            <h3>
-
-                <i class="fa-solid fa-egg"></i>
-
-                Nouvelle incubation
-
-            </h3>
-
-
-            <button
-                type="button"
-                class="modal-fa-close"
-                onclick="fermerModalIncubation()"
-                aria-label="Fermer">
-
-                &times;
-
-            </button>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             FORMULAIRE
-        ================================================== -->
-
-        <form
-            id="formIncubation"
-            onsubmit="enregistrerIncubation(event)">
-
-
-            <div class="modal-fa-body">
-
-
-                <div class="row g-3">
-
-
-                    <!-- =================================================
-                         ESPÈCE
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationEspece"
-                            class="form-label">
-
-                            Espèce
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <select
-                            id="incubationEspece"
-                            class="form-select"
-                            required>
-
-
-                            <option value="">
-                                Sélectionner
-                            </option>
-
-
-                            <option value="Cailles">
-                                Cailles
-                            </option>
-
-
-                            <option value="Poules">
-                                Poules
-                            </option>
-
-
-                            <option value="Canards">
-                                Canards
-                            </option>
-
-
-                            <option value="Pintades">
-                                Pintades
-                            </option>
-
-
-                            <option value="Dindes">
-                                Dindes
-                            </option>
-
-
-                            <option value="Autres">
-                                Autres
-                            </option>
-
-
-                        </select>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         LOT
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationLot"
-                            class="form-label">
-
-                            Lot d'origine
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <select
-                            id="incubationLot"
-                            class="form-select"
-                            required>
-
-
-                            <option value="">
-                                Sélectionner un lot
-                            </option>
-
-
-                        </select>
-
-
-                        <div class="help-text">
-
-                            Seuls les lots disposant
-                            d'œufs disponibles pour
-                            l'incubation seront proposés.
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         COUVEUSE
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationCouveuse"
-                            class="form-label">
-
-                            Couveuse
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <select
-                            id="incubationCouveuse"
-                            class="form-select"
-                            required>
-
-
-                            <option value="">
-                                Sélectionner une couveuse
-                            </option>
-
-
-                            <option
-                                value="Couveuse 1056 œufs">
-
-                                Couveuse 1056 œufs
-
-                            </option>
-
-
-                            <option
-                                value="Couveuse 01">
-
-                                Couveuse 01
-
-                            </option>
-
-
-                            <option
-                                value="Couveuse 02">
-
-                                Couveuse 02
-
-                            </option>
-
-
-                        </select>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         NOMBRE OEUFS
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationOeufs"
-                            class="form-label">
-
-                            Nombre d'œufs
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="incubationOeufs"
-                            class="form-control"
-                            min="1"
-                            step="1"
-                            placeholder="Exemple : 100"
-                            required>
-
-
-                        <div
-                            id="stockOeufsDisponible"
-                            class="help-text">
-
-                            Stock disponible :
-                            0 œuf
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         DATE D'ENTRÉE
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationDate"
-                            class="form-label">
-
-                            Date d'entrée
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <input
-                            type="date"
-                            id="incubationDate"
-                            class="form-control"
-                            required>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         DURÉE
-                    ================================================== -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="incubationDuree"
-                            class="form-label">
-
-                            Durée d'incubation
-                            <span class="text-danger">
-                                *
-                            </span>
-
-                        </label>
-
-
-                        <select
-                            id="incubationDuree"
-                            class="form-select"
-                            required>
-
-
-                            <option value="">
-                                Sélectionner la durée
-                            </option>
-
-
-                            <option value="17">
-                                Caille — 17 jours
-                            </option>
-
-
-                            <option value="21">
-                                Poule — 21 jours
-                            </option>
-
-
-                            <option value="28">
-                                Canard — 28 jours
-                            </option>
-
-
-                            <option value="28">
-                                Pintade — 28 jours
-                            </option>
-
-
-                            <option value="28">
-                                Dinde — 28 jours
-                            </option>
-
-
-                            <option value="30">
-                                Autre — 30 jours
-                            </option>
-
-
-                        </select>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         DATE ECLOSION CALCULÉE
-                    ================================================== -->
-
-                    <div class="col-12">
-
-
-                        <div
-                            class="alert alert-success
-                                   d-flex
-                                   align-items-center
-                                   mb-0">
-
-
-                            <i
-                                class="fa-solid fa-calendar-check
-                                       me-2">
-                            </i>
-
-
-                            <div>
-
-
-                                <strong>
-                                    Éclosion prévue :
-                                </strong>
-
-
-                                <span
-                                    id="dateEclosionPreview">
-
-                                    -
-
-                                </span>
-
-
-                            </div>
-
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         NOTES
-                    ================================================== -->
-
-                    <div class="col-12">
-
-
-                        <label
-                            for="incubationNotes"
-                            class="form-label">
-
-                            Notes
-
-                        </label>
-
-
-                        <textarea
-                            id="incubationNotes"
-                            class="form-control"
-                            rows="3"
-                            placeholder="Informations complémentaires...">
-                        </textarea>
-
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- =================================================
-                 FOOTER
-            ================================================== -->
-
-            <div class="modal-fa-footer">
-
-
-                <!-- ANNULER -->
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="fermerModalIncubation()">
-
-                    <i class="fa-solid fa-xmark"></i>
-
-                    Annuler
-
-                </button>
-
-
-
-                <!-- ENREGISTRER -->
-
-                <button
-                    type="submit"
-                    class="btn btn-success">
-
-                    <i class="fa-solid fa-floppy-disk"></i>
-
-                    Enregistrer l'incubation
-
-                </button>
-
-
-            </div>
-
-
-        </form>
-
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-     MODALE : SUIVI INCUBATION
-========================================================= -->
-
-<div
-    id="modalSuiviIncubation"
-    class="modal-ferme-asher"
-    aria-hidden="true">
-
-
-    <div
-        class="modal-ferme-asher-content">
-
-
-        <!-- HEADER -->
-
-        <div
-            class="modal-fa-header"
-            style="background:#0d6efd;">
-
-
-            <h3>
-
-                <i class="fa-solid fa-clipboard-check"></i>
-
-                Suivi incubation
-
-            </h3>
-
-
-            <button
-                type="button"
-                class="modal-fa-close"
-                onclick="fermerSuiviIncubation()">
-
-                &times;
-
-            </button>
-
-
-        </div>
-
-
-
-        <!-- FORMULAIRE -->
-
-        <form
-            id="formSuiviIncubation"
-            onsubmit="enregistrerSuiviIncubation(event)">
-
-
-            <input
-                type="hidden"
-                id="suiviIncubationId">
-
-
-            <div class="modal-fa-body">
-
-
-                <div class="row g-3">
-
-
-                    <!-- OEUFS RETIRES -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="oeufsRetires"
-                            class="form-label">
-
-                            Œufs retirés
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="oeufsRetires"
-                            class="form-control"
-                            value="0"
-                            min="0">
-
-
-                    </div>
-
-
-
-                    <!-- OEUFS NON FECONDES -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="oeufsNonFecondes"
-                            class="form-label">
-
-                            Œufs non fécondés
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="oeufsNonFecondes"
-                            class="form-control"
-                            value="0"
-                            min="0">
-
-
-                    </div>
-
-
-
-                    <!-- EMBRYONS MORTS -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="embryonsMorts"
-                            class="form-label">
-
-                            Embryons morts
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="embryonsMorts"
-                            class="form-control"
-                            value="0"
-                            min="0">
-
-
-                    </div>
-
-
-
-                    <!-- POUSSINS ECLOS -->
-
-                    <div class="col-md-6">
-
-
-                        <label
-                            for="poussinsEclosInput"
-                            class="form-label">
-
-                            Poussins éclos
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="poussinsEclosInput"
-                            class="form-control"
-                            value="0"
-                            min="0">
-
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- FOOTER -->
-
-            <div class="modal-fa-footer">
-
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="fermerSuiviIncubation()">
-
-                    <i class="fa-solid fa-xmark"></i>
-
-                    Annuler
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary">
-
-                    <i class="fa-solid fa-save"></i>
-
-                    Enregistrer le suivi
-
-                </button>
-
-
-            </div>
-
-
-        </form>
-
-
-    </div>
-
-</div>
-
-
-
-<!-- =========================================================
-     JAVASCRIPT BOOTSTRAP
-========================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
-</script>
-
-
-
-<!-- =========================================================
-     JAVASCRIPT ÉLEVAGE
-========================================================= -->
-
-<script
-    src="../../js/elevage.js">
-</script>
-
-
-
-<!-- =========================================================
-     CORRECTIFS D'INTERFACE
-     
-     Ce petit bloc ne remplace PAS elevage.js.
-     Il assure seulement l'ouverture / fermeture propre
-     de la modale.
-========================================================= -->
-
-<script>
-
-(function () {
-
-
-    /* =====================================================
-       OUVRIR LA MODALE
-    ====================================================== */
-
-    window.ouvrirModalIncubation = function () {
-
-        const modal =
-            document.getElementById(
-                "modalIncubation"
-            );
-
-
-        if (!modal) {
+        if (error) {
 
             console.error(
-                "modalIncubation introuvable."
+                "Erreur chargement lots :",
+                error
             );
+
+            select.innerHTML =
+                `<option value="">
+                    Impossible de charger les lots
+                </option>`;
 
             return;
 
         }
 
 
-        modal.classList.add("active");
+        select.innerHTML =
+            `<option value="">
+                Sélectionner un lot
+            </option>`;
 
-        modal.setAttribute(
-            "aria-hidden",
-            "false"
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            select.innerHTML =
+                `<option value="">
+                    Aucun lot disponible
+                </option>`;
+
+            return;
+
+        }
+
+
+        data.forEach(
+            function (lot) {
+
+                /*
+                 * Seuls les lots actifs
+                 * sont proposés.
+                 */
+
+                if (
+                    lot.statut &&
+                    lot.statut !==
+                    "Actif"
+                ) {
+
+                    return;
+
+                }
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    lot.id;
+
+
+                option.dataset.espece =
+                    lot.espece ||
+                    "";
+
+
+                option.dataset.race =
+                    lot.race_type ||
+                    "";
+
+
+                option.dataset.nom =
+                    lot.nom_lot ||
+                    lot.code ||
+                    "";
+
+
+                option.textContent =
+
+                    (
+                        lot.nom_lot ||
+                        lot.code ||
+                        "Lot " + lot.id
+                    )
+
+                    +
+
+                    " — "
+
+                    +
+
+                    (
+                        lot.espece ||
+                        ""
+                    )
+
+                    +
+
+                    " — "
+
+                    +
+
+                    (
+                        lot.race_type ||
+                        ""
+                    )
+
+                    +
+
+                    " (" +
+
+                    Number(
+                        lot.quantite_actuelle ||
+                        0
+                    ).toLocaleString(
+                        "fr-FR"
+                    )
+
+                    +
+
+                    " animaux)";
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
         );
 
 
-        /* ---------------------------------------------
-           DATE DU JOUR
-        --------------------------------------------- */
+        if (ancienneValeur) {
 
-        const champDate =
+            select.value =
+                ancienneValeur;
+
+        }
+
+    }
+
+    catch (erreur) {
+
+        console.error(
+            "Erreur Supabase :",
+            erreur
+        );
+
+        select.innerHTML =
+            `<option value="">
+                Erreur de connexion
+            </option>`;
+
+    }
+
+}
+
+
+/* ============================================================
+   RÉCUPÉRER LE LOT SÉLECTIONNÉ
+============================================================ */
+
+async function obtenirLotIncubation(
+    lotId
+) {
+
+    if (!lotId) {
+
+        return null;
+
+    }
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_LOTS_INCUBATION
+            )
+
+            .select(
+                `
+                id,
+                code,
+                espece,
+                race_type,
+                nom_lot,
+                quantite_actuelle,
+                statut
+                `
+            )
+
+            .eq(
+                "id",
+                lotId
+            )
+
+            .maybeSingle();
+
+
+    if (error) {
+
+        console.error(
+            "Erreur récupération lot :",
+            error
+        );
+
+        return null;
+
+    }
+
+    return data;
+
+}
+
+
+/* ============================================================
+   DURÉE AUTOMATIQUE
+============================================================ */
+
+function chargerDureeIncubation() {
+
+    const espece =
+        document.getElementById(
+            "incubationEspece"
+        );
+
+    const duree =
+        document.getElementById(
+            "incubationDuree"
+        );
+
+    if (
+        !espece ||
+        !duree
+    ) {
+
+        return;
+
+    }
+
+    const valeur =
+        DUREES_INCUBATION[
+            espece.value
+        ];
+
+
+    if (!valeur) {
+
+        return;
+
+    }
+
+
+    /*
+     * Le champ peut être un SELECT
+     * ou un INPUT.
+     */
+
+    if (
+        duree.tagName ===
+        "SELECT"
+    ) {
+
+        duree.innerHTML =
+
+            `<option value="${valeur}">
+                ${valeur} jours
+            </option>`;
+
+        duree.value =
+            String(valeur);
+
+    }
+    else {
+
+        duree.value =
+            valeur;
+
+    }
+
+
+    afficherEclosionIncubation();
+
+}
+
+
+/* ============================================================
+   AFFICHER LES INFORMATIONS DU LOT
+============================================================ */
+
+function afficherInformationsLotOrigine() {
+
+    const select =
+        document.getElementById(
+            "incubationLot"
+        );
+
+    if (!select) {
+
+        return;
+
+    }
+
+    const option =
+        select.options[
+            select.selectedIndex
+        ];
+
+    if (
+        !option ||
+        !option.value
+    ) {
+
+        return;
+
+    }
+
+    const zone =
+        document.getElementById(
+            "informationsLotOrigine"
+        );
+
+
+    if (!zone) {
+
+        return;
+
+    }
+
+
+    const espece =
+        option.dataset.espece ||
+        "";
+
+    const race =
+        option.dataset.race ||
+        "";
+
+    const nom =
+        option.dataset.nom ||
+        "";
+
+
+    zone.innerHTML =
+
+        `
+        <div class="alert alert-info mt-2">
+
+            <strong>Lot d'origine</strong><br>
+
+            Lot : ${nom}<br>
+
+            Espèce : ${espece}<br>
+
+            Race / Type : ${race}<br>
+
+            ID Lot : ${option.value}
+
+        </div>
+        `;
+
+}
+
+
+/* ============================================================
+   AFFICHER DATE D'ÉCLOSION
+============================================================ */
+
+function afficherEclosionIncubation() {
+
+    const date =
+        document.getElementById(
+            "incubationDateEntree"
+        )
+        ||
+        document.getElementById(
+            "incubationDate"
+        );
+
+
+    const duree =
+        document.getElementById(
+            "incubationDuree"
+        );
+
+
+    if (
+        !date ||
+        !duree
+    ) {
+
+        return;
+
+    }
+
+
+    const dateEclosion =
+        calculerDateEclosionIncubation(
+            date.value,
+            Number(
+                duree.value
+            )
+        );
+
+
+    const zones = [
+
+        "eclosionPrevue",
+
+        "dateEclosion",
+
+        "incubationEclosion",
+
+        "incubationDateEclosionPrevue"
+
+    ];
+
+
+    zones.forEach(
+        function (id) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+            if (!element) {
+
+                return;
+
+            }
+
+
+            if (
+                element.tagName ===
+                "INPUT"
+            ) {
+
+                element.value =
+                    dateEclosion;
+
+            }
+            else {
+
+                element.innerHTML =
+
+                    dateEclosion
+
+                        ?
+
+                        "📅 <strong>Éclosion prévue :</strong> " +
+                        formaterDateIncubation(
+                            dateEclosion
+                        )
+
+                        :
+
+                        "📅 Éclosion prévue : -";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   VÉRIFIER CAPACITÉ DE LA COUVEUSE
+============================================================ */
+
+function obtenirCapaciteCouveuse(
+    valeur
+) {
+
+    const texte =
+        String(
+            valeur || ""
+        );
+
+    const correspondance =
+        texte.match(
+            /(\d[\d\s]*)/
+        );
+
+
+    if (
+        !correspondance
+    ) {
+
+        return 0;
+
+    }
+
+
+    return Number(
+        correspondance[1]
+            .replace(
+                /\s/g,
+                ""
+            )
+    );
+
+}
+
+
+function verifierCapaciteIncubation() {
+
+    const couveuse =
+        document.getElementById(
+            "incubationCouveuse"
+        );
+
+    const oeufs =
+        document.getElementById(
+            "incubationOeufs"
+        );
+
+
+    if (
+        !couveuse ||
+        !oeufs
+    ) {
+
+        return true;
+
+    }
+
+
+    const capacite =
+        obtenirCapaciteCouveuse(
+            couveuse.value
+        );
+
+
+    const quantite =
+        Number(
+            oeufs.value || 0
+        );
+
+
+    if (
+        capacite > 0 &&
+        quantite > capacite
+    ) {
+
+        oeufs.setCustomValidity(
+            "La quantité dépasse la capacité de la couveuse."
+        );
+
+        return false;
+
+    }
+
+
+    oeufs.setCustomValidity("");
+
+    return true;
+
+}
+
+
+/* ============================================================
+   OUVRIR MODAL
+============================================================ */
+
+function ouvrirModalIncubation() {
+
+    const formulaire =
+        document.getElementById(
+            "formIncubation"
+        );
+
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
+
+    const date =
+        document.getElementById(
+            "incubationDateEntree"
+        )
+        ||
+        document.getElementById(
+            "incubationDate"
+        );
+
+
+    if (date) {
+
+        date.value =
+            incubationAujourdHui();
+
+    }
+
+
+    chargerLotsIncubation();
+
+    chargerDureeIncubation();
+
+    afficherEclosionIncubation();
+
+
+    const modal =
+        document.getElementById(
+            "modalIncubation"
+        );
+
+
+    if (
+        modal &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        const instance =
+            bootstrap.Modal
+                .getOrCreateInstance(
+                    modal
+                );
+
+        instance.show();
+
+    }
+
+}
+
+
+/* ============================================================
+   FERMER MODAL
+============================================================ */
+
+function fermerModalIncubation() {
+
+    const modal =
+        document.getElementById(
+            "modalIncubation"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    if (
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        const instance =
+            bootstrap.Modal
+                .getInstance(
+                    modal
+                );
+
+
+        if (instance) {
+
+            instance.hide();
+
+            return;
+
+        }
+
+    }
+
+
+    modal.style.display =
+        "none";
+
+}
+
+
+/* ============================================================
+   ENREGISTRER INCUBATION DANS SUPABASE
+============================================================ */
+
+async function enregistrerIncubation(
+    event
+) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    /*
+     * Récupération des champs.
+     */
+
+    const especeElement =
+        document.getElementById(
+            "incubationEspece"
+        );
+
+
+    const lotElement =
+        document.getElementById(
+            "incubationLot"
+        );
+
+
+    const oeufsElement =
+        document.getElementById(
+            "incubationOeufs"
+        );
+
+
+    const couveuseElement =
+        document.getElementById(
+            "incubationCouveuse"
+        );
+
+
+    const dateElement =
+        document.getElementById(
+            "incubationDateEntree"
+        )
+        ||
+        document.getElementById(
+            "incubationDate"
+        );
+
+
+    const dureeElement =
+        document.getElementById(
+            "incubationDuree"
+        );
+
+
+    /*
+     * Vérification formulaire.
+     */
+
+    if (
+        !especeElement ||
+        !lotElement ||
+        !oeufsElement ||
+        !dateElement ||
+        !dureeElement
+    ) {
+
+        alert(
+            "Le formulaire d'incubation est incomplet."
+        );
+
+        return false;
+
+    }
+
+
+    const espece =
+        especeElement.value.trim();
+
+
+    const lotId =
+        lotElement.value;
+
+
+    const nombreOeufs =
+        Number(
+            oeufsElement.value || 0
+        );
+
+
+    const couveuse =
+        couveuseElement
+            ? couveuseElement.value.trim()
+            : "";
+
+
+    const dateEntree =
+        dateElement.value;
+
+
+    const duree =
+        Number(
+            dureeElement.value || 0
+        );
+
+
+    /*
+     * Validations.
+     */
+
+    if (!espece) {
+
+        alert(
+            "Veuillez sélectionner l'espèce."
+        );
+
+        return false;
+
+    }
+
+
+    if (!lotId) {
+
+        alert(
+            "Veuillez sélectionner le lot d'origine."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !Number.isFinite(
+            nombreOeufs
+        )
+        ||
+        nombreOeufs <= 0
+    ) {
+
+        alert(
+            "Le nombre d'œufs doit être supérieur à zéro."
+        );
+
+        return false;
+
+    }
+
+
+    if (!couveuse) {
+
+        alert(
+            "Veuillez sélectionner la couveuse."
+        );
+
+        return false;
+
+    }
+
+
+    if (!dateEntree) {
+
+        alert(
+            "Veuillez indiquer la date d'entrée."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !Number.isFinite(duree)
+        ||
+        duree <= 0
+    ) {
+
+        alert(
+            "La durée d'incubation est invalide."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Vérification capacité couveuse.
+     */
+
+    if (
+        !verifierCapaciteIncubation()
+    ) {
+
+        alert(
+            "La quantité d'œufs dépasse la capacité de la couveuse."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Vérifier Supabase.
+     */
+
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
+
+        alert(
+            "Supabase n'est pas initialisé."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Récupérer le lot réel.
+     */
+
+    const lot =
+        await obtenirLotIncubation(
+            lotId
+        );
+
+
+    if (!lot) {
+
+        alert(
+            "Le lot sélectionné est introuvable dans Supabase."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Date d'éclosion.
+     */
+
+    const dateEclosion =
+        calculerDateEclosionIncubation(
+            dateEntree,
+            duree
+        );
+
+
+    /*
+     * ID incubation.
+     */
+
+    const idIncubation =
+        genererIdIncubation();
+
+
+    /*
+     * Utilisateur.
+     */
+
+    const utilisateur =
+        localStorage.getItem(
+            "utilisateur"
+        )
+        ||
+        localStorage.getItem(
+            "utilisateurConnecte"
+        )
+        ||
+        "Administrateur";
+
+
+    /*
+     * Production liée.
+     *
+     * Pour le moment nous recherchons
+     * la dernière production du même lot.
+     */
+
+    let productionId =
+        null;
+
+
+    try {
+
+        const {
+            data: productions,
+            error:
+                productionError
+        } =
+            await supabaseClient
+
+                .from(
+                    TABLE_PRODUCTIONS_INCUBATION
+                )
+
+                .select(
+                    "id, date, lot_id, lot_nom, espece"
+                )
+
+                .eq(
+                    "lot_id",
+                    lotId
+                )
+
+                .order(
+                    "date",
+                    {
+                        ascending: false
+                    }
+                )
+
+                .limit(1);
+
+
+        if (
+            !productionError &&
+            productions &&
+            productions.length > 0
+        ) {
+
+            productionId =
+                productions[0].id;
+
+        }
+
+    }
+
+    catch (erreur) {
+
+        console.warn(
+            "Aucune production liée récupérée.",
+            erreur
+        );
+
+    }
+
+
+    /*
+     * OBJET SUPABASE
+     */
+
+    const nouvelleIncubation = {
+
+        id:
+            idIncubation,
+
+        lot_id:
+            Number(lotId),
+
+        lot_nom:
+            lot.nom_lot ||
+            lot.code ||
+            "",
+
+        espece:
+            espece,
+
+        race:
+            lot.race_type ||
+            "",
+
+        couveuse:
+            couveuse,
+
+        oeufs_initial:
+            nombreOeufs,
+
+        oeufs_retires:
+            0,
+
+        oeufs_non_fecondes:
+            0,
+
+        embryons_morts:
+            0,
+
+        poussins_eclos:
+            0,
+
+        date_entree:
+            dateEntree,
+
+        duree:
+            duree,
+
+        date_eclosion:
+            dateEclosion,
+
+        statut:
+            "En incubation",
+
+        production_id:
+            productionId,
+
+        /*
+         * Le lot d'origine est conservé
+         * pour assurer la traçabilité.
+         */
+
+        lot_parent_id:
+            Number(lotId),
+
+        brooder_cree:
+            false,
+
+        notes:
+            document.getElementById(
+                "incubationNotes"
+            )?.value.trim()
+            || null,
+
+        utilisateur:
+            utilisateur
+
+    };
+
+
+    /*
+     * INSERTION SUPABASE
+     */
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .insert(
+                nouvelleIncubation
+            )
+
+            .select()
+            
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Erreur insertion incubation :",
+            error
+        );
+
+        alert(
+            "Impossible d'enregistrer l'incubation.\n\n" +
+            error.message
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Succès.
+     */
+
+    console.log(
+        "Incubation enregistrée :",
+        data
+    );
+
+
+    /*
+     * Fermer formulaire.
+     */
+
+    const formulaire =
+        document.getElementById(
+            "formIncubation"
+        );
+
+
+    if (formulaire) {
+
+        formulaire.reset();
+
+    }
+
+
+    fermerModalIncubation();
+
+
+    /*
+     * Actualiser.
+     */
+
+    await chargerIncubations();
+
+    actualiserStatistiquesIncubation();
+
+
+    /*
+     * Confirmation.
+     */
+
+    alert(
+
+        "Incubation enregistrée avec succès.\n\n" +
+
+        "ID : " +
+        idIncubation +
+
+        "\nLot d'origine : " +
+        (
+            lot.nom_lot ||
+            lot.code ||
+            lot.id
+        ) +
+
+        "\nEspèce : " +
+        espece +
+
+        "\nŒufs incubés : " +
+        nombreOeufs +
+
+        "\nÉclosion prévue : " +
+        formaterDateIncubation(
+            dateEclosion
+        )
+
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   CHARGER LES INCUBATIONS DEPUIS SUPABASE
+============================================================ */
+
+async function chargerIncubations() {
+
+    const tableau =
+        document.getElementById(
+            "listeIncubations"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="text-center text-danger py-4">
+
+                    Supabase non initialisé.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tableau.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="9"
+                class="text-center text-muted py-4">
+
+                Chargement...
+
+            </td>
+
+        </tr>
+
+    `;
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "*"
+            )
+
+            .order(
+                "date_entree",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erreur chargement incubations :",
+            error
+        );
+
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="text-center text-danger py-4">
+
+                    Erreur de chargement des incubations.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tableau.innerHTML =
+        "";
+
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="text-center text-muted py-4">
+
+                    Aucune incubation enregistrée.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    data.forEach(
+        function (incubation) {
+
+            let classe =
+                "bg-success";
+
+
+            if (
+                incubation.statut ===
+                "Terminée"
+            ) {
+
+                classe =
+                    "bg-secondary";
+
+            }
+
+
+            else if (
+                incubation.statut ===
+                "Éclosion"
+            ) {
+
+                classe =
+                    "bg-warning text-dark";
+
+            }
+
+
+            else if (
+                incubation.statut ===
+                "Annulée"
+            ) {
+
+                classe =
+                    "bg-danger";
+
+            }
+
+
+            else if (
+                incubation.statut ===
+                "Éclos"
+            ) {
+
+                classe =
+                    "bg-info text-dark";
+
+            }
+
+
+            const ligne =
+                document.createElement(
+                    "tr"
+                );
+
+
+            ligne.innerHTML = `
+
+                <td>
+                    ${incubation.id || "-"}
+                </td>
+
+                <td>
+                    ${incubation.espece || "-"}
+                </td>
+
+                <td>
+                    ${incubation.lot_nom || "-"}
+                </td>
+
+                <td>
+                    ${incubation.couveuse || "-"}
+                </td>
+
+                <td>
+                    ${Number(
+                        incubation.oeufs_initial || 0
+                    ).toLocaleString(
+                        "fr-FR"
+                    )}
+                </td>
+
+                <td>
+                    ${formaterDateIncubation(
+                        incubation.date_entree
+                    )}
+                </td>
+
+                <td>
+                    ${formaterDateIncubation(
+                        incubation.date_eclosion
+                    )}
+                </td>
+
+                <td>
+
+                    <span
+                        class="badge ${classe}">
+
+                        ${incubation.statut || "-"}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-info"
+                        onclick="voirDetailsIncubation('${incubation.id}')">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableau.appendChild(
+                ligne
+            );
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   STATISTIQUES
+============================================================ */
+
+async function actualiserStatistiquesIncubation() {
+
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "statut, oeufs_initial, poussins_eclos"
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erreur statistiques incubation :",
+            error
+        );
+
+        return;
+
+    }
+
+
+    const incubations =
+        data || [];
+
+
+    const actives =
+        incubations.filter(
+            function (item) {
+
+                return (
+                    item.statut ===
+                    "En incubation"
+                );
+
+            }
+        );
+
+
+    const ecloses =
+        incubations.filter(
+            function (item) {
+
+                return (
+                    item.statut ===
+                    "Éclos"
+                    ||
+                    item.statut ===
+                    "Terminée"
+                );
+
+            }
+        );
+
+
+    const totalOeufs =
+        incubations.reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.oeufs_initial ||
+                        0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const totalPoussins =
+        incubations.reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.poussins_eclos ||
+                        0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const valeurs = {
+
+        totalIncubations:
+            incubations.length,
+
+        incubationsActives:
+            actives.length,
+
+        incubationsEcloses:
+            ecloses.length,
+
+        totalOeufsIncubes:
+            totalOeufs,
+
+        poussinsEclos:
+            totalPoussins
+
+    };
+
+
+    Object.keys(
+        valeurs
+    ).forEach(
+        function (id) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+
+            if (element) {
+
+                element.textContent =
+                    Number(
+                        valeurs[id]
+                    ).toLocaleString(
+                        "fr-FR"
+                    );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   VOIR DÉTAILS
+============================================================ */
+
+async function voirDetailsIncubation(
+    id
+) {
+
+    if (
+        !id ||
+        typeof supabaseClient ===
+        "undefined"
+    ) {
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "*"
+            )
+
+            .eq(
+                "id",
+                id
+            )
+
+            .maybeSingle();
+
+
+    if (
+        error ||
+        !data
+    ) {
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return;
+
+    }
+
+
+    alert(
+
+        "DÉTAILS DE L'INCUBATION\n\n" +
+
+        "ID : " +
+        (data.id || "-") +
+
+        "\nLot : " +
+        (data.lot_nom || "-") +
+
+        "\nID Lot : " +
+        (data.lot_id || "-") +
+
+        "\nEspèce : " +
+        (data.espece || "-") +
+
+        "\nRace : " +
+        (data.race || "-") +
+
+        "\nCouveuse : " +
+        (data.couveuse || "-") +
+
+        "\nŒufs initiaux : " +
+        (data.oeufs_initial || 0) +
+
+        "\nŒufs non fécondés : " +
+        (data.oeufs_non_fecondes || 0) +
+
+        "\nEmbryons morts : " +
+        (data.embryons_morts || 0) +
+
+        "\nPoussins éclos : " +
+        (data.poussins_eclos || 0) +
+
+        "\nDate entrée : " +
+        formaterDateIncubation(
+            data.date_entree
+        ) +
+
+        "\nÉclosion prévue : " +
+        formaterDateIncubation(
+            data.date_eclosion
+        ) +
+
+        "\nStatut : " +
+        (data.statut || "-")
+
+    );
+
+}
+
+
+/* ============================================================
+   INITIALISATION
+============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+        console.log(
+            "Initialisation incubation.js..."
+        );
+
+
+        /*
+         * Date.
+         */
+
+        const date =
+            document.getElementById(
+                "incubationDateEntree"
+            )
+            ||
             document.getElementById(
                 "incubationDate"
             );
 
 
         if (
-            champDate &&
-            !champDate.value
+            date &&
+            !date.value
         ) {
 
-            const maintenant =
-                new Date();
-
-
-            const annee =
-                maintenant.getFullYear();
-
-
-            const mois =
-                String(
-                    maintenant.getMonth() + 1
-                ).padStart(2, "0");
-
-
-            const jour =
-                String(
-                    maintenant.getDate()
-                ).padStart(2, "0");
-
-
-            champDate.value =
-                `${annee}-${mois}-${jour}`;
+            date.value =
+                incubationAujourdHui();
 
         }
 
 
-        /* ---------------------------------------------
-           CHARGER LES LOTS
-           
-           On laisse d'abord elevage.js essayer
-           de remplir le select.
-        --------------------------------------------- */
+        /*
+         * Bouton nouvelle incubation.
+         */
 
-        try {
-
-            if (
-                typeof chargerLotsIncubation ===
-                "function"
-            ) {
-
-                chargerLotsIncubation();
-
-            }
-
-        } catch (erreur) {
-
-            console.error(
-                "Erreur chargement lots :",
-                erreur
-            );
-
-        }
-
-
-        /* ---------------------------------------------
-           CHARGER LES LOTS DISPONIBLES
-           depuis les fonctions existantes
-        --------------------------------------------- */
-
-        try {
-
-            if (
-                typeof chargerLotsDisponibles ===
-                "function"
-            ) {
-
-                chargerLotsDisponibles();
-
-            }
-
-        } catch (erreur) {
-
-            console.error(
-                "Erreur lots disponibles :",
-                erreur
-            );
-
-        }
-
-    };
-
-
-
-    /* =====================================================
-       FERMER LA MODALE
-    ====================================================== */
-
-    window.fermerModalIncubation = function () {
-
-        const modal =
+        const bouton =
             document.getElementById(
-                "modalIncubation"
+                "btnNouvelleIncubation"
             );
 
 
-        if (!modal) {
+        if (bouton) {
 
-            return;
+            bouton.addEventListener(
+                "click",
+                function (event) {
 
-        }
+                    event.preventDefault();
 
+                    ouvrirModalIncubation();
 
-        modal.classList.remove("active");
-
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-    };
-
-
-
-    /* =====================================================
-       FERMER AVEC ECHAP
-    ====================================================== */
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                fermerModalIncubation();
-
-                fermerSuiviIncubation();
-
-            }
+                }
+            );
 
         }
-    );
 
 
+        /*
+         * Espèce.
+         */
 
-    /* =====================================================
-       FERMER EN CLIQUANT SUR LE FOND
-    ====================================================== */
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-
-            const modal =
-                document.getElementById(
-                    "modalIncubation"
-                );
-
-
-            if (
-                modal &&
-                event.target === modal
-            ) {
-
-                fermerModalIncubation();
-
-            }
-
-
-            const modalSuivi =
-                document.getElementById(
-                    "modalSuiviIncubation"
-                );
-
-
-            if (
-                modalSuivi &&
-                event.target === modalSuivi
-            ) {
-
-                fermerSuiviIncubation();
-
-            }
-
-        }
-    );
-
-
-
-    /* =====================================================
-       DATE D'ÉCLOSION AUTOMATIQUE
-    ====================================================== */
-
-    function mettreAJourDateEclosion() {
-
-
-        const date =
+        const espece =
             document.getElementById(
-                "incubationDate"
+                "incubationEspece"
             );
 
+
+        if (espece) {
+
+            espece.addEventListener(
+                "change",
+                function () {
+
+                    chargerDureeIncubation();
+
+                    chargerLotsIncubation();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * Lot.
+         */
+
+        const lot =
+            document.getElementById(
+                "incubationLot"
+            );
+
+
+        if (lot) {
+
+            lot.addEventListener(
+                "change",
+                function () {
+
+                    afficherInformationsLotOrigine();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * Date.
+         */
+
+        if (date) {
+
+            date.addEventListener(
+                "change",
+                function () {
+
+                    afficherEclosionIncubation();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * Durée.
+         */
 
         const duree =
             document.getElementById(
@@ -1679,172 +2201,157 @@
             );
 
 
-        const preview =
+        if (duree) {
+
+            duree.addEventListener(
+                "change",
+                function () {
+
+                    afficherEclosionIncubation();
+
+                }
+            );
+
+            duree.addEventListener(
+                "input",
+                function () {
+
+                    afficherEclosionIncubation();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * Œufs.
+         */
+
+        const oeufs =
             document.getElementById(
-                "dateEclosionPreview"
+                "incubationOeufs"
             );
 
 
-        if (
-            !date ||
-            !duree ||
-            !preview
-        ) {
+        if (oeufs) {
 
-            return;
+            oeufs.addEventListener(
+                "input",
+                function () {
+
+                    verifierCapaciteIncubation();
+
+                }
+            );
 
         }
 
 
-        if (
-            !date.value ||
-            !duree.value
-        ) {
+        /*
+         * Couveuse.
+         */
 
-            preview.textContent =
-                "-";
+        const couveuse =
+            document.getElementById(
+                "incubationCouveuse"
+            );
 
-            return;
+
+        if (couveuse) {
+
+            couveuse.addEventListener(
+                "change",
+                function () {
+
+                    verifierCapaciteIncubation();
+
+                }
+            );
 
         }
 
 
-        const nouvelleDate =
-            new Date(
-                date.value +
-                "T00:00:00"
+        /*
+         * Formulaire.
+         */
+
+        const formulaire =
+            document.getElementById(
+                "formIncubation"
             );
 
 
-        nouvelleDate.setDate(
-            nouvelleDate.getDate() +
-            Number(duree.value)
+        if (formulaire) {
+
+            formulaire.addEventListener(
+                "submit",
+                enregistrerIncubation
+            );
+
+        }
+
+
+        /*
+         * Chargement initial.
+         */
+
+        await chargerLotsIncubation();
+
+        chargerDureeIncubation();
+
+        await chargerIncubations();
+
+        await actualiserStatistiquesIncubation();
+
+
+        console.log(
+            "✓ Ferme Asher ERP — incubation.js connecté à Supabase."
         );
 
-
-        const annee =
-            nouvelleDate.getFullYear();
-
-
-        const mois =
-            String(
-                nouvelleDate.getMonth() + 1
-            ).padStart(2, "0");
-
-
-        const jour =
-            String(
-                nouvelleDate.getDate()
-            ).padStart(2, "0");
-
-
-        preview.textContent =
-            `${jour}/${mois}/${annee}`;
-
     }
+);
 
 
+/* ============================================================
+   EXPORTS GLOBAUX
+   Pour les onclick du HTML
+============================================================ */
 
-    /* =====================================================
-       EVENEMENTS DATE / DURÉE
-    ====================================================== */
+window.ouvrirModalIncubation =
+    ouvrirModalIncubation;
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
+window.fermerModalIncubation =
+    fermerModalIncubation;
 
+window.enregistrerIncubation =
+    enregistrerIncubation;
 
-            const date =
-                document.getElementById(
-                    "incubationDate"
-                );
+window.chargerLotsIncubation =
+    chargerLotsIncubation;
 
+window.chargerIncubations =
+    chargerIncubations;
 
-            const duree =
-                document.getElementById(
-                    "incubationDuree"
-                );
+window.actualiserStatistiquesIncubation =
+    actualiserStatistiquesIncubation;
 
+window.afficherEclosionIncubation =
+    afficherEclosionIncubation;
 
-            if (date) {
+window.chargerDureeIncubation =
+    chargerDureeIncubation;
 
-                date.addEventListener(
-                    "change",
-                    mettreAJourDateEclosion
-                );
+window.afficherInformationsLotOrigine =
+    afficherInformationsLotOrigine;
 
-            }
+window.verifierCapaciteIncubation =
+    verifierCapaciteIncubation;
 
-
-            if (duree) {
-
-                duree.addEventListener(
-                    "change",
-                    mettreAJourDateEclosion
-                );
-
-            }
+window.voirDetailsIncubation =
+    voirDetailsIncubation;
 
 
-            /* -----------------------------------------
-               CHARGER LA PAGE
-            ----------------------------------------- */
-
-            try {
-
-                if (
-                    typeof chargerIncubations ===
-                    "function"
-                ) {
-
-                    chargerIncubations();
-
-                }
-
-            } catch (erreur) {
-
-                console.error(
-                    "Erreur chargement incubations :",
-                    erreur
-                );
-
-            }
-
-
-            try {
-
-                if (
-                    typeof mettreAJourStatistiquesIncubation ===
-                    "function"
-                ) {
-
-                    mettreAJourStatistiquesIncubation();
-
-                }
-
-            } catch (erreur) {
-
-                console.error(
-                    "Erreur statistiques incubation :",
-                    erreur
-                );
-
-            }
-
-        }
-    );
-
-
-})();
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="../../js/supabase.js"></script>
-
-<script src="../../js/elevage.js"></script>
-
-<script src="../../js/incubation.js"></script>
-    
-</html>
+console.log(
+    "✓ incubation.js prêt."
+);
