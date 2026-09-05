@@ -998,7 +998,253 @@
 
 </div>
 
+<!-- =========================================================
+     MODAL : ENREGISTRER ÉCLOSION
+========================================================= -->
 
+<div
+    class="modal fade"
+    id="modalEclosion"
+    tabindex="-1"
+    aria-labelledby="modalEclosionLabel"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="modalEclosionLabel">
+
+                    <i class="fa-solid fa-feather text-success"></i>
+
+                    Enregistrer l'éclosion
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer">
+                </button>
+
+            </div>
+
+
+            <form
+                id="formEclosion"
+                onsubmit="return enregistrerEclosion(event, this.dataset.incubationId)">
+
+                <div class="modal-body">
+
+                    <!-- DATE D'ÉCLOSION -->
+
+                    <div class="mb-3">
+
+                        <label
+                            for="eclosionDate"
+                            class="form-label required-label">
+
+                            Date d'éclosion
+
+                        </label>
+
+                        <input
+                            type="date"
+                            id="eclosionDate"
+                            class="form-control"
+                            required>
+
+                    </div>
+
+
+                    <!-- RÉSULTATS -->
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="eclosionPoussins"
+                                class="form-label required-label">
+
+                                Poussins éclos
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="eclosionPoussins"
+                                class="form-control"
+                                min="0"
+                                step="1"
+                                value="0"
+                                required>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="eclosionNonFecondes"
+                                class="form-label">
+
+                                Œufs non fécondés
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="eclosionNonFecondes"
+                                class="form-control"
+                                min="0"
+                                step="1"
+                                value="0">
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="eclosionEmbryonsMorts"
+                                class="form-label">
+
+                                Embryons morts
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="eclosionEmbryonsMorts"
+                                class="form-control"
+                                min="0"
+                                step="1"
+                                value="0">
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label
+                                for="eclosionRetires"
+                                class="form-label">
+
+                                Œufs retirés / autres pertes
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="eclosionRetires"
+                                class="form-control"
+                                min="0"
+                                step="1"
+                                value="0">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONTRÔLE -->
+
+                    <div
+                        id="controleEclosion"
+                        class="alert alert-info">
+
+                        Le bilan des œufs sera calculé automatiquement.
+
+                    </div>
+
+
+                    <!-- NOUVEAU LOT -->
+
+                    <div class="mb-3">
+
+                        <label
+                            for="eclosionNomLot"
+                            class="form-label required-label">
+
+                            Nom du nouveau lot
+
+                        </label>
+
+                        <input
+                            type="text"
+                            id="eclosionNomLot"
+                            class="form-control"
+                            placeholder="Exemple : Cailles nées septembre 2026"
+                            required>
+
+                        <div class="form-text">
+
+                            Un nouveau lot sera automatiquement créé
+                            dans <strong>Animaux & Lots</strong>.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TRAÇABILITÉ -->
+
+                    <div class="alert alert-success mb-0">
+
+                        <i class="fa-solid fa-link"></i>
+
+                        <strong>Traçabilité :</strong>
+
+                        le nouveau lot sera lié automatiquement
+                        à cette incubation et au lot d'origine.
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        <i class="fa-solid fa-xmark"></i>
+
+                        Annuler
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        Enregistrer l'éclosion
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- =========================================================
      JAVASCRIPT
