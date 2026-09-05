@@ -1930,24 +1930,236 @@ async function actualiserStatistiquesIncubation() {
         );
 
 
-    const valeurs = {
+   async function actualiserStatistiquesIncubation() {
 
-        totalIncubations:
-            incubations.length,
+    if (
+        typeof supabaseClient ===
+        "undefined"
+    ) {
 
-        incubationsActives:
-            actives.length,
+        return;
 
-        incubationsEcloses:
-            ecloses.length,
+    }
 
-        totalOeufsIncubes:
-            totalOeufs,
 
-        poussinsEclos:
-            totalPoussins
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
 
-    };
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "statut, oeufs_initial, poussins_eclos, date_eclosion"
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erreur statistiques incubation :",
+            error
+        );
+
+        return;
+
+    }
+
+
+    const incubations =
+        Array.isArray(data)
+            ? data
+            : [];
+
+
+    /*
+     * INCUBATIONS ACTIVES
+     */
+
+    const actives =
+        incubations.filter(
+            function (item) {
+
+                return (
+                    item.statut ===
+                    "En incubation"
+                );
+
+            }
+        );
+
+
+    /*
+     * ŒUFS ACTUELLEMENT EN INCUBATION
+     *
+     * On additionne uniquement
+     * les œufs des incubations actives.
+     */
+
+    const totalOeufs =
+        actives.reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+
+                    total +
+
+                    Number(
+                        item.oeufs_initial ||
+                        0
+                    )
+
+                );
+
+            },
+            0
+        );
+
+
+    /*
+     * DATE D'AUJOURD'HUI
+     */
+
+    const aujourdHui =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+
+    /*
+     * ÉCLOSIONS PRÉVUES
+     *
+     * Incubations actives dont
+     * la date d'éclosion est aujourd'hui
+     * ou dans le futur.
+     */
+
+    const eclosionsPrevues =
+        actives.filter(
+            function (item) {
+
+                return (
+
+                    item.date_eclosion &&
+
+                    item.date_eclosion >=
+                    aujourdHui
+
+                );
+
+            }
+        ).length;
+
+
+    /*
+     * POUSSINS ÉCLOS
+     *
+     * Total réel enregistré.
+     */
+
+    const totalPoussins =
+        incubations.reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+
+                    total +
+
+                    Number(
+                        item.poussins_eclos ||
+                        0
+                    )
+
+                );
+
+            },
+            0
+        );
+
+
+    /*
+     * AFFICHAGE
+     */
+
+    const elementActives =
+        document.getElementById(
+            "incubationsActives"
+        );
+
+
+    const elementOeufs =
+        document.getElementById(
+            "oeufsIncubation"
+        );
+
+
+    const elementEclosions =
+        document.getElementById(
+            "eclosionsPrevues"
+        );
+
+
+    const elementPoussins =
+        document.getElementById(
+            "poussinsEclos"
+        );
+
+
+    if (
+        elementActives
+    ) {
+
+        elementActives.textContent =
+            actives.length;
+
+    }
+
+
+    if (
+        elementOeufs
+    ) {
+
+        elementOeufs.textContent =
+            totalOeufs.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+
+    if (
+        elementEclosions
+    ) {
+
+        elementEclosions.textContent =
+            eclosionsPrevues.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+
+    if (
+        elementPoussins
+    ) {
+
+        elementPoussins.textContent =
+            totalPoussins.toLocaleString(
+                "fr-FR"
+            );
+
+    }
+
+}
 
 
     Object.keys(
