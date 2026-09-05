@@ -2989,6 +2989,1295 @@ document.addEventListener(
     }
 );
 
+/* ============================================================
+   GESTION DE L'ÉCLOSION
+   ------------------------------------------------------------
+   CHAÎNE :
+   INCUBATION
+        ↓
+   ÉCLOSION
+        ↓
+   NOUVEAU LOT
+============================================================ */
+
+
+/* ============================================================
+   GÉNÉRER CODE NOUVEAU LOT
+============================================================ */
+
+function genererCodeLotEclosion() {
+
+    const maintenant =
+        new Date();
+
+    const annee =
+        maintenant.getFullYear();
+
+    const mois =
+        String(
+            maintenant.getMonth() + 1
+        ).padStart(2, "0");
+
+    const jour =
+        String(
+            maintenant.getDate()
+        ).padStart(2, "0");
+
+    const heure =
+        String(
+            maintenant.getHours()
+        ).padStart(2, "0");
+
+    const minute =
+        String(
+            maintenant.getMinutes()
+        ).padStart(2, "0");
+
+    const seconde =
+        String(
+            maintenant.getSeconds()
+        ).padStart(2, "0");
+
+    return (
+        "LOT-NAISS-" +
+        annee +
+        mois +
+        jour +
+        "-" +
+        heure +
+        minute +
+        seconde
+    );
+
+}
+
+
+/* ============================================================
+   OUVRIR FORMULAIRE ÉCLOSION
+============================================================ */
+
+async function ouvrirModalEclosion(
+    idIncubation
+) {
+
+    if (
+        !idIncubation ||
+        !incubationSupabaseDisponible()
+    ) {
+
+        return;
+
+    }
+
+
+    const {
+        data: incubation,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "*"
+            )
+
+            .eq(
+                "id",
+                idIncubation
+            )
+
+            .maybeSingle();
+
+
+    if (
+        error ||
+        !incubation
+    ) {
+
+        console.error(
+            "Erreur récupération incubation :",
+            error
+        );
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Empêcher une deuxième éclosion.
+     */
+
+    if (
+        incubation.statut === "Éclos" ||
+        incubation.statut === "Terminée"
+    ) {
+
+        /*
+         * On vérifie tout de même
+         * si un lot a déjà été créé.
+         */
+
+        const {
+            data: lotExistant
+        } =
+            await supabaseClient
+
+                .from(
+                    TABLE_LOTS_INCUBATION
+                )
+
+                .select(
+                    "id, code, nom_lot, quantite_actuelle"
+                )
+
+                .eq(
+                    "source_incubation_id",
+                    idIncubation
+                )
+
+                .maybeSingle();
+
+
+        if (lotExistant) {
+
+            alert(
+                "Cette incubation a déjà produit le lot :\n\n" +
+                (
+                    lotExistant.nom_lot ||
+                    lotExistant.code
+                )
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    /*
+     * Vérification de la quantité initiale.
+     */
+
+    const oeufsInitial =
+        Number(
+            incubation.oeufs_initial || 0
+        );
+
+
+    /*
+     * Création du modal dynamiquement.
+     * Aucun changement nécessaire dans incubation.html.
+     */
+
+    let modal =
+        document.getElementById(
+            "modalEclosion"
+        );
+
+
+    if (!modal) {
+
+        modal =
+            document.createElement(
+                "div"
+            );
+
+        modal.id =
+            "modalEclosion";
+
+        modal.className =
+            "modal fade";
+
+        modal.tabIndex =
+            -1;
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        modal.innerHTML = `
+
+            <div class="modal-dialog modal-lg">
+
+                <div class="modal-content">
+
+                    <div class="modal-header bg-success text-white">
+
+                        <h5 class="modal-title">
+
+                            <i class="fa-solid fa-egg"></i>
+
+                            Enregistrer l'éclosion
+
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+
+                    <form id="formEclosion">
+
+                        <div class="modal-body">
+
+                            <div class="alert alert-info">
+
+                                <strong>
+                                    Incubation :
+                                </strong>
+
+                                <span id="eclosionIncubationInfo">
+                                </span>
+
+                                <br>
+
+                                <strong>
+                                    Œufs incubés :
+                                </strong>
+
+                                <span id="eclosionOeufsInitial">
+                                </span>
+
+                            </div>
+
+
+                            <div class="row">
+
+
+                                <!-- DATE -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Date réelle d'éclosion
+
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="eclosionDate"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+
+
+                                <!-- POUSSINS -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Poussins éclos
+
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="eclosionPoussins"
+                                        class="form-control"
+                                        min="0"
+                                        value="0"
+                                        required>
+
+                                </div>
+
+
+                                <!-- NON FÉCONDÉS -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Œufs non fécondés
+
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="eclosionNonFecondes"
+                                        class="form-control"
+                                        min="0"
+                                        value="0"
+                                        required>
+
+                                </div>
+
+
+                                <!-- EMBRYONS MORTS -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Embryons morts
+
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="eclosionEmbryonsMorts"
+                                        class="form-control"
+                                        min="0"
+                                        value="0"
+                                        required>
+
+                                </div>
+
+
+                                <!-- ŒUFS RETIRÉS -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Œufs retirés / cassés
+
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="eclosionRetires"
+                                        class="form-control"
+                                        min="0"
+                                        value="0"
+                                        required>
+
+                                </div>
+
+
+                                <!-- RESTE -->
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label">
+
+                                        Vérification
+
+                                    </label>
+
+                                    <div
+                                        id="eclosionControle"
+                                        class="form-control bg-light">
+
+                                        En attente...
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- NOM DU LOT -->
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label">
+
+                                        Nom du nouveau lot
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="eclosionNomLot"
+                                        class="form-control"
+                                        required>
+
+                                    <div class="form-text">
+
+                                        Ce lot sera automatiquement créé
+                                        dans « Animaux & Lots ».
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="modal-footer">
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                                Annuler
+
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+
+                                <i class="fa-solid fa-check"></i>
+
+                                Enregistrer l'éclosion
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        `;
+
+        document.body.appendChild(
+            modal
+        );
+
+    }
+
+
+    /*
+     * Informations.
+     */
+
+    document.getElementById(
+        "eclosionIncubationInfo"
+    ).textContent =
+        incubation.id +
+        " — " +
+        (
+            incubation.lot_nom ||
+            "Lot origine"
+        );
+
+
+    document.getElementById(
+        "eclosionOeufsInitial"
+    ).textContent =
+        oeufsInitial;
+
+
+    document.getElementById(
+        "eclosionDate"
+    ).value =
+        incubationAujourdHui();
+
+
+    document.getElementById(
+        "eclosionPoussins"
+    ).value =
+        incubation.poussins_eclos || 0;
+
+
+    document.getElementById(
+        "eclosionNonFecondes"
+    ).value =
+        incubation.oeufs_non_fecondes || 0;
+
+
+    document.getElementById(
+        "eclosionEmbryonsMorts"
+    ).value =
+        incubation.embryons_morts || 0;
+
+
+    document.getElementById(
+        "eclosionRetires"
+    ).value =
+        incubation.oeufs_retires || 0;
+
+
+    document.getElementById(
+        "eclosionNomLot"
+    ).value =
+        (
+            incubation.espece ||
+            "Animaux"
+        ) +
+        " - Éclosion " +
+        formaterDateIncubation(
+            incubationAujourdHui()
+        );
+
+
+    calculerControleEclosion();
+
+
+    /*
+     * Événements des champs.
+     */
+
+    [
+        "eclosionPoussins",
+        "eclosionNonFecondes",
+        "eclosionEmbryonsMorts",
+        "eclosionRetires"
+    ].forEach(
+        function (id) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+            if (element) {
+
+                element.oninput =
+                    calculerControleEclosion;
+
+            }
+
+        }
+    );
+
+
+    const formulaire =
+        document.getElementById(
+            "formEclosion"
+        );
+
+
+    formulaire.onsubmit =
+        function (event) {
+
+            enregistrerEclosion(
+                event,
+                idIncubation
+            );
+
+        };
+
+
+    /*
+     * Afficher modal.
+     */
+
+    if (
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        bootstrap.Modal
+            .getOrCreateInstance(
+                modal
+            )
+            .show();
+
+    }
+
+}
+
+
+/* ============================================================
+   CONTRÔLER LES ŒUFS
+============================================================ */
+
+function calculerControleEclosion() {
+
+    const initial =
+        Number(
+            document.getElementById(
+                "eclosionOeufsInitial"
+            )?.textContent || 0
+        );
+
+
+    const poussins =
+        Number(
+            document.getElementById(
+                "eclosionPoussins"
+            )?.value || 0
+        );
+
+
+    const nonFecondes =
+        Number(
+            document.getElementById(
+                "eclosionNonFecondes"
+            )?.value || 0
+        );
+
+
+    const embryonsMorts =
+        Number(
+            document.getElementById(
+                "eclosionEmbryonsMorts"
+            )?.value || 0
+        );
+
+
+    const retires =
+        Number(
+            document.getElementById(
+                "eclosionRetires"
+            )?.value || 0
+        );
+
+
+    const total =
+        poussins +
+        nonFecondes +
+        embryonsMorts +
+        retires;
+
+
+    const reste =
+        initial -
+        total;
+
+
+    const zone =
+        document.getElementById(
+            "eclosionControle"
+        );
+
+
+    if (!zone) {
+
+        return;
+
+    }
+
+
+    if (total > initial) {
+
+        zone.textContent =
+            "ERREUR : dépassement de " +
+            (total - initial) +
+            " œuf(s)";
+
+        zone.className =
+            "form-control bg-danger text-white";
+
+        return false;
+
+    }
+
+
+    if (reste > 0) {
+
+        zone.textContent =
+            "Il reste " +
+            reste +
+            " œuf(s) à expliquer.";
+
+        zone.className =
+            "form-control bg-warning";
+
+        return false;
+
+    }
+
+
+    zone.textContent =
+        "✓ Bilan complet : " +
+        initial +
+        " / " +
+        initial +
+        " œufs.";
+
+    zone.className =
+        "form-control bg-success text-white";
+
+    return true;
+
+}
+
+
+/* ============================================================
+   ENREGISTRER ÉCLOSION + CRÉER NOUVEAU LOT
+============================================================ */
+
+async function enregistrerEclosion(
+    event,
+    idIncubation
+) {
+
+    if (event) {
+
+        event.preventDefault();
+
+    }
+
+
+    if (
+        !incubationSupabaseDisponible()
+    ) {
+
+        alert(
+            "Supabase n'est pas initialisé."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Récupérer incubation.
+     */
+
+    const {
+        data: incubation,
+        error: erreurIncubation
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .select(
+                "*"
+            )
+
+            .eq(
+                "id",
+                idIncubation
+            )
+
+            .maybeSingle();
+
+
+    if (
+        erreurIncubation ||
+        !incubation
+    ) {
+
+        alert(
+            "Incubation introuvable."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Empêcher double création.
+     */
+
+    const {
+        data: lotDejaCree,
+        error: erreurRechercheLot
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_LOTS_INCUBATION
+            )
+
+            .select(
+                "id, code, nom_lot, quantite_actuelle"
+            )
+
+            .eq(
+                "source_incubation_id",
+                idIncubation
+            )
+
+            .maybeSingle();
+
+
+    if (
+        erreurRechercheLot
+    ) {
+
+        console.error(
+            erreurRechercheLot
+        );
+
+    }
+
+
+    if (lotDejaCree) {
+
+        alert(
+            "Cette éclosion a déjà créé le lot :\n\n" +
+            (
+                lotDejaCree.nom_lot ||
+                lotDejaCree.code
+            )
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Lire les résultats.
+     */
+
+    const dateEclosion =
+        document.getElementById(
+            "eclosionDate"
+        ).value;
+
+
+    const poussinsEclos =
+        Number(
+            document.getElementById(
+                "eclosionPoussins"
+            ).value || 0
+        );
+
+
+    const nonFecondes =
+        Number(
+            document.getElementById(
+                "eclosionNonFecondes"
+            ).value || 0
+        );
+
+
+    const embryonsMorts =
+        Number(
+            document.getElementById(
+                "eclosionEmbryonsMorts"
+            ).value || 0
+        );
+
+
+    const oeufsRetires =
+        Number(
+            document.getElementById(
+                "eclosionRetires"
+            ).value || 0
+        );
+
+
+    const nomLot =
+        document.getElementById(
+            "eclosionNomLot"
+        ).value.trim();
+
+
+    const oeufsInitial =
+        Number(
+            incubation.oeufs_initial || 0
+        );
+
+
+    const total =
+        poussinsEclos +
+        nonFecondes +
+        embryonsMorts +
+        oeufsRetires;
+
+
+    /*
+     * Validations.
+     */
+
+    if (!dateEclosion) {
+
+        alert(
+            "Veuillez indiquer la date d'éclosion."
+        );
+
+        return false;
+
+    }
+
+
+    if (!nomLot) {
+
+        alert(
+            "Veuillez indiquer le nom du nouveau lot."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        poussinsEclos < 0 ||
+        nonFecondes < 0 ||
+        embryonsMorts < 0 ||
+        oeufsRetires < 0
+    ) {
+
+        alert(
+            "Les quantités ne peuvent pas être négatives."
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        total !== oeufsInitial
+    ) {
+
+        alert(
+
+            "Le bilan des œufs est incomplet.\n\n" +
+
+            "Œufs incubés : " +
+            oeufsInitial +
+
+            "\nRésultat enregistré : " +
+            total +
+
+            "\nDifférence : " +
+            (
+                oeufsInitial - total
+            )
+
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        poussinsEclos <= 0
+    ) {
+
+        alert(
+            "Aucun poussin éclos n'a été enregistré. " +
+            "Le nouveau lot ne peut pas être créé."
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Confirmation.
+     */
+
+    const confirmer =
+        confirm(
+
+            "Confirmer l'éclosion ?\n\n" +
+
+            "Incubation : " +
+            idIncubation +
+
+            "\nLot d'origine : " +
+            (
+                incubation.lot_nom ||
+                "-"
+            ) +
+
+            "\nPoussins éclos : " +
+            poussinsEclos +
+
+            "\nNouveau lot : " +
+            nomLot
+
+        );
+
+
+    if (!confirmer) {
+
+        return false;
+
+    }
+
+
+    /*
+     * Code du nouveau lot.
+     */
+
+    const codeLot =
+        genererCodeLotEclosion();
+
+
+    /*
+     * Utilisateur.
+     */
+
+    const utilisateur =
+        localStorage.getItem(
+            "utilisateur"
+        )
+        ||
+        localStorage.getItem(
+            "utilisateurConnecte"
+        )
+        ||
+        "Administrateur";
+
+
+    /*
+     * CRÉER LE NOUVEAU LOT
+     */
+
+    const nouveauLot = {
+
+        code:
+            codeLot,
+
+        espece:
+            incubation.espece,
+
+        race_type:
+            incubation.race ||
+            "Non précisée",
+
+        nom_lot:
+            nomLot,
+
+        date_entree:
+            dateEclosion,
+
+        quantite_initiale:
+            poussinsEclos,
+
+        quantite_actuelle:
+            poussinsEclos,
+
+        origine:
+            "Naissance / Éclosion",
+
+        cout_acquisition:
+            0,
+
+        statut:
+            "Actif",
+
+        notes:
+            "Lot créé automatiquement à partir de l'incubation " +
+            idIncubation,
+
+        source_incubation_id:
+            idIncubation,
+
+        lot_parent_id:
+            incubation.lot_parent_id ||
+            incubation.lot_id,
+
+        date_naissance:
+            dateEclosion,
+
+        utilisateur:
+            utilisateur
+
+    };
+
+
+    const {
+        data: nouveauLotCree,
+        error: erreurLot
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_LOTS_INCUBATION
+            )
+
+            .insert(
+                nouveauLot
+            )
+
+            .select()
+            .single();
+
+
+    if (erreurLot) {
+
+        console.error(
+            "Erreur création nouveau lot :",
+            erreurLot
+        );
+
+        alert(
+            "Impossible de créer le nouveau lot.\n\n" +
+            erreurLot.message
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * METTRE À JOUR L'INCUBATION
+     */
+
+    const {
+        error: erreurMiseAJour
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_INCUBATIONS
+            )
+
+            .update({
+
+                poussins_eclos:
+                    poussinsEclos,
+
+                oeufs_non_fecondes:
+                    nonFecondes,
+
+                embryons_morts:
+                    embryonsMorts,
+
+                oeufs_retires:
+                    oeufsRetires,
+
+                date_eclosion:
+                    dateEclosion,
+
+                statut:
+                    "Éclos",
+
+                brooder_cree:
+                    false,
+
+                updated_at:
+                    new Date().toISOString()
+
+            })
+
+            .eq(
+                "id",
+                idIncubation
+            );
+
+
+    /*
+     * Si la mise à jour échoue,
+     * supprimer le lot créé afin
+     * d'éviter une incohérence.
+     */
+
+    if (erreurMiseAJour) {
+
+        console.error(
+            "Erreur mise à jour incubation :",
+            erreurMiseAJour
+        );
+
+
+        await supabaseClient
+
+            .from(
+                TABLE_LOTS_INCUBATION
+            )
+
+            .delete()
+            .eq(
+                "id",
+                nouveauLotCree.id
+            );
+
+
+        alert(
+            "L'éclosion n'a pas pu être finalisée.\n\n" +
+            erreurMiseAJour.message
+        );
+
+        return false;
+
+    }
+
+
+    /*
+     * Fermer modal.
+     */
+
+    const modal =
+        document.getElementById(
+            "modalEclosion"
+        );
+
+
+    if (
+        modal &&
+        typeof bootstrap !==
+        "undefined"
+    ) {
+
+        bootstrap.Modal
+            .getInstance(
+                modal
+            )
+            ?.hide();
+
+    }
+
+
+    /*
+     * Actualiser page.
+     */
+
+    await chargerIncubations();
+
+    await actualiserStatistiquesIncubation();
+
+    await chargerLotsIncubation();
+
+
+    /*
+     * Confirmation.
+     */
+
+    alert(
+
+        "✓ ÉCLOSION ENREGISTRÉE\n\n" +
+
+        "Incubation : " +
+        idIncubation +
+
+        "\n\nPoussins éclos : " +
+        poussinsEclos +
+
+        "\n\nNouveau lot créé : " +
+        (
+            nouveauLotCree.nom_lot ||
+            nouveauLotCree.code
+        ) +
+
+        "\nCode : " +
+        nouveauLotCree.code +
+
+        "\n\nOrigine : Naissance / Éclosion"
+
+    );
+
+
+    return true;
+
+}
+
+
+/* ============================================================
+   EXPORT ÉCLOSION
+============================================================ */
+
+window.ouvrirModalEclosion =
+    ouvrirModalEclosion;
+
+window.enregistrerEclosion =
+    enregistrerEclosion;
+
+window.calculerControleEclosion =
+    calculerControleEclosion;
 
 /* ============================================================
    EXPORTS GLOBAUX
