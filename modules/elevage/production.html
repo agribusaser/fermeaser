@@ -3,104 +3,228 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Production Élevage | Ferme Asher ERP</title>
+    <title>Production Élevage | Ferme Asher ERP</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BOOTSTRAP -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/style.css">
+    <!-- STYLE FERME ASHER -->
+    <link
+        rel="stylesheet"
+        href="../../css/style.css">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- FONT AWESOME -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
 
 <body>
 
+
 <div class="container-fluid py-4">
 
 
-<!-- EN-TÊTE -->
+    <!-- =================================================
+         EN-TÊTE
+    ================================================== -->
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex
+                justify-content-between
+                align-items-center
+                mb-4">
 
-    <div>
+        <div>
 
-        <h2>
+            <h2>
 
-            <i class="fa-solid fa-egg text-success"></i>
+                <i class="fa-solid fa-egg text-success"></i>
 
-            Production
+                Production
 
-        </h2>
+            </h2>
 
-        <p class="text-muted">
+            <p class="text-muted">
 
-            Enregistrez et suivez les productions de votre élevage.
+                Enregistrez et suivez les productions
+                de votre élevage.
 
-        </p>
+            </p>
 
-    </div>
-
-
-    <div>
-
-        <a href="index.html"
-           class="btn btn-secondary me-2">
-
-            <i class="fa-solid fa-arrow-left"></i>
-
-            Retour
-
-        </a>
+        </div>
 
 
-        <button class="btn btn-success"
+        <div>
+
+            <a href="index.html"
+               class="btn btn-secondary me-2">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Retour
+
+            </a>
+
+
+            <button
+                class="btn btn-success"
                 data-bs-toggle="modal"
                 data-bs-target="#modalProduction">
 
-            <i class="fa-solid fa-plus"></i>
+                <i class="fa-solid fa-plus"></i>
 
-            Nouvelle production
+                Nouvelle production
 
-        </button>
+            </button>
+
+        </div>
 
     </div>
 
-</div>
 
 
+    <!-- =================================================
+         STATISTIQUES
+    ================================================== -->
 
-<!-- STATISTIQUES -->
-
-<div class="row mb-4">
+    <div class="row mb-4">
 
 
-    <!-- PRODUCTION DU JOUR -->
+        <!-- JOUR -->
 
-    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="col-lg-3 col-md-6 mb-3">
 
-        <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0">
 
-            <div class="card-body text-center">
+                <div class="card-body text-center">
 
-                <i class="fa-solid fa-calendar-day fa-2x text-success mb-2"></i>
+                    <i class="fa-solid fa-calendar-day
+                              fa-2x
+                              text-success
+                              mb-2">
+                    </i>
 
-                <h3 id="productionAujourdhui">
+                    <h3 id="productionAujourdhui">
 
-                    0
+                        0
 
-                </h3>
+                    </h3>
 
-                <p class="text-muted mb-0">
+                    <p class="text-muted mb-0">
 
-                    Production aujourd'hui
+                        Production aujourd'hui
 
-                </p>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MOIS -->
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-calendar-days
+                              fa-2x
+                              text-primary
+                              mb-2">
+                    </i>
+
+                    <h3 id="productionMois">
+
+                        0
+
+                    </h3>
+
+                    <p class="text-muted mb-0">
+
+                        Production du mois
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-egg
+                              fa-2x
+                              text-warning
+                              mb-2">
+                    </i>
+
+                    <h3 id="productionTotale">
+
+                        0
+
+                    </h3>
+
+                    <p class="text-muted mb-0">
+
+                        Production totale
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOTS -->
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center">
+
+                    <i class="fa-solid fa-layer-group
+                              fa-2x
+                              text-success
+                              mb-2">
+                    </i>
+
+                    <h3 id="lotsProductifs">
+
+                        0
+
+                    </h3>
+
+                    <p class="text-muted mb-0">
+
+                        Lots productifs
+
+                    </p>
+
+                </div>
 
             </div>
 
@@ -110,182 +234,30 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 
 
-    <!-- PRODUCTION DU MOIS -->
+    <!-- =================================================
+         TABLEAU
+    ================================================== -->
 
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card shadow-sm border-0">
 
-        <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
 
-            <div class="card-body text-center">
+            <div class="d-flex
+                        justify-content-between
+                        align-items-center">
 
-                <i class="fa-solid fa-calendar-days fa-2x text-primary mb-2"></i>
+                <h5 class="mb-0">
 
-                <h3 id="productionMois">
+                    <i class="fa-solid fa-list text-success"></i>
 
-                    0
+                    Productions enregistrées
 
-                </h3>
+                </h5>
 
-                <p class="text-muted mb-0">
 
-                    Production du mois
-
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- PRODUCTION TOTALE -->
-
-    <div class="col-lg-3 col-md-6 mb-3">
-
-        <div class="card shadow-sm border-0">
-
-            <div class="card-body text-center">
-
-                <i class="fa-solid fa-egg fa-2x text-warning mb-2"></i>
-
-                <h3 id="productionTotale">
-
-                    0
-
-                </h3>
-
-                <p class="text-muted mb-0">
-
-                    Production totale
-
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- LOTS PRODUCTIFS -->
-
-    <div class="col-lg-3 col-md-6 mb-3">
-
-        <div class="card shadow-sm border-0">
-
-            <div class="card-body text-center">
-
-                <i class="fa-solid fa-layer-group fa-2x text-success mb-2"></i>
-
-                <h3 id="lotsProductifs">
-
-                    0
-
-                </h3>
-
-                <p class="text-muted mb-0">
-
-                    Lots productifs
-
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-</div>
-
-
-
-<!-- FILTRES -->
-
-<div class="card shadow-sm border-0 mb-4">
-
-    <div class="card-body">
-
-        <div class="row g-3">
-
-
-            <!-- DATE -->
-
-            <div class="col-lg-3">
-
-                <input type="date"
-                       id="filtreDateProduction"
-                       class="form-control">
-
-            </div>
-
-
-
-            <!-- LOT -->
-
-            <div class="col-lg-3">
-
-                <select id="filtreLotProduction"
-                        class="form-select">
-
-                    <option value="">
-
-                        Tous les lots
-
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- TYPE -->
-
-            <div class="col-lg-3">
-
-                <select id="filtreTypeProduction"
-                        class="form-select">
-
-                    <option value="">
-
-                        Tous les types
-
-                    </option>
-
-                    <option value="Œufs">
-
-                        Œufs
-
-                    </option>
-
-                    <option value="Viande">
-
-                        Viande
-
-                    </option>
-
-                    <option value="Autre">
-
-                        Autre
-
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- BOUTON -->
-
-            <div class="col-lg-3">
-
-                <button class="btn btn-success w-100"
-                        onclick="chargerProductions()">
+                <button
+                    class="btn btn-success btn-sm"
+                    onclick="chargerProductions()">
 
                     <i class="fa-solid fa-rotate"></i>
 
@@ -295,26 +267,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
             </div>
 
-
         </div>
 
-    </div>
-
-</div>
-
-
-
-<!-- TABLEAU -->
-
-<div class="card shadow-sm border-0">
-
-    <div class="card-body">
 
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle">
+            <table class="table
+                          table-hover
+                          align-middle
+                          mb-0">
 
-                <thead class="table-success">
+                <thead>
 
                     <tr>
 
@@ -332,9 +295,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         <th>Unité</th>
 
-                        <th>Notes</th>
+                        <th>Incubation</th>
 
-                        <th>Actions</th>
+                        <th>Vente</th>
+
+                        <th>Reste</th>
 
                     </tr>
 
@@ -342,6 +307,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 
                 <tbody id="listeProductions">
+
+                    <tr>
+
+                        <td colspan="10"
+                            class="text-center text-muted">
+
+                            Chargement...
+
+                        </td>
+
+                    </tr>
 
                 </tbody>
 
@@ -354,20 +330,23 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 </div>
 
 
-</div>
 
-
-
-<!-- MODAL NOUVELLE PRODUCTION -->
+<!-- =====================================================
+     MODAL NOUVELLE PRODUCTION
+====================================================== -->
 
 <div class="modal fade"
      id="modalProduction"
-     tabindex="-1">
+     tabindex="-1"
+     aria-hidden="true">
+
 
     <div class="modal-dialog modal-lg">
 
         <div class="modal-content">
 
+
+            <!-- HEADER -->
 
             <div class="modal-header bg-success text-white">
 
@@ -380,15 +359,18 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
                 </h5>
 
 
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
 
                 </button>
 
             </div>
 
 
+
+            <!-- BODY -->
 
             <div class="modal-body">
 
@@ -403,17 +385,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Date
 
                             </label>
 
 
-                            <input type="date"
-                                   id="productionDate"
-                                   class="form-control"
-                                   required>
+                            <input
+                                type="date"
+                                id="productionDate"
+                                class="form-control"
+                                required>
 
                         </div>
 
@@ -423,24 +407,35 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Lot
 
                             </label>
 
 
-                            <select id="productionLot"
-                                    class="form-select"
-                                    required>
+                            <select
+                                id="productionLot"
+                                class="form-select"
+                                required>
 
                                 <option value="">
 
-                                    Sélectionner un lot
+                                    Chargement des lots...
 
                                 </option>
 
                             </select>
+
+
+                            <small
+                                class="text-muted">
+
+                                Le lot est récupéré depuis
+                                <strong>lots_elevage</strong>.
+
+                            </small>
 
                         </div>
 
@@ -450,16 +445,24 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Type de production
 
                             </label>
 
 
-                            <select id="productionType"
-                                    class="form-select"
-                                    required>
+                            <select
+                                id="productionType"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Sélectionner
+
+                                </option>
 
                                 <option value="Œufs">
 
@@ -470,6 +473,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
                                 <option value="Viande">
 
                                     Viande
+
+                                </option>
+
+                                <option value="Poussins">
+
+                                    Poussins
 
                                 </option>
 
@@ -489,57 +498,64 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Produit
 
                             </label>
 
 
-                            <input type="text"
-                                   id="productionProduit"
-                                   class="form-control"
-                                   placeholder="Exemple : Œufs de caille"
-                                   required>
+                            <input
+                                type="text"
+                                id="productionProduit"
+                                class="form-control"
+                                placeholder="Exemple : Œufs de caille"
+                                required>
 
                         </div>
 
 
 
-                        <!-- QUANTITE -->
+                        <!-- QUANTITÉ -->
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Quantité
 
                             </label>
 
 
-                            <input type="number"
-                                   id="productionQuantite"
-                                   class="form-control"
-                                   min="1"
-                                   required>
+                            <input
+                                type="number"
+                                id="productionQuantite"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                required>
 
                         </div>
 
 
 
-                        <!-- UNITE -->
+                        <!-- UNITÉ -->
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Unité
 
                             </label>
 
 
-                            <select id="productionUnite"
-                                    class="form-select">
+                            <select
+                                id="productionUnite"
+                                class="form-select">
 
                                 <option value="Unité">
 
@@ -550,12 +566,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
                                 <option value="Œuf">
 
                                     Œuf
-
-                                </option>
-
-                                <option value="Plateau">
-
-                                    Plateau
 
                                 </option>
 
@@ -571,213 +581,257 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
                                 </option>
 
+                                <option value="Sac">
+
+                                    Sac
+
+                                </option>
+
                             </select>
 
                         </div>
 
-<!-- =====================================================
-     RÉPARTITION DES ŒUFS
-===================================================== -->
 
-<div class="col-12">
 
-    <hr>
+                        <!-- =================================================
+                             RÉPARTITION
+                        ================================================== -->
 
-    <h5 class="text-success mb-3">
+                        <div class="col-12">
 
-        <i class="fa-solid fa-egg"></i>
+                            <hr>
 
-        Répartition de la production
+                            <h5 class="text-success">
 
-    </h5>
+                                <i class="fa-solid fa-chart-pie"></i>
 
-    <p class="text-muted small">
+                                Répartition de la production
 
-        Répartissez la production entre incubation,
-        vente, consommation et autres destinations.
+                            </h5>
 
-    </p>
 
-</div>
+                            <p class="text-muted">
 
+                                Répartissez la production entre
+                                incubation, vente, consommation
+                                et autres destinations.
 
-<!-- INCUBATION -->
+                            </p>
 
-<div class="col-md-6">
+                        </div>
 
-    <label class="form-label">
 
-        <i class="fa-solid fa-temperature-half text-warning"></i>
 
-        Destinés à l'incubation
+                        <!-- INCUBATION -->
 
-    </label>
+                        <div class="col-md-6">
 
-    <input
-        type="number"
-        id="productionIncubation"
-        class="form-control"
-        value="0"
-        min="0">
+                            <label
+                                class="form-label">
 
-</div>
+                                <i class="fa-solid fa-temperature-half
+                                          text-warning">
+                                </i>
 
+                                Destinés à l'incubation
 
-<!-- VENTE -->
+                            </label>
 
-<div class="col-md-6">
 
-    <label class="form-label">
+                            <input
+                                type="number"
+                                id="productionIncubation"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="0">
 
-        <i class="fa-solid fa-cart-shopping text-success"></i>
+                        </div>
 
-        Destinés à la vente
 
-    </label>
 
-    <input
-        type="number"
-        id="productionVente"
-        class="form-control"
-        value="0"
-        min="0">
+                        <!-- VENTE -->
 
-</div>
+                        <div class="col-md-6">
 
+                            <label
+                                class="form-label">
 
-<!-- CONSOMMATION -->
+                                <i class="fa-solid fa-cart-shopping
+                                          text-success">
+                                </i>
 
-<div class="col-md-6">
+                                Destinés à la vente
 
-    <label class="form-label">
+                            </label>
 
-        <i class="fa-solid fa-utensils text-primary"></i>
 
-        Destinés à la consommation
+                            <input
+                                type="number"
+                                id="productionVente"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="0">
 
-    </label>
+                        </div>
 
-    <input
-        type="number"
-        id="productionConsommation"
-        class="form-control"
-        value="0"
-        min="0">
 
-</div>
 
+                        <!-- CONSOMMATION -->
 
-<!-- MARCHÉ / AUTRE -->
+                        <div class="col-md-6">
 
-<div class="col-md-6">
+                            <label
+                                class="form-label">
 
-    <label class="form-label">
+                                <i class="fa-solid fa-utensils
+                                          text-primary">
+                                </i>
 
-        <i class="fa-solid fa-store text-secondary"></i>
+                                Destinés à la consommation
 
-        Marché / autre destination
+                            </label>
 
-    </label>
 
-    <input
-        type="number"
-        id="productionAutre"
-        class="form-control"
-        value="0"
-        min="0">
+                            <input
+                                type="number"
+                                id="productionConsommation"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="0">
 
-</div>
+                        </div>
 
 
-<!-- RESTE -->
 
-<div class="col-12">
+                        <!-- AUTRE -->
 
-    <div
-        class="alert alert-light border"
-        id="resumeRepartitionProduction">
+                        <div class="col-md-6">
 
-        <strong>
+                            <label
+                                class="form-label">
 
-            <i class="fa-solid fa-calculator"></i>
+                                <i class="fa-solid fa-box
+                                          text-secondary">
+                                </i>
 
-            Répartition :
+                                Marché / autre destination
 
-        </strong>
+                            </label>
 
-        <span id="totalRepartiProduction">
 
-            0
+                            <input
+                                type="number"
+                                id="productionAutre"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="0">
 
-        </span>
+                        </div>
 
-        œufs répartis
 
-        |
 
-        Reste :
+                        <!-- RÉSUMÉ -->
 
-        <strong id="resteProduction">
+                        <div class="col-12">
 
-            0
+                            <div
+                                id="messageRepartition"
+                                class="alert alert-success mt-2">
 
-        </strong>
+                                ✓ Répartition correcte.
 
-    </div>
+                            </div>
 
-</div>
+
+                            <div
+                                class="alert alert-light border">
+
+                                <i class="fa-solid fa-calculator"></i>
+
+                                <strong>
+                                    Répartition :
+                                </strong>
+
+                                <span id="totalRepartition">
+                                    0
+                                </span>
+
+                                unités réparties
+
+                                |
+
+                                <strong>
+                                    Reste :
+                                </strong>
+
+                                <span id="resteProduction">
+                                    0
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
 
                         <!-- NOTES -->
 
                         <div class="col-12">
 
-                            <label class="form-label">
+                            <label
+                                class="form-label">
 
                                 Notes
 
                             </label>
 
 
-                            <textarea id="productionNotes"
-                                      class="form-control"
-                                      rows="3"
-                                      placeholder="Informations complémentaires..."></textarea>
+                            <textarea
+                                id="productionNotes"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Informations complémentaires...">
+                            </textarea>
 
                         </div>
 
 
                     </div>
 
-
                 </form>
-
 
             </div>
 
 
 
+            <!-- FOOTER -->
+
             <div class="modal-footer">
 
-
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
 
                     Annuler
 
                 </button>
 
 
-                <button type="button"
-                        class="btn btn-success"
-                        onclick="enregistrerProduction()">
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="enregistrerProduction()">
 
                     <i class="fa-solid fa-floppy-disk"></i>
 
                     Enregistrer
 
                 </button>
-
 
             </div>
 
@@ -790,185 +844,38 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 
 
-<!-- SCRIPTS -->
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<!-- BOOTSTRAP -->
 
-<script src="../../js/elevage.js"></script>
-
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    // Mettre automatiquement la date d'aujourd'hui
-    document.getElementById("productionDate").value =
-        new Date().toISOString().split("T")[0];
-
-    // Charger les données
-    chargerProductions();
-
-    // Charger les lots disponibles
-    chargerLotsProduction();
-
-});
-
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
 </script>
 
-    <script>
 
-/* =========================================================
-   CALCUL AUTOMATIQUE DE LA RÉPARTITION
-========================================================= */
+<!-- SUPABASE -->
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-
-        const quantite =
-            document.getElementById(
-                "productionQuantite"
-            );
-
-
-        const incubation =
-            document.getElementById(
-                "productionIncubation"
-            );
-
-
-        const vente =
-            document.getElementById(
-                "productionVente"
-            );
-
-
-        const consommation =
-            document.getElementById(
-                "productionConsommation"
-            );
-
-
-        const autre =
-            document.getElementById(
-                "productionAutre"
-            );
-
-
-        function calculerRepartition() {
-
-
-            const total =
-                Number(
-                    quantite?.value
-                ) || 0;
-
-
-            const totalReparti =
-                (
-                    Number(
-                        incubation?.value
-                    ) || 0
-                )
-                +
-                (
-                    Number(
-                        vente?.value
-                    ) || 0
-                )
-                +
-                (
-                    Number(
-                        consommation?.value
-                    ) || 0
-                )
-                +
-                (
-                    Number(
-                        autre?.value
-                    ) || 0
-                );
-
-
-            const reste =
-                total -
-                totalReparti;
-
-
-            const totalElement =
-                document.getElementById(
-                    "totalRepartiProduction"
-                );
-
-
-            const resteElement =
-                document.getElementById(
-                    "resteProduction"
-                );
-
-
-            if (totalElement) {
-
-                totalElement.textContent =
-                    totalReparti;
-
-            }
-
-
-            if (resteElement) {
-
-                resteElement.textContent =
-                    reste;
-
-            }
-
-
-            if (
-                reste < 0
-            ) {
-
-                resteElement.className =
-                    "text-danger";
-
-            } else {
-
-                resteElement.className =
-                    "text-success";
-
-            }
-
-        }
-
-
-        [
-            quantite,
-            incubation,
-            vente,
-            consommation,
-            autre
-
-        ].forEach(
-            function (champ) {
-
-                if (champ) {
-
-                    champ.addEventListener(
-                        "input",
-                        calculerRepartition
-                    );
-
-                }
-
-            }
-        );
-
-
-    }
-);
-
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 </script>
-<script src="../../js/elevage.js"></script>
+
+
+<!-- CONFIGURATION SUPABASE -->
+
+<script
+    src="../../js/supabase.js">
+</script>
+
+
+<!-- PRODUCTION -->
+
+<script
+    src="../../js/production.js">
+</script>
+
+
 </body>
 
 </html>
