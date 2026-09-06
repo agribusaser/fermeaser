@@ -412,3 +412,73 @@ FIN
 console.log(
     "Ferme Asher ERP - Dashboard.js Version 2.0 chargé."
 );
+
+/*==================================================
+   MENU MOBILE
+===================================================*/
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const menuBtn = document.getElementById("mobileMenuBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    if (!menuBtn || !sidebar || !overlay) {
+        return;
+    }
+
+    // Ouvrir / fermer le menu
+    menuBtn.addEventListener("click", function () {
+
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+
+        const icon = menuBtn.querySelector("i");
+
+        if (sidebar.classList.contains("active")) {
+
+            icon.classList.remove("fa-bars");
+            icon.classList.add("fa-xmark");
+
+        } else {
+
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
+
+        }
+
+    });
+
+
+    // Fermer en cliquant sur le fond
+    overlay.addEventListener("click", function () {
+
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+
+        const icon = menuBtn.querySelector("i");
+
+        icon.classList.remove("fa-xmark");
+        icon.classList.add("fa-bars");
+
+    });
+
+
+    // Fermer automatiquement après avoir choisi une option
+    sidebar.querySelectorAll("a").forEach(function (link) {
+
+        link.addEventListener("click", function () {
+
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+
+            const icon = menuBtn.querySelector("i");
+
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
+
+        });
+
+    });
+
+});
