@@ -305,3 +305,348 @@ document.addEventListener("DOMContentLoaded", function () {
     chargerPlanning();
 
 });
+
+// ==========================================
+// MATÉRIELS AGRICOLES - FERME ASHER ERP
+// ==========================================
+
+const CLE_MATERIELS = "fermeAsherMateriels";
+
+
+// ==========================================
+// CHARGER LES MATÉRIELS
+// ==========================================
+
+function chargerMateriels() {
+
+    let materiels = JSON.parse(
+        localStorage.getItem(CLE_MATERIELS)
+    ) || [];
+
+    const liste = document.getElementById("listeMateriels");
+
+    // Cette fonction peut être appelée sur une autre page
+    if (!liste) {
+        return;
+    }
+
+    liste.innerHTML = "";
+
+    // Aucun matériel
+    if (materiels.length === 0) {
+
+        liste.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fa-solid fa-tractor me-2"></i>
+                    Aucun matériel enregistré
+                </td>
+            </tr>
+        `;
+
+        mettreAJourStatsMateriels(materiels);
+
+        return;
+    }
+
+
+    // Afficher les matériels
+    materiels.forEach((materiel, index) => {
+
+        let badgeEtat = "";
+
+        switch (materiel.etat) {
+
+            case "Disponible":
+                badgeEtat = "bg-success";
+                break;
+
+            case "En utilisation":
+                badgeEtat = "bg-primary";
+                break;
+
+            case "En panne":
+                badgeEtat = "bg-danger";
+                break;
+
+            case "Maintenance":
+                badgeEtat = "bg-warning text-dark";
+                break;
+
+            default:
+                badgeEtat = "bg-secondary";
+        }
+
+
+        liste.innerHTML += `
+            <tr>
+
+                <td>
+                    <strong>${echapperHTML(materiel.nom)}</strong>
+                </td>
+
+                <td>
+                    ${echapperHTML(materiel.categorie)}
+                </td>
+
+                <td>
+                    ${echapperHTML(materiel.marque || "-")}
+                </td>
+
+                <td>
+                    <span class="badge ${badgeEtat}">
+                        ${echapperHTML(materiel.etat)}
+                    </span>
+                </td>
+
+                <td>
+                    ${echapperHTML(materiel.responsable || "-")}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-sm btn-danger"
+                        onclick="supprimerMateriel(${index})"
+                        title="Supprimer">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    mettreAJourStatsMateriels(materiels);
+}
+
+
+
+// ==========================================
+// AJOUTER UN MATÉRIEL
+// ==========================================
+
+function ajouterMateriel() {
+
+    const nom = document
+        .getElementById("nomMateriel")
+        .value
+        .trim();
+
+    const categorie = document
+        .getElementById("categorieMateriel")
+        .value;
+
+    const marque = document
+        .getElementById("marqueMateriel")
+        .value
+        .trim();
+
+    const etat = document
+        .getElementById("etatMateriel")
+        .value;
+
+    const responsable = document
+        .getElementById("responsableMateriel")
+        .value
+        .trim();
+
+
+    // Vérification du nom
+    if (!nom) {
+
+        alert("Veuillez saisir le nom du matériel.");
+
+        document.getElementById("nomMateriel").focus();
+
+        return;
+    }
+
+
+    // Récupérer les matériels existants
+    let materiels = JSON.parse(
+        localStorage.getItem(CLE_MATERIELS)
+    ) || [];
+
+
+    // Créer le nouveau matériel
+    const nouveauMateriel = {
+
+        id: Date.now(),
+
+        nom: nom,
+
+        categorie: categorie,
+
+        marque: marque,
+
+        etat: etat,
+
+        responsable: responsable,
+
+        dateCreation: new Date().toISOString()
+    };
+
+
+    // Ajouter au tableau
+    materiels.push(nouveauMateriel);
+
+
+    // Sauvegarder
+    localStorage.setItem(
+        CLE_MATERIELS,
+        JSON.stringify(materiels)
+    );
+
+
+    // Actualiser le tableau
+    chargerMateriels();
+
+
+    // Réinitialiser le formulaire
+    const formulaire = document.getElementById("formMateriel");
+
+    if (formulaire) {
+        formulaire.reset();
+    }
+
+
+    // Fermer le modal
+    const modalElement = document.getElementById("modalMateriel");
+
+    if (modalElement) {
+
+        const modal = bootstrap.Modal.getInstance(
+            modalElement
+        );
+
+        if (modal) {
+            modal.hide();
+        }
+    }
+
+
+    // Confirmation
+    alert("Matériel enregistré avec succès.");
+}
+
+
+
+// ==========================================
+// SUPPRIMER UN MATÉRIEL
+// ==========================================
+
+function supprimerMateriel(index) {
+
+    if (
+        !confirm(
+            "Voulez-vous vraiment supprimer ce matériel ?"
+        )
+    ) {
+        return;
+    }
+
+
+    let materiels = JSON.parse(
+        localStorage.getItem(CLE_MATERIELS)
+    ) || [];
+
+
+    materiels.splice(index, 1);
+
+
+    localStorage.setItem(
+        CLE_MATERIELS,
+        JSON.stringify(materiels)
+    );
+
+
+    chargerMateriels();
+}
+
+
+
+// ==========================================
+// STATISTIQUES MATÉRIELS
+// ==========================================
+
+function mettreAJourStatsMateriels(materiels) {
+
+    const total = materiels.length;
+
+
+    const disponibles = materiels.filter(
+        materiel =>
+            materiel.etat === "Disponible"
+    ).length;
+
+
+    const enPanne = materiels.filter(
+        materiel =>
+            materiel.etat === "En panne"
+    ).length;
+
+
+    const totalElement =
+        document.getElementById("totalMateriels");
+
+    const disponiblesElement =
+        document.getElementById("materielsDisponibles");
+
+    const panneElement =
+        document.getElementById("materielsPanne");
+
+
+    if (totalElement) {
+        totalElement.textContent = total;
+    }
+
+
+    if (disponiblesElement) {
+        disponiblesElement.textContent = disponibles;
+    }
+
+
+    if (panneElement) {
+        panneElement.textContent = enPanne;
+    }
+}
+
+
+
+// ==========================================
+// PROTECTION DU TEXTE AFFICHÉ
+// ==========================================
+
+function echapperHTML(texte) {
+
+    if (texte === null || texte === undefined) {
+        return "";
+    }
+
+    return String(texte)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+
+// ==========================================
+// INITIALISATION MATÉRIELS
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        chargerMateriels();
+
+    }
+);
