@@ -1,632 +1,483 @@
-// ==========================================
-// PLANNING AGRICOLE - FERME ASHER ERP
-// ==========================================
+/* ====================================================
+   FERME ASHER ERP
+   AGRICULTURE.JS
+   GESTION DES MATÉRIELS AGRICOLES - SUPABASE
+   ==================================================== */
 
-const CLE_PLANNING = "fermeAsherPlanning";
+"use strict";
 
-// ==========================================
-// CHARGER LES ACTIVITÉS
-// ==========================================
+/* ====================================================
+   INITIALISATION
+   ==================================================== */
 
-function chargerPlanning() {
+document.addEventListener("DOMContentLoaded", () => {
 
-    let planning = JSON.parse(
-        localStorage.getItem(CLE_PLANNING)
-    ) || [];
+    // Si nous sommes sur la page des matériels
+    if (document.getElementById("listeMateriels")) {
+        chargerMateriels();
+    }
 
-    const liste = document.getElementById("listePlanning");
+});
+
+
+/* ====================================================
+   CHARGER LES MATÉRIELS DEPUIS SUPABASE
+   ==================================================== */
+
+async function chargerMateriels() {
+
+    const liste = document.getElementById("listeMateriels");
+
+    if (!liste) return;
+
+    liste.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center">
+                Chargement...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("materiels_agricoles")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Erreur chargement matériels :", error);
+            afficherErreur("Impossible de charger les matériels.");
+            return;
+        }
+
+        afficherMateriels(data || []);
+
+        mettreAJourStatistiques(data || []);
+
+    } catch (erreur) {
+
+        console.error("Erreur :", erreur);
+
+        afficherErreur("Erreur de connexion à Supabase.");
+
+    }
+}
+
+
+/* ====================================================
+   AFFICHER LES MATÉRIELS
+   ==================================================== */
+
+function afficherMateriels(materiels) {
+
+    const liste = document.getElementById("listeMateriels");
 
     if (!liste) return;
 
     liste.innerHTML = "";
 
-    // Si aucune activité
-    if (planning.length === 0) {
-
-        liste.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center text-muted py-4">
-                    <i class="fa-solid fa-calendar-xmark me-2"></i>
-                    Aucune activité planifiée
-                </td>
-            </tr>
-        `;
-
-        mettreAJourStatistiques(planning);
-
-        return;
-    }
-
-    // Afficher les activités
-    planning.forEach((activite, index) => {
-
-        let badgeStatut = "";
-
-        if (activite.statut === "Prévu") {
-            badgeStatut = "bg-secondary";
-        }
-
-        else if (activite.statut === "En cours") {
-            badgeStatut = "bg-warning text-dark";
-        }
-
-        else if (activite.statut === "Terminé") {
-            badgeStatut = "bg-success";
-        }
-
-        liste.innerHTML += `
-            <tr>
-
-                <td>
-                    ${formaterDate(activite.date)}
-                </td>
-
-                <td>
-                    <strong>${activite.activite}</strong>
-                </td>
-
-                <td>
-                    ${activite.culture || "-"}
-                </td>
-
-                <td>
-                    ${activite.parcelle || "-"}
-                </td>
-
-                <td>
-                    ${activite.responsable || "-"}
-                </td>
-
-                <td>
-                    <span class="badge ${badgeStatut}">
-                        ${activite.statut}
-                    </span>
-                </td>
-
-                <td>
-
-                    <button
-                        class="btn btn-sm btn-danger"
-                        onclick="supprimerPlanning(${index})"
-                        title="Supprimer">
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            </tr>
-        `;
-    });
-
-    mettreAJourStatistiques(planning);
-}
-
-
-// ==========================================
-// AJOUTER UNE ACTIVITÉ
-// ==========================================
-
-function ajouterPlanning() {
-
-    const date = document.getElementById("datePlanning").value;
-    const activite = document.getElementById("activitePlanning").value;
-    const culture = document.getElementById("culturePlanning").value.trim();
-    const parcelle = document.getElementById("parcellePlanning").value.trim();
-    const responsable = document.getElementById("responsablePlanning").value.trim();
-    const statut = document.getElementById("statutPlanning").value;
-
-    // Vérification de la date
-    if (!date) {
-
-        alert("Veuillez sélectionner une date.");
-
-        return;
-    }
-
-    // Récupérer les activités existantes
-    let planning = JSON.parse(
-        localStorage.getItem(CLE_PLANNING)
-    ) || [];
-
-    // Nouvelle activité
-    const nouvelleActivite = {
-
-        id: Date.now(),
-
-        date: date,
-
-        activite: activite,
-
-        culture: culture,
-
-        parcelle: parcelle,
-
-        responsable: responsable,
-
-        statut: statut
-    };
-
-    // Ajouter au tableau
-    planning.push(nouvelleActivite);
-
-    // Enregistrer dans le navigateur
-    localStorage.setItem(
-        CLE_PLANNING,
-        JSON.stringify(planning)
-    );
-
-    // Actualiser la liste
-    chargerPlanning();
-
-    // Réinitialiser le formulaire
-    document.getElementById("formPlanning").reset();
-
-    // Remettre la date du jour
-    definirDateAujourdhui();
-
-    // Fermer le modal
-    const modalElement = document.getElementById("modalPlanning");
-
-    const modal = bootstrap.Modal.getInstance(modalElement);
-
-    if (modal) {
-        modal.hide();
-    }
-
-    // Message de confirmation
-    alert("Activité agricole enregistrée avec succès.");
-}
-
-
-// ==========================================
-// SUPPRIMER UNE ACTIVITÉ
-// ==========================================
-
-function supprimerPlanning(index) {
-
-    if (!confirm("Voulez-vous vraiment supprimer cette activité ?")) {
-        return;
-    }
-
-    let planning = JSON.parse(
-        localStorage.getItem(CLE_PLANNING)
-    ) || [];
-
-    planning.splice(index, 1);
-
-    localStorage.setItem(
-        CLE_PLANNING,
-        JSON.stringify(planning)
-    );
-
-    chargerPlanning();
-}
-
-
-// ==========================================
-// STATISTIQUES
-// ==========================================
-
-function mettreAJourStatistiques(planning) {
-
-    const total = planning.length;
-
-    const aujourdHui = new Date()
-        .toISOString()
-        .split("T")[0];
-
-    const nombreAujourdHui = planning.filter(
-        activite => activite.date === aujourdHui
-    ).length;
-
-    const nombreEnCours = planning.filter(
-        activite => activite.statut === "En cours"
-    ).length;
-
-    const totalElement = document.getElementById("totalActivites");
-
-    const aujourdHuiElement = document.getElementById("activitesAujourdhui");
-
-    const enCoursElement = document.getElementById("activitesEnCours");
-
-
-    if (totalElement) {
-        totalElement.textContent = total;
-    }
-
-    if (aujourdHuiElement) {
-        aujourdHuiElement.textContent = nombreAujourdHui;
-    }
-
-    if (enCoursElement) {
-        enCoursElement.textContent = nombreEnCours;
-    }
-}
-
-
-// ==========================================
-// FORMATER LA DATE
-// ==========================================
-
-function formaterDate(date) {
-
-    if (!date) {
-        return "-";
-    }
-
-    const parties = date.split("-");
-
-    if (parties.length !== 3) {
-        return date;
-    }
-
-    return `${parties[2]}/${parties[1]}/${parties[0]}`;
-}
-
-
-// ==========================================
-// DATE DU JOUR
-// ==========================================
-
-function definirDateAujourdhui() {
-
-    const champDate = document.getElementById("datePlanning");
-
-    if (!champDate) {
-        return;
-    }
-
-    const aujourdHui = new Date();
-
-    const annee = aujourdHui.getFullYear();
-
-    const mois = String(
-        aujourdHui.getMonth() + 1
-    ).padStart(2, "0");
-
-    const jour = String(
-        aujourdHui.getDate()
-    ).padStart(2, "0");
-
-    champDate.value = `${annee}-${mois}-${jour}`;
-}
-
-
-// ==========================================
-// INITIALISATION
-// ==========================================
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    definirDateAujourdhui();
-
-    chargerPlanning();
-
-});
-
-// ==========================================
-// MATÉRIELS AGRICOLES - FERME ASHER ERP
-// ==========================================
-
-const CLE_MATERIELS = "fermeAsherMateriels";
-
-
-// ==========================================
-// CHARGER LES MATÉRIELS
-// ==========================================
-
-function chargerMateriels() {
-
-    let materiels = JSON.parse(
-        localStorage.getItem(CLE_MATERIELS)
-    ) || [];
-
-    const liste = document.getElementById("listeMateriels");
-
-    // Cette fonction peut être appelée sur une autre page
-    if (!liste) {
-        return;
-    }
-
-    liste.innerHTML = "";
-
-    // Aucun matériel
     if (materiels.length === 0) {
 
         liste.innerHTML = `
             <tr>
                 <td colspan="6" class="text-center text-muted py-4">
-                    <i class="fa-solid fa-tractor me-2"></i>
-                    Aucun matériel enregistré
+                    Aucun matériel enregistré.
                 </td>
             </tr>
         `;
-
-        mettreAJourStatsMateriels(materiels);
 
         return;
     }
 
 
-    // Afficher les matériels
-    materiels.forEach((materiel, index) => {
+    materiels.forEach(materiel => {
 
-        let badgeEtat = "";
+        const ligne = document.createElement("tr");
 
-        switch (materiel.etat) {
+        ligne.innerHTML = `
 
-            case "Disponible":
-                badgeEtat = "bg-success";
-                break;
+            <td>
+                <strong>${echapperHTML(materiel.nom)}</strong>
+            </td>
 
-            case "En utilisation":
-                badgeEtat = "bg-primary";
-                break;
+            <td>
+                ${echapperHTML(materiel.categorie)}
+            </td>
 
-            case "En panne":
-                badgeEtat = "bg-danger";
-                break;
+            <td>
+                ${echapperHTML(materiel.marque || "-")}
+            </td>
 
-            case "Maintenance":
-                badgeEtat = "bg-warning text-dark";
-                break;
+            <td>
+                ${badgeEtat(materiel.etat)}
+            </td>
 
-            default:
-                badgeEtat = "bg-secondary";
-        }
+            <td>
+                ${echapperHTML(materiel.responsable || "-")}
+            </td>
 
+            <td>
 
-        liste.innerHTML += `
-            <tr>
+                <button
+                    class="btn btn-sm btn-danger"
+                    onclick="supprimerMateriel('${materiel.id}')"
+                    title="Supprimer">
 
-                <td>
-                    <strong>${echapperHTML(materiel.nom)}</strong>
-                </td>
+                    <i class="fa-solid fa-trash"></i>
 
-                <td>
-                    ${echapperHTML(materiel.categorie)}
-                </td>
+                </button>
 
-                <td>
-                    ${echapperHTML(materiel.marque || "-")}
-                </td>
+            </td>
 
-                <td>
-                    <span class="badge ${badgeEtat}">
-                        ${echapperHTML(materiel.etat)}
-                    </span>
-                </td>
-
-                <td>
-                    ${echapperHTML(materiel.responsable || "-")}
-                </td>
-
-                <td>
-
-                    <button
-                        class="btn btn-sm btn-danger"
-                        onclick="supprimerMateriel(${index})"
-                        title="Supprimer">
-
-                        <i class="fa-solid fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            </tr>
         `;
+
+        liste.appendChild(ligne);
+
     });
 
-
-    mettreAJourStatsMateriels(materiels);
 }
 
 
+/* ====================================================
+   AJOUTER UN MATÉRIEL
+   ==================================================== */
 
-// ==========================================
-// AJOUTER UN MATÉRIEL
-// ==========================================
+async function ajouterMateriel() {
 
-function ajouterMateriel() {
+    const nom = document.getElementById("nomMateriel").value.trim();
 
-    const nom = document
-        .getElementById("nomMateriel")
-        .value
-        .trim();
+    const categorie =
+        document.getElementById("categorieMateriel").value;
 
-    const categorie = document
-        .getElementById("categorieMateriel")
-        .value;
+    const marque =
+        document.getElementById("marqueMateriel").value.trim();
 
-    const marque = document
-        .getElementById("marqueMateriel")
-        .value
-        .trim();
+    const etat =
+        document.getElementById("etatMateriel").value;
 
-    const etat = document
-        .getElementById("etatMateriel")
-        .value;
-
-    const responsable = document
-        .getElementById("responsableMateriel")
-        .value
-        .trim();
+    const responsable =
+        document.getElementById("responsableMateriel").value.trim();
 
 
-    // Vérification du nom
+    /* Vérification */
+
     if (!nom) {
 
         alert("Veuillez saisir le nom du matériel.");
 
-        document.getElementById("nomMateriel").focus();
+        return;
+
+    }
+
+
+    if (!categorie) {
+
+        alert("Veuillez sélectionner une catégorie.");
 
         return;
+
     }
 
 
-    // Récupérer les matériels existants
-    let materiels = JSON.parse(
-        localStorage.getItem(CLE_MATERIELS)
-    ) || [];
+    if (!etat) {
 
+        alert("Veuillez sélectionner l'état du matériel.");
 
-    // Créer le nouveau matériel
-    const nouveauMateriel = {
+        return;
 
-        id: Date.now(),
-
-        nom: nom,
-
-        categorie: categorie,
-
-        marque: marque,
-
-        etat: etat,
-
-        responsable: responsable,
-
-        dateCreation: new Date().toISOString()
-    };
-
-
-    // Ajouter au tableau
-    materiels.push(nouveauMateriel);
-
-
-    // Sauvegarder
-    localStorage.setItem(
-        CLE_MATERIELS,
-        JSON.stringify(materiels)
-    );
-
-
-    // Actualiser le tableau
-    chargerMateriels();
-
-
-    // Réinitialiser le formulaire
-    const formulaire = document.getElementById("formMateriel");
-
-    if (formulaire) {
-        formulaire.reset();
     }
 
 
-    // Fermer le modal
-    const modalElement = document.getElementById("modalMateriel");
+    /* Désactiver temporairement le bouton */
 
-    if (modalElement) {
-
-        const modal = bootstrap.Modal.getInstance(
-            modalElement
+    const bouton =
+        document.querySelector(
+            '#modalMateriel button[onclick="ajouterMateriel()"]'
         );
 
-        if (modal) {
-            modal.hide();
+    if (bouton) {
+
+        bouton.disabled = true;
+
+        bouton.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Enregistrement...
+        `;
+
+    }
+
+
+    try {
+
+        /* ====================================================
+           INSERTION SUPABASE
+           ==================================================== */
+
+        const { data, error } = await supabaseClient
+            .from("materiels_agricoles")
+            .insert([
+                {
+                    nom: nom,
+                    categorie: categorie,
+                    marque: marque || null,
+                    etat: etat,
+                    responsable: responsable || null
+                }
+            ])
+            .select()
+            .single();
+
+
+        /* Gestion erreur */
+
+        if (error) {
+
+            console.error("Erreur Supabase :", error);
+
+            alert(
+                "Erreur lors de l'enregistrement :\n\n" +
+                error.message
+            );
+
+            return;
+
         }
+
+
+        console.log("Matériel enregistré :", data);
+
+
+        /* Réinitialiser le formulaire */
+
+        const formulaire =
+            document.getElementById("formMateriel");
+
+        if (formulaire) {
+
+            formulaire.reset();
+
+        }
+
+
+        /* Fermer la fenêtre */
+
+        const modalElement =
+            document.getElementById("modalMateriel");
+
+        if (modalElement) {
+
+            const modal =
+                bootstrap.Modal.getInstance(modalElement);
+
+            if (modal) {
+
+                modal.hide();
+
+            }
+
+        }
+
+
+        /* Recharger les données */
+
+        await chargerMateriels();
+
+
+        alert("Matériel enregistré avec succès !");
+
+
+    } catch (erreur) {
+
+        console.error("Erreur :", erreur);
+
+        alert(
+            "Une erreur est survenue pendant l'enregistrement."
+        );
+
+
+    } finally {
+
+        /* Réactiver le bouton */
+
+        if (bouton) {
+
+            bouton.disabled = false;
+
+            bouton.innerHTML = `
+                Enregistrer
+            `;
+
+        }
+
     }
 
-
-    // Confirmation
-    alert("Matériel enregistré avec succès.");
 }
 
 
+/* ====================================================
+   SUPPRIMER UN MATÉRIEL
+   ==================================================== */
 
-// ==========================================
-// SUPPRIMER UN MATÉRIEL
-// ==========================================
+async function supprimerMateriel(id) {
 
-function supprimerMateriel(index) {
+    if (!id) return;
 
-    if (
-        !confirm(
+
+    const confirmation =
+        confirm(
             "Voulez-vous vraiment supprimer ce matériel ?"
-        )
-    ) {
-        return;
+        );
+
+
+    if (!confirmation) return;
+
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("materiels_agricoles")
+            .delete()
+            .eq("id", id);
+
+
+        if (error) {
+
+            console.error(
+                "Erreur suppression :",
+                error
+            );
+
+            alert(
+                "Impossible de supprimer le matériel :\n\n" +
+                error.message
+            );
+
+            return;
+
+        }
+
+
+        await chargerMateriels();
+
+
+        alert("Matériel supprimé avec succès !");
+
+
+    } catch (erreur) {
+
+        console.error("Erreur :", erreur);
+
+        alert(
+            "Une erreur est survenue lors de la suppression."
+        );
+
     }
 
-
-    let materiels = JSON.parse(
-        localStorage.getItem(CLE_MATERIELS)
-    ) || [];
-
-
-    materiels.splice(index, 1);
-
-
-    localStorage.setItem(
-        CLE_MATERIELS,
-        JSON.stringify(materiels)
-    );
-
-
-    chargerMateriels();
 }
 
 
+/* ====================================================
+   STATISTIQUES
+   ==================================================== */
 
-// ==========================================
-// STATISTIQUES MATÉRIELS
-// ==========================================
+function mettreAJourStatistiques(materiels) {
 
-function mettreAJourStatsMateriels(materiels) {
-
-    const total = materiels.length;
-
-
-    const disponibles = materiels.filter(
-        materiel =>
-            materiel.etat === "Disponible"
-    ).length;
-
-
-    const enPanne = materiels.filter(
-        materiel =>
-            materiel.etat === "En panne"
-    ).length;
-
-
-    const totalElement =
+    const total =
         document.getElementById("totalMateriels");
 
-    const disponiblesElement =
+    const disponibles =
         document.getElementById("materielsDisponibles");
 
-    const panneElement =
+    const panne =
         document.getElementById("materielsPanne");
 
 
-    if (totalElement) {
-        totalElement.textContent = total;
+    if (total) {
+
+        total.textContent = materiels.length;
+
     }
 
 
-    if (disponiblesElement) {
-        disponiblesElement.textContent = disponibles;
+    if (disponibles) {
+
+        disponibles.textContent =
+            materiels.filter(
+                materiel =>
+                    materiel.etat === "Disponible"
+            ).length;
+
     }
 
 
-    if (panneElement) {
-        panneElement.textContent = enPanne;
+    if (panne) {
+
+        panne.textContent =
+            materiels.filter(
+                materiel =>
+                    materiel.etat === "En panne"
+            ).length;
+
     }
+
 }
 
 
+/* ====================================================
+   BADGE ÉTAT
+   ==================================================== */
 
-// ==========================================
-// PROTECTION DU TEXTE AFFICHÉ
-// ==========================================
+function badgeEtat(etat) {
+
+    let classe = "bg-secondary";
+
+    if (etat === "Disponible") {
+
+        classe = "bg-success";
+
+    }
+
+    else if (etat === "En utilisation") {
+
+        classe = "bg-primary";
+
+    }
+
+    else if (etat === "En panne") {
+
+        classe = "bg-danger";
+
+    }
+
+    else if (etat === "Maintenance") {
+
+        classe = "bg-warning text-dark";
+
+    }
+
+
+    return `
+        <span class="badge ${classe}">
+            ${echapperHTML(etat)}
+        </span>
+    `;
+
+}
+
+
+/* ====================================================
+   PROTECTION HTML
+   ==================================================== */
 
 function echapperHTML(texte) {
 
     if (texte === null || texte === undefined) {
+
         return "";
+
     }
+
 
     return String(texte)
         .replace(/&/g, "&amp;")
@@ -634,19 +485,38 @@ function echapperHTML(texte) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 
+/* ====================================================
+   AFFICHER UNE ERREUR
+   ==================================================== */
 
-// ==========================================
-// INITIALISATION MATÉRIELS
-// ==========================================
+function afficherErreur(message) {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+    const liste =
+        document.getElementById("listeMateriels");
 
-        chargerMateriels();
+    if (!liste) return;
 
-    }
+
+    liste.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center text-danger py-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                ${echapperHTML(message)}
+            </td>
+        </tr>
+    `;
+
+}
+
+
+/* ====================================================
+   FIN
+   ==================================================== */
+
+console.log(
+    "Agriculture.js - Gestion matériels Supabase chargée."
 );
