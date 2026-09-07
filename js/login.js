@@ -1,11 +1,8 @@
 /*====================================================
     FERME ASHER ERP
     LOGIN.JS
-    Version 4.0 - SUPABASE AUTH
-====================================================*/
-
-/*====================================================
-    INITIALISATION
+    AUTHENTIFICATION SUPABASE
+    Version 5.0
 ====================================================*/
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -27,9 +24,26 @@ function initialiserConnexion() {
 
     if (!formulaire) return;
 
+
     formulaire.addEventListener("submit", async function (e) {
 
         e.preventDefault();
+
+
+        // Vérifier que Supabase est disponible
+        if (!window.supabaseClient) {
+
+            alert(
+                "Erreur : Supabase n'est pas disponible. Vérifiez le chargement de supabase.js."
+            );
+
+            console.error(
+                "supabaseClient introuvable."
+            );
+
+            return;
+        }
+
 
         const utilisateur =
             document.getElementById("username").value.trim();
@@ -37,43 +51,38 @@ function initialiserConnexion() {
         const motdepasse =
             document.getElementById("password").value;
 
+
         if (utilisateur === "" || motdepasse === "") {
 
-            alert("Veuillez remplir tous les champs.");
-
-            return;
-
-        }
-
-        /*==========================================
-            VERIFICATION SUPABASE
-        ==========================================*/
-
-        if (
-            typeof supabaseClient === "undefined" ||
-            !supabaseClient
-        ) {
-
             alert(
-                "Erreur : Supabase n'est pas disponible. " +
-                "Vérifiez le chargement de supabase.js."
-            );
-
-            console.error(
-                "supabaseClient est introuvable."
+                "Veuillez remplir tous les champs."
             );
 
             return;
         }
+
+
+        // Désactiver le bouton pendant la connexion
+        const bouton =
+            formulaire.querySelector("button[type='submit']");
+
+        if (bouton) {
+
+            bouton.disabled = true;
+
+            bouton.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
+        }
+
 
         try {
 
-            /*======================================
-                CONNEXION AUTHENTIFICATION
-            ======================================*/
+            /*------------------------------------------
+                1. CONNEXION SUPABASE AUTH
+            ------------------------------------------*/
 
             const { data, error } =
-                await supabaseClient.auth.signInWithPassword({
+                await window.supabaseClient.auth.signInWithPassword({
 
                     email: utilisateur,
 
@@ -85,48 +94,37 @@ function initialiserConnexion() {
             if (error) {
 
                 console.error(
-                    "Erreur de connexion Supabase :",
+                    "Erreur Supabase Auth :",
                     error
                 );
 
                 alert(
-                    "Email ou mot de passe incorrect."
+                    "Adresse e-mail ou mot de passe incorrect."
                 );
 
                 return;
-
             }
 
 
-            /*======================================
-                UTILISATEUR AUTHENTIFIE
-            ======================================*/
-
             const authUser = data.user;
+
 
             if (!authUser) {
 
                 alert(
-                    "Impossible de récupérer l'utilisateur connecté."
+                    "Impossible de récupérer votre compte."
                 );
 
                 return;
-
             }
 
 
-            console.log(
-                "Utilisateur Auth connecté :",
-                authUser.id
-            );
-
-
-            /*======================================
-                RECUPERATION DU PROFIL ERP
-            ======================================*/
+            /*------------------------------------------
+                2. CHERCHER LE PROFIL ERP
+            ------------------------------------------*/
 
             const { data: profil, error: profilError } =
-                await supabaseClient
+                await window.supabaseClient
                     .from("utilisateurs")
                     .select("*")
                     .eq("auth_user_id", authUser.id)
@@ -141,23 +139,23 @@ function initialiserConnexion() {
                     profilError
                 );
 
-                await supabaseClient.auth.signOut();
+
+                await window.supabaseClient.auth.signOut();
+
 
                 alert(
-                    "Votre compte existe dans l'authentification, " +
-                    "mais aucun profil ERP actif ne lui est associé."
+                    "Votre compte existe, mais aucun profil ERP actif ne lui est attribué."
                 );
 
                 return;
-
             }
 
 
-            /*======================================
-                SESSION ERP
-            ======================================*/
+            /*------------------------------------------
+                3. CREER LA SESSION ERP
+            ------------------------------------------*/
 
-            const sessionERP = {
+            const session = {
 
                 auth_user_id: authUser.id,
 
@@ -174,36 +172,28 @@ function initialiserConnexion() {
             };
 
 
-            /*
-             * IMPORTANT :
-             * Cette session ne sert pas à authentifier
-             * l'utilisateur.
-             *
-             * L'authentification réelle est gérée
-             * par Supabase Auth.
-             */
-
             sessionStorage.setItem(
                 "sessionERP",
-                JSON.stringify(sessionERP)
+                JSON.stringify(session)
             );
 
 
             console.log(
-                "Connexion ERP réussie :",
-                sessionERP
+                "Connexion réussie :",
+                session
             );
 
 
-            /*======================================
-                REDIRECTION
-            ======================================*/
+            /*------------------------------------------
+                4. REDIRECTION
+            ------------------------------------------*/
 
             window.location.replace(
                 "dashboard.html"
             );
 
         }
+
 
         catch (erreur) {
 
@@ -218,103 +208,128 @@ function initialiserConnexion() {
 
         }
 
+
+        finally {
+
+            if (bouton) {
+
+                bouton.disabled = false;
+
+                bouton.innerHTML =
+                    '<i class="fa-solid fa-right-to-bracket"></i> Se connecter';
+
+            }
+
+        }
+
     });
 
 }
 
 
 /*====================================================
-    VERIFIER SESSION
+    VERIFIER LA SESSION EXISTANTE
 ====================================================*/
 
 async function verifierSession() {
 
-    if (
-        typeof supabaseClient === "undefined" ||
-        !supabaseClient
-    ) {
+    // Si Supabase n'est pas encore disponible,
+    // on ne bloque pas la page de connexion.
+
+    if (!window.supabaseClient) {
 
         console.error(
-            "supabaseClient introuvable."
+            "Supabase n'est pas disponible."
         );
 
         return;
-
     }
 
 
     try {
 
-        const {
-            data: {
-                session
-            }
-        } = await supabaseClient.auth.getSession();
+        const { data, error } =
+            await window.supabaseClient.auth.getSession();
 
 
-        if (!session || !session.user) {
+        if (error) {
+
+            console.error(
+                "Erreur récupération session :",
+                error
+            );
 
             return;
-
         }
 
 
-        /*==========================================
-            VERIFIER LE PROFIL ERP
-        ==========================================*/
+        const sessionAuth =
+            data.session;
 
-        const { data: profil, error } =
-            await supabaseClient
+
+        if (!sessionAuth) {
+
+            return;
+        }
+
+
+        /*------------------------------------------
+            Récupérer le profil ERP
+        ------------------------------------------*/
+
+        const { data: profil, error: profilError } =
+            await window.supabaseClient
                 .from("utilisateurs")
                 .select("*")
-                .eq("auth_user_id", session.user.id)
+                .eq("auth_user_id", sessionAuth.user.id)
                 .eq("actif", true)
                 .single();
 
 
-        if (error || !profil) {
+        if (profilError || !profil) {
 
-            await supabaseClient.auth.signOut();
+            await window.supabaseClient.auth.signOut();
 
             sessionStorage.removeItem(
                 "sessionERP"
             );
 
             return;
-
         }
 
 
-        /*==========================================
-            METTRE A JOUR LA SESSION ERP
-        ==========================================*/
+        const session = {
 
-        const sessionERP = {
+            auth_user_id:
+                sessionAuth.user.id,
 
-            auth_user_id: session.user.id,
+            utilisateur_id:
+                profil.id,
 
-            utilisateur_id: profil.id,
+            nom:
+                profil.nom,
 
-            nom: profil.nom,
+            email:
+                profil.email || sessionAuth.user.email,
 
-            email: profil.email || session.user.email,
+            role:
+                profil.role,
 
-            role: profil.role,
-
-            connexion: new Date().toISOString()
+            connexion:
+                new Date().toISOString()
 
         };
 
 
         sessionStorage.setItem(
             "sessionERP",
-            JSON.stringify(sessionERP)
+            JSON.stringify(session)
         );
 
 
-        /*==========================================
-            SI DEJA CONNECTE → DASHBOARD
-        ==========================================*/
+        /*------------------------------------------
+            Si déjà connecté et sur login.html
+        ------------------------------------------*/
 
         const page =
             window.location.pathname.toLowerCase();
@@ -329,6 +344,7 @@ async function verifierSession() {
         }
 
     }
+
 
     catch (erreur) {
 
@@ -355,51 +371,38 @@ async function deconnexion() {
     ) {
 
         return;
-
     }
 
 
     try {
 
-        const { error } =
-            await supabaseClient.auth.signOut();
+        if (window.supabaseClient) {
 
-
-        if (error) {
-
-            console.error(
-                "Erreur de déconnexion :",
-                error
-            );
-
-            alert(
-                "Erreur pendant la déconnexion."
-            );
-
-            return;
+            await window.supabaseClient.auth.signOut();
 
         }
 
-
-        sessionStorage.removeItem(
-            "sessionERP"
-        );
-
-
-        window.location.replace(
-            "login.html"
-        );
-
     }
+
 
     catch (erreur) {
 
         console.error(
-            "Erreur inattendue :",
+            "Erreur déconnexion :",
             erreur
         );
 
     }
+
+
+    sessionStorage.removeItem(
+        "sessionERP"
+    );
+
+
+    window.location.replace(
+        "login.html"
+    );
 
 }
 
@@ -413,17 +416,20 @@ function utilisateurConnecte() {
     const session =
         sessionStorage.getItem("sessionERP");
 
+
     if (!session) {
 
         return null;
 
     }
 
+
     try {
 
         return JSON.parse(session);
 
     }
+
 
     catch (erreur) {
 
@@ -444,5 +450,5 @@ function utilisateurConnecte() {
 ====================================================*/
 
 console.log(
-    "Ferme Asher ERP - Login.js Version 4.0 - Supabase Auth chargé."
+    "Ferme Asher ERP - Login.js Version 5.0 chargé."
 );
