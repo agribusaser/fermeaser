@@ -6,20 +6,14 @@
 
 "use strict";
 
-/*====================================================
- CONFIGURATION SUPABASE
-====================================================*/
-
 const SUPABASE_URL =
     "https://szfftdskbbxrufixdjhw.supabase.co";
 
 const SUPABASE_KEY =
-   sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS
+    "TA_CLE_PUBLISHABLE_ICI";
 
-/*====================================================
- VÉRIFICATION DU SDK
-====================================================*/
 
+// Vérification du SDK Supabase
 if (!window.supabase) {
 
     console.error(
@@ -28,20 +22,14 @@ if (!window.supabase) {
 
 } else {
 
-    /*================================================
-     CRÉATION DU CLIENT CENTRAL
-    =================================================*/
-
+    // Création du client Supabase
     const supabaseClient =
         window.supabase.createClient(
             SUPABASE_URL,
             SUPABASE_KEY
         );
 
-    /*================================================
-     RENDRE LE CLIENT DISPONIBLE À TOUT L'ERP
-    =================================================*/
-
+    // Rend le client disponible pour tous les fichiers JS
     window.supabaseClient =
         supabaseClient;
 
