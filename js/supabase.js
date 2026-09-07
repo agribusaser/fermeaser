@@ -10,7 +10,7 @@ const SUPABASE_URL =
     "https://szfftdskbbxrufixdjhw.supabase.co";
 
 const SUPABASE_KEY =
-    "TA_CLE_PUBLISHABLE_ICI";
+   sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS
 
 
 // Vérification du SDK Supabase
