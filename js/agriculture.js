@@ -225,7 +225,7 @@ async function supprimerPlanning(id) {
 
     try {
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from("planning_agricole")
             .delete()
             .eq("id", id);
