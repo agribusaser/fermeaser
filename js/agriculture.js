@@ -363,7 +363,7 @@ async function chargerMateriels() {
 
     try {
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from("materiels_agricoles")
             .select("*")
             .order("created_at", { ascending: false });
