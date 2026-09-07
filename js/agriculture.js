@@ -294,14 +294,39 @@ function afficherStatut(statut) {
 ----------------------------------------------------*/
 function mettreAJourStatsPlanning(data) {
 
-    const total = document.getElementById("totalPlanning");
-    const enCours = document.getElementById("planningEnCours");
-    const termines = document.getElementById("planningTermines");
+    const total =
+        document.getElementById("totalActivites");
 
+    const aujourdHui =
+        document.getElementById("activitesAujourdhui");
+
+    const enCours =
+        document.getElementById("activitesEnCours");
+
+
+    /* TOTAL DES ACTIVITÉS */
     if (total) {
         total.textContent = data.length;
     }
 
+
+    /* ACTIVITÉS D'AUJOURD'HUI */
+    if (aujourdHui) {
+
+        const aujourdHuiISO =
+            new Date().toISOString().split("T")[0];
+
+        aujourdHui.textContent =
+            data.filter(item => {
+
+                return item.date === aujourdHuiISO;
+
+            }).length;
+
+    }
+
+
+    /* ACTIVITÉS EN COURS */
     if (enCours) {
 
         enCours.textContent =
@@ -319,26 +344,7 @@ function mettreAJourStatsPlanning(data) {
 
     }
 
-    if (termines) {
-
-        termines.textContent =
-            data.filter(item => {
-
-                const statut =
-                    (item.statut || "").toLowerCase();
-
-                return (
-                    statut.includes("termin") ||
-                    statut.includes("réalis")
-                );
-
-            }).length;
-
-    }
-
 }
-
-
 /*====================================================
  ================= MATÉRIELS AGRICOLES ==============
 ====================================================*/
