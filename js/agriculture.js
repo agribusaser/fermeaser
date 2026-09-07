@@ -491,7 +491,7 @@ async function ajouterMateriel() {
 
     try {
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from("materiels_agricoles")
             .insert([
                 {
