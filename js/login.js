@@ -1,20 +1,21 @@
 /*====================================================
     FERME ASHER ERP
     LOGIN.JS
-    Version 3.0
+    Version 4.0 - SUPABASE AUTH
 ====================================================*/
 
 /*====================================================
     INITIALISATION
 ====================================================*/
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    verifierSession();
+    await verifierSession();
 
     initialiserConnexion();
 
 });
+
 
 /*====================================================
     CONNEXION
@@ -26,13 +27,15 @@ function initialiserConnexion() {
 
     if (!formulaire) return;
 
-    formulaire.addEventListener("submit", function (e) {
+    formulaire.addEventListener("submit", async function (e) {
 
         e.preventDefault();
 
-        const utilisateur = document.getElementById("username").value.trim();
+        const utilisateur =
+            document.getElementById("username").value.trim();
 
-        const motdepasse = document.getElementById("password").value.trim();
+        const motdepasse =
+            document.getElementById("password").value;
 
         if (utilisateur === "" || motdepasse === "") {
 
@@ -42,88 +45,364 @@ function initialiserConnexion() {
 
         }
 
-        //==========================================
-        // UTILISATEUR PAR DEFAUT
-        //==========================================
+        /*==========================================
+            VERIFICATION SUPABASE
+        ==========================================*/
 
-        if (utilisateur === "admin" && motdepasse === "admin123") {
+        if (
+            typeof supabaseClient === "undefined" ||
+            !supabaseClient
+        ) {
 
-            const session = {
+            alert(
+                "Erreur : Supabase n'est pas disponible. " +
+                "Vérifiez le chargement de supabase.js."
+            );
 
-                utilisateur: "admin",
+            console.error(
+                "supabaseClient est introuvable."
+            );
 
-                nom: "Administrateur",
+            return;
+        }
 
-                role: "Administrateur",
+        try {
+
+            /*======================================
+                CONNEXION AUTHENTIFICATION
+            ======================================*/
+
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+
+                    email: utilisateur,
+
+                    password: motdepasse
+
+                });
+
+
+            if (error) {
+
+                console.error(
+                    "Erreur de connexion Supabase :",
+                    error
+                );
+
+                alert(
+                    "Email ou mot de passe incorrect."
+                );
+
+                return;
+
+            }
+
+
+            /*======================================
+                UTILISATEUR AUTHENTIFIE
+            ======================================*/
+
+            const authUser = data.user;
+
+            if (!authUser) {
+
+                alert(
+                    "Impossible de récupérer l'utilisateur connecté."
+                );
+
+                return;
+
+            }
+
+
+            console.log(
+                "Utilisateur Auth connecté :",
+                authUser.id
+            );
+
+
+            /*======================================
+                RECUPERATION DU PROFIL ERP
+            ======================================*/
+
+            const { data: profil, error: profilError } =
+                await supabaseClient
+                    .from("utilisateurs")
+                    .select("*")
+                    .eq("auth_user_id", authUser.id)
+                    .eq("actif", true)
+                    .single();
+
+
+            if (profilError || !profil) {
+
+                console.error(
+                    "Profil ERP introuvable :",
+                    profilError
+                );
+
+                await supabaseClient.auth.signOut();
+
+                alert(
+                    "Votre compte existe dans l'authentification, " +
+                    "mais aucun profil ERP actif ne lui est associé."
+                );
+
+                return;
+
+            }
+
+
+            /*======================================
+                SESSION ERP
+            ======================================*/
+
+            const sessionERP = {
+
+                auth_user_id: authUser.id,
+
+                utilisateur_id: profil.id,
+
+                nom: profil.nom,
+
+                email: profil.email || authUser.email,
+
+                role: profil.role,
 
                 connexion: new Date().toISOString()
 
             };
 
-            localStorage.setItem(
 
+            /*
+             * IMPORTANT :
+             * Cette session ne sert pas à authentifier
+             * l'utilisateur.
+             *
+             * L'authentification réelle est gérée
+             * par Supabase Auth.
+             */
+
+            sessionStorage.setItem(
                 "sessionERP",
-
-                JSON.stringify(session)
-
+                JSON.stringify(sessionERP)
             );
 
-            console.log("Connexion réussie.");
 
-            // Redirection
-            window.location.replace("dashboard.html");
+            console.log(
+                "Connexion ERP réussie :",
+                sessionERP
+            );
 
-            return;
+
+            /*======================================
+                REDIRECTION
+            ======================================*/
+
+            window.location.replace(
+                "dashboard.html"
+            );
 
         }
 
-        alert("Nom d'utilisateur ou mot de passe incorrect.");
+        catch (erreur) {
+
+            console.error(
+                "Erreur inattendue :",
+                erreur
+            );
+
+            alert(
+                "Une erreur est survenue pendant la connexion."
+            );
+
+        }
 
     });
 
 }
 
+
 /*====================================================
     VERIFIER SESSION
 ====================================================*/
 
-function verifierSession() {
+async function verifierSession() {
 
-    const session = JSON.parse(
+    if (
+        typeof supabaseClient === "undefined" ||
+        !supabaseClient
+    ) {
 
-        localStorage.getItem("sessionERP")
-
-    );
-
-    if (!session) return;
-
-    const page = window.location.pathname.toLowerCase();
-
-    if (page.endsWith("login.html")) {
-
-        window.location.replace("dashboard.html");
-
-    }
-
-}
-
-/*====================================================
-    DECONNEXION
-====================================================*/
-
-function deconnexion() {
-
-    if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
+        console.error(
+            "supabaseClient introuvable."
+        );
 
         return;
 
     }
 
-    localStorage.removeItem("sessionERP");
 
-    window.location.replace("login.html");
+    try {
+
+        const {
+            data: {
+                session
+            }
+        } = await supabaseClient.auth.getSession();
+
+
+        if (!session || !session.user) {
+
+            return;
+
+        }
+
+
+        /*==========================================
+            VERIFIER LE PROFIL ERP
+        ==========================================*/
+
+        const { data: profil, error } =
+            await supabaseClient
+                .from("utilisateurs")
+                .select("*")
+                .eq("auth_user_id", session.user.id)
+                .eq("actif", true)
+                .single();
+
+
+        if (error || !profil) {
+
+            await supabaseClient.auth.signOut();
+
+            sessionStorage.removeItem(
+                "sessionERP"
+            );
+
+            return;
+
+        }
+
+
+        /*==========================================
+            METTRE A JOUR LA SESSION ERP
+        ==========================================*/
+
+        const sessionERP = {
+
+            auth_user_id: session.user.id,
+
+            utilisateur_id: profil.id,
+
+            nom: profil.nom,
+
+            email: profil.email || session.user.email,
+
+            role: profil.role,
+
+            connexion: new Date().toISOString()
+
+        };
+
+
+        sessionStorage.setItem(
+            "sessionERP",
+            JSON.stringify(sessionERP)
+        );
+
+
+        /*==========================================
+            SI DEJA CONNECTE → DASHBOARD
+        ==========================================*/
+
+        const page =
+            window.location.pathname.toLowerCase();
+
+
+        if (page.endsWith("login.html")) {
+
+            window.location.replace(
+                "dashboard.html"
+            );
+
+        }
+
+    }
+
+    catch (erreur) {
+
+        console.error(
+            "Erreur vérification session :",
+            erreur
+        );
+
+    }
 
 }
+
+
+/*====================================================
+    DECONNEXION
+====================================================*/
+
+async function deconnexion() {
+
+    if (
+        !confirm(
+            "Voulez-vous vraiment vous déconnecter ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const { error } =
+            await supabaseClient.auth.signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Erreur de déconnexion :",
+                error
+            );
+
+            alert(
+                "Erreur pendant la déconnexion."
+            );
+
+            return;
+
+        }
+
+
+        sessionStorage.removeItem(
+            "sessionERP"
+        );
+
+
+        window.location.replace(
+            "login.html"
+        );
+
+    }
+
+    catch (erreur) {
+
+        console.error(
+            "Erreur inattendue :",
+            erreur
+        );
+
+    }
+
+}
+
 
 /*====================================================
     UTILISATEUR CONNECTE
@@ -131,16 +410,39 @@ function deconnexion() {
 
 function utilisateurConnecte() {
 
-    return JSON.parse(
+    const session =
+        sessionStorage.getItem("sessionERP");
 
-        localStorage.getItem("sessionERP")
+    if (!session) {
 
-    );
+        return null;
+
+    }
+
+    try {
+
+        return JSON.parse(session);
+
+    }
+
+    catch (erreur) {
+
+        console.error(
+            "Session ERP invalide :",
+            erreur
+        );
+
+        return null;
+
+    }
 
 }
+
 
 /*====================================================
     FIN
 ====================================================*/
 
-console.log("Ferme Asher ERP - Login.js Version 3.0 chargé.");
+console.log(
+    "Ferme Asher ERP - Login.js Version 4.0 - Supabase Auth chargé."
+);
