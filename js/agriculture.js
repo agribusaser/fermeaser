@@ -61,7 +61,7 @@ async function chargerPlanning() {
 
     try {
 
-        const { data, error } = await supabase
+        const { data, error } = supabaseClient
             .from("planning_agricole")
             .select("*")
             .order("date", { ascending: true });
