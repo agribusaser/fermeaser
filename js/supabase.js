@@ -14,7 +14,7 @@ const SUPABASE_URL =
     "https://szfftdskbbxrufixdjhw.supabase.co";
 
 const SUPABASE_KEY =
-    "TON_MÊME_CLÉ_PUBLISHABLE_ACTUELLE";
+   sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS
 
 /*====================================================
  VÉRIFICATION DU SDK
