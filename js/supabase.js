@@ -15,7 +15,7 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
-/* Rend le client disponible globalement */
+/* Rend le client accessible globalement */
 window.supabaseClient = supabaseClient;
 
 console.log("Supabase connecté :", SUPABASE_URL);
