@@ -559,7 +559,7 @@ async function supprimerMateriel(id) {
 
     try {
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from("materiels_agricoles")
             .delete()
             .eq("id", id);
