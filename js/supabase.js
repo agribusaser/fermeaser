@@ -1,21 +1,51 @@
 /*====================================================
  FERME ASHER ERP
- SUPABASE — CLIENT CENTRAL
+ SUPABASE.JS
+ CONNEXION CENTRALE SUPABASE
 ====================================================*/
 
 "use strict";
 
-const SUPABASE_URL = "https://szfftdskbbxrufixdjhw.supabase.co";
+/*====================================================
+ CONFIGURATION SUPABASE
+====================================================*/
 
-const SUPABASE_KEY = "sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS";
+const SUPABASE_URL =
+    "https://szfftdskbbxrufixdjhw.supabase.co";
 
-/* Création du client Supabase */
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const SUPABASE_KEY =
+    "TON_MÊME_CLÉ_PUBLISHABLE_ACTUELLE";
 
-/* Rend le client accessible globalement */
-window.supabaseClient = supabaseClient;
+/*====================================================
+ VÉRIFICATION DU SDK
+====================================================*/
 
-console.log("Supabase connecté :", SUPABASE_URL);
+if (!window.supabase) {
+
+    console.error(
+        "ERREUR : Le SDK Supabase n'est pas chargé."
+    );
+
+} else {
+
+    /*================================================
+     CRÉATION DU CLIENT CENTRAL
+    =================================================*/
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+    /*================================================
+     RENDRE LE CLIENT DISPONIBLE À TOUT L'ERP
+    =================================================*/
+
+    window.supabaseClient =
+        supabaseClient;
+
+    console.log(
+        "Ferme Asher ERP : Supabase connecté."
+    );
+}
