@@ -165,7 +165,7 @@ async function ajouterPlanning() {
 
     try {
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from("planning_agricole")
             .insert([
                 {
