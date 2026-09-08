@@ -204,6 +204,40 @@ async function initialiserPermissionsERP() {
     return true;
 }
 
+/* =========================================================
+   APPLIQUER LES PERMISSIONS AU MENU
+   ========================================================= */
+
+function appliquerPermissionsMenuERP() {
+
+    console.log("Application des permissions au menu...");
+
+    const elementsMenu = document.querySelectorAll(
+        ".sidebar li[data-module]"
+    );
+
+    elementsMenu.forEach(function(element) {
+
+        const module = element.getAttribute("data-module");
+
+        const autorise = aPermission(module, "voir");
+
+        if (autorise) {
+
+            element.style.display = "";
+
+        } else {
+
+            element.style.display = "none";
+
+        }
+
+    });
+
+    console.log(
+        "Permissions du menu appliquées."
+    );
+}
 
 /* =========================================================
    EXPORT GLOBAL
