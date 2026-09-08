@@ -251,7 +251,9 @@ window.aPermission = aPermission;
 window.obtenirRoleERP = obtenirRoleERP;
 window.obtenirUtilisateurERP = obtenirUtilisateurERP;
 window.initialiserPermissionsERP = initialiserPermissionsERP;
+window.appliquerPermissionsMenuERP = appliquerPermissionsMenuERP;
 
 document.addEventListener("DOMContentLoaded", function () {
     initialiserPermissionsERP();
+  
 });
