@@ -45,7 +45,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <ul>
 
-<li class="active">
+<li class="active" data-module="Dashboard">
 
 <a href="dashboard.html">
 
@@ -57,7 +57,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-<li>
+
+<li data-module="Ventes">
 
 <a href="modules/ventes/index.html">
 
@@ -69,31 +70,34 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-  <li>
 
-    <a href="modules/achats/index.html">
+<li data-module="Achats">
 
-        <i class="fa-solid fa-cart-shopping"></i>
+<a href="modules/achats/index.html">
 
-        <span>Achats</span>
+<i class="fa-solid fa-cart-shopping"></i>
 
-    </a>
+<span>Achats</span>
 
-</li>
-
-  <li>
-
-    <a href="modules/fournisseurs/index.html">
-
-        <i class="fa-solid fa-truck"></i>
-
-        <span>Fournisseurs</span>
-
-    </a>
+</a>
 
 </li>
 
-<li>
+
+<li data-module="Fournisseurs">
+
+<a href="modules/fournisseurs/index.html">
+
+<i class="fa-solid fa-truck"></i>
+
+<span>Fournisseurs</span>
+
+</a>
+
+</li>
+
+
+<li data-module="Produits">
 
 <a href="modules/produits/index.html">
 
@@ -105,7 +109,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-<li>
+
+<li data-module="Stocks">
 
 <a href="modules/stocks/index.html">
 
@@ -117,7 +122,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-<li>
+
+<li data-module="Clients">
 
 <a href="#">
 
@@ -129,23 +135,34 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-<li>
-    <a href="modules/agriculture/index.html">
-        <i class="fa-solid fa-seedling"></i>
-        <span>Agriculture</span>
-    </a>
-</li>
 
-<li>
+<li data-module="Agriculture">
 
-<a href="modules/elevage/index.html" class="nav-link">
-    <i class="fa-solid fa-cow"></i>
-    <span>Élevage</span>
+<a href="modules/agriculture/index.html">
+
+<i class="fa-solid fa-seedling"></i>
+
+<span>Agriculture</span>
+
 </a>
 
 </li>
 
-<li>
+
+<li data-module="Elevage">
+
+<a href="modules/elevage/index.html" class="nav-link">
+
+<i class="fa-solid fa-cow"></i>
+
+<span>Élevage</span>
+
+</a>
+
+</li>
+
+
+<li data-module="Finances">
 
 <a href="#">
 
@@ -157,14 +174,21 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </li>
 
-<li>
-    <a href="modules/employes/index.html">
-        <i class="fa-solid fa-users"></i>
-        <span>Employés</span>
-    </a>
+
+<li data-module="Employes">
+
+<a href="modules/employes/index.html">
+
+<i class="fa-solid fa-users"></i>
+
+<span>Employés</span>
+
+</a>
+
 </li>
 
-<li>
+
+<li data-module="Parametres">
 
 <a href="#">
 
@@ -175,6 +199,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 </a>
 
 </li>
+
 
 <li>
 
@@ -189,727 +214,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 </li>
 
 </ul>
-
-</nav>
-
-<!-- ===================================== -->
-<!-- CONTENU -->
-<!-- ===================================== -->
-
-<div class="main">
-
-    <!-- BOUTON MENU MOBILE -->
-    <button id="mobileMenuBtn" class="mobile-menu-btn">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
-<header class="topbar">
-
-<div>
-
-<h2>
-
-Tableau de bord
-
-</h2>
-
-<p>
-
-Bienvenue dans Ferme Asher ERP
-
-</p>
-
-</div>
-
-<div class="top-icons">
-
-<button>
-
-<i class="fa-solid fa-bell"></i>
-
-</button>
-
-<button>
-
-<i class="fa-solid fa-envelope"></i>
-
-</button>
-
-<div class="profile">
-
-<img src="images/user.png">
-
-<div>
-
-<strong>Administrateur</strong>
-
-<br>
-
-<small>Admin</small>
-
-</div>
-
-</div>
-
-</div>
-
-</header>
-
-<!-- ===================================== -->
-<!-- CARTES KPI -->
-<!-- ===================================== -->
-
-<div class="cards">
-
-<div class="card-kpi">
-
-<div>
-
-<h3 id="kpiVentes">
-
-0
-
-</h3>
-
-<p>
-
-Ventes
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-cart-shopping"></i>
-
-</div>
-
-<div class="card-kpi">
-
-<div>
-
-<h3 id="kpiStock">
-
-0
-
-</h3>
-
-<p>
-
-Produits
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-box"></i>
-
-</div>
-
-<div class="card-kpi">
-
-<div>
-
-<h3 id="kpiClients">
-
-0
-
-</h3>
-
-<p>
-
-Clients
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-users"></i>
-
-</div>
-
-<div class="card-kpi">
-
-<div>
-
-<h3 id="kpiCA">
-
-0 FC
-
-</h3>
-
-<p>
-
-Chiffre d'affaires
-
-</p>
-
-</div>
-
-<i class="fa-solid fa-sack-dollar"></i>
-
-</div>
-
-</div>
-
-  <!-- ===================================== -->
-<!-- GRAPHIQUES -->
-<!-- ===================================== -->
-
-<div class="row mt-4">
-
-    <div class="col-lg-8">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-chart-line"></i>
-
-                    Evolution des ventes
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <canvas id="salesChart" height="110"></canvas>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-lg-4">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-chart-pie"></i>
-
-                    Répartition des produits
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <canvas id="productChart"></canvas>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===================================== -->
-<!-- ACTIVITÉS -->
-<!-- ===================================== -->
-
-<div class="row mt-4">
-
-<div class="col-lg-7">
-
-<div class="dashboard-card">
-
-<div class="card-header-custom">
-
-<h4>
-
-<i class="fa-solid fa-clock-rotate-left"></i>
-
-Activités récentes
-
-</h4>
-
-</div>
-
-<div class="card-body">
-
-<table class="table table-hover">
-
-<thead>
-
-<tr>
-
-<th>Heure</th>
-
-<th>Utilisateur</th>
-
-<th>Action</th>
-
-</tr>
-
-</thead>
-
-<tbody id="recentActivities">
-
-<tr>
-
-<td>09:10</td>
-
-<td>Admin</td>
-
-<td>Nouvelle vente enregistrée</td>
-
-</tr>
-
-<tr>
-
-<td>08:55</td>
-
-<td>Admin</td>
-
-<td>Mise à jour du stock</td>
-
-</tr>
-
-<tr>
-
-<td>08:22</td>
-
-<td>Admin</td>
-
-<td>Nouveau client créé</td>
-
-</tr>
-
-<tr>
-
-<td>07:40</td>
-
-<td>Admin</td>
-
-<td>Connexion au système</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-lg-5">
-
-<div class="dashboard-card">
-
-<div class="card-header-custom">
-
-<h4>
-
-<i class="fa-solid fa-bell"></i>
-
-Alertes
-
-</h4>
-
-</div>
-
-<div class="card-body">
-
-<div class="alert alert-warning">
-
-<strong>Stock faible</strong>
-
-<br>
-
-Le stock de soja est inférieur au seuil minimum.
-
-</div>
-
-<div class="alert alert-danger">
-
-<strong>Vaccination</strong>
-
-<br>
-
-Les cailles doivent être vaccinées demain.
-
-</div>
-
-<div class="alert alert-info">
-
-<strong>Commande</strong>
-
-<br>
-
-Une nouvelle commande client est en attente.
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-  <!-- ===================================== -->
-<!-- TABLEAUX DE BORD METIER -->
-<!-- ===================================== -->
-
-<div class="row mt-4">
-
-    <!-- STOCK -->
-
-    <div class="col-lg-4">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-warehouse"></i>
-
-                    Niveau des stocks
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <table class="table table-sm">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Produit</th>
-
-                            <th>Stock</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="stockTable">
-
-                        <tr>
-
-                            <td>Œufs de caille</td>
-
-                            <td>
-
-                                <span class="badge bg-success">
-
-                                    320
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>Cailles</td>
-
-                            <td>
-
-                                <span class="badge bg-success">
-
-                                    250
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>Soja</td>
-
-                            <td>
-
-                                <span class="badge bg-warning">
-
-                                    45
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>Farine</td>
-
-                            <td>
-
-                                <span class="badge bg-danger">
-
-                                    12
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- ÉLEVAGE -->
-
-    <div class="col-lg-4">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-kiwi-bird"></i>
-
-                    Résumé élevage
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <table class="table table-borderless">
-
-                    <tr>
-
-                        <td>Cailles adultes</td>
-
-                        <td><strong>350</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Jeunes cailles</td>
-
-                        <td><strong>180</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Œufs aujourd'hui</td>
-
-                        <td><strong>142</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Taux de ponte</td>
-
-                        <td><strong>81 %</strong></td>
-
-                    </tr>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- AGRICULTURE -->
-
-    <div class="col-lg-4">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-seedling"></i>
-
-                    Agriculture
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <table class="table table-borderless">
-
-                    <tr>
-
-                        <td>Surface cultivée</td>
-
-                        <td><strong>18 Ha</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Soja</td>
-
-                        <td><strong>5 Ha</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Maïs</td>
-
-                        <td><strong>5 Ha</strong></td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Riz</td>
-
-                        <td><strong>14 Ha (prévu)</strong></td>
-
-                    </tr>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- ===================================== -->
-<!-- FINANCES ET CLIENTS -->
-<!-- ===================================== -->
-
-<div class="row mt-4">
-
-    <div class="col-lg-6">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-sack-dollar"></i>
-
-                    Situation financière
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <table class="table">
-
-                    <tr>
-
-                        <td>Revenus du mois</td>
-
-                        <td class="text-success">
-
-                            <strong>
-
-                                2 450 000 FC
-
-                            </strong>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Dépenses</td>
-
-                        <td class="text-danger">
-
-                            <strong>
-
-                                1 230 000 FC
-
-                            </strong>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>Bénéfice estimé</td>
-
-                        <td class="text-primary">
-
-                            <strong>
-
-                                1 220 000 FC
-
-                            </strong>
-
-                        </td>
-
-                    </tr>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <div class="col-lg-6">
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <h4>
-
-                    <i class="fa-solid fa-user-plus"></i>
-
-                    Nouveaux clients
-
-                </h4>
-
-            </div>
-
-            <div class="card-body">
-
-                <ul class="list-group">
 
                     <li class="list-group-item">
 
