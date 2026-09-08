@@ -185,11 +185,13 @@ async function initialiserPermissionsERP() {
         return false;
     }
 
-    await chargerPermissionsERP();
+ await chargerPermissionsERP();
 
-    console.log(
-        "Système de permissions prêt."
-    );
+appliquerPermissionsMenuERP();
+
+console.log(
+    "Système de permissions prêt."
+);
 
     console.log(
         "Utilisateur :",
