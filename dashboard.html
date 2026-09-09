@@ -69,86 +69,99 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 @media (max-width: 992px) {
 
-    /* CONTENEUR PRINCIPAL */
     .main {
         width: 100% !important;
         margin-left: 0 !important;
-        padding: 20px !important;
+        padding: 12px !important;
         overflow-x: hidden !important;
     }
 
-    /* HEADER */
+    /* EN-TÊTE MOBILE */
     .topbar {
         position: relative !important;
         display: block !important;
         width: 100% !important;
         min-height: auto !important;
-        padding: 20px 10px 25px 10px !important;
+        padding: 18px 8px 15px 8px !important;
+        margin-bottom: 10px !important;
     }
 
-    /* BLOC TITRE */
+    /* Zone du titre */
     .topbar > div:first-child {
         width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 72px 0 0 0 !important;
     }
 
     .topbar h2 {
         margin: 0 !important;
         padding: 0 !important;
         font-size: 30px !important;
-        line-height: 1.2 !important;
+        line-height: 1.15 !important;
         white-space: normal !important;
     }
 
     .topbar p {
-        margin: 8px 0 0 0 !important;
+        margin: 6px 0 0 0 !important;
         padding: 0 !important;
         font-size: 16px !important;
-        line-height: 1.5 !important;
+        line-height: 1.35 !important;
     }
 
     /* BOUTON HAMBURGER */
     #mobileMenuBtn {
         position: absolute !important;
-        top: 20px !important;
-        left: 20px !important;
-        width: 70px !important;
-        height: 70px !important;
+        top: 18px !important;
+        left: 12px !important;
+        width: 64px !important;
+        height: 64px !important;
         margin: 0 !important;
         z-index: 10001 !important;
     }
 
     #mobileMenuBtn i {
-        font-size: 30px !important;
+        font-size: 28px !important;
     }
 
-    /* ESPACE POUR ÉVITER LE HAMBURGER */
-    .topbar > div:first-child {
-        padding-top: 85px !important;
-    }
-
-    /* ICONES ET PROFIL */
+    /* NOTIFICATIONS + MESSAGES */
     .top-icons {
         width: 100% !important;
-        margin-top: 20px !important;
+        margin-top: 14px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: flex-start !important;
-        gap: 12px !important;
+        gap: 10px !important;
         flex-wrap: wrap !important;
+    }
+
+    .top-icons > button {
+        margin: 0 !important;
     }
 
     /* PROFIL */
     .profile {
         max-width: 100% !important;
         overflow: hidden !important;
+        margin-top: 4px !important;
+    }
+
+    /* Réduction de l'espace intérieur du profil */
+    .profile-avatar {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    .profile-avatar i {
+        font-size: 24px !important;
+    }
+
+    /* Cartes KPI */
+    .card,
+    .kpi-card {
+        margin-bottom: 14px !important;
     }
 
 }
-
-</style>
-
 </head>
 
 
