@@ -1,7 +1,7 @@
 /*==================================================
 FERME ASHER ERP
 DASHBOARD.JS
-VERSION 3.0 - SUPABASE
+VERSION 4.0 - SUPABASE + REALTIME + MOBILE
 ==================================================*/
 
 "use strict";
@@ -16,6 +16,9 @@ let clientsERP = [];
 
 let channelDashboard = null;
 
+let dashboardInitialise = false;
+let actualisationEnCours = false;
+
 
 /* ==================================================
    INITIALISATION
@@ -24,21 +27,74 @@ let channelDashboard = null;
 document.addEventListener("DOMContentLoaded", async function () {
 
     console.log("==========================================");
-    console.log("FERME ASHER ERP - DASHBOARD VERSION 3.0");
+    console.log("FERME ASHER ERP - DASHBOARD VERSION 4.0");
     console.log("Initialisation...");
     console.log("==========================================");
 
     masquerLoader();
-
     actualiserDate();
+    initialiserMenuMobile();
+    initialiserEvenementsConnexion();
+
+    await attendreSupabase();
 
     await chargerDashboard();
 
-    initialiserMenuMobile();
-
     initialiserTempsReel();
 
+    dashboardInitialise = true;
+
+    console.log("Dashboard prêt.");
 });
+
+
+/* ==================================================
+   ATTENDRE SUPABASE
+================================================== */
+
+async function attendreSupabase() {
+
+    let tentatives = 0;
+    const maximum = 30;
+
+    while (
+        !window.supabaseClient &&
+        tentatives < maximum
+    ) {
+
+        console.log(
+            "Attente de Supabase...",
+            tentatives + 1
+        );
+
+        await new Promise(function (resolve) {
+            setTimeout(resolve, 200);
+        });
+
+        tentatives++;
+    }
+
+
+    if (!window.supabaseClient) {
+
+        console.error(
+            "Supabase n'a pas pu être chargé."
+        );
+
+        afficherErreurDashboard(
+            "Connexion Supabase indisponible."
+        );
+
+        return false;
+    }
+
+
+    console.log(
+        "Supabase disponible."
+    );
+
+    return true;
+}
 
 
 /* ==================================================
@@ -47,7 +103,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 function masquerLoader() {
 
-    const loader = document.getElementById("loader");
+    const loader =
+        document.getElementById("loader");
 
     if (!loader) {
         return;
@@ -96,7 +153,67 @@ function verifierSupabase() {
 
 
 /* ==================================================
-   CHARGEMENT GLOBAL DU DASHBOARD
+   VÉRIFIER LA CONNEXION UTILISATEUR
+================================================== */
+
+async function verifierSessionSupabase() {
+
+    if (!verifierSupabase()) {
+        return false;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await window.supabaseClient
+                .auth
+                .getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Erreur session Supabase :",
+                error
+            );
+
+            return false;
+        }
+
+
+        if (!data || !data.session) {
+
+            console.warn(
+                "Aucune session Supabase active."
+            );
+
+            return false;
+        }
+
+
+        console.log(
+            "Session Supabase active."
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Erreur verifierSessionSupabase :",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* ==================================================
+   CHARGEMENT GLOBAL
 ================================================== */
 
 async function chargerDashboard() {
@@ -110,7 +227,25 @@ async function chargerDashboard() {
         return;
     }
 
-    console.log("Chargement des données Supabase...");
+
+    console.log(
+        "Chargement des données Supabase..."
+    );
+
+
+    const sessionOK =
+        await verifierSessionSupabase();
+
+
+    if (!sessionOK) {
+
+        afficherErreurDashboard(
+            "Session utilisateur indisponible."
+        );
+
+        return;
+    }
+
 
     await Promise.all([
         chargerVentes(),
@@ -119,12 +254,15 @@ async function chargerDashboard() {
         chargerActivites()
     ]);
 
+
     afficherStatistiques();
 
     initialiserGraphiques();
 
-    console.log("Dashboard chargé avec succès.");
 
+    console.log(
+        "Dashboard chargé avec succès."
+    );
 }
 
 
@@ -139,12 +277,17 @@ async function chargerVentes() {
         const {
             data,
             error
-        } = await window.supabaseClient
-            .from("ventes")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        } =
+            await window.supabaseClient
+                .from("ventes")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
 
         if (error) {
 
@@ -153,17 +296,25 @@ async function chargerVentes() {
                 error
             );
 
-            ventesERP = [];
+            /* NE PAS EFFACER LES ANCIENNES DONNÉES */
 
-            return;
+            return false;
         }
 
-        ventesERP = data || [];
+
+        ventesERP =
+            Array.isArray(data)
+                ? data
+                : [];
+
 
         console.log(
             "Ventes chargées :",
             ventesERP.length
         );
+
+        return true;
+
 
     } catch (error) {
 
@@ -172,7 +323,7 @@ async function chargerVentes() {
             error
         );
 
-        ventesERP = [];
+        return false;
     }
 }
 
@@ -188,13 +339,18 @@ async function chargerProduits() {
         const {
             data,
             error
-        } = await window.supabaseClient
-            .from("produits")
-            .select("*")
-            .eq("actif", true)
-            .order("nom", {
-                ascending: true
-            });
+        } =
+            await window.supabaseClient
+                .from("produits")
+                .select("*")
+                .eq("actif", true)
+                .order(
+                    "nom",
+                    {
+                        ascending: true
+                    }
+                );
+
 
         if (error) {
 
@@ -203,17 +359,23 @@ async function chargerProduits() {
                 error
             );
 
-            produitsERP = [];
-
-            return;
+            return false;
         }
 
-        produitsERP = data || [];
+
+        produitsERP =
+            Array.isArray(data)
+                ? data
+                : [];
+
 
         console.log(
             "Produits chargés :",
             produitsERP.length
         );
+
+        return true;
+
 
     } catch (error) {
 
@@ -222,7 +384,7 @@ async function chargerProduits() {
             error
         );
 
-        produitsERP = [];
+        return false;
     }
 }
 
@@ -238,12 +400,17 @@ async function chargerClients() {
         const {
             data,
             error
-        } = await window.supabaseClient
-            .from("clients")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        } =
+            await window.supabaseClient
+                .from("clients")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
 
         if (error) {
 
@@ -252,17 +419,23 @@ async function chargerClients() {
                 error
             );
 
-            clientsERP = [];
-
-            return;
+            return false;
         }
 
-        clientsERP = data || [];
+
+        clientsERP =
+            Array.isArray(data)
+                ? data
+                : [];
+
 
         console.log(
             "Clients chargés :",
             clientsERP.length
         );
+
+        return true;
+
 
     } catch (error) {
 
@@ -271,24 +444,24 @@ async function chargerClients() {
             error
         );
 
-        clientsERP = [];
+        return false;
     }
 }
 
 
 /* ==================================================
-   STATISTIQUES KPI
+   KPI
 ================================================== */
 
 function afficherStatistiques() {
 
     let chiffreAffaires = 0;
 
+
     ventesERP.forEach(function (vente) {
 
-        chiffreAffaires += Number(
-            vente.total || 0
-        );
+        chiffreAffaires +=
+            Number(vente.total || 0);
 
     });
 
@@ -306,8 +479,6 @@ function afficherStatistiques() {
         document.getElementById("kpiCA");
 
 
-    /* Nombre de ventes */
-
     if (kpiVentes) {
 
         kpiVentes.textContent =
@@ -315,8 +486,6 @@ function afficherStatistiques() {
 
     }
 
-
-    /* Nombre de produits */
 
     if (kpiStock) {
 
@@ -326,8 +495,6 @@ function afficherStatistiques() {
     }
 
 
-    /* Nombre de clients */
-
     if (kpiClients) {
 
         kpiClients.textContent =
@@ -336,13 +503,12 @@ function afficherStatistiques() {
     }
 
 
-    /* Chiffre d'affaires */
-
     if (kpiCA) {
 
         kpiCA.textContent =
-            chiffreAffaires.toLocaleString("fr-FR")
-            + " FC";
+            chiffreAffaires.toLocaleString(
+                "fr-FR"
+            ) + " FC";
 
     }
 
@@ -356,7 +522,6 @@ function afficherStatistiques() {
             chiffreAffaires: chiffreAffaires
         }
     );
-
 }
 
 
@@ -371,8 +536,9 @@ async function chargerActivites() {
             "recentActivities"
         );
 
+
     if (!tbody) {
-        return;
+        return false;
     }
 
 
@@ -381,13 +547,17 @@ async function chargerActivites() {
         const {
             data,
             error
-        } = await window.supabaseClient
-            .from("journal_actions")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            })
-            .limit(5);
+        } =
+            await window.supabaseClient
+                .from("journal_actions")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(5);
 
 
         if (error) {
@@ -397,17 +567,18 @@ async function chargerActivites() {
                 error
             );
 
-            afficherAucuneActivite();
-
-            return;
+            return false;
         }
 
 
-        if (!data || data.length === 0) {
+        if (
+            !data ||
+            data.length === 0
+        ) {
 
             afficherAucuneActivite();
 
-            return;
+            return true;
         }
 
 
@@ -431,11 +602,14 @@ async function chargerActivites() {
 
 
             date.textContent =
-                formaterDate(action.created_at);
+                formaterDate(
+                    action.created_at
+                );
 
 
             utilisateur.textContent =
-                action.utilisateur_nom || "Système";
+                action.utilisateur_nom ||
+                "Système";
 
 
             description.textContent =
@@ -445,15 +619,16 @@ async function chargerActivites() {
 
 
             ligne.appendChild(date);
-
             ligne.appendChild(utilisateur);
-
             ligne.appendChild(description);
 
 
             tbody.appendChild(ligne);
 
         });
+
+
+        return true;
 
 
     } catch (error) {
@@ -463,7 +638,7 @@ async function chargerActivites() {
             error
         );
 
-        afficherAucuneActivite();
+        return false;
     }
 }
 
@@ -478,6 +653,7 @@ function afficherAucuneActivite() {
         document.getElementById(
             "recentActivities"
         );
+
 
     if (!tbody) {
         return;
@@ -501,7 +677,9 @@ function afficherAucuneActivite() {
 
 function initialiserGraphiques() {
 
-    if (typeof Chart === "undefined") {
+    if (
+        typeof Chart === "undefined"
+    ) {
 
         console.warn(
             "Chart.js n'est pas chargé."
@@ -514,7 +692,6 @@ function initialiserGraphiques() {
     initialiserGraphiqueVentes();
 
     initialiserGraphiqueProduits();
-
 }
 
 
@@ -525,7 +702,10 @@ function initialiserGraphiques() {
 function initialiserGraphiqueVentes() {
 
     const canvas =
-        document.getElementById("salesChart");
+        document.getElementById(
+            "salesChart"
+        );
+
 
     if (!canvas) {
         return;
@@ -560,10 +740,17 @@ function initialiserGraphiqueVentes() {
 
 
         const date =
-            new Date(vente.date);
+            new Date(
+                vente.date
+            );
 
 
-        if (isNaN(date.getTime())) {
+        if (
+            isNaN(
+                date.getTime()
+            )
+        ) {
+
             return;
         }
 
@@ -573,12 +760,12 @@ function initialiserGraphiqueVentes() {
 
 
         totalMois[moisVente] +=
-            Number(vente.total || 0);
+            Number(
+                vente.total || 0
+            );
 
     });
 
-
-    /* Détruire ancien graphique */
 
     if (canvas._chartInstance) {
 
@@ -588,75 +775,68 @@ function initialiserGraphiqueVentes() {
 
 
     canvas._chartInstance =
-        new Chart(canvas, {
+        new Chart(
+            canvas,
+            {
 
-            type: "bar",
+                type: "bar",
 
-            data: {
+                data: {
 
-                labels: mois,
+                    labels: mois,
 
-                datasets: [
+                    datasets: [
 
-                    {
-                        label:
-                            "Chiffre d'affaires",
+                        {
+                            label:
+                                "Chiffre d'affaires",
 
-                        data:
-                            totalMois
-
-                    }
-
-                ]
-
-            },
-
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: true,
-
-                plugins: {
-
-                    legend: {
-
-                        display: true
-
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-
-                            callback:
-                                function (value) {
-
-                                    return Number(value)
-                                        .toLocaleString(
-                                            "fr-FR"
-                                        )
-                                        + " FC";
-
-                                }
-
+                            data:
+                                totalMois
                         }
 
+                    ]
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: true,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+                        }
+                    },
+
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            ticks: {
+
+                                callback:
+                                    function (value) {
+
+                                        return Number(
+                                            value
+                                        ).toLocaleString(
+                                            "fr-FR"
+                                        ) + " FC";
+                                    }
+                            }
+                        }
                     }
-
                 }
-
             }
-
-        });
-
+        );
 }
 
 
@@ -671,31 +851,40 @@ function initialiserGraphiqueProduits() {
             "productChart"
         );
 
+
     if (!canvas) {
         return;
     }
 
 
     const produits =
-        produitsERP.slice(0, 10);
+        produitsERP.slice(
+            0,
+            10
+        );
 
 
     const labels =
-        produits.map(function (produit) {
+        produits.map(
+            function (produit) {
 
-            return produit.nom || "Produit";
+                return produit.nom ||
+                    "Produit";
 
-        });
+            }
+        );
 
 
     const stocks =
-        produits.map(function (produit) {
+        produits.map(
+            function (produit) {
 
-            return Number(
-                produit.stock || 0
-            );
+                return Number(
+                    produit.stock || 0
+                );
 
-        });
+            }
+        );
 
 
     if (canvas._chartInstance) {
@@ -706,55 +895,52 @@ function initialiserGraphiqueProduits() {
 
 
     canvas._chartInstance =
-        new Chart(canvas, {
+        new Chart(
+            canvas,
+            {
 
-            type: "bar",
+                type: "bar",
 
-            data: {
+                data: {
 
-                labels: labels,
+                    labels: labels,
 
-                datasets: [
+                    datasets: [
 
-                    {
-                        label: "Stock",
+                        {
+                            label: "Stock",
 
-                        data: stocks
+                            data: stocks
+                        }
 
+                    ]
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: true,
+
+                    indexAxis: "y",
+
+                    scales: {
+
+                        x: {
+
+                            beginAtZero: true
+
+                        }
                     }
-
-                ]
-
-            },
-
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: true,
-
-                indexAxis: "y",
-
-                scales: {
-
-                    x: {
-
-                        beginAtZero: true
-
-                    }
-
                 }
-
             }
-
-        });
-
+        );
 }
 
 
 /* ==================================================
-   TEMPS RÉEL SUPABASE
+   REALTIME SUPABASE
 ================================================== */
 
 function initialiserTempsReel() {
@@ -781,23 +967,23 @@ function initialiserTempsReel() {
         } catch (error) {
 
             console.warn(
-                "Impossible de supprimer l'ancien canal.",
+                "Ancien canal non supprimé.",
                 error
             );
-
         }
-
     }
 
 
     channelDashboard =
         window.supabaseClient
             .channel(
-                "dashboard-temps-reel"
+                "dashboard-temps-reel-v4"
             )
 
 
-            /* VENTES */
+            /* ==========================
+               VENTES
+            ========================== */
 
             .on(
                 "postgres_changes",
@@ -806,20 +992,22 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "ventes"
                 },
+
                 async function (payload) {
 
                     console.log(
-                        "Changement VENTES :",
-                        payload
+                        "Realtime VENTES :",
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
-
                 }
             )
 
 
-            /* PRODUITS */
+            /* ==========================
+               PRODUITS
+            ========================== */
 
             .on(
                 "postgres_changes",
@@ -828,20 +1016,22 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "produits"
                 },
+
                 async function (payload) {
 
                     console.log(
-                        "Changement PRODUITS :",
-                        payload
+                        "Realtime PRODUITS :",
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
-
                 }
             )
 
 
-            /* CLIENTS */
+            /* ==========================
+               CLIENTS
+            ========================== */
 
             .on(
                 "postgres_changes",
@@ -850,20 +1040,22 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "clients"
                 },
+
                 async function (payload) {
 
                     console.log(
-                        "Changement CLIENTS :",
-                        payload
+                        "Realtime CLIENTS :",
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
-
                 }
             )
 
 
-            /* JOURNAL */
+            /* ==========================
+               JOURNAL
+            ========================== */
 
             .on(
                 "postgres_changes",
@@ -872,28 +1064,71 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "journal_actions"
                 },
-                async function (payload) {
+
+                async function () {
 
                     console.log(
-                        "Nouvelle activité :",
-                        payload
+                        "Realtime JOURNAL"
                     );
 
                     await chargerActivites();
-
                 }
             )
 
 
-            .subscribe(function (status) {
+            /* ==========================
+               SOUSCRIPTION
+            ========================== */
 
-                console.log(
-                    "Realtime Dashboard :",
-                    status
-                );
+            .subscribe(
+                function (status) {
 
-            });
+                    console.log(
+                        "Realtime Dashboard :",
+                        status
+                    );
 
+
+                    if (
+                        status === "SUBSCRIBED"
+                    ) {
+
+                        console.log(
+                            "Realtime Dashboard connecté."
+                        );
+                    }
+
+
+                    if (
+                        status === "CHANNEL_ERROR"
+                    ) {
+
+                        console.warn(
+                            "Erreur du canal Realtime."
+                        );
+                    }
+
+
+                    if (
+                        status === "TIMED_OUT"
+                    ) {
+
+                        console.warn(
+                            "Realtime : délai dépassé."
+                        );
+                    }
+
+
+                    if (
+                        status === "CLOSED"
+                    ) {
+
+                        console.warn(
+                            "Realtime : canal fermé."
+                        );
+                    }
+                }
+            );
 }
 
 
@@ -903,33 +1138,233 @@ function initialiserTempsReel() {
 
 async function actualiserDashboard() {
 
-    console.log(
-        "Actualisation du Dashboard..."
+    if (actualisationEnCours) {
+
+        console.log(
+            "Actualisation déjà en cours."
+        );
+
+        return;
+    }
+
+
+    actualisationEnCours = true;
+
+
+    try {
+
+        console.log(
+            "Actualisation du Dashboard..."
+        );
+
+
+        await Promise.all([
+
+            chargerVentes(),
+
+            chargerProduits(),
+
+            chargerClients(),
+
+            chargerActivites()
+
+        ]);
+
+
+        afficherStatistiques();
+
+        initialiserGraphiques();
+
+
+        console.log(
+            "Dashboard actualisé."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur actualiserDashboard :",
+            error
+        );
+
+    } finally {
+
+        actualisationEnCours = false;
+    }
+}
+
+
+/* ==================================================
+   CONNEXION INTERNET / HORS LIGNE
+================================================== */
+
+function initialiserEvenementsConnexion() {
+
+    window.addEventListener(
+        "online",
+        async function () {
+
+            console.log(
+                "Internet disponible."
+            );
+
+
+            afficherEtatConnexion(
+                true
+            );
+
+
+            await attendreSupabase();
+
+            await actualiserDashboard();
+
+
+            /* Réactiver Realtime */
+
+            initialiserTempsReel();
+
+        }
     );
 
 
-    await Promise.all([
+    window.addEventListener(
+        "offline",
+        function () {
 
-        chargerVentes(),
-
-        chargerProduits(),
-
-        chargerClients(),
-
-        chargerActivites()
-
-    ]);
+            console.warn(
+                "Connexion Internet perdue."
+            );
 
 
-    afficherStatistiques();
+            afficherEtatConnexion(
+                false
+            );
 
-    initialiserGraphiques();
-
-
-    console.log(
-        "Dashboard actualisé."
+        }
     );
 
+
+    document.addEventListener(
+        "visibilitychange",
+        async function () {
+
+            if (
+                document.visibilityState ===
+                "visible"
+            ) {
+
+                console.log(
+                    "Application redevenue active."
+                );
+
+
+                if (
+                    navigator.onLine
+                ) {
+
+                    await actualiserDashboard();
+
+                    initialiserTempsReel();
+
+                }
+            }
+        }
+    );
+}
+
+
+/* ==================================================
+   INDICATEUR CONNEXION
+================================================== */
+
+function afficherEtatConnexion(
+    enLigne
+) {
+
+    let indicateur =
+        document.getElementById(
+            "etatConnexionERP"
+        );
+
+
+    if (!indicateur) {
+
+        indicateur =
+            document.createElement(
+                "div"
+            );
+
+        indicateur.id =
+            "etatConnexionERP";
+
+
+        indicateur.style.position =
+            "fixed";
+
+        indicateur.style.bottom =
+            "15px";
+
+        indicateur.style.left =
+            "15px";
+
+        indicateur.style.zIndex =
+            "99999";
+
+        indicateur.style.padding =
+            "7px 12px";
+
+        indicateur.style.borderRadius =
+            "20px";
+
+        indicateur.style.fontSize =
+            "12px";
+
+        indicateur.style.fontWeight =
+            "600";
+
+        document.body.appendChild(
+            indicateur
+        );
+    }
+
+
+    if (enLigne) {
+
+        indicateur.textContent =
+            "● En ligne";
+
+        indicateur.style.background =
+            "#d1e7dd";
+
+        indicateur.style.color =
+            "#0f5132";
+
+
+        setTimeout(
+            function () {
+
+                if (indicateur) {
+
+                    indicateur.remove();
+
+                }
+
+            },
+            3000
+        );
+
+    } else {
+
+        indicateur.textContent =
+            "● Hors ligne";
+
+        indicateur.style.background =
+            "#f8d7da";
+
+        indicateur.style.color =
+            "#842029";
+    }
 }
 
 
@@ -937,7 +1372,9 @@ async function actualiserDashboard() {
    FORMATAGE DATE
 ================================================== */
 
-function formaterDate(dateTexte) {
+function formaterDate(
+    dateTexte
+) {
 
     if (!dateTexte) {
         return "";
@@ -945,10 +1382,17 @@ function formaterDate(dateTexte) {
 
 
     const date =
-        new Date(dateTexte);
+        new Date(
+            dateTexte
+        );
 
 
-    if (isNaN(date.getTime())) {
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
         return dateTexte;
     }
 
@@ -963,7 +1407,6 @@ function formaterDate(dateTexte) {
             minute: "2-digit"
         }
     );
-
 }
 
 
@@ -971,7 +1414,9 @@ function formaterDate(dateTexte) {
    ERREUR DASHBOARD
 ================================================== */
 
-function afficherErreurDashboard(message) {
+function afficherErreurDashboard(
+    message
+) {
 
     console.error(
         "Dashboard :",
@@ -989,19 +1434,22 @@ function afficherErreurDashboard(message) {
     ];
 
 
-    zones.forEach(function (id) {
+    zones.forEach(
+        function (id) {
 
-        const element =
-            document.getElementById(id);
+            const element =
+                document.getElementById(
+                    id
+                );
 
-        if (element) {
 
-            element.textContent = "—";
+            if (element) {
 
+                element.textContent =
+                    "—";
+            }
         }
-
-    });
-
+    );
 }
 
 
@@ -1018,7 +1466,9 @@ async function deconnexion() {
 
     try {
 
-        if (window.supabaseClient) {
+        if (
+            window.supabaseClient
+        ) {
 
             const {
                 error
@@ -1034,10 +1484,9 @@ async function deconnexion() {
                     "Erreur déconnexion Supabase :",
                     error
                 );
-
             }
-
         }
+
 
     } catch (error) {
 
@@ -1045,7 +1494,6 @@ async function deconnexion() {
             "Erreur deconnexion :",
             error
         );
-
     }
 
 
@@ -1061,7 +1509,6 @@ async function deconnexion() {
 
     window.location.href =
         "login.html";
-
 }
 
 
@@ -1076,10 +1523,12 @@ function initialiserMenuMobile() {
             "mobileMenuBtn"
         );
 
+
     const sidebar =
         document.querySelector(
             ".sidebar"
         );
+
 
     const overlay =
         document.getElementById(
@@ -1087,9 +1536,11 @@ function initialiserMenuMobile() {
         );
 
 
-    if (!menuBtn ||
+    if (
+        !menuBtn ||
         !sidebar ||
-        !overlay) {
+        !overlay
+    ) {
 
         console.warn(
             "Menu mobile incomplet."
@@ -1107,13 +1558,16 @@ function initialiserMenuMobile() {
                 "active"
             );
 
+
             overlay.classList.toggle(
                 "active"
             );
 
 
             const icon =
-                menuBtn.querySelector("i");
+                menuBtn.querySelector(
+                    "i"
+                );
 
 
             if (!icon) {
@@ -1144,9 +1598,7 @@ function initialiserMenuMobile() {
                 icon.classList.add(
                     "fa-bars"
                 );
-
             }
-
         }
     );
 
@@ -1163,19 +1615,19 @@ function initialiserMenuMobile() {
 
     sidebar
         .querySelectorAll("a")
-        .forEach(function (link) {
+        .forEach(
+            function (link) {
 
-            link.addEventListener(
-                "click",
-                function () {
+                link.addEventListener(
+                    "click",
+                    function () {
 
-                    fermerMenuMobile();
+                        fermerMenuMobile();
 
-                }
-            );
-
-        });
-
+                    }
+                );
+            }
+        );
 }
 
 
@@ -1190,10 +1642,12 @@ function fermerMenuMobile() {
             "mobileMenuBtn"
         );
 
+
     const sidebar =
         document.querySelector(
             ".sidebar"
         );
+
 
     const overlay =
         document.getElementById(
@@ -1206,7 +1660,6 @@ function fermerMenuMobile() {
         sidebar.classList.remove(
             "active"
         );
-
     }
 
 
@@ -1215,14 +1668,15 @@ function fermerMenuMobile() {
         overlay.classList.remove(
             "active"
         );
-
     }
 
 
     if (menuBtn) {
 
         const icon =
-            menuBtn.querySelector("i");
+            menuBtn.querySelector(
+                "i"
+            );
 
 
         if (icon) {
@@ -1234,11 +1688,8 @@ function fermerMenuMobile() {
             icon.classList.add(
                 "fa-bars"
             );
-
         }
-
     }
-
 }
 
 
@@ -1270,5 +1721,5 @@ window.deconnexion =
 ================================================== */
 
 console.log(
-    "Ferme Asher ERP - Dashboard.js Version 3.0 chargé."
+    "Ferme Asher ERP - Dashboard.js Version 4.0 chargé."
 );
