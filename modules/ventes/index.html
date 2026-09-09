@@ -34,7 +34,88 @@
     <!-- ==================================================
          CORRECTION MOBILE
     ================================================== -->
+/* ==================================================
+   BARRE DE DEFILEMENT HORIZONTALE DU TABLEAU
+================================================== */
 
+.table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: auto;
+    scrollbar-color: #2E7D32 #E8F5E9;
+}
+
+
+/* Chrome / Android / Edge */
+
+.table-responsive::-webkit-scrollbar {
+    height: 14px;
+}
+
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #E8F5E9;
+    border-radius: 10px;
+}
+
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #2E7D32;
+    border-radius: 10px;
+    border: 2px solid #E8F5E9;
+}
+
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #1B5E20;
+}
+
+
+/* TABLEAU PLUS LARGE QUE L'ECRAN */
+
+.table-responsive table {
+    min-width: 1100px !important;
+    width: 1100px !important;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    .table-responsive {
+        display: block !important;
+
+        overflow-x: scroll !important;
+        overflow-y: hidden !important;
+
+        padding-bottom: 8px;
+
+        touch-action: pan-x;
+    }
+
+    .table-responsive table {
+        min-width: 1100px !important;
+        width: 1100px !important;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 16px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #2E7D32;
+        border-radius: 10px;
+    }
+
+}
+    
     <style>
 
         /* -----------------------------------------------
