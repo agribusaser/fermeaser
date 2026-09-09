@@ -187,31 +187,102 @@ document.addEventListener(
     async function () {
 
         console.log(
-            "FERME ASHER ERP - VENTES VERSION 3.0"
+            "FERME ASHER ERP - VENTES VERSION 4.0"
+        );
+
+        console.log(
+            "Initialisation du module Ventes..."
         );
 
 
-        if (
-            !ventesSupabaseDisponible()
+        /*------------------------------------------
+        ATTENDRE SUPABASE
+        ------------------------------------------*/
+
+        let tentatives = 0;
+
+        while (
+            !window.supabaseClient &&
+            tentatives < 30
         ) {
 
+            console.log(
+                "Attente de Supabase...",
+                tentatives + 1
+            );
+
+            await new Promise(
+                function (resolve) {
+                    setTimeout(resolve, 100);
+                }
+            );
+
+            tentatives++;
+        }
+
+
+        /*------------------------------------------
+        VÉRIFICATION FINALE
+        ------------------------------------------*/
+
+        if (!window.supabaseClient) {
+
+            console.error(
+                "Supabase reste indisponible après 3 secondes."
+            );
+
             alert(
-                "Erreur : Supabase n'est pas disponible."
+                "Erreur : Supabase n'est pas disponible.\n\n" +
+                "Vérifie le chargement de supabase.js."
             );
 
             return;
         }
 
 
+        console.log(
+            "Supabase disponible."
+        );
+
+
+        /*------------------------------------------
+        CHARGER PRODUITS
+        ------------------------------------------*/
+
         await chargerProduitsVente();
+
+
+        /*------------------------------------------
+        FORMULAIRE
+        ------------------------------------------*/
 
         initialiserFormulaireVente();
 
+
+        /*------------------------------------------
+        CHARGER VENTES
+        ------------------------------------------*/
+
         await chargerVentes();
+
+
+        /*------------------------------------------
+        RECHERCHE
+        ------------------------------------------*/
 
         initialiserRechercheVentes();
 
+
+        /*------------------------------------------
+        FILTRE DATE
+        ------------------------------------------*/
+
         initialiserFiltreDate();
+
+
+        /*------------------------------------------
+        REALTIME
+        ------------------------------------------*/
 
         initialiserTempsReelVentes();
 
@@ -219,9 +290,9 @@ document.addEventListener(
         console.log(
             "Module Ventes prêt."
         );
+
     }
 );
-
 
 /*==================================================
 CHARGER PRODUITS DANS LE FORMULAIRE
