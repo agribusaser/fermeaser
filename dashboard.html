@@ -24,34 +24,98 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <style>
 /* ==================================================
-   CORRECTION MOBILE - FERME ASHER ERP
+   CORRECTION MOBILE DASHBOARD
+   FERME ASHER ERP
 ================================================== */
 
 @media (max-width: 992px) {
 
-    /* Zone supérieure du Dashboard */
+    /* ==============================================
+       HEADER
+    ============================================== */
+
     .topbar {
         position: relative !important;
-        padding-left: 100px !important;
+        padding: 30px 20px 25px 145px !important;
+        min-height: 190px !important;
     }
 
-    /* Titre */
-    .topbar h1 {
-        margin-left: 0 !important;
+
+    /* ==============================================
+       TITRE DU DASHBOARD
+    ============================================== */
+
+    .topbar > div:first-child {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .topbar h2 {
+        margin: 0 !important;
+        padding: 0 !important;
         line-height: 1.2 !important;
+        font-size: 30px !important;
+        white-space: nowrap !important;
     }
 
-    /* Sous-titre */
     .topbar p {
-        margin-left: 0 !important;
+        margin: 8px 0 0 0 !important;
+        padding: 0 !important;
+        font-size: 16px !important;
     }
 
-    /* Bouton hamburger */
+
+    /* ==============================================
+       BOUTON HAMBURGER
+    ============================================== */
+
     #mobileMenuBtn {
         position: absolute !important;
+
         top: 20px !important;
         left: 20px !important;
+
+        width: 70px !important;
+        height: 70px !important;
+
+        margin: 0 !important;
+
         z-index: 10001 !important;
+    }
+
+
+    /* ==============================================
+       ICÔNE HAMBURGER
+    ============================================== */
+
+    #mobileMenuBtn i {
+        font-size: 30px !important;
+    }
+
+
+    /* ==============================================
+       ICONES + PROFIL
+    ============================================== */
+
+    .top-icons {
+        width: 100% !important;
+        margin-top: 15px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+    }
+
+
+    /* ==============================================
+       PROFIL
+    ============================================== */
+
+    .profile {
+        max-width: 100% !important;
     }
 
 }
