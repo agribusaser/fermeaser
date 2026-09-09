@@ -9,159 +9,402 @@
 
 <title>Dashboard | Ferme Asher ERP</title>
 
-<!-- Bootstrap -->
+
+<!-- =====================================================
+     BOOTSTRAP
+===================================================== -->
+
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
 rel="stylesheet">
 
-<!-- Font Awesome -->
+
+<!-- =====================================================
+     FONT AWESOME
+===================================================== -->
+
 <link
 rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-<!-- CSS Dashboard -->
+
+<!-- =====================================================
+     CSS DASHBOARD
+===================================================== -->
+
 <link rel="stylesheet" href="css/dashboard.css">
+
+
+<!-- =====================================================
+     CSS PERSONNALISÉ
+===================================================== -->
 
 <style>
 
-/* ==================================================
+/* =====================================================
    AVATAR UTILISATEUR
-================================================== */
+===================================================== */
 
 .profile-avatar {
+
     width: 55px;
+
     height: 55px;
+
     border-radius: 50%;
+
     background: #e8f5e9;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     flex-shrink: 0;
+
 }
+
 
 .profile-avatar i {
+
     font-size: 25px;
+
     color: #176b2c;
+
 }
+
+
+/* =====================================================
+   GRAND AVATAR - MODAL PROFIL
+===================================================== */
 
 .profile-avatar-large {
+
     width: 120px;
+
     height: 120px;
+
     border-radius: 50%;
+
     background: #e8f5e9;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     margin-left: auto;
+
     margin-right: auto;
+
 }
+
 
 .profile-avatar-large i {
+
     font-size: 55px;
+
     color: #176b2c;
+
 }
 
 
-/* ==================================================
-   CORRECTION MOBILE DASHBOARD
-   FERME ASER ERP
-================================================== */
+/* =====================================================
+   CORRECTION MOBILE
+   FERME ASHER ERP
+===================================================== */
 
 @media (max-width: 992px) {
 
+
+    /* CONTENEUR PRINCIPAL */
+
     .main {
+
         width: 100% !important;
+
         margin-left: 0 !important;
+
         padding: 12px !important;
+
         overflow-x: hidden !important;
+
     }
 
-    /* EN-TÊTE MOBILE */
+
+    /* =================================================
+       TOPBAR
+    ================================================= */
+
     .topbar {
+
         position: relative !important;
+
         display: block !important;
+
         width: 100% !important;
+
         min-height: auto !important;
+
         padding: 18px 8px 15px 8px !important;
+
         margin-bottom: 10px !important;
+
     }
 
-    /* Zone du titre */
+
+    /* =================================================
+       BLOC TITRE
+    ================================================= */
+
     .topbar > div:first-child {
+
         width: 100% !important;
+
         margin: 0 !important;
+
         padding: 72px 0 0 0 !important;
+
     }
+
 
     .topbar h2 {
+
         margin: 0 !important;
+
         padding: 0 !important;
+
         font-size: 30px !important;
+
         line-height: 1.15 !important;
+
         white-space: normal !important;
+
     }
+
 
     .topbar p {
+
         margin: 6px 0 0 0 !important;
+
         padding: 0 !important;
+
         font-size: 16px !important;
+
         line-height: 1.35 !important;
+
     }
 
-    /* BOUTON HAMBURGER */
+
+    /* =================================================
+       BOUTON HAMBURGER
+    ================================================= */
+
     #mobileMenuBtn {
+
         position: absolute !important;
+
         top: 18px !important;
+
         left: 12px !important;
+
         width: 64px !important;
+
         height: 64px !important;
+
         margin: 0 !important;
+
         z-index: 10001 !important;
+
+        display: flex !important;
+
+        align-items: center !important;
+
+        justify-content: center !important;
+
     }
+
 
     #mobileMenuBtn i {
+
         font-size: 28px !important;
+
     }
 
-    /* NOTIFICATIONS + MESSAGES */
+
+    /* =================================================
+       ICONES + PROFIL
+    ================================================= */
+
     .top-icons {
+
         width: 100% !important;
+
         margin-top: 14px !important;
+
         display: flex !important;
+
         align-items: center !important;
+
         justify-content: flex-start !important;
+
         gap: 10px !important;
+
         flex-wrap: wrap !important;
+
     }
+
 
     .top-icons > button {
+
         margin: 0 !important;
+
     }
 
-    /* PROFIL */
+
+    /* =================================================
+       PROFIL
+    ================================================= */
+
     .profile {
+
         max-width: 100% !important;
+
         overflow: hidden !important;
+
         margin-top: 4px !important;
+
     }
 
-    /* Réduction de l'espace intérieur du profil */
+
     .profile-avatar {
+
         width: 52px !important;
+
         height: 52px !important;
+
     }
+
 
     .profile-avatar i {
+
         font-size: 24px !important;
+
     }
 
-    /* Cartes KPI */
-    .card,
-    .kpi-card {
+
+    /* =================================================
+       CARTES KPI
+    ================================================= */
+
+    .card-kpi {
+
         margin-bottom: 14px !important;
+
+    }
+
+
+    .dashboard-card {
+
+        margin-bottom: 14px !important;
+
     }
 
 }
+
+
+/* =====================================================
+   PETITS TELEPHONES
+===================================================== */
+
+@media (max-width: 576px) {
+
+
+    .main {
+
+        padding: 10px !important;
+
+    }
+
+
+    .topbar {
+
+        padding: 16px 8px 12px 8px !important;
+
+    }
+
+
+    .topbar > div:first-child {
+
+        padding-top: 68px !important;
+
+    }
+
+
+    .topbar h2 {
+
+        font-size: 28px !important;
+
+    }
+
+
+    .topbar p {
+
+        font-size: 15px !important;
+
+    }
+
+
+    #mobileMenuBtn {
+
+        top: 16px !important;
+
+        left: 10px !important;
+
+        width: 62px !important;
+
+        height: 62px !important;
+
+    }
+
+
+    #mobileMenuBtn i {
+
+        font-size: 27px !important;
+
+    }
+
+
+    .top-icons {
+
+        margin-top: 12px !important;
+
+        gap: 8px !important;
+
+    }
+
+
+    .profile-avatar {
+
+        width: 50px !important;
+
+        height: 50px !important;
+
+    }
+
+
+    .profile-avatar i {
+
+        font-size: 23px !important;
+
+    }
+
+}
+
+</style>
+
 </head>
 
 
@@ -192,7 +435,9 @@ id="sidebarOverlay">
 <nav class="sidebar">
 
 
-<!-- LOGO -->
+<!-- =====================================================
+     LOGO
+===================================================== -->
 
 <div class="logo-area">
 
@@ -212,7 +457,9 @@ ERP Agricole
 </div>
 
 
-<!-- MENU -->
+<!-- =====================================================
+     MENU
+===================================================== -->
 
 <ul>
 
@@ -532,9 +779,13 @@ class="profile"
 data-bs-toggle="modal"
 data-bs-target="#profilModal">
 
+
 <div class="profile-avatar">
-    <i class="fa-solid fa-user"></i>
+
+<i class="fa-solid fa-user"></i>
+
 </div>
+
 
 <div>
 
@@ -549,6 +800,7 @@ Admin
 </small>
 
 </div>
+
 
 </div>
 
@@ -729,12 +981,14 @@ id="productChart">
 
 </div>
 
+
 <p
 class="text-muted text-center mt-3 mb-0">
 
 Répartition des produits enregistrés
 
 </p>
+
 
 </div>
 
@@ -867,9 +1121,7 @@ Aucune activité récente.
 <td>
 
 <span class="badge bg-success">
-
 120
-
 </span>
 
 </td>
@@ -886,9 +1138,7 @@ Soja
 <td>
 
 <span class="badge bg-warning">
-
 45
-
 </span>
 
 </td>
@@ -905,9 +1155,7 @@ Farine
 <td>
 
 <span class="badge bg-danger">
-
 12
-
 </span>
 
 </td>
@@ -948,7 +1196,7 @@ Farine
 
 <i class="fa-solid fa-seedling"></i>
 
-Résumé agriculture
+Agriculture
 
 </h4>
 
@@ -963,31 +1211,18 @@ Résumé agriculture
 <tr>
 
 <td>
-Surface cultivée
+Activités aujourd'hui
 </td>
 
 <td>
 
-<strong>
-18 Ha
-</strong>
+<span
+id="totalActivites"
+class="badge bg-success">
 
-</td>
+0
 
-</tr>
-
-
-<tr>
-
-<td>
-Soja
-</td>
-
-<td>
-
-<strong>
-5 Ha
-</strong>
+</span>
 
 </td>
 
@@ -997,14 +1232,18 @@ Soja
 <tr>
 
 <td>
-Maïs
+Aujourd'hui
 </td>
 
 <td>
 
-<strong>
-5 Ha
-</strong>
+<span
+id="activitesAujourdhui"
+class="badge bg-primary">
+
+0
+
+</span>
 
 </td>
 
@@ -1014,14 +1253,18 @@ Maïs
 <tr>
 
 <td>
-Riz
+En cours
 </td>
 
 <td>
 
-<strong>
-14 Ha (prévu)
-</strong>
+<span
+id="activitesEnCours"
+class="badge bg-warning">
+
+0
+
+</span>
 
 </td>
 
@@ -1049,9 +1292,9 @@ Riz
 
 <h4>
 
-<i class="fa-solid fa-kiwi-bird"></i>
+<i class="fa-solid fa-cow"></i>
 
-Résumé élevage
+Élevage
 
 </h4>
 
@@ -1066,14 +1309,14 @@ Résumé élevage
 <tr>
 
 <td>
-Cailles adultes
+Cailles
 </td>
 
 <td>
 
-<strong>
-350
-</strong>
+<span class="badge bg-success">
+70
+</span>
 
 </td>
 
@@ -1083,14 +1326,14 @@ Cailles adultes
 <tr>
 
 <td>
-Poules
+Poules locales
 </td>
 
 <td>
 
-<strong>
+<span class="badge bg-success">
 4
-</strong>
+</span>
 
 </td>
 
@@ -1105,27 +1348,8 @@ Production œufs
 
 <td>
 
-<strong>
-30 / jour
-</strong>
-
-</td>
-
-</tr>
-
-
-<tr>
-
-<td>
-Mortalité
-</td>
-
-<td>
-
-<span class="badge bg-success">
-
-Faible
-
+<span class="badge bg-warning">
+15-18/jour
 </span>
 
 </td>
@@ -1351,30 +1575,22 @@ Nouveaux clients
 
 
 <li class="list-group-item">
-
 Restaurant ABC
-
 </li>
 
 
 <li class="list-group-item">
-
 Supermarché Espoir
-
 </li>
 
 
 <li class="list-group-item">
-
 Jean Mukendi
-
 </li>
 
 
 <li class="list-group-item">
-
 Ferme Nzambe
-
 </li>
 
 
@@ -1556,9 +1772,7 @@ Rigaine
 <td>
 
 <span class="badge bg-success">
-
 Présent
-
 </span>
 
 </td>
@@ -1575,9 +1789,7 @@ Eddy
 <td>
 
 <span class="badge bg-success">
-
 Présent
-
 </span>
 
 </td>
@@ -1594,9 +1806,7 @@ Agent 3
 <td>
 
 <span class="badge bg-warning">
-
 Congé
-
 </span>
 
 </td>
@@ -1651,9 +1861,7 @@ Tracteur
 <td>
 
 <span class="badge bg-success">
-
 Disponible
-
 </span>
 
 </td>
@@ -1670,9 +1878,7 @@ Pompe
 <td>
 
 <span class="badge bg-success">
-
 Disponible
-
 </span>
 
 </td>
@@ -1689,9 +1895,7 @@ Incubateur
 <td>
 
 <span class="badge bg-success">
-
 En service
-
 </span>
 
 </td>
@@ -1708,9 +1912,7 @@ Broyeur
 <td>
 
 <span class="badge bg-danger">
-
 Maintenance
-
 </span>
 
 </td>
@@ -2166,7 +2368,9 @@ aria-label="Fermer">
 
 
 <div class="profile-avatar-large mb-3">
-    <i class="fa-solid fa-user"></i>
+
+<i class="fa-solid fa-user"></i>
+
 </div>
 
 
@@ -2219,9 +2423,7 @@ Dernière connexion
 </th>
 
 <td id="lastLogin">
-
 Aujourd'hui
-
 </td>
 
 </tr>
@@ -2348,17 +2550,35 @@ aria-label="Fermer">
      SCRIPTS
 ===================================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
 
-<script src="js/supabase.js"></script>
 
-<script src="js/permissions.js"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
 
-<script src="js/dashboard.js?v=6"></script>
+
+<script
+src="js/supabase.js">
+</script>
+
+
+<script
+src="js/permissions.js">
+</script>
+
+
+<script
+src="js/dashboard.js?v=6">
+</script>
+
 
 </body>
 
