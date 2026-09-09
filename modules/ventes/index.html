@@ -10,21 +10,27 @@
     <title>Gestion des Ventes | Ferme Asher ERP</title>
 
 
-    <!-- BOOTSTRAP -->
+    <!-- ==================================================
+         BOOTSTRAP
+    ================================================== -->
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
 
-    <!-- CSS VENTES -->
+    <!-- ==================================================
+         CSS VENTES
+    ================================================== -->
 
     <link
         rel="stylesheet"
         href="../../css/ventes.css">
 
 
-    <!-- FONT AWESOME -->
+    <!-- ==================================================
+         FONT AWESOME
+    ================================================== -->
 
     <link
         rel="stylesheet"
@@ -32,95 +38,14 @@
 
 
     <!-- ==================================================
-         CORRECTION MOBILE
+         STYLE MOBILE ET TABLEAU
     ================================================== -->
-/* ==================================================
-   BARRE DE DEFILEMENT HORIZONTALE DU TABLEAU
-================================================== */
 
-.table-responsive {
-    width: 100% !important;
-    max-width: 100% !important;
-
-    overflow-x: scroll !important;
-    overflow-y: hidden !important;
-
-    -webkit-overflow-scrolling: touch;
-
-    scrollbar-width: auto;
-    scrollbar-color: #2E7D32 #E8F5E9;
-}
-
-
-/* Chrome / Android / Edge */
-
-.table-responsive::-webkit-scrollbar {
-    height: 14px;
-}
-
-
-.table-responsive::-webkit-scrollbar-track {
-    background: #E8F5E9;
-    border-radius: 10px;
-}
-
-
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #2E7D32;
-    border-radius: 10px;
-    border: 2px solid #E8F5E9;
-}
-
-
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #1B5E20;
-}
-
-
-/* TABLEAU PLUS LARGE QUE L'ECRAN */
-
-.table-responsive table {
-    min-width: 1100px !important;
-    width: 1100px !important;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 768px) {
-
-    .table-responsive {
-        display: block !important;
-
-        overflow-x: scroll !important;
-        overflow-y: hidden !important;
-
-        padding-bottom: 8px;
-
-        touch-action: pan-x;
-    }
-
-    .table-responsive table {
-        min-width: 1100px !important;
-        width: 1100px !important;
-    }
-
-    .table-responsive::-webkit-scrollbar {
-        height: 16px;
-    }
-
-    .table-responsive::-webkit-scrollbar-thumb {
-        background: #2E7D32;
-        border-radius: 10px;
-    }
-
-}
-    
     <style>
 
-        /* -----------------------------------------------
+        /* ==================================================
            BASE
-        ----------------------------------------------- */
+        ================================================== */
 
         html,
         body {
@@ -138,10 +63,6 @@
         }
 
 
-        /* -----------------------------------------------
-           CONTENEUR PRINCIPAL
-        ----------------------------------------------- */
-
         .container-fluid {
 
             width: 100%;
@@ -151,9 +72,9 @@
         }
 
 
-        /* -----------------------------------------------
+        /* ==================================================
            EN-TÊTE
-        ----------------------------------------------- */
+        ================================================== */
 
         .card-header {
 
@@ -162,26 +83,40 @@
         }
 
 
-        /* -----------------------------------------------
-           TABLEAU
-        ----------------------------------------------- */
+        /* ==================================================
+           TABLEAU PRINCIPAL
+        ================================================== */
 
         .table-responsive {
 
-            width: 100%;
+            width: 100% !important;
 
-            max-width: 100%;
+            max-width: 100% !important;
 
-            overflow-x: auto;
+            overflow-x: auto !important;
+
+            overflow-y: hidden !important;
 
             -webkit-overflow-scrolling: touch;
+
+            scrollbar-width: auto;
+
+            scrollbar-color:
+                #2E7D32
+                #E8F5E9;
 
         }
 
 
+        /* ==================================================
+           TABLEAU PLUS LARGE QUE L'ÉCRAN
+        ================================================== */
+
         .table-responsive table {
 
-            min-width: 1050px;
+            min-width: 1100px !important;
+
+            width: 1100px !important;
 
             margin-bottom: 0;
 
@@ -198,11 +133,113 @@
         }
 
 
-        /* -----------------------------------------------
+        /* ==================================================
+           BARRE NATIVE CHROME / EDGE
+        ================================================== */
+
+        .table-responsive::-webkit-scrollbar {
+
+            height: 14px;
+
+        }
+
+
+        .table-responsive::-webkit-scrollbar-track {
+
+            background: #E8F5E9;
+
+            border-radius: 10px;
+
+        }
+
+
+        .table-responsive::-webkit-scrollbar-thumb {
+
+            background: #2E7D32;
+
+            border-radius: 10px;
+
+            border: 2px solid #E8F5E9;
+
+        }
+
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+
+            background: #1B5E20;
+
+        }
+
+
+        /* ==================================================
+           BARRE DE DÉFILEMENT VISIBLE
+        ================================================== */
+
+        .table-scrollbar {
+
+            display: none;
+
+            width: 100%;
+
+            height: 18px;
+
+            margin-top: 8px;
+
+            overflow-x: auto;
+
+            overflow-y: hidden;
+
+            background: #E8F5E9;
+
+            border-radius: 10px;
+
+            -webkit-overflow-scrolling: touch;
+
+        }
+
+
+        .table-scrollbar-content {
+
+            height: 1px;
+
+            min-width: 1100px;
+
+        }
+
+
+        .table-scrollbar::-webkit-scrollbar {
+
+            height: 16px;
+
+        }
+
+
+        .table-scrollbar::-webkit-scrollbar-track {
+
+            background: #E8F5E9;
+
+            border-radius: 10px;
+
+        }
+
+
+        .table-scrollbar::-webkit-scrollbar-thumb {
+
+            background: #2E7D32;
+
+            border-radius: 10px;
+
+            border: 2px solid #E8F5E9;
+
+        }
+
+
+        /* ==================================================
            MOBILE
-        ----------------------------------------------- */
+        ================================================== */
 
         @media (max-width: 768px) {
+
 
             .container-fluid {
 
@@ -222,7 +259,9 @@
             }
 
 
-            /* EN-TÊTE */
+            /* ----------------------------------------------
+               EN-TÊTE
+            ---------------------------------------------- */
 
             .card-header {
 
@@ -259,7 +298,9 @@
             }
 
 
-            /* CORPS */
+            /* ----------------------------------------------
+               CORPS
+            ---------------------------------------------- */
 
             .card-body {
 
@@ -268,7 +309,9 @@
             }
 
 
-            /* FILTRES */
+            /* ----------------------------------------------
+               FILTRES
+            ---------------------------------------------- */
 
             .row.mb-4 {
 
@@ -311,7 +354,9 @@
             }
 
 
-            /* TOTAL */
+            /* ----------------------------------------------
+               TOTAL
+            ---------------------------------------------- */
 
             .row.mb-4 .text-end {
 
@@ -329,20 +374,34 @@
             }
 
 
-            /* TABLEAU */
+            /* ----------------------------------------------
+               TABLEAU
+            ---------------------------------------------- */
 
             .table-responsive {
 
+                width: 100% !important;
+
                 margin-top: 15px;
 
+                border: 1px solid #DEE2E6;
+
                 border-radius: 10px;
+
+                overflow-x: auto !important;
+
+                overflow-y: hidden !important;
+
+                padding-bottom: 2px;
 
             }
 
 
             .table-responsive table {
 
-                min-width: 1050px !important;
+                min-width: 1100px !important;
+
+                width: 1100px !important;
 
                 font-size: 14px;
 
@@ -365,7 +424,9 @@
             }
 
 
-            /* COLONNE ACTIONS */
+            /* ----------------------------------------------
+               COLONNE ACTIONS
+            ---------------------------------------------- */
 
             .table-responsive th:last-child,
             .table-responsive td:last-child {
@@ -374,14 +435,28 @@
 
             }
 
+
+            /* ----------------------------------------------
+               BARRE DE DÉFILEMENT VISIBLE
+            ---------------------------------------------- */
+
+            .table-scrollbar {
+
+                display: block !important;
+
+                margin-bottom: 5px;
+
+            }
+
         }
 
 
-        /* -----------------------------------------------
+        /* ==================================================
            PETITS TÉLÉPHONES
-        ----------------------------------------------- */
+        ================================================== */
 
         @media (max-width: 576px) {
+
 
             .container-fluid {
 
@@ -431,14 +506,32 @@
 
                 overflow-x: auto !important;
 
-                border: 1px solid #dee2e6;
-
             }
 
 
             .table-responsive table {
 
-                min-width: 1050px !important;
+                min-width: 1100px !important;
+
+                width: 1100px !important;
+
+            }
+
+
+            .table-scrollbar {
+
+                height: 20px;
+
+                margin-top: 10px;
+
+                margin-bottom: 8px;
+
+            }
+
+
+            .table-scrollbar::-webkit-scrollbar {
+
+                height: 18px;
 
             }
 
@@ -513,13 +606,11 @@
 
                 <div class="col-md-4 mb-2">
 
-
                     <input
                         type="text"
                         id="recherche"
                         class="form-control"
                         placeholder="Rechercher un client ou un produit">
-
 
                 </div>
 
@@ -528,12 +619,10 @@
 
                 <div class="col-md-3 mb-2">
 
-
                     <input
                         type="date"
                         id="filtreDate"
                         class="form-control">
-
 
                 </div>
 
@@ -542,20 +631,16 @@
 
                 <div class="col-md-2 mb-2">
 
-
                     <button
                         type="button"
                         class="btn btn-success w-100"
                         onclick="chargerVentes()">
 
-
                         <i class="fa-solid fa-rotate"></i>
 
                         Actualiser
 
-
                     </button>
-
 
                 </div>
 
@@ -564,25 +649,17 @@
 
                 <div class="col-md-3 text-end">
 
-
                     <h4>
-
 
                         Total :
 
-
                         <span id="nombreVentes">
-
                             0
-
                         </span>
-
 
                         ventes
 
-
                     </h4>
-
 
                 </div>
 
@@ -594,7 +671,9 @@
                  TABLEAU
             ================================================== -->
 
-            <div class="table-responsive">
+            <div
+                class="table-responsive"
+                id="tableVentesContainer">
 
 
                 <table
@@ -603,68 +682,73 @@
 
                     <thead class="table-success">
 
-
                         <tr>
-
 
                             <th>
                                 ID
                             </th>
 
-
                             <th>
                                 Date
                             </th>
-
 
                             <th>
                                 Client
                             </th>
 
-
                             <th>
                                 Produit
                             </th>
-
 
                             <th>
                                 Qté
                             </th>
 
-
                             <th>
                                 Total
                             </th>
-
 
                             <th>
                                 Paiement
                             </th>
 
-
                             <th>
                                 Statut
                             </th>
-
 
                             <th style="min-width:240px;">
                                 Actions
                             </th>
 
-
                         </tr>
-
 
                     </thead>
 
 
                     <tbody id="tableVentes">
 
-
                     </tbody>
 
 
                 </table>
+
+
+            </div>
+
+
+            <!-- ==================================================
+                 BARRE DE DÉFILEMENT HORIZONTALE
+            ================================================== -->
+
+            <div
+                class="table-scrollbar"
+                id="barreDefilement">
+
+
+                <div
+                    class="table-scrollbar-content"
+                    id="barreDefilementContenu">
+                </div>
 
 
             </div>
@@ -677,7 +761,6 @@
 
 
 </div>
-
 
 
 <!-- ==================================================
@@ -718,6 +801,211 @@
 
 <script
     src="../../js/ventes.js">
+</script>
+
+
+<!-- ==================================================
+     SYNCHRONISATION DE LA BARRE
+================================================== -->
+
+<script>
+
+(function () {
+
+
+    function initialiserBarreDefilement() {
+
+
+        const tableau =
+            document.getElementById("tableVentesContainer");
+
+
+        const barre =
+            document.getElementById("barreDefilement");
+
+
+        const contenu =
+            document.getElementById("barreDefilementContenu");
+
+
+        if (!tableau || !barre || !contenu) {
+
+            return;
+
+        }
+
+
+        function synchroniserLargeur() {
+
+
+            const largeur =
+                Math.max(
+                    tableau.scrollWidth,
+                    1100
+                );
+
+
+            contenu.style.width =
+                largeur + "px";
+
+
+            /*
+             * Synchronise la position
+             * du tableau avec la barre.
+             */
+
+            barre.scrollLeft =
+                tableau.scrollLeft;
+
+        }
+
+
+        /*
+         * Tableau → barre
+         */
+
+        tableau.addEventListener(
+            "scroll",
+            function () {
+
+                if (
+                    Math.abs(
+                        barre.scrollLeft -
+                        tableau.scrollLeft
+                    ) > 1
+                ) {
+
+                    barre.scrollLeft =
+                        tableau.scrollLeft;
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Barre → tableau
+         */
+
+        barre.addEventListener(
+            "scroll",
+            function () {
+
+                if (
+                    Math.abs(
+                        tableau.scrollLeft -
+                        barre.scrollLeft
+                    ) > 1
+                ) {
+
+                    tableau.scrollLeft =
+                        barre.scrollLeft;
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Surveillance des nouvelles lignes.
+         */
+
+        const tbody =
+            document.getElementById("tableVentes");
+
+
+        if (tbody) {
+
+            const observer =
+                new MutationObserver(
+                    function () {
+
+                        setTimeout(
+                            synchroniserLargeur,
+                            100
+                        );
+
+                    }
+                );
+
+
+            observer.observe(
+                tbody,
+                {
+                    childList: true,
+                    subtree: true
+                }
+            );
+
+        }
+
+
+        /*
+         * Surveillance de la taille.
+         */
+
+        if (window.ResizeObserver) {
+
+            const resizeObserver =
+                new ResizeObserver(
+                    function () {
+
+                        synchroniserLargeur();
+
+                    }
+                );
+
+
+            resizeObserver.observe(
+                tableau
+            );
+
+        }
+
+
+        /*
+         * Première synchronisation.
+         */
+
+        setTimeout(
+            synchroniserLargeur,
+            300
+        );
+
+
+        setTimeout(
+            synchroniserLargeur,
+            1000
+        );
+
+    }
+
+
+    /*
+     * Attendre que la page soit prête.
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initialiserBarreDefilement
+        );
+
+    } else {
+
+        initialiserBarreDefilement();
+
+    }
+
+
+})();
+
 </script>
 
 
