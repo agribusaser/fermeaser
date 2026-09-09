@@ -1,7 +1,8 @@
 /*==================================================
 FERME ASHER ERP
 DASHBOARD.JS
-VERSION 4.0 - SUPABASE + REALTIME + MOBILE
+VERSION 5.0
+SUPABASE + REALTIME + MOBILE + RECONNEXION
 ==================================================*/
 
 "use strict";
@@ -18,6 +19,8 @@ let channelDashboard = null;
 
 let dashboardInitialise = false;
 let actualisationEnCours = false;
+let reconnexionEnCours = false;
+let timerReconnexion = null;
 
 
 /* ==================================================
@@ -27,7 +30,7 @@ let actualisationEnCours = false;
 document.addEventListener("DOMContentLoaded", async function () {
 
     console.log("==========================================");
-    console.log("FERME ASHER ERP - DASHBOARD VERSION 4.0");
+    console.log("FERME ASHER ERP - DASHBOARD VERSION 5.0");
     console.log("Initialisation...");
     console.log("==========================================");
 
@@ -36,7 +39,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     initialiserMenuMobile();
     initialiserEvenementsConnexion();
 
-    await attendreSupabase();
+    const supabaseOK = await attendreSupabase();
+
+    if (!supabaseOK) {
+        afficherErreurDashboard(
+            "Connexion Supabase indisponible."
+        );
+        return;
+    }
+
+    const sessionOK = await attendreSessionSupabase();
+
+    if (!sessionOK) {
+        afficherErreurDashboard(
+            "Session utilisateur indisponible."
+        );
+        return;
+    }
 
     await chargerDashboard();
 
@@ -44,7 +63,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     dashboardInitialise = true;
 
+    console.log("==========================================");
     console.log("Dashboard prêt.");
+    console.log("Realtime actif.");
+    console.log("==========================================");
 });
 
 
@@ -55,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 async function attendreSupabase() {
 
     let tentatives = 0;
-    const maximum = 30;
+    const maximum = 40;
 
     while (
         !window.supabaseClient &&
@@ -68,12 +90,11 @@ async function attendreSupabase() {
         );
 
         await new Promise(function (resolve) {
-            setTimeout(resolve, 200);
+            setTimeout(resolve, 250);
         });
 
         tentatives++;
     }
-
 
     if (!window.supabaseClient) {
 
@@ -81,19 +102,75 @@ async function attendreSupabase() {
             "Supabase n'a pas pu être chargé."
         );
 
-        afficherErreurDashboard(
-            "Connexion Supabase indisponible."
-        );
-
         return false;
     }
-
 
     console.log(
         "Supabase disponible."
     );
 
     return true;
+}
+
+
+/* ==================================================
+   ATTENDRE SESSION SUPABASE
+================================================== */
+
+async function attendreSessionSupabase() {
+
+    if (!verifierSupabase()) {
+        return false;
+    }
+
+    let tentatives = 0;
+    const maximum = 20;
+
+    while (tentatives < maximum) {
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .auth
+                    .getSession();
+
+            if (
+                !error &&
+                data &&
+                data.session
+            ) {
+
+                console.log(
+                    "Session Supabase active."
+                );
+
+                return true;
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Erreur récupération session :",
+                error
+            );
+        }
+
+        await new Promise(function (resolve) {
+            setTimeout(resolve, 300);
+        });
+
+        tentatives++;
+    }
+
+    console.warn(
+        "Aucune session Supabase après attente."
+    );
+
+    return false;
 }
 
 
@@ -153,7 +230,7 @@ function verifierSupabase() {
 
 
 /* ==================================================
-   VÉRIFIER LA CONNEXION UTILISATEUR
+   VÉRIFICATION SESSION
 ================================================== */
 
 async function verifierSessionSupabase() {
@@ -172,7 +249,6 @@ async function verifierSessionSupabase() {
                 .auth
                 .getSession();
 
-
         if (error) {
 
             console.error(
@@ -183,8 +259,10 @@ async function verifierSessionSupabase() {
             return false;
         }
 
-
-        if (!data || !data.session) {
+        if (
+            !data ||
+            !data.session
+        ) {
 
             console.warn(
                 "Aucune session Supabase active."
@@ -192,11 +270,6 @@ async function verifierSessionSupabase() {
 
             return false;
         }
-
-
-        console.log(
-            "Session Supabase active."
-        );
 
         return true;
 
@@ -224,18 +297,15 @@ async function chargerDashboard() {
             "Connexion à Supabase impossible."
         );
 
-        return;
+        return false;
     }
-
 
     console.log(
         "Chargement des données Supabase..."
     );
 
-
     const sessionOK =
         await verifierSessionSupabase();
-
 
     if (!sessionOK) {
 
@@ -243,26 +313,33 @@ async function chargerDashboard() {
             "Session utilisateur indisponible."
         );
 
-        return;
+        return false;
     }
 
+    const resultats =
+        await Promise.all([
 
-    await Promise.all([
-        chargerVentes(),
-        chargerProduits(),
-        chargerClients(),
-        chargerActivites()
-    ]);
+            chargerVentes(),
+            chargerProduits(),
+            chargerClients(),
+            chargerActivites()
 
+        ]);
+
+    console.log(
+        "Résultat chargement Dashboard :",
+        resultats
+    );
 
     afficherStatistiques();
 
     initialiserGraphiques();
 
-
     console.log(
         "Dashboard chargé avec succès."
     );
+
+    return true;
 }
 
 
@@ -288,7 +365,6 @@ async function chargerVentes() {
                     }
                 );
 
-
         if (error) {
 
             console.error(
@@ -296,17 +372,13 @@ async function chargerVentes() {
                 error
             );
 
-            /* NE PAS EFFACER LES ANCIENNES DONNÉES */
-
             return false;
         }
-
 
         ventesERP =
             Array.isArray(data)
                 ? data
                 : [];
-
 
         console.log(
             "Ventes chargées :",
@@ -314,7 +386,6 @@ async function chargerVentes() {
         );
 
         return true;
-
 
     } catch (error) {
 
@@ -351,7 +422,6 @@ async function chargerProduits() {
                     }
                 );
 
-
         if (error) {
 
             console.error(
@@ -362,12 +432,10 @@ async function chargerProduits() {
             return false;
         }
 
-
         produitsERP =
             Array.isArray(data)
                 ? data
                 : [];
-
 
         console.log(
             "Produits chargés :",
@@ -375,7 +443,6 @@ async function chargerProduits() {
         );
 
         return true;
-
 
     } catch (error) {
 
@@ -411,7 +478,6 @@ async function chargerClients() {
                     }
                 );
 
-
         if (error) {
 
             console.error(
@@ -422,12 +488,10 @@ async function chargerClients() {
             return false;
         }
 
-
         clientsERP =
             Array.isArray(data)
                 ? data
                 : [];
-
 
         console.log(
             "Clients chargés :",
@@ -435,7 +499,6 @@ async function chargerClients() {
         );
 
         return true;
-
 
     } catch (error) {
 
@@ -457,14 +520,14 @@ function afficherStatistiques() {
 
     let chiffreAffaires = 0;
 
-
     ventesERP.forEach(function (vente) {
 
         chiffreAffaires +=
-            Number(vente.total || 0);
+            Number(
+                vente.total || 0
+            );
 
     });
-
 
     const kpiVentes =
         document.getElementById("kpiVentes");
@@ -483,7 +546,6 @@ function afficherStatistiques() {
 
         kpiVentes.textContent =
             ventesERP.length;
-
     }
 
 
@@ -491,7 +553,6 @@ function afficherStatistiques() {
 
         kpiStock.textContent =
             produitsERP.length;
-
     }
 
 
@@ -499,7 +560,6 @@ function afficherStatistiques() {
 
         kpiClients.textContent =
             clientsERP.length;
-
     }
 
 
@@ -509,7 +569,6 @@ function afficherStatistiques() {
             chiffreAffaires.toLocaleString(
                 "fr-FR"
             ) + " FC";
-
     }
 
 
@@ -536,11 +595,9 @@ async function chargerActivites() {
             "recentActivities"
         );
 
-
     if (!tbody) {
-        return false;
+        return true;
     }
-
 
     try {
 
@@ -559,7 +616,6 @@ async function chargerActivites() {
                 )
                 .limit(5);
 
-
         if (error) {
 
             console.error(
@@ -569,7 +625,6 @@ async function chargerActivites() {
 
             return false;
         }
-
 
         if (
             !data ||
@@ -581,15 +636,12 @@ async function chargerActivites() {
             return true;
         }
 
-
         tbody.innerHTML = "";
-
 
         data.forEach(function (action) {
 
             const ligne =
                 document.createElement("tr");
-
 
             const date =
                 document.createElement("td");
@@ -600,36 +652,28 @@ async function chargerActivites() {
             const description =
                 document.createElement("td");
 
-
             date.textContent =
                 formaterDate(
                     action.created_at
                 );
 
-
             utilisateur.textContent =
                 action.utilisateur_nom ||
                 "Système";
-
 
             description.textContent =
                 action.description ||
                 action.action ||
                 "Action enregistrée";
 
-
             ligne.appendChild(date);
             ligne.appendChild(utilisateur);
             ligne.appendChild(description);
 
-
             tbody.appendChild(ligne);
-
         });
 
-
         return true;
-
 
     } catch (error) {
 
@@ -654,11 +698,9 @@ function afficherAucuneActivite() {
             "recentActivities"
         );
 
-
     if (!tbody) {
         return;
     }
-
 
     tbody.innerHTML = `
         <tr>
@@ -688,9 +730,7 @@ function initialiserGraphiques() {
         return;
     }
 
-
     initialiserGraphiqueVentes();
-
     initialiserGraphiqueProduits();
 }
 
@@ -706,11 +746,9 @@ function initialiserGraphiqueVentes() {
             "salesChart"
         );
 
-
     if (!canvas) {
         return;
     }
-
 
     const mois = [
         "Jan",
@@ -727,10 +765,8 @@ function initialiserGraphiqueVentes() {
         "Déc"
     ];
 
-
     const totalMois =
         Array(12).fill(0);
-
 
     ventesERP.forEach(function (vente) {
 
@@ -738,47 +774,36 @@ function initialiserGraphiqueVentes() {
             return;
         }
 
-
         const date =
             new Date(
                 vente.date
             );
-
 
         if (
             isNaN(
                 date.getTime()
             )
         ) {
-
             return;
         }
 
-
-        const moisVente =
-            date.getMonth();
-
-
-        totalMois[moisVente] +=
+        totalMois[
+            date.getMonth()
+        ] +=
             Number(
                 vente.total || 0
             );
-
     });
-
 
     if (canvas._chartInstance) {
 
         canvas._chartInstance.destroy();
-
     }
-
 
     canvas._chartInstance =
         new Chart(
             canvas,
             {
-
                 type: "bar",
 
                 data: {
@@ -786,7 +811,6 @@ function initialiserGraphiqueVentes() {
                     labels: mois,
 
                     datasets: [
-
                         {
                             label:
                                 "Chiffre d'affaires",
@@ -794,10 +818,8 @@ function initialiserGraphiqueVentes() {
                             data:
                                 totalMois
                         }
-
                     ]
                 },
-
 
                 options: {
 
@@ -808,11 +830,9 @@ function initialiserGraphiqueVentes() {
                     plugins: {
 
                         legend: {
-
                             display: true
                         }
                     },
-
 
                     scales: {
 
@@ -851,18 +871,15 @@ function initialiserGraphiqueProduits() {
             "productChart"
         );
 
-
     if (!canvas) {
         return;
     }
-
 
     const produits =
         produitsERP.slice(
             0,
             10
         );
-
 
     const labels =
         produits.map(
@@ -873,7 +890,6 @@ function initialiserGraphiqueProduits() {
 
             }
         );
-
 
     const stocks =
         produits.map(
@@ -886,13 +902,10 @@ function initialiserGraphiqueProduits() {
             }
         );
 
-
     if (canvas._chartInstance) {
 
         canvas._chartInstance.destroy();
-
     }
-
 
     canvas._chartInstance =
         new Chart(
@@ -906,16 +919,12 @@ function initialiserGraphiqueProduits() {
                     labels: labels,
 
                     datasets: [
-
                         {
                             label: "Stock",
-
                             data: stocks
                         }
-
                     ]
                 },
-
 
                 options: {
 
@@ -928,9 +937,7 @@ function initialiserGraphiqueProduits() {
                     scales: {
 
                         x: {
-
                             beginAtZero: true
-
                         }
                     }
                 }
@@ -949,11 +956,12 @@ function initialiserTempsReel() {
         return;
     }
 
-
     console.log(
         "Activation du temps réel Supabase..."
     );
 
+
+    /* Supprimer ancien canal */
 
     if (channelDashboard) {
 
@@ -967,17 +975,22 @@ function initialiserTempsReel() {
         } catch (error) {
 
             console.warn(
-                "Ancien canal non supprimé.",
+                "Impossible de supprimer ancien canal.",
                 error
             );
         }
+
+        channelDashboard = null;
     }
 
+
+    /* Créer nouveau canal */
 
     channelDashboard =
         window.supabaseClient
             .channel(
-                "dashboard-temps-reel-v4"
+                "dashboard-temps-reel-v5-" +
+                Date.now()
             )
 
 
@@ -996,8 +1009,9 @@ function initialiserTempsReel() {
                 async function (payload) {
 
                     console.log(
-                        "Realtime VENTES :",
-                        payload.eventType
+                        "REALTIME VENTES :",
+                        payload.eventType,
+                        payload
                     );
 
                     await actualiserDashboard();
@@ -1020,8 +1034,9 @@ function initialiserTempsReel() {
                 async function (payload) {
 
                     console.log(
-                        "Realtime PRODUITS :",
-                        payload.eventType
+                        "REALTIME PRODUITS :",
+                        payload.eventType,
+                        payload
                     );
 
                     await actualiserDashboard();
@@ -1044,8 +1059,9 @@ function initialiserTempsReel() {
                 async function (payload) {
 
                     console.log(
-                        "Realtime CLIENTS :",
-                        payload.eventType
+                        "REALTIME CLIENTS :",
+                        payload.eventType,
+                        payload
                     );
 
                     await actualiserDashboard();
@@ -1065,10 +1081,11 @@ function initialiserTempsReel() {
                     table: "journal_actions"
                 },
 
-                async function () {
+                async function (payload) {
 
                     console.log(
-                        "Realtime JOURNAL"
+                        "REALTIME JOURNAL :",
+                        payload.eventType
                     );
 
                     await chargerActivites();
@@ -1081,12 +1098,20 @@ function initialiserTempsReel() {
             ========================== */
 
             .subscribe(
-                function (status) {
+                function (status, error) {
 
                     console.log(
                         "Realtime Dashboard :",
                         status
                     );
+
+                    if (error) {
+
+                        console.error(
+                            "Erreur Realtime :",
+                            error
+                        );
+                    }
 
 
                     if (
@@ -1094,8 +1119,10 @@ function initialiserTempsReel() {
                     ) {
 
                         console.log(
-                            "Realtime Dashboard connecté."
+                            "✓ Realtime Dashboard connecté."
                         );
+
+                        reconnexionEnCours = false;
                     }
 
 
@@ -1104,8 +1131,10 @@ function initialiserTempsReel() {
                     ) {
 
                         console.warn(
-                            "Erreur du canal Realtime."
+                            "⚠ Realtime : CHANNEL_ERROR"
                         );
+
+                        programmerReconnexionRealtime();
                     }
 
 
@@ -1114,8 +1143,10 @@ function initialiserTempsReel() {
                     ) {
 
                         console.warn(
-                            "Realtime : délai dépassé."
+                            "⚠ Realtime : TIMED_OUT"
                         );
+
+                        programmerReconnexionRealtime();
                     }
 
 
@@ -1124,11 +1155,79 @@ function initialiserTempsReel() {
                     ) {
 
                         console.warn(
-                            "Realtime : canal fermé."
+                            "⚠ Realtime : canal fermé."
                         );
+
+                        programmerReconnexionRealtime();
                     }
                 }
             );
+}
+
+
+/* ==================================================
+   RECONNEXION REALTIME
+================================================== */
+
+function programmerReconnexionRealtime() {
+
+    if (reconnexionEnCours) {
+        return;
+    }
+
+    if (!navigator.onLine) {
+
+        console.log(
+            "Pas d'Internet : reconnexion différée."
+        );
+
+        return;
+    }
+
+    reconnexionEnCours = true;
+
+    console.log(
+        "Reconnexion Realtime programmée..."
+    );
+
+
+    if (timerReconnexion) {
+
+        clearTimeout(
+            timerReconnexion
+        );
+    }
+
+
+    timerReconnexion =
+        setTimeout(
+            async function () {
+
+                reconnexionEnCours = false;
+
+                console.log(
+                    "Tentative de reconnexion Realtime..."
+                );
+
+                const sessionOK =
+                    await verifierSessionSupabase();
+
+                if (!sessionOK) {
+
+                    console.warn(
+                        "Session indisponible."
+                    );
+
+                    return;
+                }
+
+                initialiserTempsReel();
+
+                await actualiserDashboard();
+
+            },
+            2000
+        );
 }
 
 
@@ -1148,14 +1247,41 @@ async function actualiserDashboard() {
     }
 
 
+    if (!navigator.onLine) {
+
+        console.warn(
+            "Actualisation impossible : hors ligne."
+        );
+
+        return;
+    }
+
+
     actualisationEnCours = true;
 
 
     try {
 
         console.log(
+            "=========================================="
+        );
+
+        console.log(
             "Actualisation du Dashboard..."
         );
+
+
+        const sessionOK =
+            await verifierSessionSupabase();
+
+        if (!sessionOK) {
+
+            console.warn(
+                "Session Supabase absente."
+            );
+
+            return;
+        }
 
 
         await Promise.all([
@@ -1196,54 +1322,61 @@ async function actualiserDashboard() {
 
 
 /* ==================================================
-   CONNEXION INTERNET / HORS LIGNE
+   CONNEXION INTERNET
 ================================================== */
 
 function initialiserEvenementsConnexion() {
+
+
+    /* ==========================
+       RETOUR EN LIGNE
+    ========================== */
 
     window.addEventListener(
         "online",
         async function () {
 
             console.log(
-                "Internet disponible."
+                "✓ Internet disponible."
             );
-
 
             afficherEtatConnexion(
                 true
             );
 
-
             await attendreSupabase();
+
+            await attendreSessionSupabase();
 
             await actualiserDashboard();
 
-
-            /* Réactiver Realtime */
-
             initialiserTempsReel();
-
         }
     );
 
+
+    /* ==========================
+       HORS LIGNE
+    ========================== */
 
     window.addEventListener(
         "offline",
         function () {
 
             console.warn(
-                "Connexion Internet perdue."
+                "⚠ Connexion Internet perdue."
             );
-
 
             afficherEtatConnexion(
                 false
             );
-
         }
     );
 
+
+    /* ==========================
+       RETOUR APPLICATION MOBILE
+    ========================== */
 
     document.addEventListener(
         "visibilitychange",
@@ -1258,16 +1391,69 @@ function initialiserEvenementsConnexion() {
                     "Application redevenue active."
                 );
 
-
                 if (
                     navigator.onLine
                 ) {
 
+                    await attendreSupabase();
+
+                    await attendreSessionSupabase();
+
                     await actualiserDashboard();
 
                     initialiserTempsReel();
-
                 }
+            }
+        }
+    );
+
+
+    /* ==========================
+       FOCUS FENÊTRE
+    ========================== */
+
+    window.addEventListener(
+        "focus",
+        async function () {
+
+            if (
+                navigator.onLine &&
+                dashboardInitialise
+            ) {
+
+                console.log(
+                    "Fenêtre active : vérification Dashboard..."
+                );
+
+                await actualiserDashboard();
+            }
+        }
+    );
+
+
+    /* ==========================
+       PAGESHOW MOBILE
+    ========================== */
+
+    window.addEventListener(
+        "pageshow",
+        async function () {
+
+            console.log(
+                "pageshow : page affichée."
+            );
+
+            if (
+                navigator.onLine
+            ) {
+
+                await attendreSupabase();
+
+                await attendreSessionSupabase();
+
+                await actualiserDashboard();
+
+                initialiserTempsReel();
             }
         }
     );
@@ -1297,7 +1483,6 @@ function afficherEtatConnexion(
 
         indicateur.id =
             "etatConnexionERP";
-
 
         indicateur.style.position =
             "fixed";
@@ -1344,10 +1529,13 @@ function afficherEtatConnexion(
         setTimeout(
             function () {
 
-                if (indicateur) {
+                const element =
+                    document.getElementById(
+                        "etatConnexionERP"
+                    );
 
-                    indicateur.remove();
-
+                if (element) {
+                    element.remove();
                 }
 
             },
@@ -1380,12 +1568,10 @@ function formaterDate(
         return "";
     }
 
-
     const date =
         new Date(
             dateTexte
         );
-
 
     if (
         isNaN(
@@ -1395,7 +1581,6 @@ function formaterDate(
 
         return dateTexte;
     }
-
 
     return date.toLocaleString(
         "fr-FR",
@@ -1442,7 +1627,6 @@ function afficherErreurDashboard(
                     id
                 );
 
-
             if (element) {
 
                 element.textContent =
@@ -1463,7 +1647,6 @@ async function deconnexion() {
         "Déconnexion..."
     );
 
-
     try {
 
         if (
@@ -1477,7 +1660,6 @@ async function deconnexion() {
                     .auth
                     .signOut();
 
-
             if (error) {
 
                 console.error(
@@ -1486,7 +1668,6 @@ async function deconnexion() {
                 );
             }
         }
-
 
     } catch (error) {
 
@@ -1501,11 +1682,9 @@ async function deconnexion() {
         "sessionERP"
     );
 
-
     localStorage.removeItem(
         "sessionERP"
     );
-
 
     window.location.href =
         "login.html";
@@ -1523,12 +1702,10 @@ function initialiserMenuMobile() {
             "mobileMenuBtn"
         );
 
-
     const sidebar =
         document.querySelector(
             ".sidebar"
         );
-
 
     const overlay =
         document.getElementById(
@@ -1558,7 +1735,6 @@ function initialiserMenuMobile() {
                 "active"
             );
 
-
             overlay.classList.toggle(
                 "active"
             );
@@ -1568,7 +1744,6 @@ function initialiserMenuMobile() {
                 menuBtn.querySelector(
                     "i"
                 );
-
 
             if (!icon) {
                 return;
@@ -1642,12 +1817,10 @@ function fermerMenuMobile() {
             "mobileMenuBtn"
         );
 
-
     const sidebar =
         document.querySelector(
             ".sidebar"
         );
-
 
     const overlay =
         document.getElementById(
@@ -1677,7 +1850,6 @@ function fermerMenuMobile() {
             menuBtn.querySelector(
                 "i"
             );
-
 
         if (icon) {
 
@@ -1721,5 +1893,5 @@ window.deconnexion =
 ================================================== */
 
 console.log(
-    "Ferme Asher ERP - Dashboard.js Version 4.0 chargé."
+    "Ferme Asher ERP - Dashboard.js Version 5.0 chargé."
 );
