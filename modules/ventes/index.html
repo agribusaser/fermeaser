@@ -38,7 +38,7 @@
 
 
     <!-- ==================================================
-         STYLE MOBILE ET TABLEAU
+         CSS MOBILE
     ================================================== -->
 
     <style>
@@ -51,11 +51,9 @@
         body {
 
             width: 100%;
-
             min-height: 100%;
 
             margin: 0;
-
             padding: 0;
 
             overflow-x: hidden;
@@ -63,11 +61,32 @@
         }
 
 
+        body {
+
+            background: #f4f7fb;
+
+        }
+
+
+        /* ==================================================
+           CONTENEUR PRINCIPAL
+        ================================================== */
+
         .container-fluid {
 
             width: 100%;
-
             max-width: 100%;
+
+        }
+
+
+        /* ==================================================
+           CARTE PRINCIPALE
+        ================================================== */
+
+        .card {
+
+            width: 100%;
 
         }
 
@@ -84,7 +103,7 @@
 
 
         /* ==================================================
-           TABLEAU PRINCIPAL
+           TABLEAU
         ================================================== */
 
         .table-responsive {
@@ -109,14 +128,14 @@
 
 
         /* ==================================================
-           TABLEAU PLUS LARGE QUE L'ÉCRAN
+           TABLEAU LARGE
         ================================================== */
 
         .table-responsive table {
 
-            min-width: 1100px !important;
-
             width: 1100px !important;
+
+            min-width: 1100px !important;
 
             margin-bottom: 0;
 
@@ -134,7 +153,7 @@
 
 
         /* ==================================================
-           BARRE NATIVE CHROME / EDGE
+           BARRE DE DEFILEMENT DU TABLEAU
         ================================================== */
 
         .table-responsive::-webkit-scrollbar {
@@ -172,18 +191,16 @@
 
 
         /* ==================================================
-           BARRE DE DÉFILEMENT VISIBLE
+           BARRE DE DEFILEMENT SECONDAIRE
         ================================================== */
 
         .table-scrollbar {
 
-            display: none;
-
             width: 100%;
 
-            height: 18px;
+            height: 20px;
 
-            margin-top: 8px;
+            margin-top: 10px;
 
             overflow-x: auto;
 
@@ -195,21 +212,29 @@
 
             -webkit-overflow-scrolling: touch;
 
+            scrollbar-width: auto;
+
+            scrollbar-color:
+                #2E7D32
+                #E8F5E9;
+
         }
 
 
         .table-scrollbar-content {
 
-            height: 1px;
+            width: 1100px;
 
             min-width: 1100px;
+
+            height: 1px;
 
         }
 
 
         .table-scrollbar::-webkit-scrollbar {
 
-            height: 16px;
+            height: 18px;
 
         }
 
@@ -235,11 +260,28 @@
 
 
         /* ==================================================
-           MOBILE
+           DESKTOP
+        ================================================== */
+
+        @media (min-width: 769px) {
+
+            .table-scrollbar {
+
+                display: none;
+
+            }
+
+        }
+
+
+        /* ==================================================
+           TABLETTE
         ================================================== */
 
         @media (max-width: 768px) {
 
+
+            /* CONTENEUR */
 
             .container-fluid {
 
@@ -247,6 +289,8 @@
 
             }
 
+
+            /* CARTE */
 
             .card {
 
@@ -280,9 +324,9 @@
 
             .card-header h3 {
 
-                font-size: 22px !important;
-
                 margin: 0 !important;
+
+                font-size: 22px !important;
 
                 text-align: center;
 
@@ -326,11 +370,11 @@
 
                 width: 100% !important;
 
-                margin-bottom: 10px !important;
-
                 padding-left: 0 !important;
 
                 padding-right: 0 !important;
+
+                margin-bottom: 10px !important;
 
             }
 
@@ -384,24 +428,22 @@
 
                 margin-top: 15px;
 
-                border: 1px solid #DEE2E6;
-
-                border-radius: 10px;
-
                 overflow-x: auto !important;
 
                 overflow-y: hidden !important;
 
-                padding-bottom: 2px;
+                border: 1px solid #DEE2E6;
+
+                border-radius: 10px;
 
             }
 
 
             .table-responsive table {
 
-                min-width: 1100px !important;
-
                 width: 1100px !important;
+
+                min-width: 1100px !important;
 
                 font-size: 14px;
 
@@ -425,7 +467,7 @@
 
 
             /* ----------------------------------------------
-               COLONNE ACTIONS
+               ACTIONS
             ---------------------------------------------- */
 
             .table-responsive th:last-child,
@@ -437,14 +479,12 @@
 
 
             /* ----------------------------------------------
-               BARRE DE DÉFILEMENT VISIBLE
+               BARRE SECONDAIRE
             ---------------------------------------------- */
 
             .table-scrollbar {
 
-                display: block !important;
-
-                margin-bottom: 5px;
+                display: block;
 
             }
 
@@ -452,7 +492,7 @@
 
 
         /* ==================================================
-           PETITS TÉLÉPHONES
+           PETITS TELEPHONES
         ================================================== */
 
         @media (max-width: 576px) {
@@ -500,31 +540,20 @@
             }
 
 
-            .table-responsive {
-
-                width: 100% !important;
-
-                overflow-x: auto !important;
-
-            }
-
-
             .table-responsive table {
 
-                min-width: 1100px !important;
-
                 width: 1100px !important;
+
+                min-width: 1100px !important;
 
             }
 
 
             .table-scrollbar {
 
-                height: 20px;
+                height: 22px;
 
                 margin-top: 10px;
-
-                margin-bottom: 8px;
 
             }
 
@@ -596,7 +625,7 @@
 
 
             <!-- ==================================================
-                 RECHERCHE / FILTRES
+                 RECHERCHE ET FILTRES
             ================================================== -->
 
             <div class="row mb-4">
@@ -654,7 +683,9 @@
                         Total :
 
                         <span id="nombreVentes">
+
                             0
+
                         </span>
 
                         ventes
@@ -737,7 +768,7 @@
 
 
             <!-- ==================================================
-                 BARRE DE DÉFILEMENT HORIZONTALE
+                 BARRE HORIZONTALE
             ================================================== -->
 
             <div
@@ -756,9 +787,7 @@
 
         </div>
 
-
     </div>
-
 
 </div>
 
@@ -805,7 +834,7 @@
 
 
 <!-- ==================================================
-     SYNCHRONISATION DE LA BARRE
+     SYNCHRONISATION DU DEFILEMENT
 ================================================== -->
 
 <script>
@@ -813,29 +842,39 @@
 (function () {
 
 
-    function initialiserBarreDefilement() {
+    function initialiserDefilement() {
 
 
         const tableau =
-            document.getElementById("tableVentesContainer");
+            document.getElementById(
+                "tableVentesContainer"
+            );
 
 
         const barre =
-            document.getElementById("barreDefilement");
+            document.getElementById(
+                "barreDefilement"
+            );
 
 
         const contenu =
-            document.getElementById("barreDefilementContenu");
+            document.getElementById(
+                "barreDefilementContenu"
+            );
 
 
-        if (!tableau || !barre || !contenu) {
+        if (
+            !tableau ||
+            !barre ||
+            !contenu
+        ) {
 
             return;
 
         }
 
 
-        function synchroniserLargeur() {
+        function synchroniser() {
 
 
             const largeur =
@@ -850,8 +889,8 @@
 
 
             /*
-             * Synchronise la position
-             * du tableau avec la barre.
+             * La barre secondaire suit
+             * la position du tableau.
              */
 
             barre.scrollLeft =
@@ -860,9 +899,9 @@
         }
 
 
-        /*
-         * Tableau → barre
-         */
+        /* ----------------------------------------------
+           TABLEAU → BARRE
+        ---------------------------------------------- */
 
         tableau.addEventListener(
             "scroll",
@@ -884,9 +923,9 @@
         );
 
 
-        /*
-         * Barre → tableau
-         */
+        /* ----------------------------------------------
+           BARRE → TABLEAU
+        ---------------------------------------------- */
 
         barre.addEventListener(
             "scroll",
@@ -908,12 +947,14 @@
         );
 
 
-        /*
-         * Surveillance des nouvelles lignes.
-         */
+        /* ----------------------------------------------
+           NOUVELLES LIGNES
+        ---------------------------------------------- */
 
         const tbody =
-            document.getElementById("tableVentes");
+            document.getElementById(
+                "tableVentes"
+            );
 
 
         if (tbody) {
@@ -923,7 +964,7 @@
                     function () {
 
                         setTimeout(
-                            synchroniserLargeur,
+                            synchroniser,
                             100
                         );
 
@@ -942,50 +983,24 @@
         }
 
 
-        /*
-         * Surveillance de la taille.
-         */
-
-        if (window.ResizeObserver) {
-
-            const resizeObserver =
-                new ResizeObserver(
-                    function () {
-
-                        synchroniserLargeur();
-
-                    }
-                );
-
-
-            resizeObserver.observe(
-                tableau
-            );
-
-        }
-
-
-        /*
-         * Première synchronisation.
-         */
+        /* ----------------------------------------------
+           INITIALISATION
+        ---------------------------------------------- */
 
         setTimeout(
-            synchroniserLargeur,
+            synchroniser,
             300
         );
 
 
         setTimeout(
-            synchroniserLargeur,
+            synchroniser,
             1000
         );
 
+
     }
 
-
-    /*
-     * Attendre que la page soit prête.
-     */
 
     if (
         document.readyState ===
@@ -994,12 +1009,12 @@
 
         document.addEventListener(
             "DOMContentLoaded",
-            initialiserBarreDefilement
+            initialiserDefilement
         );
 
     } else {
 
-        initialiserBarreDefilement();
+        initialiserDefilement();
 
     }
 
