@@ -1982,7 +1982,141 @@ cursor:not-allowed;
 
 }
 
+/* ==================================================
+   FERME ASHER ERP
+   RESPONSIVE MOBILE
+================================================== */
 
+@media (max-width: 992px) {
+
+    .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 15px !important;
+    }
+
+    .wrapper {
+        width: 100% !important;
+    }
+
+    .topbar {
+        width: 100%;
+        min-height: auto;
+        padding: 20px 15px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 15px;
+    }
+
+    .topbar h1 {
+        font-size: 28px !important;
+        line-height: 1.2;
+        margin: 0 !important;
+        padding-left: 45px;
+    }
+
+    .topbar p {
+        font-size: 15px !important;
+        margin: 5px 0 0 45px !important;
+    }
+
+    .top-icons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .profile {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* KPI */
+
+    .kpi-card {
+        min-height: 180px !important;
+        padding: 25px !important;
+    }
+
+    .kpi-card h2 {
+        font-size: 42px !important;
+        text-align: center;
+    }
+
+    .kpi-card p {
+        font-size: 18px !important;
+        text-align: center;
+    }
+
+    /* GRAPHIQUES */
+
+    .chart-container {
+        width: 100% !important;
+        overflow-x: auto;
+    }
+
+    canvas {
+        max-width: 100% !important;
+    }
+
+    /* BOUTON MENU */
+
+    #mobileMenuBtn {
+        position: fixed !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 10001 !important;
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 12px !important;
+    }
+
+}
+
+
+/* ==================================================
+   PETITS TÉLÉPHONES
+================================================== */
+
+@media (max-width: 576px) {
+
+    .main {
+        padding: 10px !important;
+    }
+
+    .topbar {
+        padding: 20px 12px !important;
+        border-radius: 18px !important;
+    }
+
+    .topbar h1 {
+        font-size: 25px !important;
+        padding-left: 45px;
+    }
+
+    .topbar p {
+        margin-left: 45px !important;
+        font-size: 14px !important;
+    }
+
+    .kpi-card {
+        min-height: 160px !important;
+        border-radius: 20px !important;
+    }
+
+    .kpi-card h2 {
+        font-size: 36px !important;
+    }
+
+    .kpi-card p {
+        font-size: 17px !important;
+    }
+
+    .profile {
+        padding: 15px !important;
+    }
+
+}
 
 /*==============================
 FIN
