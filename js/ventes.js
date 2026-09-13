@@ -531,13 +531,6 @@ async function enregistrerVenteSupabase(
     informations
 ) {
 
-    if (!ventesSupabaseDisponible()) {
-        alert(
-            "Supabase n'est pas disponible."
-        );
-        return;
-    }
-
     const {
         client,
         telephone,
@@ -549,51 +542,127 @@ async function enregistrerVenteSupabase(
         date
     } = informations;
 
+
+    /* =========================================
+       VALIDATION PRODUIT
+    ========================================= */
+
     if (!idProduit) {
+
         alert(
             "Veuillez sélectionner un produit."
         );
+
         return;
     }
+
+
+    /* =========================================
+       VALIDATION QUANTITÉ
+    ========================================= */
 
     if (
         !Number.isFinite(quantite) ||
         quantite <= 0
     ) {
+
         alert(
             "La quantité doit être supérieure à zéro."
         );
+
         return;
     }
+
+
+    /* =========================================
+       VALIDATION PRIX
+    ========================================= */
 
     if (
         !Number.isFinite(prix) ||
         prix < 0
     ) {
+
         alert(
             "Le prix est invalide."
         );
+
         return;
     }
 
-    const {
-        data: produit,
-        error: erreurProduit
-    } =
-        await window.supabaseClient
-            .from(TABLE_PRODUITS)
-            .select("*")
-            .eq("id", idProduit)
-            .single();
+
+    /* =========================================
+       RECHERCHER LE PRODUIT LOCALEMENT
+    ========================================= */
+
+    let produit = null;
+
+
+    try {
+
+        produit =
+            await lireLocalement(
+                "produits",
+                idProduit
+            );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur lecture produit local :",
+            error
+        );
+
+    }
+
+
+    /* =========================================
+       SI PAS DE PRODUIT LOCAL,
+       ESSAYER SUPABASE
+    ========================================= */
 
     if (
-        erreurProduit ||
-        !produit
+        !produit &&
+        navigator.onLine &&
+        window.supabaseClient
     ) {
-        console.error(
-            "Produit introuvable :",
-            erreurProduit
-        );
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(TABLE_PRODUITS)
+                    .select("*")
+                    .eq("id", idProduit)
+                    .single();
+
+
+            if (!error) {
+
+                produit = data;
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Erreur recherche produit Supabase :",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =========================================
+       PRODUIT INTROUVABLE
+    ========================================= */
+
+    if (!produit) {
 
         alert(
             "Produit introuvable."
@@ -602,21 +671,31 @@ async function enregistrerVenteSupabase(
         return;
     }
 
+
+    /* =========================================
+       VÉRIFIER LE STOCK LOCAL
+    ========================================= */
+
     const stockDisponible =
         Number(
             produit.stock
         ) || 0;
 
+
     if (
         quantite >
         stockDisponible
     ) {
+
         alert(
             "Stock insuffisant.\n\n" +
+
             "Produit : " +
             produit.nom +
+
             "\nStock disponible : " +
             stockDisponible +
+
             " " +
             (
                 produit.unite ||
@@ -627,24 +706,34 @@ async function enregistrerVenteSupabase(
         return;
     }
 
+
+    /* =========================================
+       CALCUL TOTAL
+    ========================================= */
+
     let totalCalcule =
         quantite *
         prix;
 
+
     totalCalcule -=
         remise;
 
+
     if (totalCalcule < 0) {
+
         totalCalcule = 0;
+
     }
 
-    console.log(
-        "Total calculé côté interface :",
-        totalCalcule
-    );
+
+    /* =========================================
+       UTILISATEUR
+    ========================================= */
 
     let utilisateurNom =
         null;
+
 
     if (
         typeof obtenirUtilisateurERP ===
@@ -654,13 +743,46 @@ async function enregistrerVenteSupabase(
         const utilisateur =
             obtenirUtilisateurERP();
 
+
         if (utilisateur) {
+
             utilisateurNom =
                 utilisateur.nom;
+
         }
+
     }
 
+
+    /* =========================================
+       ID UNIQUE DE LA VENTE
+    ========================================= */
+
+    const idVente =
+        "VENTE-" +
+        new Date()
+            .toISOString()
+            .replace(
+                /[-:.TZ]/g,
+                ""
+            ) +
+        "-" +
+        crypto
+            .randomUUID()
+            .slice(
+                0,
+                8
+            );
+
+
+    /* =========================================
+       CRÉER LA VENTE
+    ========================================= */
+
     const nouvelleVente = {
+
+        id:
+            idVente,
 
         date:
             date ||
@@ -696,94 +818,200 @@ async function enregistrerVenteSupabase(
             paiement || null,
 
         utilisateur:
-            utilisateurNom
+            utilisateurNom,
+
+        created_at:
+            new Date().toISOString(),
+
+        synchronise:
+            false
+
     };
 
-    console.log(
-        "Enregistrement vente :",
-        nouvelleVente
-    );
 
-    const {
-        data: venteEnregistree,
-        error: erreurVente
-    } =
-        await window.supabaseClient
-            .from(TABLE_VENTES)
-            .insert(
-                nouvelleVente
-            )
-            .select()
-            .single();
-
-    if (erreurVente) {
-
-        console.error(
-            "Erreur enregistrement vente :",
-            erreurVente
-        );
-
-        alert(
-            "Impossible d'enregistrer la vente.\n\n" +
-            erreurVente.message
-        );
-
-        return;
-    }
+    /* =========================================
+       NOUVEAU STOCK LOCAL
+    ========================================= */
 
     const nouveauStock =
         stockDisponible -
         quantite;
 
-    const {
-        error: erreurStock
-    } =
-        await window.supabaseClient
-            .from(TABLE_PRODUITS)
-            .update({
-                stock: nouveauStock
-            })
-            .eq("id", produit.id);
 
-    if (erreurStock) {
+    const produitMisAJour = {
 
-        console.error(
-            "Erreur mise à jour stock :",
-            erreurStock
+        ...produit,
+
+        stock:
+            nouveauStock,
+
+        synchronise:
+            false
+
+    };
+
+
+    /* =========================================
+       ENREGISTREMENT LOCAL
+    ========================================= */
+
+    try {
+
+        await enregistrerLocalement(
+            "ventes",
+            nouvelleVente
         );
 
+
+        await enregistrerLocalement(
+            "produits",
+            produitMisAJour
+        );
+
+
+        console.log(
+            "✓ Vente enregistrée localement :",
+            idVente
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur enregistrement local :",
+            error
+        );
+
+
         alert(
-            "La vente a été enregistrée, " +
-            "mais le stock n'a pas pu être mis à jour.\n\n" +
-            "Erreur : " +
-            erreurStock.message
+            "Impossible d'enregistrer la vente localement."
         );
 
         return;
     }
 
-    await enregistrerActionVente(
-        venteEnregistree
+
+    /* =========================================
+       AJOUTER LA VENTE À LA FILE
+    ========================================= */
+
+    try {
+
+        await ajouterFileSynchronisation(
+            "ventes",
+            "INSERT",
+            nouvelleVente
+        );
+
+
+        /* =====================================
+           AJOUTER LA MODIFICATION DU STOCK
+        ===================================== */
+
+        await ajouterFileSynchronisation(
+            "produits",
+            "UPDATE",
+            produitMisAJour
+        );
+
+
+        console.log(
+            "✓ Vente et stock ajoutés à la file de synchronisation."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur file de synchronisation :",
+            error
+        );
+
+        alert(
+            "La vente est enregistrée localement, " +
+            "mais elle n'a pas pu être ajoutée à la file de synchronisation."
+        );
+
+        return;
+    }
+
+
+    /* =========================================
+       SI INTERNET EST ABSENT
+    ========================================= */
+
+    if (
+        !navigator.onLine
+    ) {
+
+        alert(
+
+            "Vente enregistrée hors ligne.\n\n" +
+
+            "Produit : " +
+            produit.nom +
+
+            "\nQuantité : " +
+            quantite +
+
+            "\nTotal : " +
+            formatMonnaie(
+                totalCalcule
+            ) +
+
+            "\n\nLa vente sera synchronisée " +
+            "automatiquement lorsque Internet reviendra."
+
+        );
+
+
+        await chargerVentes();
+
+        await chargerProduitsVente();
+
+        formulaireVenteReinitialiser();
+
+        return;
+    }
+
+
+    /* =========================================
+       INTERNET DISPONIBLE
+       
+       POUR L'INSTANT :
+       garder le comportement Supabase
+       séparé.
+    ========================================= */
+
+    console.log(
+        "Internet disponible."
     );
+
+    console.log(
+        "Vente locale créée :",
+        idVente
+    );
+
+    console.log(
+        "Synchronisation Supabase sera traitée par le moteur de synchronisation."
+    );
+
 
     alert(
-        "Vente enregistrée avec succès.\n\n" +
-        "Produit : " +
-        produit.nom +
-        "\nQuantité : " +
-        quantite +
-        "\nTotal : " +
-        formatMonnaie(
-            Number(
-                venteEnregistree.total
-            )
-        )
+
+        "Vente enregistrée localement.\n\n" +
+
+        "Elle est prête à être synchronisée."
+
     );
 
+
     await chargerVentes();
+
     await chargerProduitsVente();
 
     formulaireVenteReinitialiser();
+
 }
 
 async function enregistrerActionVente(
