@@ -77,12 +77,6 @@ function formatMonnaie(montant) {
 }
 
 
-/*==================================================
-CHARGER PRODUITS DEPUIS SUPABASE
-==================================================*/
-
-async function obtenirProduitsVente() {
-
     /* =========================================
        1. ESSAYER SUPABASE
     ========================================= */
