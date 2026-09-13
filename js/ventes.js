@@ -281,56 +281,24 @@ document.addEventListener(
             "Initialisation du module Ventes..."
         );
 
+/*------------------------------------------
+VÉRIFIER LE MODE DE FONCTIONNEMENT
+------------------------------------------*/
 
-        /*------------------------------------------
-        ATTENDRE SUPABASE
-        ------------------------------------------*/
+if (window.supabaseClient) {
 
-        let tentatives = 0;
+    console.log(
+        "✓ Supabase disponible."
+    );
 
-        while (
-            !window.supabaseClient &&
-            tentatives < 30
-        ) {
+} else {
 
-            console.log(
-                "Attente de Supabase...",
-                tentatives + 1
-            );
+    console.warn(
+        "⚠ Supabase indisponible : fonctionnement hors ligne."
+    );
 
-            await new Promise(
-                function (resolve) {
-                    setTimeout(resolve, 100);
-                }
-            );
-
-            tentatives++;
-        }
-
-
-        /*------------------------------------------
-        VÉRIFICATION FINALE
-        ------------------------------------------*/
-
-        if (!window.supabaseClient) {
-
-            console.error(
-                "Supabase reste indisponible après 3 secondes."
-            );
-
-            alert(
-                "Erreur : Supabase n'est pas disponible.\n\n" +
-                "Vérifie le chargement de supabase.js."
-            );
-
-            return;
-        }
-
-
-        console.log(
-            "Supabase disponible."
-        );
-
+}
+      
 
         /*------------------------------------------
         CHARGER PRODUITS
