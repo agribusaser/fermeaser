@@ -598,22 +598,34 @@ async function enregistrerVenteSupabase(
     let produit = null;
 
 
-    try {
+   try {
 
-        produit =
-            await lireLocalement(
-                "produits",
-                idProduit
-            );
+    const produitsLocaux =
+        await lireToutLocalement("produits");
 
-    } catch (error) {
+    produit =
+        produitsLocaux.find(
+            element =>
+                String(element.id) ===
+                String(idProduit)
+        ) || null;
 
-        console.error(
-            "Erreur lecture produit local :",
-            error
+    if (produit) {
+
+        console.log(
+            "✓ Produit trouvé localement :",
+            produit
         );
 
     }
+
+} catch (error) {
+
+    console.error(
+        "Erreur lecture produits locaux :",
+        error
+    );
+}
 
 
     /* =========================================
