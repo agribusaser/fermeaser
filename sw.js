@@ -332,19 +332,12 @@ self.addEventListener(
                                  * Dernier secours :
                                  * dashboard.
                                  */
-
-                                return caches.match(
-                                    "/fermeaser/dashboard.html"
-                                );
-
-                            }
-                        );
-
-                    }
-                )
-
-            );
-
+return caches.match(
+    requete,
+    {
+        ignoreSearch: true
+    }
+)
 
             return;
 
