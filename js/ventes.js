@@ -83,50 +83,137 @@ CHARGER PRODUITS DEPUIS SUPABASE
 
 async function obtenirProduitsVente() {
 
-    if (!ventesSupabaseDisponible()) {
-        return [];
-    }
+    /* =========================================
+       1. ESSAYER SUPABASE
+    ========================================= */
 
-    try {
+    if (ventesSupabaseDisponible()) {
 
-        const {
-            data,
-            error
-        } =
-            await window.supabaseClient
-                .from(TABLE_PRODUITS)
-                .select("*")
-                .eq("actif", true)
-                .order("nom", {
-                    ascending: true
-                });
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(TABLE_PRODUITS)
+                    .select("*")
+                    .eq("actif", true)
+                    .order("nom", {
+                        ascending: true
+                    });
 
 
-        if (error) {
+            if (!error && data) {
 
-            console.error(
-                "Erreur chargement produits :",
+                console.log(
+                    "Produits chargés depuis Supabase :",
+                    data.length
+                );
+
+
+                /* ==============================
+                   2. METTRE À JOUR LE CACHE LOCAL
+                ============================== */
+
+                for (
+                    const produit
+                    of data
+                ) {
+
+                    await enregistrerLocalement(
+                        "produits",
+                        {
+                            ...produit,
+                            synchronise: true
+                        }
+                    );
+
+                }
+
+
+                console.log(
+                    "✓ Produits enregistrés dans IndexedDB."
+                );
+
+
+                return data;
+            }
+
+
+            console.warn(
+                "Supabase n'a pas retourné les produits."
+            );
+
+
+        } catch (error) {
+
+            console.warn(
+                "Impossible de charger les produits depuis Supabase :",
                 error
             );
 
-            return [];
         }
+    }
 
 
-        return data || [];
+    /* =========================================
+       3. SECOURS : INDEXEDDB
+    ========================================= */
+
+    try {
+
+        const produitsLocaux =
+            await lireToutLocalement(
+                "produits"
+            );
+
+
+        const produitsActifs =
+            produitsLocaux
+                .filter(
+                    function (produit) {
+
+                        return produit.actif !== false;
+
+                    }
+                )
+                .sort(
+                    function (a, b) {
+
+                        return String(
+                            a.nom || ""
+                        ).localeCompare(
+                            String(
+                                b.nom || ""
+                            ),
+                            "fr"
+                        );
+
+                    }
+                );
+
+
+        console.log(
+            "Produits chargés depuis IndexedDB :",
+            produitsActifs.length
+        );
+
+
+        return produitsActifs;
 
 
     } catch (error) {
 
         console.error(
-            "Erreur obtenirProduitsVente :",
+            "Erreur lecture produits locaux :",
             error
         );
+
 
         return [];
     }
 }
-
 
 /*==================================================
 CHARGER VENTES DEPUIS SUPABASE
