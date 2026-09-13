@@ -620,4 +620,3 @@ document.addEventListener(
     }
 );
 
-<script src="../../js/local-db.js"></script>
