@@ -1,226 +1,173 @@
-/*==================================================
-FERME ASHER ERP
-VENTES.JS
-VERSION 3.0 - SUPABASE
-==================================================*/
-
 "use strict";
-
-
-/*==================================================
-CONFIGURATION
-==================================================*/
 
 const TABLE_VENTES = "ventes";
 const TABLE_PRODUITS = "produits";
 
-
-/*==================================================
-VÉRIFICATION SUPABASE
-==================================================*/
-
 function ventesSupabaseDisponible() {
-
     if (!window.supabaseClient) {
-
-        console.error(
-            "Supabase n'est pas disponible."
-        );
-
+        console.error("Supabase n'est pas disponible.");
         return false;
     }
-
     return true;
 }
 
-
-/*==================================================
-DATE DU JOUR
-==================================================*/
-
 function obtenirDateVente() {
-
     const maintenant = new Date();
+    const annee = maintenant.getFullYear();
+    const mois = String(maintenant.getMonth() + 1).padStart(2, "0");
+    const jour = String(maintenant.getDate()).padStart(2, "0");
 
-    const annee =
-        maintenant.getFullYear();
-
-    const mois =
-        String(
-            maintenant.getMonth() + 1
-        ).padStart(2, "0");
-
-    const jour =
-        String(
-            maintenant.getDate()
-        ).padStart(2, "0");
-
-    return (
-        annee +
-        "-" +
-        mois +
-        "-" +
-        jour
-    );
+    return annee + "-" + mois + "-" + jour;
 }
-
-
-/*==================================================
-FORMAT MONNAIE
-==================================================*/
 
 function formatMonnaie(montant) {
-
-    return (
-        Number(montant) || 0
-    ).toLocaleString("fr-FR") + " FC";
+    return (Number(montant) || 0).toLocaleString("fr-FR") + " FC";
 }
 
-
-    /* =========================================
-       1. ESSAYER SUPABASE
-    ========================================= */
-
-    if (ventesSupabaseDisponible()) {
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await window.supabaseClient
-                    .from(TABLE_PRODUITS)
-                    .select("*")
-                    .eq("actif", true)
-                    .order("nom", {
-                        ascending: true
-                    });
-
-
-            if (!error && data) {
-
-                console.log(
-                    "Produits chargés depuis Supabase :",
-                    data.length
-                );
-
-
-                /* ==============================
-                   2. METTRE À JOUR LE CACHE LOCAL
-                ============================== */
-
-                for (
-                    const produit
-                    of data
-                ) {
-
-                    await enregistrerLocalement(
-                        "produits",
-                        {
-                            ...produit,
-                            synchronise: true
-                        }
-                    );
-
-                }
-
-
-                console.log(
-                    "✓ Produits enregistrés dans IndexedDB."
-                );
-
-
-                return data;
-            }
-
-
-            console.warn(
-                "Supabase n'a pas retourné les produits."
-            );
-
-
-        } catch (error) {
-
-            console.warn(
-                "Impossible de charger les produits depuis Supabase :",
-                error
-            );
-
-        }
-    }
-
-
-    /* =========================================
-       3. SECOURS : INDEXEDDB
-    ========================================= */
-
+async function obtenirProduitsVente() {
     try {
-
         const produitsLocaux =
-            await lireToutLocalement(
-                "produits"
-            );
-
+            await lireToutLocalement("produits");
 
         const produitsActifs =
             produitsLocaux
-                .filter(
-                    function (produit) {
+                .filter(function (produit) {
+                    return produit.actif !== false;
+                })
+                .sort(function (a, b) {
+                    return String(a.nom || "").localeCompare(
+                        String(b.nom || ""),
+                        "fr"
+                    );
+                });
 
-                        return produit.actif !== false;
-
-                    }
-                )
-                .sort(
-                    function (a, b) {
-
-                        return String(
-                            a.nom || ""
-                        ).localeCompare(
-                            String(
-                                b.nom || ""
-                            ),
-                            "fr"
-                        );
-
-                    }
-                );
-
-
-        console.log(
-            "Produits chargés depuis IndexedDB :",
-            produitsActifs.length
-        );
-
-
-        return produitsActifs;
-
-
+        if (produitsActifs.length > 0) {
+            console.log(
+                "✓ Produits chargés depuis IndexedDB :",
+                produitsActifs.length
+            );
+            return produitsActifs;
+        }
     } catch (error) {
-
-        console.error(
-            "Erreur lecture produits locaux :",
+        console.warn(
+            "Lecture IndexedDB produits impossible :",
             error
         );
-
-
-        return [];
     }
-}
 
-/*==================================================
-CHARGER VENTES DEPUIS SUPABASE
-==================================================*/
-
-async function obtenirVentes() {
-
-    if (!ventesSupabaseDisponible()) {
+    if (!window.supabaseClient) {
+        console.warn(
+            "Supabase indisponible et aucun produit local."
+        );
         return [];
     }
 
     try {
+        const {
+            data,
+            error
+        } =
+            await window.supabaseClient
+                .from(TABLE_PRODUITS)
+                .select("*")
+                .eq("actif", true)
+                .order("nom", {
+                    ascending: true
+                });
 
+        if (error) {
+            console.error(
+                "Erreur chargement produits Supabase :",
+                error
+            );
+            return [];
+        }
+
+        if (!data || data.length === 0) {
+            console.warn(
+                "Aucun produit trouvé dans Supabase."
+            );
+            return [];
+        }
+
+        for (const produit of data) {
+            await enregistrerLocalement(
+                "produits",
+                {
+                    ...produit,
+                    synchronise: true
+                }
+            );
+        }
+
+        console.log(
+            "✓ Produits Supabase enregistrés dans IndexedDB :",
+            data.length
+        );
+
+        return data;
+
+    } catch (error) {
+        console.error(
+            "Erreur accès Supabase produits :",
+            error
+        );
+        return [];
+    }
+}
+
+async function obtenirVentes() {
+    try {
+        const ventesLocales =
+            await lireToutLocalement("ventes");
+
+        if (
+            ventesLocales &&
+            ventesLocales.length > 0
+        ) {
+            ventesLocales.sort(
+                function (a, b) {
+                    const dateA =
+                        new Date(
+                            a.created_at ||
+                            a.date ||
+                            0
+                        ).getTime();
+
+                    const dateB =
+                        new Date(
+                            b.created_at ||
+                            b.date ||
+                            0
+                        ).getTime();
+
+                    return dateB - dateA;
+                }
+            );
+
+            console.log(
+                "✓ Ventes chargées depuis IndexedDB :",
+                ventesLocales.length
+            );
+
+            return ventesLocales;
+        }
+
+    } catch (error) {
+        console.warn(
+            "Lecture IndexedDB ventes impossible :",
+            error
+        );
+    }
+
+    if (!window.supabaseClient) {
+        console.warn(
+            "Supabase indisponible et aucune vente locale."
+        );
+        return [];
+    }
+
+    try {
         const {
             data,
             error
@@ -232,36 +179,42 @@ async function obtenirVentes() {
                     ascending: false
                 });
 
-
         if (error) {
-
             console.error(
-                "Erreur chargement ventes :",
+                "Erreur chargement ventes Supabase :",
                 error
             );
-
             return [];
         }
 
+        const ventes = data || [];
 
-        return data || [];
+        for (const vente of ventes) {
+            await enregistrerLocalement(
+                "ventes",
+                {
+                    ...vente,
+                    id: String(vente.id),
+                    synchronise: true
+                }
+            );
+        }
 
-
-    } catch (error) {
-
-        console.error(
-            "Erreur obtenirVentes :",
-            error
+        console.log(
+            "✓ Ventes Supabase enregistrées dans IndexedDB :",
+            ventes.length
         );
 
+        return ventes;
+
+    } catch (error) {
+        console.error(
+            "Erreur accès Supabase ventes :",
+            error
+        );
         return [];
     }
 }
-
-
-/*==================================================
-INITIALISATION
-==================================================*/
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -275,77 +228,33 @@ document.addEventListener(
             "Initialisation du module Ventes..."
         );
 
-/*------------------------------------------
-VÉRIFIER LE MODE DE FONCTIONNEMENT
-------------------------------------------*/
-
-if (window.supabaseClient) {
-
-    console.log(
-        "✓ Supabase disponible."
-    );
-
-} else {
-
-    console.warn(
-        "⚠ Supabase indisponible : fonctionnement hors ligne."
-    );
-
-}
-      
-
-        /*------------------------------------------
-        CHARGER PRODUITS
-        ------------------------------------------*/
+        if (window.supabaseClient) {
+            console.log(
+                "✓ Supabase disponible."
+            );
+        } else {
+            console.warn(
+                "⚠ Supabase indisponible : fonctionnement hors ligne."
+            );
+        }
 
         await chargerProduitsVente();
 
-
-        /*------------------------------------------
-        FORMULAIRE
-        ------------------------------------------*/
-
         initialiserFormulaireVente();
-
-
-        /*------------------------------------------
-        CHARGER VENTES
-        ------------------------------------------*/
 
         await chargerVentes();
 
-
-        /*------------------------------------------
-        RECHERCHE
-        ------------------------------------------*/
-
         initialiserRechercheVentes();
-
-
-        /*------------------------------------------
-        FILTRE DATE
-        ------------------------------------------*/
 
         initialiserFiltreDate();
 
-
-        /*------------------------------------------
-        REALTIME
-        ------------------------------------------*/
-
         initialiserTempsReelVentes();
-
 
         console.log(
             "Module Ventes prêt."
         );
-
     }
 );
-
-/*==================================================
-CHARGER PRODUITS DANS LE FORMULAIRE
-==================================================*/
 
 async function chargerProduitsVente() {
 
@@ -354,15 +263,12 @@ async function chargerProduitsVente() {
             "produit"
         );
 
-
     if (!select) {
         return;
     }
 
-
     const produits =
         await obtenirProduitsVente();
-
 
     select.innerHTML = `
         <option value="">
@@ -370,18 +276,14 @@ async function chargerProduitsVente() {
         </option>
     `;
 
-
     if (produits.length === 0) {
-
         select.innerHTML += `
             <option value="" disabled>
                 Aucun produit disponible
             </option>
         `;
-
         return;
     }
-
 
     produits.forEach(
         function (produit) {
@@ -391,47 +293,34 @@ async function chargerProduitsVente() {
                     produit.stock
                 ) || 0;
 
-
             const option =
                 document.createElement(
                     "option"
                 );
 
-
             option.value =
                 produit.id;
 
-
             option.textContent =
                 `${produit.nom} — Stock : ${stock} ${produit.unite || ""}`;
-
 
             option.dataset.prix =
                 Number(
                     produit.prix
                 ) || 0;
 
-
             option.dataset.stock =
                 stock;
-
 
             option.dataset.unite =
                 produit.unite || "";
 
-
             select.appendChild(
                 option
             );
-
         }
     );
 }
-
-
-/*==================================================
-INITIALISER FORMULAIRE
-==================================================*/
 
 function initialiserFormulaireVente() {
 
@@ -440,11 +329,9 @@ function initialiserFormulaireVente() {
             "venteForm"
         );
 
-
     if (!formulaire) {
         return;
     }
-
 
     const client =
         document.getElementById(
@@ -491,24 +378,13 @@ function initialiserFormulaireVente() {
             "total"
         );
 
-
-    /*------------------------------------------
-    DATE PAR DÉFAUT
-    ------------------------------------------*/
-
     if (
         date &&
         !date.value
     ) {
-
         date.value =
             obtenirDateVente();
     }
-
-
-    /*------------------------------------------
-    CALCUL VISUEL DU TOTAL
-    ------------------------------------------*/
 
     function calculerTotal() {
 
@@ -517,52 +393,38 @@ function initialiserFormulaireVente() {
                 quantite.value
             ) || 0;
 
-
         const prixUnitaire =
             Number(
                 prix.value
             ) || 0;
-
 
         const montantRemise =
             Number(
                 remise.value
             ) || 0;
 
-
         let montant =
             qte *
             prixUnitaire;
 
-
         montant -=
             montantRemise;
-
 
         if (montant < 0) {
             montant = 0;
         }
 
-
         if (total) {
-
             total.textContent =
                 formatMonnaie(
                     montant
                 );
         }
 
-
         return montant;
     }
 
-
-    /*------------------------------------------
-    PRODUIT CHANGE
-    ------------------------------------------*/
-
     if (produit) {
-
         produit.addEventListener(
             "change",
             function () {
@@ -572,57 +434,40 @@ function initialiserFormulaireVente() {
                         produit.selectedIndex
                     ];
 
-
                 if (!option.value) {
-
                     prix.value = "";
-
                     calculerTotal();
-
                     return;
                 }
 
-
                 prix.value =
                     option.dataset.prix || 0;
-
 
                 calculerTotal();
             }
         );
     }
 
-
     if (quantite) {
-
         quantite.addEventListener(
             "input",
             calculerTotal
         );
     }
 
-
     if (prix) {
-
         prix.addEventListener(
             "input",
             calculerTotal
         );
     }
 
-
     if (remise) {
-
         remise.addEventListener(
             "input",
             calculerTotal
         );
     }
-
-
-    /*------------------------------------------
-    ENREGISTREMENT
-    ------------------------------------------*/
 
     formulaire.addEventListener(
         "submit",
@@ -630,8 +475,8 @@ function initialiserFormulaireVente() {
 
             event.preventDefault();
 
-
             await enregistrerVenteSupabase({
+
                 client:
                     client
                         ? client.value.trim()
@@ -678,29 +523,20 @@ function initialiserFormulaireVente() {
                         ? date.value
                         : obtenirDateVente()
             });
-
         }
     );
 }
-
-
-/*==================================================
-ENREGISTRER VENTE SUPABASE
-==================================================*/
 
 async function enregistrerVenteSupabase(
     informations
 ) {
 
     if (!ventesSupabaseDisponible()) {
-
         alert(
             "Supabase n'est pas disponible."
         );
-
         return;
     }
-
 
     const {
         client,
@@ -713,58 +549,32 @@ async function enregistrerVenteSupabase(
         date
     } = informations;
 
-
-    /*------------------------------------------
-    VALIDATION PRODUIT
-    ------------------------------------------*/
-
     if (!idProduit) {
-
         alert(
             "Veuillez sélectionner un produit."
         );
-
         return;
     }
-
-
-    /*------------------------------------------
-    VALIDATION QUANTITÉ
-    ------------------------------------------*/
 
     if (
         !Number.isFinite(quantite) ||
         quantite <= 0
     ) {
-
         alert(
             "La quantité doit être supérieure à zéro."
         );
-
         return;
     }
-
-
-    /*------------------------------------------
-    VALIDATION PRIX
-    ------------------------------------------*/
 
     if (
         !Number.isFinite(prix) ||
         prix < 0
     ) {
-
         alert(
             "Le prix est invalide."
         );
-
         return;
     }
-
-
-    /*------------------------------------------
-    RECHERCHER PRODUIT
-    ------------------------------------------*/
 
     const {
         data: produit,
@@ -776,12 +586,10 @@ async function enregistrerVenteSupabase(
             .eq("id", idProduit)
             .single();
 
-
     if (
         erreurProduit ||
         !produit
     ) {
-
         console.error(
             "Produit introuvable :",
             erreurProduit
@@ -794,31 +602,21 @@ async function enregistrerVenteSupabase(
         return;
     }
 
-
-    /*------------------------------------------
-    VÉRIFIER STOCK
-    ------------------------------------------*/
-
     const stockDisponible =
         Number(
             produit.stock
         ) || 0;
 
-
     if (
         quantite >
         stockDisponible
     ) {
-
         alert(
             "Stock insuffisant.\n\n" +
-
             "Produit : " +
             produit.nom +
-
             "\nStock disponible : " +
             stockDisponible +
-
             " " +
             (
                 produit.unite ||
@@ -829,38 +627,24 @@ async function enregistrerVenteSupabase(
         return;
     }
 
-
-    /*------------------------------------------
-    CALCUL LOCAL DE CONTRÔLE
-    ------------------------------------------*/
-
     let totalCalcule =
         quantite *
         prix;
 
-
     totalCalcule -=
         remise;
-
 
     if (totalCalcule < 0) {
         totalCalcule = 0;
     }
-
 
     console.log(
         "Total calculé côté interface :",
         totalCalcule
     );
 
-
-    /*------------------------------------------
-    UTILISATEUR CONNECTÉ
-    ------------------------------------------*/
-
     let utilisateurNom =
         null;
-
 
     if (
         typeof obtenirUtilisateurERP ===
@@ -870,18 +654,11 @@ async function enregistrerVenteSupabase(
         const utilisateur =
             obtenirUtilisateurERP();
 
-
         if (utilisateur) {
-
             utilisateurNom =
                 utilisateur.nom;
         }
     }
-
-
-    /*------------------------------------------
-    CRÉER LA VENTE
-    ------------------------------------------*/
 
     const nouvelleVente = {
 
@@ -912,10 +689,6 @@ async function enregistrerVenteSupabase(
         remise:
             remise,
 
-        /*
-         * Le trigger Supabase recalcule
-         * automatiquement ce champ.
-         */
         total:
             totalCalcule,
 
@@ -926,16 +699,10 @@ async function enregistrerVenteSupabase(
             utilisateurNom
     };
 
-
     console.log(
         "Enregistrement vente :",
         nouvelleVente
     );
-
-
-    /*------------------------------------------
-    INSERT SUPABASE
-    ------------------------------------------*/
 
     const {
         data: venteEnregistree,
@@ -949,7 +716,6 @@ async function enregistrerVenteSupabase(
             .select()
             .single();
 
-
     if (erreurVente) {
 
         console.error(
@@ -957,25 +723,17 @@ async function enregistrerVenteSupabase(
             erreurVente
         );
 
-
         alert(
             "Impossible d'enregistrer la vente.\n\n" +
             erreurVente.message
         );
 
-
         return;
     }
-
-
-    /*------------------------------------------
-    DIMINUER LE STOCK
-    ------------------------------------------*/
 
     const nouveauStock =
         stockDisponible -
         quantite;
-
 
     const {
         error: erreurStock
@@ -987,22 +745,12 @@ async function enregistrerVenteSupabase(
             })
             .eq("id", produit.id);
 
-
     if (erreurStock) {
 
         console.error(
             "Erreur mise à jour stock :",
             erreurStock
         );
-
-
-        /*
-         * ATTENTION :
-         * La vente est déjà enregistrée.
-         *
-         * On signale clairement
-         * l'anomalie.
-         */
 
         alert(
             "La vente a été enregistrée, " +
@@ -1011,33 +759,19 @@ async function enregistrerVenteSupabase(
             erreurStock.message
         );
 
-
         return;
     }
-
-
-    /*------------------------------------------
-    JOURNAL D'ACTION
-    ------------------------------------------*/
 
     await enregistrerActionVente(
         venteEnregistree
     );
 
-
-    /*------------------------------------------
-    MESSAGE SUCCÈS
-    ------------------------------------------*/
-
     alert(
         "Vente enregistrée avec succès.\n\n" +
-
         "Produit : " +
         produit.nom +
-
         "\nQuantité : " +
         quantite +
-
         "\nTotal : " +
         formatMonnaie(
             Number(
@@ -1046,25 +780,11 @@ async function enregistrerVenteSupabase(
         )
     );
 
-
-    /*------------------------------------------
-    RECHARGER
-    ------------------------------------------*/
-
     await chargerVentes();
-
     await chargerProduitsVente();
 
-
     formulaireVenteReinitialiser();
-
-
 }
-
-
-/*==================================================
-JOURNAL DES ACTIONS
-==================================================*/
 
 async function enregistrerActionVente(
     vente
@@ -1076,22 +796,18 @@ async function enregistrerActionVente(
         return;
     }
 
-
     try {
 
         let utilisateur =
             null;
 
-
         if (
             typeof obtenirUtilisateurERP ===
             "function"
         ) {
-
             utilisateur =
                 obtenirUtilisateurERP();
         }
-
 
         const {
             error
@@ -1142,15 +858,12 @@ async function enregistrerActionVente(
                         vente
                 });
 
-
         if (error) {
-
             console.error(
                 "Erreur journal action :",
                 error
             );
         }
-
 
     } catch (error) {
 
@@ -1161,11 +874,6 @@ async function enregistrerActionVente(
     }
 }
 
-
-/*==================================================
-RÉINITIALISER FORMULAIRE
-==================================================*/
-
 function formulaireVenteReinitialiser() {
 
     const formulaire =
@@ -1173,45 +881,32 @@ function formulaireVenteReinitialiser() {
             "venteForm"
         );
 
-
     if (!formulaire) {
         return;
     }
 
-
     formulaire.reset();
-
 
     const date =
         document.getElementById(
             "date"
         );
 
-
     if (date) {
-
         date.value =
             obtenirDateVente();
     }
-
 
     const total =
         document.getElementById(
             "total"
         );
 
-
     if (total) {
-
         total.textContent =
             formatMonnaie(0);
     }
 }
-
-
-/*==================================================
-CHARGER LES VENTES DANS LE TABLEAU
-==================================================*/
 
 async function chargerVentes() {
 
@@ -1220,27 +915,22 @@ async function chargerVentes() {
             "tableVentes"
         );
 
-
     if (!table) {
         return;
     }
 
-
     const ventes =
         await obtenirVentes();
-
 
     const recherche =
         document.getElementById(
             "recherche"
         );
 
-
     const filtreDate =
         document.getElementById(
             "filtreDate"
         );
-
 
     const texteRecherche =
         recherche
@@ -1249,12 +939,10 @@ async function chargerVentes() {
                 .toLowerCase()
             : "";
 
-
     const dateRecherche =
         filtreDate
             ? filtreDate.value
             : "";
-
 
     const ventesFiltrees =
         ventes.filter(
@@ -1281,12 +969,10 @@ async function chargerVentes() {
                         texteRecherche
                     );
 
-
                 const correspondDate =
                     !dateRecherche ||
                     vente.date ===
                     dateRecherche;
-
 
                 return (
                     correspondRecherche &&
@@ -1295,9 +981,7 @@ async function chargerVentes() {
             }
         );
 
-
     table.innerHTML = "";
-
 
     if (
         ventesFiltrees.length === 0
@@ -1321,7 +1005,6 @@ Aucune vente trouvée.
 
     }
 
-
     ventesFiltrees.forEach(
         function (vente) {
 
@@ -1329,18 +1012,15 @@ Aucune vente trouvée.
                 vente.statut ||
                 "Validée";
 
-
             const badgeStatut =
                 statut === "Annulée"
                     ? "danger"
                     : "success";
 
-
             const ligne =
                 document.createElement(
                     "tr"
                 );
-
 
             ligne.innerHTML = `
 
@@ -1433,18 +1113,12 @@ title="Annuler">
 
 `;
 
-
             table.appendChild(
                 ligne
             );
 
         }
     );
-
-
-    /*------------------------------------------
-    ACTIONS BOUTONS
-    ------------------------------------------*/
 
     table
         .querySelectorAll(
@@ -1463,7 +1137,6 @@ title="Annuler">
                         const id =
                             bouton.dataset.id;
 
-
                         if (
                             action ===
                             "voir"
@@ -1473,7 +1146,6 @@ title="Annuler">
 
                         }
 
-
                         if (
                             action ===
                             "imprimer"
@@ -1482,7 +1154,6 @@ title="Annuler">
                             imprimerFacture(id);
 
                         }
-
 
                         if (
                             action ===
@@ -1499,17 +1170,16 @@ title="Annuler">
             }
         );
 
-
     const nombreVentes =
         document.getElementById(
             "nombreVentes"
         );
 
-
     if (nombreVentes) {
 
         nombreVentes.textContent =
             ventesFiltrees.length;
+
     }
 }
 
@@ -1525,11 +1195,9 @@ function initialiserRechercheVentes() {
             "recherche"
         );
 
-
     if (!recherche) {
         return;
     }
-
 
     recherche.addEventListener(
         "input",
@@ -1549,11 +1217,9 @@ function initialiserFiltreDate() {
             "filtreDate"
         );
 
-
     if (!filtreDate) {
         return;
     }
-
 
     filtreDate.addEventListener(
         "change",
@@ -1573,7 +1239,6 @@ async function voirVente(
     const ventes =
         await obtenirVentes();
 
-
     const vente =
         ventes.find(
             function (v) {
@@ -1584,7 +1249,6 @@ async function voirVente(
             }
         );
 
-
     if (!vente) {
 
         alert(
@@ -1593,7 +1257,6 @@ async function voirVente(
 
         return;
     }
-
 
     alert(
 
@@ -1665,7 +1328,6 @@ async function imprimerFacture(
     const ventes =
         await obtenirVentes();
 
-
     const vente =
         ventes.find(
             function (v) {
@@ -1676,7 +1338,6 @@ async function imprimerFacture(
             }
         );
 
-
     if (!vente) {
 
         alert(
@@ -1686,13 +1347,11 @@ async function imprimerFacture(
         return;
     }
 
-
     const facture =
         window.open(
             "",
             "_blank"
         );
-
 
     if (!facture) {
 
@@ -1702,7 +1361,6 @@ async function imprimerFacture(
 
         return;
     }
-
 
     facture.document.write(`
 
@@ -1868,7 +1526,6 @@ window.print();
 
 `);
 
-
     facture.document.close();
 }
 
@@ -1885,7 +1542,6 @@ async function annulerVente(
         return;
     }
 
-
     const confirmation =
         confirm(
 
@@ -1895,15 +1551,9 @@ async function annulerVente(
 
         );
 
-
     if (!confirmation) {
         return;
     }
-
-
-    /*------------------------------------------
-    RECHERCHER VENTE
-    ------------------------------------------*/
 
     const {
         data: vente,
@@ -1914,7 +1564,6 @@ async function annulerVente(
             .select("*")
             .eq("id", idVente)
             .single();
-
 
     if (
         erreurVente ||
@@ -1928,11 +1577,6 @@ async function annulerVente(
         return;
     }
 
-
-    /*------------------------------------------
-    PROTECTION DOUBLE ANNULATION
-    ------------------------------------------*/
-
     if (
         vente.statut ===
         "Annulée"
@@ -1945,11 +1589,6 @@ async function annulerVente(
         return;
     }
 
-
-    /*------------------------------------------
-    RECHERCHER PRODUIT
-    ------------------------------------------*/
-
     if (!vente.produit_id) {
 
         alert(
@@ -1958,7 +1597,6 @@ async function annulerVente(
 
         return;
     }
-
 
     const {
         data: produit,
@@ -1973,7 +1611,6 @@ async function annulerVente(
             )
             .single();
 
-
     if (
         erreurProduit ||
         !produit
@@ -1986,23 +1623,16 @@ async function annulerVente(
         return;
     }
 
-
-    /*------------------------------------------
-    REMETTRE LE STOCK
-    ------------------------------------------*/
-
     const stockActuel =
         Number(
             produit.stock
         ) || 0;
-
 
     const nouveauStock =
         stockActuel +
         Number(
             vente.quantite
         );
-
 
     const {
         error: erreurStock
@@ -2017,14 +1647,12 @@ async function annulerVente(
                 produit.id
             );
 
-
     if (erreurStock) {
 
         console.error(
             "Erreur remise stock :",
             erreurStock
         );
-
 
         alert(
             "Impossible de remettre le stock.\n\n" +
@@ -2033,11 +1661,6 @@ async function annulerVente(
 
         return;
     }
-
-
-    /*------------------------------------------
-    ANNULER LA VENTE
-    ------------------------------------------*/
 
     const {
         data: venteModifiee,
@@ -2055,20 +1678,12 @@ async function annulerVente(
             .select()
             .single();
 
-
     if (erreurAnnulation) {
 
         console.error(
             "Erreur annulation vente :",
             erreurAnnulation
         );
-
-
-        /*
-         * Le stock a déjà été remis.
-         * Il faut signaler clairement
-         * cette anomalie.
-         */
 
         alert(
             "Le stock a été remis, mais la vente n'a pas pu être annulée.\n\n" +
@@ -2078,21 +1693,14 @@ async function annulerVente(
         return;
     }
 
-
-    /*------------------------------------------
-    JOURNAL
-    ------------------------------------------*/
-
     await enregistrerActionVenteAnnulation(
         venteModifiee
     );
-
 
     alert(
         "Vente annulée avec succès.\n\n" +
         "Le stock a été remis."
     );
-
 
     await chargerVentes();
 
@@ -2113,7 +1721,6 @@ async function enregistrerActionVenteAnnulation(
         let utilisateur =
             null;
 
-
         if (
             typeof obtenirUtilisateurERP ===
             "function"
@@ -2122,7 +1729,6 @@ async function enregistrerActionVenteAnnulation(
             utilisateur =
                 obtenirUtilisateurERP();
         }
-
 
         const {
             error
@@ -2171,15 +1777,14 @@ async function enregistrerActionVenteAnnulation(
                         vente
                 });
 
-
         if (error) {
 
             console.error(
                 "Erreur journal annulation :",
                 error
             );
-        }
 
+        }
 
     } catch (error) {
 
@@ -2187,6 +1792,7 @@ async function enregistrerActionVenteAnnulation(
             "Erreur journal annulation :",
             error
         );
+
     }
 }
 
@@ -2206,7 +1812,6 @@ function initialiserTempsReelVentes() {
         return;
     }
 
-
     if (channelVentesERP) {
 
         try {
@@ -2222,18 +1827,15 @@ function initialiserTempsReelVentes() {
                 "Impossible de supprimer l'ancien canal.",
                 error
             );
+
         }
     }
-
 
     channelVentesERP =
         window.supabaseClient
             .channel(
                 "module-ventes-realtime"
             )
-
-
-            /* VENTES */
 
             .on(
                 "postgres_changes",
@@ -2249,11 +1851,9 @@ function initialiserTempsReelVentes() {
                     );
 
                     await chargerVentes();
+
                 }
             )
-
-
-            /* PRODUITS / STOCK */
 
             .on(
                 "postgres_changes",
@@ -2269,9 +1869,9 @@ function initialiserTempsReelVentes() {
                     );
 
                     await chargerProduitsVente();
+
                 }
             )
-
 
             .subscribe(
                 function (status) {
@@ -2284,7 +1884,6 @@ function initialiserTempsReelVentes() {
                 }
             );
 }
-
 
 /*==================================================
 EXPORT GLOBAL
@@ -2323,5 +1922,6 @@ FIN
 ==================================================*/
 
 console.log(
-    "Ferme Asher ERP - Ventes.js Version 3.0 Supabase chargé."
+    "Ferme Asher ERP - Ventes.js Version 4.0 Offline First chargé."
 );
+
