@@ -400,6 +400,30 @@
 <script src="../../js/permissions.js"></script>
 <script src="../../js/local-db.js"></script>
 <script src="../../js/ventes.js?v=4"></script>
+    <script>
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker
+        .register("/fermeaser/sw.js")
+        .then(function (registration) {
+
+            console.log(
+                "✓ Service Worker enregistré.",
+                registration.scope
+            );
+
+        })
+        .catch(function (error) {
+
+            console.error(
+                "Erreur Service Worker :",
+                error
+            );
+
+        });
+
+}
+</script>
 
 </body>
 </html>
