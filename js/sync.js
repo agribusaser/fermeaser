@@ -12,11 +12,8 @@
    CONFIGURATION
 ================================================== */
 
-const SYNC_TABLE_VENTES =
-    "ventes";
-
-const SYNC_TABLE_PRODUITS =
-    "produits";
+const SYNC_TABLE_VENTES = "ventes";
+const SYNC_TABLE_PRODUITS = "produits";
 
 
 /* ==================================================
@@ -43,31 +40,23 @@ function synchronisationDisponible() {
  * vers Supabase.
  */
 
-function preparerDonneesSupabase(
-    donnees
-) {
+function preparerDonneesSupabase(donnees) {
 
     if (!donnees) {
-
         return null;
-
     }
-
 
     const donneesSupabase = {
         ...donnees
     };
 
-
     /*
-     * Champ local uniquement.
+     * Champ utilisé uniquement localement.
      */
 
     delete donneesSupabase.synchronise;
 
-
     return donneesSupabase;
-
 }
 
 
@@ -75,16 +64,11 @@ function preparerDonneesSupabase(
    SYNCHRONISER UNE OPÉRATION
 ================================================== */
 
-async function synchroniserOperation(
-    operation
-) {
+async function synchroniserOperation(operation) {
 
     if (!operation) {
-
         return false;
-
     }
-
 
     const {
         id,
@@ -111,18 +95,8 @@ async function synchroniserOperation(
         action === "INSERT"
     ) {
 
-        /*
-         * Préparer les données destinées
-         * à Supabase.
-         *
-         * Le champ "synchronise" reste
-         * uniquement dans IndexedDB.
-         */
-
         const donneesSupabase =
-            preparerDonneesSupabase(
-                donnees
-            );
+            preparerDonneesSupabase(donnees);
 
 
         if (!donneesSupabase) {
@@ -132,7 +106,6 @@ async function synchroniserOperation(
             );
 
             return false;
-
         }
 
 
@@ -141,9 +114,7 @@ async function synchroniserOperation(
             error
         } =
             await window.supabaseClient
-                .from(
-                    SYNC_TABLE_VENTES
-                )
+                .from(SYNC_TABLE_VENTES)
                 .upsert(
                     donneesSupabase,
                     {
@@ -162,7 +133,6 @@ async function synchroniserOperation(
             );
 
             return false;
-
         }
 
 
@@ -202,7 +172,6 @@ async function synchroniserOperation(
 
 
         return true;
-
     }
 
 
@@ -215,18 +184,8 @@ async function synchroniserOperation(
         action === "UPDATE"
     ) {
 
-        /*
-         * Préparer les données destinées
-         * à Supabase.
-         *
-         * Le champ "synchronise" reste
-         * uniquement dans IndexedDB.
-         */
-
         const donneesSupabase =
-            preparerDonneesSupabase(
-                donnees
-            );
+            preparerDonneesSupabase(donnees);
 
 
         if (!donneesSupabase) {
@@ -236,7 +195,6 @@ async function synchroniserOperation(
             );
 
             return false;
-
         }
 
 
@@ -245,9 +203,7 @@ async function synchroniserOperation(
             error
         } =
             await window.supabaseClient
-                .from(
-                    SYNC_TABLE_PRODUITS
-                )
+                .from(SYNC_TABLE_PRODUITS)
                 .update(
                     donneesSupabase
                 )
@@ -267,7 +223,6 @@ async function synchroniserOperation(
             );
 
             return false;
-
         }
 
 
@@ -307,7 +262,6 @@ async function synchroniserOperation(
 
 
         return true;
-
     }
 
 
@@ -320,9 +274,7 @@ async function synchroniserOperation(
         operation
     );
 
-
     return false;
-
 }
 
 
@@ -332,37 +284,29 @@ async function synchroniserOperation(
 
 async function synchroniserDonnees() {
 
-    if (
-        !synchronisationDisponible()
-    ) {
+    if (!synchronisationDisponible()) {
 
         console.log(
             "⏸ Synchronisation impossible : hors ligne ou Supabase indisponible."
         );
 
         return;
-
     }
 
 
     try {
 
         const operations =
-            await lireToutLocalement(
-                "sync_queue"
-            );
+            await lireToutLocalement("sync_queue");
 
 
-        if (
-            !operations.length
-        ) {
+        if (!operations.length) {
 
             console.log(
                 "✓ Aucune opération à synchroniser."
             );
 
             return;
-
         }
 
 
@@ -374,7 +318,7 @@ async function synchroniserDonnees() {
 
         /*
          * Traiter les opérations dans l'ordre
-         * où elles ont été créées.
+         * de leur création.
          */
 
         operations.sort(
@@ -417,7 +361,6 @@ async function synchroniserDonnees() {
                      */
 
                     break;
-
                 }
 
             } catch (error) {
@@ -435,9 +378,7 @@ async function synchroniserDonnees() {
                  */
 
                 break;
-
             }
-
         }
 
 
@@ -458,9 +399,7 @@ async function synchroniserDonnees() {
             "Erreur générale de synchronisation :",
             error
         );
-
     }
-
 }
 
 
@@ -508,9 +447,7 @@ document.addEventListener(
         );
 
 
-        if (
-            navigator.onLine
-        ) {
+        if (navigator.onLine) {
 
             console.log(
                 "🌐 Internet disponible au démarrage."
@@ -530,6 +467,7 @@ document.addEventListener(
                 },
                 1000
             );
+
 
         } else {
 
