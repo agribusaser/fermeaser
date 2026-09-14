@@ -101,6 +101,42 @@ async function synchroniserOperation(
         action
     );
 
+   /* ==================================================
+   PRÉPARER LES DONNÉES POUR SUPABASE
+================================================== */
+
+/*
+ * Certains champs sont utilisés uniquement
+ * par IndexedDB et ne doivent pas être envoyés
+ * vers Supabase.
+ */
+
+function preparerDonneesSupabase(
+    donnees
+) {
+
+    if (!donnees) {
+
+        return null;
+
+    }
+
+
+    const donneesSupabase = {
+        ...donnees
+    };
+
+
+    /*
+     * Champ local uniquement.
+     */
+
+    delete donneesSupabase.synchronise;
+
+
+    return donneesSupabase;
+
+}
 
     /* =================================================
        VENTES
@@ -197,7 +233,7 @@ async function synchroniserOperation(
 
     }
 
-
+ 
     /* =================================================
        PRODUITS / STOCK
     ================================================= */
