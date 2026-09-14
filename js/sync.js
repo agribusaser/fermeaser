@@ -2,7 +2,7 @@
    FERME ASHER ERP
    SYNC.JS
    MOTEUR DE SYNCHRONISATION OFFLINE → SUPABASE
-   VERSION 1.0
+   VERSION 1.1
 ================================================== */
 
 "use strict";
@@ -29,6 +29,44 @@ function synchronisationDisponible() {
         navigator.onLine &&
         window.supabaseClient
     );
+
+}
+
+
+/* ==================================================
+   PRÉPARER LES DONNÉES POUR SUPABASE
+================================================== */
+
+/*
+ * Certains champs sont utilisés uniquement
+ * par IndexedDB et ne doivent pas être envoyés
+ * vers Supabase.
+ */
+
+function preparerDonneesSupabase(
+    donnees
+) {
+
+    if (!donnees) {
+
+        return null;
+
+    }
+
+
+    const donneesSupabase = {
+        ...donnees
+    };
+
+
+    /*
+     * Champ local uniquement.
+     */
+
+    delete donneesSupabase.synchronise;
+
+
+    return donneesSupabase;
 
 }
 
@@ -73,14 +111,33 @@ async function synchroniserOperation(
         action === "INSERT"
     ) {
 
+        const donneesSupabase =
+            preparerDonneesSupabase(
+                donnees
+            );
+
+
+        if (!donneesSupabase) {
+
+            console.error(
+                "Données vente invalides."
+            );
+
+            return false;
+
+        }
+
+
         const {
             data,
             error
         } =
             await window.supabaseClient
-                .from(SYNC_TABLE_VENTES)
+                .from(
+                    SYNC_TABLE_VENTES
+                )
                 .upsert(
-                    donnees,
+                    donneesSupabase,
                     {
                         onConflict: "id"
                     }
@@ -150,18 +207,37 @@ async function synchroniserOperation(
         action === "UPDATE"
     ) {
 
+        const donneesSupabase =
+            preparerDonneesSupabase(
+                donnees
+            );
+
+
+        if (!donneesSupabase) {
+
+            console.error(
+                "Données produit invalides."
+            );
+
+            return false;
+
+        }
+
+
         const {
             data,
             error
         } =
             await window.supabaseClient
-                .from(SYNC_TABLE_PRODUITS)
+                .from(
+                    SYNC_TABLE_PRODUITS
+                )
                 .update(
-                    donnees
+                    donneesSupabase
                 )
                 .eq(
                     "id",
-                    donnees.id
+                    donneesSupabase.id
                 )
                 .select()
                 .single();
@@ -218,6 +294,10 @@ async function synchroniserOperation(
 
     }
 
+
+    /* =================================================
+       OPÉRATION NON RECONNUE
+    ================================================= */
 
     console.warn(
         "Opération non reconnue :",
@@ -313,6 +393,7 @@ async function synchroniserDonnees() {
                         operation.id
                     );
 
+
                     /*
                      * Arrêter ici pour éviter de
                      * traiter les opérations suivantes
@@ -353,7 +434,6 @@ async function synchroniserDonnees() {
             "Opérations restantes :",
             restantes
         );
-
 
     } catch (error) {
 
@@ -407,7 +487,7 @@ document.addEventListener(
     async function () {
 
         console.log(
-            "FERME ASHER ERP - MOTEUR DE SYNCHRONISATION V1"
+            "FERME ASHER ERP - MOTEUR DE SYNCHRONISATION V1.1"
         );
 
 
