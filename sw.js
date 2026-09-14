@@ -1,7 +1,7 @@
 /* ==================================================
    FERME ASHER ERP
    SERVICE WORKER
-   VERSION 2.0 - OFFLINE ROBUSTE
+   VERSION 3.0 - OFFLINE ROBUSTE
 ================================================== */
 
 "use strict";
@@ -11,7 +11,7 @@
    CONFIGURATION
 ================================================== */
 
-const CACHE_VERSION = "ferme-asher-v2";
+const CACHE_VERSION = "ferme-asher-v3";
 
 const CACHE_APP =
     `${CACHE_VERSION}-app`;
@@ -80,7 +80,7 @@ self.addEventListener(
     function (event) {
 
         console.log(
-            "Ferme Asher ERP - Service Worker V2 installation."
+            "Ferme Asher ERP - Service Worker V3 installation."
         );
 
 
@@ -170,14 +170,6 @@ self.addEventListener(
 
         );
 
-
-        /*
-         * Le nouveau Service Worker peut
-         * attendre que l'ancien termine.
-         *
-         * Cela évite les interruptions brutales.
-         */
-
     }
 );
 
@@ -191,7 +183,7 @@ self.addEventListener(
     function (event) {
 
         console.log(
-            "Ferme Asher ERP - Service Worker V2 activation."
+            "Ferme Asher ERP - Service Worker V3 activation."
         );
 
 
@@ -263,9 +255,9 @@ self.addEventListener(
             event.request;
 
 
-        /*
-         * Nous ne traitons que GET.
-         */
+        /* ------------------------------------------
+           Nous traitons uniquement les requêtes GET.
+        ------------------------------------------ */
 
         if (
             requete.method !== "GET"
@@ -300,10 +292,10 @@ self.addEventListener(
 
                         if (reponseCache) {
 
-                            /*
-                             * La page est disponible
-                             * immédiatement hors ligne.
-                             */
+                            console.log(
+                                "✓ Page chargée depuis le cache :",
+                                requete.url
+                            );
 
                             return reponseCache;
 
@@ -312,7 +304,7 @@ self.addEventListener(
 
                         /*
                          * Si la page n'est pas encore
-                         * en cache, essayer Internet.
+                         * dans le cache, essayer Internet.
                          */
 
                         return fetch(
@@ -325,12 +317,18 @@ self.addEventListener(
 
                             }
                         )
-                                 .catch(
+                        .catch(
                             function () {
+
+                                console.warn(
+                                    "⚠ Navigation hors ligne :",
+                                    requete.url
+                                );
+
 
                                 /*
                                  * Dernier secours :
-                                 * essayer le cache de la page demandée
+                                 * chercher la page demandée
                                  * sans tenir compte des paramètres URL.
                                  */
 
@@ -344,12 +342,15 @@ self.addEventListener(
                                     function (reponseCache) {
 
                                         if (reponseCache) {
+
                                             return reponseCache;
+
                                         }
 
+
                                         /*
-                                         * Si la page n'existe pas dans le cache,
-                                         * utiliser le dashboard comme dernier secours.
+                                         * Dernier secours absolu :
+                                         * retourner le dashboard.
                                          */
 
                                         return caches.match(
@@ -360,13 +361,85 @@ self.addEventListener(
                                 );
 
                             }
+                        );
+
+                    }
+                )
+
+            );
+
+
+            return;
+
+        }
+
+
+        /* =========================================
+           RESSOURCES LOCALES
+        ========================================= */
+
+        if (
+            url.origin === self.location.origin
+        ) {
+
+            event.respondWith(
+
+                caches.match(
+                    requete
+                )
+                .then(
+                    function (reponseCache) {
+
+                        if (reponseCache) {
+
+                            return reponseCache;
+
+                        }
+
+
+                        /*
+                         * Ressource locale inconnue :
+                         * essayer le réseau.
+                         */
+
+                        return fetch(
+                            requete
                         )
+                        .then(
+                            async function (reponse) {
 
-                    );
+                                if (
+                                    reponse &&
+                                    reponse.ok
+                                ) {
 
-                return;
+                                    const cache =
+                                        await caches.open(
+                                            CACHE_RUNTIME
+                                        );
 
-            }
+                                    await cache.put(
+                                        requete,
+                                        reponse.clone()
+                                    );
+
+                                }
+
+                                return reponse;
+
+                            }
+                        );
+
+                    }
+                )
+
+            );
+
+
+            return;
+
+        }
+
 
         /* =========================================
            RESSOURCES CDN / EXTERNES
@@ -381,11 +454,6 @@ self.addEventListener(
                 function (reponseCache) {
 
                     if (reponseCache) {
-
-                        /*
-                         * Le fichier CDN est déjà
-                         * disponible localement.
-                         */
 
                         return reponseCache;
 
@@ -403,9 +471,8 @@ self.addEventListener(
                         async function (reponse) {
 
                             /*
-                             * Mettre en cache la
-                             * ressource pour les
-                             * prochaines utilisations.
+                             * Mettre en cache la ressource
+                             * pour les prochaines utilisations.
                              */
 
                             if (
@@ -422,7 +489,7 @@ self.addEventListener(
                                         CACHE_CDN
                                     );
 
-                                cache.put(
+                                await cache.put(
                                     requete,
                                     reponse.clone()
                                 );
@@ -438,15 +505,15 @@ self.addEventListener(
                         function () {
 
                             console.warn(
-                                "Ressource externe indisponible hors ligne :",
+                                "⚠ Ressource externe indisponible hors ligne :",
                                 requete.url
                             );
 
 
                             /*
-                             * Retourner une réponse
-                             * vide plutôt que faire
-                             * planter toute l'application.
+                             * Retourner une réponse 503
+                             * plutôt que faire planter
+                             * toute l'application.
                              */
 
                             return new Response(
@@ -496,5 +563,5 @@ self.addEventListener(
 ================================================== */
 
 console.log(
-    "Ferme Asher ERP - Service Worker V2 chargé."
+    "Ferme Asher ERP - Service Worker V3 chargé."
 );
