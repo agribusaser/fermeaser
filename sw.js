@@ -325,114 +325,48 @@ self.addEventListener(
 
                             }
                         )
-                      .catch(
-    function () {
+                                 .catch(
+                            function () {
 
-        /*
-         * Dernier secours :
-         * essayer le cache de la page demandée
-         * sans tenir compte des paramètres URL.
-         */
+                                /*
+                                 * Dernier secours :
+                                 * essayer le cache de la page demandée
+                                 * sans tenir compte des paramètres URL.
+                                 */
 
-        return caches.match(
-            requete,
-            {
-                ignoreSearch: true
-            }
-        )
-        .then(
-            function (reponseCache) {
+                                return caches.match(
+                                    requete,
+                                    {
+                                        ignoreSearch: true
+                                    }
+                                )
+                                .then(
+                                    function (reponseCache) {
 
-                if (reponseCache) {
-                    return reponseCache;
-                }
+                                        if (reponseCache) {
+                                            return reponseCache;
+                                        }
 
-                /*
-                 * Si la page n'existe pas dans le cache,
-                 * utiliser le dashboard comme dernier secours.
-                 */
+                                        /*
+                                         * Si la page n'existe pas dans le cache,
+                                         * utiliser le dashboard comme dernier secours.
+                                         */
 
-                return caches.match(
-                    "/fermeaser/dashboard.html"
-                );
-
-            }
-        );
-
-    }
-)
-
-
-        /* =========================================
-           RESSOURCES LOCALES
-        ========================================= */
-
-        if (
-            url.origin === self.location.origin
-        ) {
-
-            event.respondWith(
-
-                caches.match(
-                    requete
-                )
-                .then(
-                    function (reponseCache) {
-
-                        if (reponseCache) {
-
-                            /*
-                             * Retour immédiat du cache.
-                             */
-
-                            return reponseCache;
-
-                        }
-
-
-                        /*
-                         * Ressource inconnue :
-                         * essayer le réseau.
-                         */
-
-                        return fetch(
-                            requete
-                        )
-                        .then(
-                            async function (reponse) {
-
-                                if (
-                                    reponse &&
-                                    reponse.ok
-                                ) {
-
-                                    const cache =
-                                        await caches.open(
-                                            CACHE_RUNTIME
+                                        return caches.match(
+                                            "/fermeaser/dashboard.html"
                                         );
 
-                                    cache.put(
-                                        requete,
-                                        reponse.clone()
-                                    );
-
-                                }
-
-                                return reponse;
+                                    }
+                                );
 
                             }
-                        );
+                        )
 
-                    }
-                )
+                    );
 
-            );
+                return;
 
-
-            return;
-
-        }
-
+            }
 
         /* =========================================
            RESSOURCES CDN / EXTERNES
