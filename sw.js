@@ -325,23 +325,42 @@ self.addEventListener(
 
                             }
                         )
-                        .catch(
-                            function () {
+                      .catch(
+    function () {
 
-                                /*
-                                 * Dernier secours :
-                                 * dashboard.
-                                 */
-return caches.match(
-    requete,
-    {
-        ignoreSearch: true
+        /*
+         * Dernier secours :
+         * essayer le cache de la page demandée
+         * sans tenir compte des paramètres URL.
+         */
+
+        return caches.match(
+            requete,
+            {
+                ignoreSearch: true
+            }
+        )
+        .then(
+            function (reponseCache) {
+
+                if (reponseCache) {
+                    return reponseCache;
+                }
+
+                /*
+                 * Si la page n'existe pas dans le cache,
+                 * utiliser le dashboard comme dernier secours.
+                 */
+
+                return caches.match(
+                    "/fermeaser/dashboard.html"
+                );
+
+            }
+        );
+
     }
 )
-
-            return;
-
-        }
 
 
         /* =========================================
