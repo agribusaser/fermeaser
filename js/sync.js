@@ -125,12 +125,15 @@ async function synchroniserOperation(operation) {
                 .single();
 
 
-        if (error) {
+      console.error(
+    "Erreur synchronisation vente :",
+    error
+);
 
-            console.error(
-                "Erreur synchronisation vente :",
-                error
-            );
+console.error(
+    "DÉTAIL ERREUR VENTE :",
+    JSON.stringify(error, null, 2)
+);
 
             return false;
         }
