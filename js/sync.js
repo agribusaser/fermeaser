@@ -101,80 +101,7 @@ async function synchroniserOperation(
         action
     );
 
-   /* ==================================================
-   PRÉPARER LES DONNÉES POUR SUPABASE
-================================================== */
 
-/*
- * Certains champs sont utilisés uniquement
- * par IndexedDB et ne doivent pas être envoyés
- * vers Supabase.
- */
-
-function preparerDonneesSupabase(
-    donnees
-) {
-
-    if (!donnees) {
-
-        return null;
-
-    }
-
-
-    const donneesSupabase = {
-        ...donnees
-    };
-
-
-    /*
-     * Champ local uniquement.
-     */
-
-    delete donneesSupabase.synchronise;
-
-
-    return donneesSupabase;
-
-}
-
-/* ==================================================
-   PRÉPARER LES DONNÉES POUR SUPABASE
-================================================== */
-
-/*
- * Certains champs sont utilisés uniquement
- * par IndexedDB et ne doivent pas être envoyés
- * vers Supabase.
- */
-
-function preparerDonneesSupabase(
-    donnees
-) {
-
-    if (!donnees) {
-
-        return null;
-
-    }
-
-
-    const donneesSupabase = {
-        ...donnees
-    };
-
-
-    /*
-     * Champ local uniquement.
-     */
-
-    delete donneesSupabase.synchronise;
-
-
-    return donneesSupabase;
-
-}
-   
     /* =================================================
        VENTES
     ================================================= */
@@ -183,6 +110,14 @@ function preparerDonneesSupabase(
         table === SYNC_TABLE_VENTES &&
         action === "INSERT"
     ) {
+
+        /*
+         * Préparer les données destinées
+         * à Supabase.
+         *
+         * Le champ "synchronise" reste
+         * uniquement dans IndexedDB.
+         */
 
         const donneesSupabase =
             preparerDonneesSupabase(
@@ -270,7 +205,7 @@ function preparerDonneesSupabase(
 
     }
 
- 
+
     /* =================================================
        PRODUITS / STOCK
     ================================================= */
@@ -279,6 +214,14 @@ function preparerDonneesSupabase(
         table === SYNC_TABLE_PRODUITS &&
         action === "UPDATE"
     ) {
+
+        /*
+         * Préparer les données destinées
+         * à Supabase.
+         *
+         * Le champ "synchronise" reste
+         * uniquement dans IndexedDB.
+         */
 
         const donneesSupabase =
             preparerDonneesSupabase(
@@ -507,6 +450,7 @@ async function synchroniserDonnees() {
             "Opérations restantes :",
             restantes
         );
+
 
     } catch (error) {
 
