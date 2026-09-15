@@ -8,8 +8,7 @@
 "use strict";
 
 const FERME_ASHER_DB = "ferme_asher_erp";
-const FERME_ASHER_DB_VERSION = 1;
-
+const FERME_ASHER_DB_VERSION = 2;
 let fermeAsherDB = null;
 
 
