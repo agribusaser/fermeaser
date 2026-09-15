@@ -11,7 +11,7 @@
    CONFIGURATION
 ================================================== */
 
-const CACHE_VERSION = "ferme-asher-v4";
+const CACHE_VERSION = "ferme-asher-v5";
 
 const CACHE_APP =
     `${CACHE_VERSION}-app`;
