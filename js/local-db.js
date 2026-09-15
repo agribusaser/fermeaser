@@ -106,6 +106,52 @@ function ouvrirBaseLocale() {
                 );
             }
 
+           /* =========================================
+   MOUVEMENTS DE STOCK
+========================================= */
+
+if (!db.objectStoreNames.contains("mouvements_stock")) {
+
+    const mouvementsStock =
+        db.createObjectStore(
+            "mouvements_stock",
+            {
+                keyPath: "id"
+            }
+        );
+
+    mouvementsStock.createIndex(
+        "produit_id",
+        "produit_id",
+        {
+            unique: false
+        }
+    );
+
+    mouvementsStock.createIndex(
+        "type",
+        "type",
+        {
+            unique: false
+        }
+    );
+
+    mouvementsStock.createIndex(
+        "date",
+        "date",
+        {
+            unique: false
+        }
+    );
+
+    mouvementsStock.createIndex(
+        "reference_id",
+        "reference_id",
+        {
+            unique: false
+        }
+    );
+}
 
             /* =========================================
                CLIENTS
