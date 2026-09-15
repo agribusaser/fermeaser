@@ -888,50 +888,138 @@ async function enregistrerVenteSupabase(
     }
 
 
-    /* =========================================
-       AJOUTER LA VENTE À LA FILE
-    ========================================= */
+/* =========================================
+   CRÉER LE MOUVEMENT DE STOCK
+========================================= */
 
-    try {
+const mouvementStock = {
 
-        await ajouterFileSynchronisation(
-            "ventes",
-            "INSERT",
-            nouvelleVente
-        );
+    id:
+        crypto.randomUUID(),
+
+    produit_id:
+        String(
+            produit.id
+        ),
+
+    type:
+        "VENTE",
+
+    quantite:
+        -Math.abs(
+            Number(
+                quantite
+            )
+        ),
+
+    reference_table:
+        "ventes",
+
+    reference_id:
+        String(
+            idVente
+        ),
+
+    commentaire:
+        "Sortie de stock suite à une vente",
+
+    utilisateur:
+        utilisateurNom,
+
+    date:
+        new Date().toISOString(),
+
+    created_at:
+        new Date().toISOString(),
+
+    synchronise:
+        false
+};
 
 
-        /* =====================================
-           AJOUTER LA MODIFICATION DU STOCK
-        ===================================== */
+/* =========================================
+   ENREGISTREMENT LOCAL DU MOUVEMENT
+========================================= */
 
-        await ajouterFileSynchronisation(
-            "produits",
-            "UPDATE",
-            produitMisAJour
-        );
+try {
 
-
-        console.log(
-            "✓ Vente et stock ajoutés à la file de synchronisation."
-        );
+    await enregistrerLocalement(
+        "mouvements_stock",
+        mouvementStock
+    );
 
 
-    } catch (error) {
+    console.log(
+        "✓ Mouvement de stock enregistré localement :",
+        mouvementStock
+    );
 
-        console.error(
-            "Erreur file de synchronisation :",
-            error
-        );
 
-        alert(
-            "La vente est enregistrée localement, " +
-            "mais elle n'a pas pu être ajoutée à la file de synchronisation."
-        );
+} catch (error) {
 
-        return;
-    }
+    console.error(
+        "Erreur enregistrement mouvement de stock :",
+        error
+    );
 
+
+    alert(
+        "La vente a été enregistrée, " +
+        "mais le mouvement de stock n'a pas pu être enregistré localement."
+    );
+
+    return;
+}
+
+
+/* =========================================
+   AJOUTER À LA FILE DE SYNCHRONISATION
+========================================= */
+
+try {
+
+    /* =====================================
+       SYNCHRONISER LA VENTE
+    ===================================== */
+
+    await ajouterFileSynchronisation(
+        "ventes",
+        "INSERT",
+        nouvelleVente
+    );
+
+
+    /* =====================================
+       SYNCHRONISER LE MOUVEMENT DE STOCK
+    ===================================== */
+
+    await ajouterFileSynchronisation(
+        "mouvements_stock",
+        "INSERT",
+        mouvementStock
+    );
+
+
+    console.log(
+        "✓ Vente et mouvement de stock ajoutés à la file de synchronisation."
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Erreur file de synchronisation :",
+        error
+    );
+
+
+    alert(
+        "La vente est enregistrée localement, " +
+        "mais elle n'a pas pu être ajoutée correctement à la file de synchronisation."
+    );
+
+    return;
+}
 
     /* =========================================
        SI INTERNET EST ABSENT
