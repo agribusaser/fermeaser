@@ -30,25 +30,16 @@ const CACHE_CDN =
 const FICHIERS_APP = [
 
     "/fermeaser/",
-
     "/fermeaser/index.html",
-
     "/fermeaser/dashboard.html",
-
     "/fermeaser/login.html",
-
     "/fermeaser/modules/ventes/index.html",
-
     "/fermeaser/modules/ventes/nouvelle.html",
-
     "/fermeaser/js/supabase.js",
-
     "/fermeaser/js/permissions.js",
-
     "/fermeaser/js/local-db.js",
-
+    "/fermeaser/js/sync.js",
     "/fermeaser/js/ventes.js",
-
     "/fermeaser/css/ventes.css"
 
 ];
