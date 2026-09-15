@@ -15,6 +15,90 @@
 const SYNC_TABLE_VENTES = "ventes";
 const SYNC_TABLE_PRODUITS = "produits";
 
+/* ==================================================
+   MIGRATION DES ANCIENS IDS DE VENTES
+================================================== */
+
+async function migrerAnciennesVentes() {
+
+    const operations =
+        await lireToutLocalement("sync_queue");
+
+    if (!operations || operations.length === 0) {
+        return;
+    }
+
+    for (const operation of operations) {
+
+        if (
+            operation.table !== SYNC_TABLE_VENTES ||
+            operation.action !== "INSERT" ||
+            !operation.donnees ||
+            !operation.donnees.id
+        ) {
+            continue;
+        }
+
+        const ancienId =
+            String(operation.donnees.id);
+
+        const estUUID =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+                .test(ancienId);
+
+        if (estUUID) {
+            continue;
+        }
+
+        const nouvelId =
+            crypto.randomUUID();
+
+        console.log(
+            "🔄 Migration vente :",
+            ancienId,
+            "→",
+            nouvelId
+        );
+
+        const ancienneVente =
+            await lireLocalement(
+                "ventes",
+                ancienId
+            );
+
+        if (ancienneVente) {
+
+            await supprimerLocalement(
+                "ventes",
+                ancienId
+            );
+
+            ancienneVente.id =
+                nouvelId;
+
+            ancienneVente.synchronise =
+                false;
+
+            await enregistrerLocalement(
+                "ventes",
+                ancienneVente
+            );
+        }
+
+        operation.donnees.id =
+            nouvelId;
+
+        await enregistrerLocalement(
+            "sync_queue",
+            operation
+        );
+
+        console.log(
+            "✓ Vente migrée localement :",
+            nouvelId
+        );
+    }
+}
 
 /* ==================================================
    VÉRIFIER SUPABASE
