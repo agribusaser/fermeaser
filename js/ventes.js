@@ -770,22 +770,7 @@ async function enregistrerVenteSupabase(
        ID UNIQUE DE LA VENTE
     ========================================= */
 
-    const idVente =
-        "VENTE-" +
-        new Date()
-            .toISOString()
-            .replace(
-                /[-:.TZ]/g,
-                ""
-            ) +
-        "-" +
-        crypto
-            .randomUUID()
-            .slice(
-                0,
-                8
-            );
-
+   const idVente = crypto.randomUUID();
 
     /* =========================================
        CRÉER LA VENTE
