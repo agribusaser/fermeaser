@@ -261,96 +261,227 @@ console.error(
         return true;
     }
 
+/* =================================================
+   MOUVEMENTS DE STOCK
+================================================= */
 
-    /* =================================================
-       PRODUITS / STOCK
-    ================================================= */
+if (
+    table === "mouvements_stock" &&
+    action === "INSERT"
+) {
+
+    const donneesSupabase =
+        preparerDonneesSupabase(donnees);
+
+
+    if (!donneesSupabase) {
+
+        console.error(
+            "Données mouvement de stock invalides."
+        );
+
+        return false;
+    }
+
+
+    /* =============================================
+       VERIFIER LES INFORMATIONS NECESSAIRES
+    ============================================= */
 
     if (
-        table === SYNC_TABLE_PRODUITS &&
-        action === "UPDATE"
+        !donneesSupabase.produit_id ||
+        !donneesSupabase.type ||
+        !Number.isFinite(
+            Number(
+                donneesSupabase.quantite
+            )
+        )
     ) {
 
-        const donneesSupabase =
-            preparerDonneesSupabase(donnees);
+        console.error(
+            "Mouvement de stock incomplet :",
+            donneesSupabase
+        );
+
+        return false;
+    }
 
 
-        if (!donneesSupabase) {
+    /* =============================================
+       APPLIQUER LE MOUVEMENT DANS SUPABASE
+       
+       La fonction PostgreSQL :
+       - verrouille le produit
+       - vérifie le stock
+       - modifie le stock
+       - crée le mouvement
+       - évite les doublons
+    ============================================= */
 
-            console.error(
-                "Données produit invalides."
+    const {
+        data: mouvement,
+        error
+    } =
+        await window.supabaseClient
+            .rpc(
+                "appliquer_mouvement_stock",
+                {
+                    p_produit_id:
+                        String(
+                            donneesSupabase.produit_id
+                        ),
+
+                    p_type:
+                        donneesSupabase.type,
+
+                    p_quantite:
+                        Number(
+                            donneesSupabase.quantite
+                        ),
+
+                    p_reference_table:
+                        donneesSupabase.reference_table ||
+                        null,
+
+                    p_reference_id:
+                        donneesSupabase.reference_id ||
+                        null,
+
+                    p_commentaire:
+                        donneesSupabase.commentaire ||
+                        null,
+
+                    p_utilisateur:
+                        donneesSupabase.utilisateur ||
+                        null
+                }
             );
 
-            return false;
-        }
 
+    /* =============================================
+       ERREUR SUPABASE
+    ============================================= */
+
+    if (error) {
+
+        console.error(
+            "Erreur synchronisation mouvement de stock :",
+            error
+        );
+
+        console.error(
+            "DÉTAIL ERREUR MOUVEMENT :",
+            JSON.stringify(
+                error,
+                null,
+                2
+            )
+        );
+
+        return false;
+    }
+
+
+    console.log(
+        "✓ Mouvement de stock synchronisé :",
+        mouvement
+    );
+
+
+    /* =============================================
+       RECUPERER LE STOCK REEL DE SUPABASE
+       
+       Important :
+       le stock peut avoir changé pendant
+       que l'appareil était hors ligne.
+    ============================================= */
+
+    try {
 
         const {
-            data,
-            error
+            data: produitDistant,
+            error: erreurProduit
         } =
             await window.supabaseClient
-                .from(SYNC_TABLE_PRODUITS)
-                .update(
-                    donneesSupabase
+                .from(
+                    SYNC_TABLE_PRODUITS
                 )
+                .select("*")
                 .eq(
                     "id",
-                    donneesSupabase.id
+                    donneesSupabase.produit_id
                 )
-                .select()
                 .single();
 
 
-        if (error) {
+        if (
+            !erreurProduit &&
+            produitDistant
+        ) {
 
-            console.error(
-                "Erreur synchronisation produit :",
-                error
+            await enregistrerLocalement(
+                SYNC_TABLE_PRODUITS,
+                {
+                    ...produitDistant,
+                    synchronise: true
+                }
             );
 
-            return false;
+
+            console.log(
+                "✓ Stock local réaligné sur Supabase :",
+                produitDistant.stock
+            );
+
+        } else {
+
+            console.warn(
+                "Impossible de réaligner le produit local.",
+                erreurProduit
+            );
+
         }
 
+    } catch (error) {
 
-        console.log(
-            "✓ Stock produit synchronisé :",
-            data
+        console.warn(
+            "Erreur récupération stock distant :",
+            error
         );
 
-
-        /*
-         * Marquer le produit comme synchronisé
-         * dans IndexedDB.
-         */
-
-        await enregistrerLocalement(
-            SYNC_TABLE_PRODUITS,
-            {
-                ...donnees,
-                synchronise: true
-            }
-        );
-
-
-        /*
-         * Supprimer l'opération de la file.
-         */
-
-        await supprimerLocalement(
-            "sync_queue",
-            id
-        );
-
-
-        console.log(
-            "✓ Opération produit retirée de sync_queue."
-        );
-
-
-        return true;
     }
 
+
+    /* =============================================
+       MARQUER LE MOUVEMENT COMME SYNCHRONISÉ
+    ============================================= */
+
+    await enregistrerLocalement(
+        "mouvements_stock",
+        {
+            ...donnees,
+            synchronise: true
+        }
+    );
+
+
+    /* =============================================
+       SUPPRIMER L'OPÉRATION DE LA FILE
+    ============================================= */
+
+    await supprimerLocalement(
+        "sync_queue",
+        id
+    );
+
+
+    console.log(
+        "✓ Opération mouvement de stock retirée de sync_queue."
+    );
+
+
+    return true;
+}
 
     /* =================================================
        OPÉRATION NON RECONNUE
