@@ -124,7 +124,7 @@ async function synchroniserOperation(operation) {
                 .select()
                 .single();
 
-
+    if (error) {
       console.error(
     "Erreur synchronisation vente :",
     error
