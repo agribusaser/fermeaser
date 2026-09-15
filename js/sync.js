@@ -382,7 +382,7 @@ async function synchroniserDonnees() {
 
 
     try {
-
+      await migrerAnciennesVentes();
         const operations =
             await lireToutLocalement("sync_queue");
 
