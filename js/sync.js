@@ -20,16 +20,9 @@ const SYNC_TABLE_PRODUITS = "produits";
 ================================================== */
 
 async function migrerAnciennesVentes() {
-
-    const operations =
-        await lireToutLocalement("sync_queue");
-
-    if (!operations || operations.length === 0) {
-        return;
-    }
+    const operations = await lireToutLocalement("sync_queue");
 
     for (const operation of operations) {
-
         if (
             operation.table !== SYNC_TABLE_VENTES ||
             operation.action !== "INSERT" ||
@@ -39,19 +32,18 @@ async function migrerAnciennesVentes() {
             continue;
         }
 
-        const ancienId =
-            String(operation.donnees.id);
+        const ancienId = String(operation.donnees.id);
 
+        // Si l'ID est déjà un UUID, aucune migration nécessaire.
         const estUUID =
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-                .test(ancienId);
+            .test(ancienId);
 
         if (estUUID) {
             continue;
         }
 
-        const nouvelId =
-            crypto.randomUUID();
+        const nouvelId = crypto.randomUUID();
 
         console.log(
             "🔄 Migration vente :",
@@ -60,43 +52,86 @@ async function migrerAnciennesVentes() {
             nouvelId
         );
 
-        const ancienneVente =
-            await lireLocalement(
-                "ventes",
-                ancienId
-            );
+        // 1. Migrer la vente locale
+        const ancienneVente = await lireLocalement(
+            SYNC_TABLE_VENTES,
+            ancienId
+        );
 
         if (ancienneVente) {
-
             await supprimerLocalement(
-                "ventes",
+                SYNC_TABLE_VENTES,
                 ancienId
             );
 
-            ancienneVente.id =
-                nouvelId;
-
-            ancienneVente.synchronise =
-                false;
+            ancienneVente.id = nouvelId;
+            ancienneVente.synchronise = false;
 
             await enregistrerLocalement(
-                "ventes",
+                SYNC_TABLE_VENTES,
                 ancienneVente
             );
         }
 
-        operation.donnees.id =
-            nouvelId;
+        // 2. Mettre à jour l'ID dans l'opération de vente
+        operation.donnees.id = nouvelId;
 
         await enregistrerLocalement(
             "sync_queue",
             operation
         );
 
-        console.log(
-            "✓ Vente migrée localement :",
-            nouvelId
+        // 3. Migrer les mouvements de stock liés à cette vente
+        const mouvements = await lireToutLocalement(
+            "mouvements_stock"
         );
+
+        for (const mouvement of mouvements) {
+            if (
+                mouvement.reference_table === "ventes" &&
+                String(mouvement.reference_id) === ancienId
+            ) {
+                mouvement.reference_id = nouvelId;
+
+                await enregistrerLocalement(
+                    "mouvements_stock",
+                    mouvement
+                );
+
+                console.log(
+                    "🔄 Référence mouvement mise à jour :",
+                    ancienId,
+                    "→",
+                    nouvelId
+                );
+            }
+        }
+
+        // 4. Mettre à jour aussi le mouvement dans la file de synchronisation
+        const queueComplete = await lireToutLocalement(
+            "sync_queue"
+        );
+
+        for (const operationMouvement of queueComplete) {
+            if (
+                operationMouvement.table === "mouvements_stock" &&
+                operationMouvement.action === "INSERT" &&
+                operationMouvement.donnees &&
+                operationMouvement.donnees.reference_table === "ventes" &&
+                String(operationMouvement.donnees.reference_id) === ancienId
+            ) {
+                operationMouvement.donnees.reference_id = nouvelId;
+
+                await enregistrerLocalement(
+                    "sync_queue",
+                    operationMouvement
+                );
+
+                console.log(
+                    "🔄 Référence du mouvement dans sync_queue mise à jour."
+                );
+            }
+        }
     }
 }
 
