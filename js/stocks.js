@@ -32,41 +32,57 @@ function echapperHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-function verifierDependancesStocks() {
-    const manquantes = [];
+async function chargerDependancesStocks() {
 
-    if (typeof lireToutLocalement !== "function") {
-        manquantes.push("local-db.js");
+    const dependances = [
+        "../../js/supabase.js",
+        "../../js/local-db.js?v=3",
+        "../../js/sync.js"
+    ];
+
+    for (const src of dependances) {
+
+        const dejaCharge =
+            [...document.scripts].some(
+                script => script.src.includes(
+                    src.split("?")[0]
+                )
+            );
+
+        if (dejaCharge) {
+            continue;
+        }
+
+        await new Promise((resolve, reject) => {
+
+            const script =
+                document.createElement("script");
+
+            script.src = src;
+
+            script.onload = () => {
+                console.log(
+                    "✓ Dépendance chargée :",
+                    src
+                );
+                resolve();
+            };
+
+            script.onerror = () => {
+                console.error(
+                    "❌ Impossible de charger :",
+                    src
+                );
+                reject(
+                    new Error(
+                        `Impossible de charger ${src}`
+                    )
+                );
+            };
+
+            document.head.appendChild(script);
+        });
     }
-
-    if (typeof enregistrerLocalement !== "function") {
-        manquantes.push("local-db.js");
-    }
-
-    if (typeof ajouterFileSynchronisation !== "function") {
-        manquantes.push("local-db.js");
-    }
-
-    if (typeof lireLocalement !== "function") {
-        manquantes.push("local-db.js");
-    }
-
-    if (typeof synchroniserDonnees !== "function") {
-        console.warn(
-            "⚠ sync.js non chargé : les opérations resteront dans sync_queue."
-        );
-    }
-
-    if (manquantes.length) {
-        console.error(
-            "❌ Dépendances Stocks manquantes :",
-            [...new Set(manquantes)]
-        );
-
-        return false;
-    }
-
-    return true;
 }
 
 async function lireProduitsStocks() {
