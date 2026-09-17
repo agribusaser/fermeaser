@@ -1,30 +1,48 @@
-/* =========================================================
+/* ============================================================
    FERME ASHER ERP
    STOCKS.JS
-   VERSION 4.0 - OFFLINE FIRST
-   IndexedDB -> sync_queue -> Supabase
-   ========================================================= */
+   VERSION 5.0
+   Gestion des stocks - IndexedDB + Sync Supabase
+   ============================================================ */
 
 "use strict";
 
-const STOCKS_VERSION = "4.0";
-const STOCKS_TABLE_PRODUITS = "produits";
-const STOCKS_TABLE_MOUVEMENTS = "mouvements_stock";
+/* ============================================================
+   CONFIGURATION
+   ============================================================ */
 
-function dateLocale() {
-    return new Date().toISOString().slice(0, 10);
+const STOCKS_VERSION = "5.0";
+
+const TABLE_PRODUITS = "produits";
+const TABLE_MOUVEMENTS = "mouvements_stock";
+const TABLE_QUEUE = "sync_queue";
+
+let stocksInitialises = false;
+let produitsStocks = [];
+let mouvementsStocks = [];
+
+
+/* ============================================================
+   OUTILS
+   ============================================================ */
+
+function stockLog(...args) {
+    console.log("[STOCKS]", ...args);
 }
 
-function maintenantISO() {
-    return new Date().toISOString();
+
+function stockErreur(...args) {
+    console.error("[STOCKS]", ...args);
 }
 
-function afficherNombre(value) {
-    return Number(value || 0).toLocaleString("fr-FR");
-}
 
-function echapperHTML(value) {
-    return String(value ?? "")
+function echapperHTML(valeur) {
+
+    if (valeur === null || valeur === undefined) {
+        return "";
+    }
+
+    return String(valeur)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -32,396 +50,836 @@ function echapperHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-async function chargerDependancesStocks() {
 
-    const dependances = [
-        "../../js/supabase.js",
-        "../../js/local-db.js?v=3",
-        "../../js/sync.js"
-    ];
+function nombre(valeur) {
 
-    for (const src of dependances) {
+    const n = Number(valeur);
 
-        const dejaCharge =
-            [...document.scripts].some(
-                script => script.src.includes(
-                    src.split("?")[0]
-                )
+    return Number.isFinite(n) ? n : 0;
+}
+
+
+function formatNombre(valeur) {
+
+    return nombre(valeur).toLocaleString("fr-FR", {
+        maximumFractionDigits: 2
+    });
+}
+
+
+function formatFC(valeur) {
+
+    return nombre(valeur).toLocaleString("fr-FR", {
+        maximumFractionDigits: 0
+    }) + " FC";
+}
+
+
+function formatDate(valeur) {
+
+    if (!valeur) {
+        return "-";
+    }
+
+    const date = new Date(valeur);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(valeur);
+    }
+
+    return date.toLocaleDateString("fr-FR");
+}
+
+
+function formatDateHeure(valeur) {
+
+    if (!valeur) {
+        return "-";
+    }
+
+    const date = new Date(valeur);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(valeur);
+    }
+
+    return date.toLocaleString("fr-FR");
+}
+
+
+/* ============================================================
+   CHARGEMENT DES DÉPENDANCES
+   ============================================================ */
+
+function chargerScript(src) {
+
+    return new Promise((resolve, reject) => {
+
+        const scriptExistant =
+            document.querySelector(
+                'script[src="' + src + '"]'
             );
 
-        if (dejaCharge) {
-            continue;
+        if (scriptExistant) {
+
+            if (
+                src.includes("local-db.js") &&
+                typeof window.ouvrirBaseLocale === "function"
+            ) {
+                resolve();
+                return;
+            }
+
+            if (
+                src.includes("sync.js") &&
+                typeof window.synchroniserDonnees === "function"
+            ) {
+                resolve();
+                return;
+            }
+
+            if (
+                src.includes("supabase.js") &&
+                window.supabaseClient
+            ) {
+                resolve();
+                return;
+            }
         }
 
-        await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
 
-            const script =
-                document.createElement("script");
+        script.src = src;
+        script.async = false;
 
-            script.src = src;
+        script.onload = () => {
+            stockLog("Script chargé :", src);
+            resolve();
+        };
 
-            script.onload = () => {
-                console.log(
-                    "✓ Dépendance chargée :",
-                    src
-                );
-                resolve();
-            };
+        script.onerror = () => {
+            stockErreur("Impossible de charger :", src);
+            reject(
+                new Error(
+                    "Impossible de charger " + src
+                )
+            );
+        };
 
-            script.onerror = () => {
-                console.error(
-                    "❌ Impossible de charger :",
-                    src
-                );
-                reject(
-                    new Error(
-                        `Impossible de charger ${src}`
-                    )
-                );
-            };
+        document.head.appendChild(script);
+    });
+}
 
-            document.head.appendChild(script);
-        });
+
+async function chargerDependancesStocks() {
+
+    stockLog(
+        "Chargement des dépendances..."
+    );
+
+    /*
+       1. SDK Supabase
+    */
+
+    if (!window.supabase) {
+
+        await chargerScript(
+            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
+        );
     }
-}
 
-async function lireProduitsStocks() {
-    return await lireToutLocalement(STOCKS_TABLE_PRODUITS);
-}
+    /*
+       2. Client Supabase
+    */
 
-async function lireMouvementsStocks() {
-    return await lireToutLocalement(STOCKS_TABLE_MOUVEMENTS);
-}
+    if (!window.supabaseClient) {
 
-function libelleTypeMouvement(type) {
-    const types = {
-        ENTREE: "Entrée",
-        SORTIE: "Sortie",
-        VENTE: "Vente",
-        AJUSTEMENT: "Inventaire",
-        RETOUR: "Retour"
-    };
+        await chargerScript(
+            "../../js/supabase.js"
+        );
+    }
 
-    return (
-        types[String(type || "").toUpperCase()] ||
-        String(type || "Mouvement")
+    /*
+       3. IndexedDB
+    */
+
+    if (
+        typeof window.ouvrirBaseLocale !== "function"
+    ) {
+
+        await chargerScript(
+            "../../js/local-db.js?v=3"
+        );
+    }
+
+    /*
+       4. Moteur de synchronisation
+    */
+
+    if (
+        typeof window.synchroniserDonnees !== "function"
+    ) {
+
+        await chargerScript(
+            "../../js/sync.js"
+        );
+    }
+
+    stockLog(
+        "Dépendances prêtes."
     );
 }
 
-function classeTypeMouvement(type) {
-    const t = String(type || "").toUpperCase();
 
-    if (t === "ENTREE" || t === "RETOUR") {
-        return "bg-success";
+/* ============================================================
+   INITIALISATION
+   ============================================================ */
+
+async function initialiserStocksERP() {
+
+    if (stocksInitialises) {
+        return true;
     }
 
-    if (t === "SORTIE" || t === "VENTE") {
-        return "bg-danger";
+    try {
+
+        await chargerDependancesStocks();
+
+        if (
+            typeof window.ouvrirBaseLocale !== "function"
+        ) {
+
+            throw new Error(
+                "local-db.js n'est pas disponible."
+            );
+        }
+
+        await window.ouvrirBaseLocale();
+
+        stocksInitialises = true;
+
+        stockLog(
+            "Ferme Asher ERP - Stocks " +
+            STOCKS_VERSION +
+            " initialisé."
+        );
+
+        return true;
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur initialisation :",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* ============================================================
+   LECTURE DES PRODUITS
+   ============================================================ */
+
+async function chargerProduitsLocaux() {
+
+    await initialiserStocksERP();
+
+    try {
+
+        produitsStocks =
+            await window.lireToutLocalement(
+                TABLE_PRODUITS
+            );
+
+        produitsStocks =
+            Array.isArray(produitsStocks)
+                ? produitsStocks
+                : [];
+
+        return produitsStocks;
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur lecture produits :",
+            error
+        );
+
+        produitsStocks = [];
+
+        return [];
+    }
+}
+
+
+/* ============================================================
+   LECTURE DES MOUVEMENTS
+   ============================================================ */
+
+async function chargerMouvementsLocaux() {
+
+    await initialiserStocksERP();
+
+    try {
+
+        mouvementsStocks =
+            await window.lireToutLocalement(
+                TABLE_MOUVEMENTS
+            );
+
+        mouvementsStocks =
+            Array.isArray(mouvementsStocks)
+                ? mouvementsStocks
+                : [];
+
+        return mouvementsStocks;
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur lecture mouvements :",
+            error
+        );
+
+        mouvementsStocks = [];
+
+        return [];
+    }
+}
+
+
+/* ============================================================
+   TROUVER UN PRODUIT
+   ============================================================ */
+
+async function trouverProduit(produitId) {
+
+    await initialiserStocksERP();
+
+    if (!produitId) {
+        return null;
     }
 
-    return "bg-warning text-dark";
+    try {
+
+        return await window.lireLocalement(
+            TABLE_PRODUITS,
+            String(produitId)
+        );
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur recherche produit :",
+            error
+        );
+
+        return null;
+    }
 }
 
-function nomProduitDepuisMouvement(mouvement, produits) {
-    const produit = produits.find(
-        p => String(p.id) === String(mouvement.produit_id)
-    );
 
-    return (
-        produit?.nom ||
-        mouvement.produit ||
-        mouvement.produit_id ||
-        "Produit inconnu"
-    );
+/* ============================================================
+   ÉTAT DU STOCK
+   ============================================================ */
+
+function obtenirEtatStock(produit) {
+
+    const stock = nombre(produit.stock);
+    const minimum = nombre(produit.minimum);
+
+    if (stock <= 0) {
+        return "Rupture";
+    }
+
+    if (
+        minimum > 0 &&
+        stock <= minimum
+    ) {
+        return "Stock faible";
+    }
+
+    return "Disponible";
 }
 
-function valeurUnitaireProduit(produit) {
-    return Number(
-        produit?.prixAchat ??
-        produit?.prix ??
-        0
-    ) || 0;
+
+function classeEtatStock(etat) {
+
+    if (etat === "Rupture") {
+        return "danger";
+    }
+
+    if (etat === "Stock faible") {
+        return "warning";
+    }
+
+    return "success";
 }
 
-/* =========================================================
-   PAGE PRINCIPALE
-   ========================================================= */
+
+/* ============================================================
+   CHARGEMENT PRINCIPAL DES STOCKS
+   ============================================================ */
 
 async function chargerStocks() {
-    if (!verifierDependancesStocks()) {
+
+    const initialisation =
+        await initialiserStocksERP();
+
+    if (!initialisation) {
+
+        afficherErreurStocks(
+            "Impossible d'initialiser la base locale."
+        );
+
         return;
     }
 
     try {
-        const produits = await lireProduitsStocks();
 
-        const table = document.getElementById("stocksTable");
-        const totalProduits = document.getElementById("totalProduits");
-        const valeurStock = document.getElementById("valeurStock");
-        const stockFaibleElement =
-            document.getElementById("stockFaible");
-        const ruptureElement =
-            document.getElementById("ruptureStock");
+        await chargerProduitsLocaux();
 
-        const categorie =
-            document.getElementById("filtreCategorie")?.value || "";
+        await chargerMouvementsLocaux();
 
-        const etatRecherche =
-            document.getElementById("filtreEtat")?.value || "";
+        mettreAJourStatistiques();
 
-        if (!table) {
-            return;
-        }
+        afficherStocks();
 
-        let valeurTotale = 0;
-        let stockFaible = 0;
-        let rupture = 0;
+        afficherAlertes();
 
-        table.innerHTML = "";
+        afficherHistorique();
 
-        produits.forEach(produit => {
-            const stock = Number(produit.stock) || 0;
+        afficherStatistiquesMensuelles();
 
-            const minimum =
-                Number(
-                    produit.minimum ??
-                    produit.stockMinimum ??
-                    0
-                ) || 0;
+        initialiserRechercheEtFiltres();
 
-            const prix = valeurUnitaireProduit(produit);
-            const valeur = stock * prix;
-
-            valeurTotale += valeur;
-
-            let etat = "Disponible";
-            let badge = "success";
-
-            if (stock <= 0) {
-                etat = "Rupture";
-                badge = "danger";
-                rupture++;
-            } else if (stock <= minimum) {
-                etat = "Stock faible";
-                badge = "warning";
-                stockFaible++;
-            }
-
-            if (
-                categorie &&
-                String(produit.categorie || "") !== categorie
-            ) {
-                return;
-            }
-
-            if (
-                etatRecherche &&
-                etat !== etatRecherche
-            ) {
-                return;
-            }
-
-            const code = produit.code || produit.id || "";
-
-            table.insertAdjacentHTML(
-                "beforeend",
-                `
-                <tr>
-                    <td>${echapperHTML(code)}</td>
-
-                    <td>
-                        ${echapperHTML(produit.nom || "")}
-                    </td>
-
-                    <td>
-                        ${echapperHTML(produit.categorie || "")}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${afficherNombre(stock)}
-                        </strong>
-                    </td>
-
-                    <td>
-                        ${afficherNombre(minimum)}
-                    </td>
-
-                    <td>
-                        ${echapperHTML(produit.unite || "")}
-                    </td>
-
-                    <td>
-                        ${afficherNombre(valeur)} FC
-                    </td>
-
-                    <td>
-                        <span class="badge bg-${badge}">
-                            ${etat}
-                        </span>
-                    </td>
-
-                    <td>
-                        <button
-                            type="button"
-                            class="btn btn-success btn-sm"
-                            onclick="entreeStock('${encodeURIComponent(
-                                String(produit.id)
-                            )}')"
-                            title="Entrée de stock"
-                        >
-                            <i class="fa fa-plus"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-danger btn-sm"
-                            onclick="sortieStock('${encodeURIComponent(
-                                String(produit.id)
-                            )}')"
-                            title="Sortie de stock"
-                        >
-                            <i class="fa fa-minus"></i>
-                        </button>
-                    </td>
-                </tr>
-                `
-            );
-        });
-
-        if (totalProduits) {
-            totalProduits.textContent = produits.length;
-        }
-
-        if (valeurStock) {
-            valeurStock.textContent =
-                `${afficherNombre(valeurTotale)} FC`;
-        }
-
-        if (stockFaibleElement) {
-            stockFaibleElement.textContent = stockFaible;
-        }
-
-        if (ruptureElement) {
-            ruptureElement.textContent = rupture;
-        }
-
-        await afficherAlertesStocks(produits);
-        await afficherDerniersMouvements(produits);
-        await chargerStatistiquesMensuelles();
+        stockLog(
+            "Stocks chargés :",
+            produitsStocks.length,
+            "produits"
+        );
 
     } catch (error) {
-        console.error(
-            "❌ Erreur chargement stocks :",
+
+        stockErreur(
+            "Erreur chargement stocks :",
             error
+        );
+
+        afficherErreurStocks(
+            "Erreur lors du chargement des stocks."
         );
     }
 }
 
-async function afficherAlertesStocks(produits) {
-    const zone = document.getElementById("alertesStock");
 
-    if (!zone) {
+/* ============================================================
+   ERREUR AFFICHAGE
+   ============================================================ */
+
+function afficherErreurStocks(message) {
+
+    const tableau =
+        document.getElementById(
+            "stocksTable"
+        );
+
+    if (tableau) {
+
+        tableau.innerHTML = `
+            <tr>
+                <td colspan="9"
+                    class="text-center text-danger py-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    ${echapperHTML(message)}
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+/* ============================================================
+   STATISTIQUES
+   ============================================================ */
+
+function mettreAJourStatistiques() {
+
+    const totalProduits =
+        produitsStocks.length;
+
+    let valeurStock = 0;
+    let stockFaible = 0;
+    let rupture = 0;
+
+    produitsStocks.forEach(produit => {
+
+        const stock =
+            nombre(produit.stock);
+
+        const prix =
+            nombre(produit.prix);
+
+        const minimum =
+            nombre(produit.minimum);
+
+        valeurStock +=
+            stock * prix;
+
+        if (stock <= 0) {
+
+            rupture++;
+
+        } else if (
+            minimum > 0 &&
+            stock <= minimum
+        ) {
+
+            stockFaible++;
+        }
+    });
+
+    const totalEl =
+        document.getElementById(
+            "totalProduits"
+        );
+
+    if (totalEl) {
+        totalEl.textContent =
+            formatNombre(totalProduits);
+    }
+
+    const valeurEl =
+        document.getElementById(
+            "valeurStock"
+        );
+
+    if (valeurEl) {
+        valeurEl.textContent =
+            formatFC(valeurStock);
+    }
+
+    const faibleEl =
+        document.getElementById(
+            "stockFaible"
+        );
+
+    if (faibleEl) {
+        faibleEl.textContent =
+            formatNombre(stockFaible);
+    }
+
+    const ruptureEl =
+        document.getElementById(
+            "ruptureStock"
+        );
+
+    if (ruptureEl) {
+        ruptureEl.textContent =
+            formatNombre(rupture);
+    }
+}
+
+
+/* ============================================================
+   AFFICHER LE TABLEAU DES STOCKS
+   ============================================================ */
+
+function afficherStocks() {
+
+    const tableau =
+        document.getElementById(
+            "stocksTable"
+        );
+
+    if (!tableau) {
         return;
     }
 
-    const alertes = produits.filter(produit => {
-        const stock = Number(produit.stock) || 0;
+    const recherche =
+        (
+            document.getElementById(
+                "rechercheStock"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
-        const minimum =
-            Number(
-                produit.minimum ??
-                produit.stockMinimum ??
-                0
-            ) || 0;
+    const categorie =
+        document.getElementById(
+            "filtreCategorie"
+        )?.value || "";
 
-        return stock <= minimum;
-    });
+    const etat =
+        document.getElementById(
+            "filtreEtat"
+        )?.value || "";
 
-    if (!alertes.length) {
-        zone.innerHTML = `
-            <div class="alert alert-success mb-0">
-                Aucun problème détecté.
-            </div>
+    const produitsFiltres =
+        produitsStocks.filter(produit => {
+
+            const nom =
+                String(produit.nom || "")
+                    .toLowerCase();
+
+            const id =
+                String(produit.id || "")
+                    .toLowerCase();
+
+            const cat =
+                String(produit.categorie || "");
+
+            const etatProduit =
+                obtenirEtatStock(produit);
+
+            const rechercheOK =
+                !recherche ||
+                nom.includes(recherche) ||
+                id.includes(recherche);
+
+            const categorieOK =
+                !categorie ||
+                cat === categorie;
+
+            const etatOK =
+                !etat ||
+                etatProduit === etat;
+
+            return (
+                rechercheOK &&
+                categorieOK &&
+                etatOK
+            );
+        });
+
+    if (
+        produitsFiltres.length === 0
+    ) {
+
+        tableau.innerHTML = `
+            <tr>
+                <td colspan="9"
+                    class="text-center text-muted py-4">
+                    Aucun produit trouvé.
+                </td>
+            </tr>
         `;
 
         return;
     }
 
-    zone.innerHTML = alertes
-        .map(produit => {
-            const stock = Number(produit.stock) || 0;
+    tableau.innerHTML =
+        produitsFiltres
+            .map(produit => {
 
-            const minimum =
-                Number(
-                    produit.minimum ??
-                    produit.stockMinimum ??
-                    0
-                ) || 0;
+                const stock =
+                    nombre(produit.stock);
 
-            return `
-                <div class="alert ${
-                    stock <= 0
-                        ? "alert-danger"
-                        : "alert-warning"
-                }">
+                const minimum =
+                    nombre(produit.minimum);
 
-                    <strong>
-                        ${echapperHTML(produit.nom)}
-                    </strong>
+                const prix =
+                    nombre(produit.prix);
 
-                    <br>
+                const valeur =
+                    stock * prix;
 
-                    ${
-                        stock <= 0
-                            ? "Rupture de stock."
-                            : `Stock faible : ${
-                                afficherNombre(stock)
-                            } / minimum ${
-                                afficherNombre(minimum)
-                            }.`
-                    }
-                </div>
-            `;
-        })
-        .join("");
+                const etat =
+                    obtenirEtatStock(
+                        produit
+                    );
+
+                const classe =
+                    classeEtatStock(
+                        etat
+                    );
+
+                return `
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${echapperHTML(produit.id)}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${echapperHTML(produit.nom)}
+                        </td>
+
+                        <td>
+                            ${echapperHTML(
+                                produit.categorie || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${formatNombre(stock)}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${formatNombre(minimum)}
+                        </td>
+
+                        <td>
+                            ${echapperHTML(
+                                produit.unite || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatFC(valeur)}
+                        </td>
+
+                        <td>
+                            <span class="badge bg-${classe}">
+                                ${echapperHTML(etat)}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="entree.html?produit=${encodeURIComponent(produit.id)}"
+                                class="btn btn-sm btn-success"
+                                title="Entrée">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+
+                            <a
+                                href="sortie.html?produit=${encodeURIComponent(produit.id)}"
+                                class="btn btn-sm btn-danger"
+                                title="Sortie">
+                                <i class="fa-solid fa-minus"></i>
+                            </a>
+
+                        </td>
+
+                    </tr>
+                `;
+            })
+            .join("");
 }
 
-async function afficherDerniersMouvements(produits) {
-    const table =
-        document.getElementById("historiqueTable");
 
-    if (!table) {
+/* ============================================================
+   ALERTES
+   ============================================================ */
+
+function afficherAlertes() {
+
+    const conteneur =
+        document.getElementById(
+            "alertesStock"
+        );
+
+    if (!conteneur) {
+        return;
+    }
+
+    const ruptures =
+        produitsStocks.filter(
+            produit =>
+                nombre(produit.stock) <= 0
+        );
+
+    const faibles =
+        produitsStocks.filter(
+            produit =>
+                nombre(produit.stock) > 0 &&
+                nombre(produit.minimum) > 0 &&
+                nombre(produit.stock) <=
+                    nombre(produit.minimum)
+        );
+
+    let html = "";
+
+    if (
+        ruptures.length === 0 &&
+        faibles.length === 0
+    ) {
+
+        html = `
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                Aucun problème détecté.
+            </div>
+        `;
+
+        conteneur.innerHTML = html;
+
+        return;
+    }
+
+    ruptures.forEach(produit => {
+
+        html += `
+            <div class="alert alert-danger">
+                <strong>
+                    Rupture :
+                </strong>
+                ${echapperHTML(produit.nom)}
+            </div>
+        `;
+    });
+
+    faibles.forEach(produit => {
+
+        html += `
+            <div class="alert alert-warning">
+                <strong>
+                    Stock faible :
+                </strong>
+                ${echapperHTML(produit.nom)}
+                —
+                ${formatNombre(produit.stock)}
+                ${echapperHTML(produit.unite || "")}
+            </div>
+        `;
+    });
+
+    conteneur.innerHTML = html;
+}
+
+
+/* ============================================================
+   HISTORIQUE
+   ============================================================ */
+
+function afficherHistorique() {
+
+    const tableau =
+        document.getElementById(
+            "historiqueTable"
+        );
+
+    if (!tableau) {
         return;
     }
 
     const mouvements =
-        await lireMouvementsStocks();
-
-    mouvements.sort(
-        (a, b) =>
-            new Date(
-                b.date ||
-                b.created_at ||
-                0
-            ) -
-            new Date(
-                a.date ||
-                a.created_at ||
-                0
+        [...mouvementsStocks]
+            .sort(
+                (a, b) =>
+                    new Date(
+                        b.date || b.created_at || 0
+                    ) -
+                    new Date(
+                        a.date || a.created_at || 0
+                    )
             )
-    );
+            .slice(0, 10);
 
-    const derniers =
-        mouvements.slice(0, 10);
+    if (mouvements.length === 0) {
 
-    if (!derniers.length) {
-        table.innerHTML = `
+        tableau.innerHTML = `
             <tr>
-                <td
-                    colspan="5"
-                    class="text-center text-muted"
-                >
+                <td colspan="5"
+                    class="text-center text-muted">
                     Aucun mouvement enregistré.
                 </td>
             </tr>
@@ -430,111 +888,170 @@ async function afficherDerniersMouvements(produits) {
         return;
     }
 
-    table.innerHTML = derniers
-        .map(mouvement => {
-            return `
-                <tr>
+    tableau.innerHTML =
+        mouvements
+            .map(mouvement => {
 
-                    <td>
-                        ${echapperHTML(
+                const produit =
+                    produitsStocks.find(
+                        p =>
+                            String(p.id) ===
                             String(
+                                mouvement.produit_id
+                            )
+                    );
+
+                const quantite =
+                    nombre(
+                        mouvement.quantite
+                    );
+
+                const type =
+                    String(
+                        mouvement.type || ""
+                    );
+
+                const positif =
+                    quantite >= 0;
+
+                return `
+                    <tr>
+
+                        <td>
+                            ${formatDateHeure(
                                 mouvement.date ||
-                                mouvement.created_at ||
-                                ""
-                            ).slice(0, 10)
-                        )}
-                    </td>
-
-                    <td>
-                        ${echapperHTML(
-                            nomProduitDepuisMouvement(
-                                mouvement,
-                                produits
-                            )
-                        )}
-                    </td>
-
-                    <td>
-                        <span
-                            class="badge ${
-                                classeTypeMouvement(
-                                    mouvement.type
-                                )
-                            }"
-                        >
-                            ${echapperHTML(
-                                libelleTypeMouvement(
-                                    mouvement.type
-                                )
+                                mouvement.created_at
                             )}
-                        </span>
-                    </td>
+                        </td>
 
-                    <td>
-                        ${afficherNombre(
-                            Math.abs(
-                                Number(
-                                    mouvement.quantite
-                                ) || 0
-                            )
-                        )}
-                    </td>
+                        <td>
+                            ${echapperHTML(
+                                produit?.nom ||
+                                mouvement.produit_id ||
+                                "-"
+                            )}
+                        </td>
 
-                    <td>
-                        ${echapperHTML(
-                            mouvement.utilisateur ||
-                            "Administrateur"
-                        )}
-                    </td>
+                        <td>
+                            <span class="badge ${
+                                positif
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }">
+                                ${echapperHTML(type)}
+                            </span>
+                        </td>
 
-                </tr>
-            `;
-        })
-        .join("");
+                        <td>
+                            <strong>
+                                ${positif ? "+" : ""}
+                                ${formatNombre(quantite)}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${echapperHTML(
+                                mouvement.utilisateur ||
+                                "-"
+                            )}
+                        </td>
+
+                    </tr>
+                `;
+            })
+            .join("");
 }
 
-/* =========================================================
-   RECHERCHE / FILTRES
-   ========================================================= */
 
-function initialiserRecherche() {
-    const champ =
+/* ============================================================
+   STATISTIQUES MENSUELLES
+   ============================================================ */
+
+function afficherStatistiquesMensuelles() {
+
+    const maintenant =
+        new Date();
+
+    const mois =
+        maintenant.getMonth();
+
+    const annee =
+        maintenant.getFullYear();
+
+    let entrees = 0;
+    let sorties = 0;
+
+    mouvementsStocks.forEach(mouvement => {
+
+        const date =
+            new Date(
+                mouvement.date ||
+                mouvement.created_at
+            );
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return;
+        }
+
+        if (
+            date.getMonth() !== mois ||
+            date.getFullYear() !== annee
+        ) {
+            return;
+        }
+
+        const qte =
+            nombre(
+                mouvement.quantite
+            );
+
+        if (qte > 0) {
+
+            entrees += qte;
+
+        } else if (qte < 0) {
+
+            sorties += Math.abs(qte);
+        }
+    });
+
+    const entreesEl =
+        document.getElementById(
+            "entreesMois"
+        );
+
+    if (entreesEl) {
+        entreesEl.textContent =
+            formatNombre(entrees);
+    }
+
+    const sortiesEl =
+        document.getElementById(
+            "sortiesMois"
+        );
+
+    if (sortiesEl) {
+        sortiesEl.textContent =
+            formatNombre(sorties);
+    }
+}
+
+
+/* ============================================================
+   RECHERCHE ET FILTRES
+   ============================================================ */
+
+function initialiserRechercheEtFiltres() {
+
+    const recherche =
         document.getElementById(
             "rechercheStock"
         );
 
-    if (
-        !champ ||
-        champ.dataset.stocksReady === "true"
-    ) {
-        return;
-    }
-
-    champ.dataset.stocksReady = "true";
-
-    champ.addEventListener(
-        "input",
-        () => {
-            const recherche =
-                champ.value.toLowerCase();
-
-            document
-                .querySelectorAll(
-                    "#stocksTable tr"
-                )
-                .forEach(ligne => {
-                    ligne.style.display =
-                        ligne.innerText
-                            .toLowerCase()
-                            .includes(recherche)
-                            ? ""
-                            : "none";
-                });
-        }
-    );
-}
-
-function initialiserFiltres() {
     const categorie =
         document.getElementById(
             "filtreCategorie"
@@ -545,137 +1062,231 @@ function initialiserFiltres() {
             "filtreEtat"
         );
 
-    if (
-        categorie &&
-        categorie.dataset.stocksReady !== "true"
-    ) {
-        categorie.dataset.stocksReady = "true";
+    if (recherche && !recherche.dataset.stockReady) {
+
+        recherche.addEventListener(
+            "input",
+            afficherStocks
+        );
+
+        recherche.dataset.stockReady =
+            "true";
+    }
+
+    if (categorie && !categorie.dataset.stockReady) {
 
         categorie.addEventListener(
             "change",
-            chargerStocks
+            afficherStocks
         );
+
+        categorie.dataset.stockReady =
+            "true";
     }
 
-    if (
-        etat &&
-        etat.dataset.stocksReady !== "true"
-    ) {
-        etat.dataset.stocksReady = "true";
+    if (etat && !etat.dataset.stockReady) {
 
         etat.addEventListener(
             "change",
-            chargerStocks
+            afficherStocks
         );
+
+        etat.dataset.stockReady =
+            "true";
     }
 }
 
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
 
-function entreeStock(id) {
-    window.location.href =
-        `entree.html?id=${encodeURIComponent(
-            decodeURIComponent(id)
-        )}`;
-}
-
-function sortieStock(id) {
-    window.location.href =
-        `sortie.html?id=${encodeURIComponent(
-            decodeURIComponent(id)
-        )}`;
-}
-
-/* =========================================================
-   PRODUITS FORMULAIRES
-   ========================================================= */
+/* ============================================================
+   CHARGER LES PRODUITS DANS UN SELECT
+   ============================================================ */
 
 async function chargerListeProduits() {
+
+    await chargerProduitsLocaux();
+
     const select =
-        document.getElementById("produit");
+        document.getElementById(
+            "produit"
+        );
 
     if (!select) {
         return;
     }
 
-    const produits =
-        await lireProduitsStocks();
-
-    const idSelectionne =
+    const produitSelectionne =
         new URLSearchParams(
             window.location.search
-        ).get("id");
+        ).get("produit");
 
-    select.innerHTML =
-        `<option value="">
+    select.innerHTML = `
+        <option value="">
             Sélectionner un produit
-        </option>`;
+        </option>
+    `;
 
-    produits.forEach(produit => {
-        const option =
-            document.createElement("option");
+    produitsStocks
+        .sort(
+            (a, b) =>
+                String(a.nom || "")
+                    .localeCompare(
+                        String(b.nom || ""),
+                        "fr"
+                    )
+        )
+        .forEach(produit => {
 
-        option.value = produit.id;
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-        option.textContent =
-            `${produit.nom || "Sans nom"} — Stock : ${
-                Number(produit.stock) || 0
-            } ${produit.unite || ""}`;
+            option.value =
+                String(produit.id);
 
-        if (
-            String(produit.id) ===
-            String(idSelectionne)
-        ) {
-            option.selected = true;
-        }
+            option.textContent =
+                `${produit.nom} — Stock : ${formatNombre(produit.stock)} ${produit.unite || ""}`;
 
-        select.appendChild(option);
-    });
+            if (
+                produitSelectionne &&
+                String(produit.id) ===
+                String(produitSelectionne)
+            ) {
+                option.selected = true;
+            }
+
+            select.appendChild(option);
+        });
+
+    select.dispatchEvent(
+        new Event("change")
+    );
 }
 
-/* =========================================================
-   MOUVEMENT LOCAL + FILE SYNC
-   ========================================================= */
+
+/* ============================================================
+   UTILISATEUR
+   ============================================================ */
+
+function obtenirUtilisateur() {
+
+    if (
+        window.utilisateurConnecte
+    ) {
+
+        if (
+            typeof window.utilisateurConnecte ===
+            "string"
+        ) {
+            return window.utilisateurConnecte;
+        }
+
+        if (
+            window.utilisateurConnecte.nom
+        ) {
+            return window.utilisateurConnecte.nom;
+        }
+    }
+
+    return (
+        localStorage.getItem(
+            "utilisateurNom"
+        ) ||
+        localStorage.getItem(
+            "nomUtilisateur"
+        ) ||
+        "Administrateur"
+    );
+}
+
+
+/* ============================================================
+   CRÉER UN MOUVEMENT
+   ============================================================ */
 
 async function creerMouvementStock({
-    produit,
+    produitId,
     type,
     quantite,
-    commentaire,
     referenceTable = null,
-    referenceId = null
+    referenceId = null,
+    commentaire = "",
+    utilisateur = null,
+    date = null
 }) {
+
+    await initialiserStocksERP();
+
+    const produit =
+        await trouverProduit(
+            produitId
+        );
+
+    if (!produit) {
+
+        throw new Error(
+            "Produit introuvable : " +
+            produitId
+        );
+    }
+
+    const qte =
+        nombre(quantite);
+
+    if (qte === 0) {
+
+        throw new Error(
+            "La quantité doit être différente de zéro."
+        );
+    }
+
+    const stockActuel =
+        nombre(produit.stock);
+
+    const nouveauStock =
+        stockActuel + qte;
+
+    if (nouveauStock < 0) {
+
+        throw new Error(
+            "Stock insuffisant. Stock actuel : " +
+            formatNombre(stockActuel)
+        );
+    }
+
     const maintenant =
-        maintenantISO();
+        new Date().toISOString();
 
     const mouvement = {
+
         id: crypto.randomUUID(),
 
         produit_id:
-            String(produit.id),
+            String(produitId),
 
         type:
-            String(type),
+            String(type || "STOCK"),
 
         quantite:
-            Number(quantite),
+            qte,
 
         reference_table:
             referenceTable,
 
         reference_id:
-            referenceId,
+            referenceId
+                ? String(referenceId)
+                : null,
 
         commentaire:
-            commentaire || null,
+            commentaire || "",
 
         utilisateur:
-            "Administrateur",
+            utilisateur ||
+            obtenirUtilisateur(),
 
         date:
-            maintenant,
+            date || maintenant,
 
         created_at:
             maintenant,
@@ -684,26 +1295,63 @@ async function creerMouvementStock({
             false
     };
 
-    await enregistrerLocalement(
-        STOCKS_TABLE_MOUVEMENTS,
+    /*
+       Mise à jour locale du stock.
+    */
+
+    produit.stock =
+        nouveauStock;
+
+    produit.synchronise =
+        true;
+
+    /*
+       Enregistrement local.
+    */
+
+    await window.enregistrerLocalement(
+        TABLE_PRODUITS,
+        produit
+    );
+
+    await window.enregistrerLocalement(
+        TABLE_MOUVEMENTS,
         mouvement
     );
 
-    await ajouterFileSynchronisation(
-        STOCKS_TABLE_MOUVEMENTS,
+    /*
+       Ajout à la file de synchronisation.
+    */
+
+    await window.ajouterFileSynchronisation(
+        TABLE_MOUVEMENTS,
         "INSERT",
         mouvement
     );
 
+    stockLog(
+        "Mouvement enregistré localement :",
+        mouvement
+    );
+
+    /*
+       Synchronisation immédiate si Internet disponible.
+    */
+
     if (
-        typeof synchroniserDonnees === "function" &&
-        navigator.onLine
+        navigator.onLine &&
+        typeof window.synchroniserDonnees ===
+        "function"
     ) {
+
         try {
-            await synchroniserDonnees();
+
+            await window.synchroniserDonnees();
+
         } catch (error) {
-            console.warn(
-                "Synchronisation automatique reportée :",
+
+            stockLog(
+                "Synchronisation différée :",
                 error
             );
         }
@@ -712,69 +1360,230 @@ async function creerMouvementStock({
     return mouvement;
 }
 
-/* =========================================================
-   ENTREE
-   ========================================================= */
+
+/* ============================================================
+   ENTRÉE DE STOCK
+   ============================================================ */
+
+async function enregistrerEntreeStock(donnees) {
+
+    const produitId =
+        donnees.produitId;
+
+    const quantite =
+        nombre(donnees.quantite);
+
+    if (!produitId) {
+
+        throw new Error(
+            "Veuillez sélectionner un produit."
+        );
+    }
+
+    if (quantite <= 0) {
+
+        throw new Error(
+            "La quantité doit être supérieure à zéro."
+        );
+    }
+
+    const mouvement =
+        await creerMouvementStock({
+
+            produitId,
+
+            type:
+                "ENTREE",
+
+            quantite,
+
+            referenceTable:
+                "stocks",
+
+            referenceId:
+                crypto.randomUUID(),
+
+            commentaire:
+                [
+                    donnees.type,
+                    donnees.reference,
+                    donnees.observation
+                ]
+                .filter(Boolean)
+                .join(" | "),
+
+            utilisateur:
+                obtenirUtilisateur(),
+
+            date:
+                donnees.date
+                    ? new Date(
+                        donnees.date +
+                        "T00:00:00"
+                    ).toISOString()
+                    : null
+        });
+
+    return mouvement;
+}
+
+
+/* ============================================================
+   SORTIE DE STOCK
+   ============================================================ */
+
+async function enregistrerSortieStock(donnees) {
+
+    const produitId =
+        donnees.produitId;
+
+    const quantite =
+        nombre(donnees.quantite);
+
+    if (!produitId) {
+
+        throw new Error(
+            "Veuillez sélectionner un produit."
+        );
+    }
+
+    if (quantite <= 0) {
+
+        throw new Error(
+            "La quantité doit être supérieure à zéro."
+        );
+    }
+
+    const produit =
+        await trouverProduit(
+            produitId
+        );
+
+    if (!produit) {
+
+        throw new Error(
+            "Produit introuvable."
+        );
+    }
+
+    if (
+        nombre(produit.stock) <
+        quantite
+    ) {
+
+        throw new Error(
+            "Stock insuffisant. Disponible : " +
+            formatNombre(produit.stock)
+        );
+    }
+
+    const mouvement =
+        await creerMouvementStock({
+
+            produitId,
+
+            type:
+                "SORTIE",
+
+            quantite:
+                -Math.abs(quantite),
+
+            referenceTable:
+                "stocks",
+
+            referenceId:
+                crypto.randomUUID(),
+
+            commentaire:
+                [
+                    donnees.type,
+                    donnees.reference,
+                    donnees.observation
+                ]
+                .filter(Boolean)
+                .join(" | "),
+
+            utilisateur:
+                obtenirUtilisateur(),
+
+            date:
+                donnees.date
+                    ? new Date(
+                        donnees.date +
+                        "T00:00:00"
+                    ).toISOString()
+                    : null
+        });
+
+    return mouvement;
+}
+
+
+/* ============================================================
+   PAGE ENTRÉE
+   ============================================================ */
 
 async function initialiserPageEntree() {
+
     const formulaire =
         document.getElementById(
             "entreeForm"
         );
 
-    if (
-        !formulaire ||
-        formulaire.dataset.stocksReady === "true"
-    ) {
+    if (!formulaire) {
         return;
     }
 
-    formulaire.dataset.stocksReady = "true";
+    await initialiserStocksERP();
 
     await chargerListeProduits();
 
     const date =
-        document.getElementById("date");
-
-    const produitSelect =
-        document.getElementById("produit");
-
-    const quantite =
-        document.getElementById("quantite");
-
-    const prix =
-        document.getElementById("prix");
-
-    const montant =
-        document.getElementById("montant");
-
-    const type =
-        document.getElementById("type");
-
-    const reference =
-        document.getElementById("reference");
-
-    const observation =
-        document.getElementById("observation");
+        document.getElementById(
+            "date"
+        );
 
     if (
         date &&
         !date.value
     ) {
-        date.value = dateLocale();
+
+        date.value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
     }
 
+    const quantite =
+        document.getElementById(
+            "quantite"
+        );
+
+    const prix =
+        document.getElementById(
+            "prix"
+        );
+
+    const montant =
+        document.getElementById(
+            "montant"
+        );
+
     function calculerMontant() {
-        if (montant) {
-            montant.value = (
-                (Number(
-                    quantite?.value
-                ) || 0) *
-                (Number(
-                    prix?.value
-                ) || 0)
-            ).toFixed(2);
+
+        if (!montant) {
+            return;
         }
+
+        montant.value =
+            (
+                nombre(
+                    quantite?.value
+                ) *
+                nombre(
+                    prix?.value
+                )
+            ).toFixed(2);
     }
 
     quantite?.addEventListener(
@@ -789,1291 +1598,555 @@ async function initialiserPageEntree() {
 
     formulaire.addEventListener(
         "submit",
-        async event => {
+        async function(event) {
+
             event.preventDefault();
 
-            try {
-                const idProduit =
-                    produitSelect?.value;
-
-                const quantiteEntree =
-                    Number(
-                        quantite?.value
-                    );
-
-                const nature =
-                    type?.value?.trim() ||
-                    "";
-
-                if (!idProduit) {
-                    alert(
-                        "Veuillez sélectionner un produit."
-                    );
-                    return;
-                }
-
-                if (
-                    !Number.isFinite(
-                        quantiteEntree
-                    ) ||
-                    quantiteEntree <= 0
-                ) {
-                    alert(
-                        "La quantité doit être supérieure à zéro."
-                    );
-                    return;
-                }
-
-                if (!nature) {
-                    alert(
-                        "Veuillez sélectionner la provenance de l'entrée."
-                    );
-                    return;
-                }
-
-                const produit =
-                    await lireLocalement(
-                        STOCKS_TABLE_PRODUITS,
-                        idProduit
-                    );
-
-                if (!produit) {
-                    alert(
-                        "Produit introuvable dans la base locale."
-                    );
-                    return;
-                }
-
-                produit.stock =
-                    (Number(produit.stock) || 0) +
-                    quantiteEntree;
-
-                produit.synchronise =
-                    false;
-
-                await enregistrerLocalement(
-                    STOCKS_TABLE_PRODUITS,
-                    produit
+            const bouton =
+                formulaire.querySelector(
+                    'button[type="submit"]'
                 );
 
-                const referenceValeur =
-                    reference?.value?.trim() ||
-                    crypto.randomUUID();
+            try {
 
-                const commentaire = [
-                    `Entrée : ${nature}`,
+                if (bouton) {
+                    bouton.disabled = true;
+                }
 
-                    reference?.value?.trim()
-                        ? `Référence : ${reference.value.trim()}`
-                        : "",
+                const mouvement =
+                    await enregistrerEntreeStock({
 
-                    observation?.value?.trim()
-                        ? `Observation : ${observation.value.trim()}`
-                        : "",
+                        date:
+                            document.getElementById(
+                                "date"
+                            )?.value,
 
-                    prix?.value
-                        ? `Prix unitaire : ${
-                            Number(prix.value) || 0
-                        } FC`
-                        : ""
-                ]
-                    .filter(Boolean)
-                    .join(" | ");
+                        produitId:
+                            document.getElementById(
+                                "produit"
+                            )?.value,
 
-                await creerMouvementStock({
-                    produit,
-                    type: "ENTREE",
-                    quantite:
-                        quantiteEntree,
-                    commentaire,
-                    referenceTable:
-                        "stocks",
-                    referenceId:
-                        referenceValeur
-                });
+                        quantite:
+                            document.getElementById(
+                                "quantite"
+                            )?.value,
+
+                        prix:
+                            document.getElementById(
+                                "prix"
+                            )?.value,
+
+                        type:
+                            document.getElementById(
+                                "type"
+                            )?.value,
+
+                        reference:
+                            document.getElementById(
+                                "reference"
+                            )?.value,
+
+                        observation:
+                            document.getElementById(
+                                "observation"
+                            )?.value
+                    });
 
                 alert(
-                    "Entrée de stock enregistrée localement avec succès."
+                    "Entrée de stock enregistrée avec succès."
+                );
+
+                stockLog(
+                    "Entrée enregistrée :",
+                    mouvement
                 );
 
                 window.location.href =
                     "index.html";
 
             } catch (error) {
-                console.error(
-                    "❌ Erreur entrée stock :",
+
+                stockErreur(
+                    "Erreur entrée :",
                     error
                 );
 
                 alert(
-                    "Impossible d'enregistrer l'entrée de stock."
+                    error.message ||
+                    "Impossible d'enregistrer l'entrée."
                 );
+
+            } finally {
+
+                if (bouton) {
+                    bouton.disabled = false;
+                }
             }
         }
     );
+
+    stockLog(
+        "Page Entrée initialisée."
+    );
 }
 
-/* =========================================================
-   SORTIE
-   ========================================================= */
+
+/* ============================================================
+   PAGE SORTIE
+   ============================================================ */
 
 async function initialiserPageSortie() {
+
     const formulaire =
         document.getElementById(
             "sortieForm"
         );
 
-    if (
-        !formulaire ||
-        formulaire.dataset.stocksReady === "true"
-    ) {
+    if (!formulaire) {
         return;
     }
 
-    formulaire.dataset.stocksReady = "true";
+    await initialiserStocksERP();
 
     await chargerListeProduits();
 
     const date =
-        document.getElementById("date");
-
-    const select =
-        document.getElementById("produit");
-
-    const stockDisponible =
         document.getElementById(
-            "stockDisponible"
-        );
-
-    const quantite =
-        document.getElementById(
-            "quantite"
-        );
-
-    const prix =
-        document.getElementById("prix");
-
-    const type =
-        document.getElementById("type");
-
-    const reference =
-        document.getElementById(
-            "reference"
-        );
-
-    const observation =
-        document.getElementById(
-            "observation"
+            "date"
         );
 
     if (
         date &&
         !date.value
     ) {
-        date.value = dateLocale();
+
+        date.value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
     }
 
-    async function afficherProduit() {
+    const selectProduit =
+        document.getElementById(
+            "produit"
+        );
+
+    const stockDisponible =
+        document.getElementById(
+            "stockDisponible"
+        );
+
+    const prix =
+        document.getElementById(
+            "prix"
+        );
+
+    function actualiserProduit() {
+
         const produit =
-            await lireLocalement(
-                STOCKS_TABLE_PRODUITS,
-                select?.value
+            produitsStocks.find(
+                p =>
+                    String(p.id) ===
+                    String(
+                        selectProduit?.value
+                    )
             );
 
+        if (!produit) {
+
+            if (stockDisponible) {
+                stockDisponible.value = "";
+            }
+
+            if (prix) {
+                prix.value = "";
+            }
+
+            return;
+        }
+
         if (stockDisponible) {
+
             stockDisponible.value =
-                produit
-                    ? Number(
-                        produit.stock
-                    ) || 0
-                    : "";
+                nombre(produit.stock);
         }
 
         if (prix) {
+
             prix.value =
-                produit
-                    ? Number(
-                        produit.prixVente ??
-                        produit.prix ??
-                        0
-                    ) || 0
-                    : "";
+                nombre(produit.prix);
         }
     }
 
-    select?.addEventListener(
+    selectProduit?.addEventListener(
         "change",
-        afficherProduit
+        actualiserProduit
     );
 
-    await afficherProduit();
+    actualiserProduit();
 
     formulaire.addEventListener(
         "submit",
-        async event => {
+        async function(event) {
+
             event.preventDefault();
 
-            try {
-                const idProduit =
-                    select?.value;
-
-                const quantiteSortie =
-                    Number(
-                        quantite?.value
-                    );
-
-                const nature =
-                    type?.value?.trim() ||
-                    "";
-
-                if (!idProduit) {
-                    alert(
-                        "Veuillez sélectionner un produit."
-                    );
-                    return;
-                }
-
-                if (
-                    !Number.isFinite(
-                        quantiteSortie
-                    ) ||
-                    quantiteSortie <= 0
-                ) {
-                    alert(
-                        "La quantité doit être supérieure à zéro."
-                    );
-                    return;
-                }
-
-                if (!nature) {
-                    alert(
-                        "Veuillez sélectionner le motif de sortie."
-                    );
-                    return;
-                }
-
-                const produit =
-                    await lireLocalement(
-                        STOCKS_TABLE_PRODUITS,
-                        idProduit
-                    );
-
-                if (!produit) {
-                    alert(
-                        "Produit introuvable dans la base locale."
-                    );
-                    return;
-                }
-
-                const stockActuel =
-                    Number(
-                        produit.stock
-                    ) || 0;
-
-                if (
-                    quantiteSortie >
-                    stockActuel
-                ) {
-                    alert(
-                        `Stock insuffisant.\n\nDisponible : ${
-                            stockActuel
-                        } ${
-                            produit.unite || ""
-                        }`
-                    );
-                    return;
-                }
-
-                produit.stock =
-                    stockActuel -
-                    quantiteSortie;
-
-                produit.synchronise =
-                    false;
-
-                await enregistrerLocalement(
-                    STOCKS_TABLE_PRODUITS,
-                    produit
+            const bouton =
+                formulaire.querySelector(
+                    'button[type="submit"]'
                 );
 
-                const referenceValeur =
-                    reference?.value?.trim() ||
-                    crypto.randomUUID();
+            try {
 
-                const commentaire = [
-                    `Sortie : ${nature}`,
+                if (bouton) {
+                    bouton.disabled = true;
+                }
 
-                    reference?.value?.trim()
-                        ? `Référence : ${reference.value.trim()}`
-                        : "",
+                const mouvement =
+                    await enregistrerSortieStock({
 
-                    observation?.value?.trim()
-                        ? `Observation : ${observation.value.trim()}`
-                        : ""
-                ]
-                    .filter(Boolean)
-                    .join(" | ");
+                        date:
+                            document.getElementById(
+                                "date"
+                            )?.value,
 
-                await creerMouvementStock({
-                    produit,
-                    type: "SORTIE",
-                    quantite:
-                        -Math.abs(
-                            quantiteSortie
-                        ),
-                    commentaire,
-                    referenceTable:
-                        "stocks",
-                    referenceId:
-                        referenceValeur
-                });
+                        produitId:
+                            document.getElementById(
+                                "produit"
+                            )?.value,
+
+                        quantite:
+                            document.getElementById(
+                                "quantite"
+                            )?.value,
+
+                        prix:
+                            document.getElementById(
+                                "prix"
+                            )?.value,
+
+                        type:
+                            document.getElementById(
+                                "type"
+                            )?.value,
+
+                        reference:
+                            document.getElementById(
+                                "reference"
+                            )?.value,
+
+                        observation:
+                            document.getElementById(
+                                "observation"
+                            )?.value
+                    });
 
                 alert(
-                    "Sortie de stock enregistrée localement avec succès."
+                    "Sortie de stock enregistrée avec succès."
+                );
+
+                stockLog(
+                    "Sortie enregistrée :",
+                    mouvement
                 );
 
                 window.location.href =
                     "index.html";
 
             } catch (error) {
-                console.error(
-                    "❌ Erreur sortie stock :",
+
+                stockErreur(
+                    "Erreur sortie :",
                     error
                 );
 
                 alert(
-                    "Impossible d'enregistrer la sortie de stock."
+                    error.message ||
+                    "Impossible d'enregistrer la sortie."
                 );
+
+            } finally {
+
+                if (bouton) {
+                    bouton.disabled = false;
+                }
             }
         }
     );
+
+    stockLog(
+        "Page Sortie initialisée."
+    );
 }
 
-/* =========================================================
+
+/* ============================================================
    INVENTAIRE
-   ========================================================= */
+   ============================================================ */
 
 async function chargerInventaire() {
-    const table =
-        document.getElementById(
-            "inventaireTable"
-        );
 
-    if (!table) {
-        return;
-    }
+    await chargerStocks();
 
-    const produits =
-        await lireProduitsStocks();
-
-    table.innerHTML =
-        produits
-            .map(produit => {
-                const stock =
-                    Number(
-                        produit.stock
-                    ) || 0;
-
-                return `
-                    <tr>
-
-                        <td>
-                            ${echapperHTML(
-                                produit.code ||
-                                produit.id
-                            )}
-                        </td>
-
-                        <td>
-                            ${echapperHTML(
-                                produit.nom || ""
-                            )}
-                        </td>
-
-                        <td>
-                            ${echapperHTML(
-                                produit.categorie || ""
-                            )}
-                        </td>
-
-                        <td>
-                            ${afficherNombre(
-                                stock
-                            )}
-                        </td>
-
-                        <td>
-                            <input
-                                type="number"
-                                class="form-control stock-physique"
-                                data-id="${echapperHTML(
-                                    produit.id
-                                )}"
-                                data-stock="${stock}"
-                                min="0"
-                                step="0.01"
-                                value="${stock}"
-                            >
-                        </td>
-
-                        <td class="ecart text-success">
-                            0
-                        </td>
-
-                    </tr>
-                `;
-            })
-            .join("");
-
-    document
-        .querySelectorAll(
-            ".stock-physique"
-        )
-        .forEach(champ => {
-            champ.addEventListener(
-                "input",
-                calculerEcartsInventaire
-            );
-        });
-
-    calculerEcartsInventaire();
+    return produitsStocks;
 }
 
-function calculerEcartsInventaire() {
-    const champs =
-        document.querySelectorAll(
-            ".stock-physique"
-        );
 
-    let nbProduits = 0;
-    let nbEcarts = 0;
-    let nbConformes = 0;
-
-    champs.forEach(champ => {
-        nbProduits++;
-
-        const systeme =
-            Number(
-                champ.dataset.stock
-            ) || 0;
-
-        const physique =
-            Number(
-                champ.value
-            );
-
-        const ecart =
-            Number.isFinite(
-                physique
-            )
-                ? physique - systeme
-                : 0;
-
-        const cellule =
-            champ
-                .closest("tr")
-                ?.querySelector(
-                    ".ecart"
-                );
-
-        if (cellule) {
-            cellule.textContent =
-                afficherNombre(
-                    ecart
-                );
-
-            cellule.className =
-                `ecart ${
-                    ecart === 0
-                        ? "text-success"
-                        : "text-danger"
-                }`;
-        }
-
-        if (ecart === 0) {
-            nbConformes++;
-        } else {
-            nbEcarts++;
-        }
-    });
-
-    const produits =
-        document.getElementById(
-            "nbProduitsInventaire"
-        );
-
-    const ecarts =
-        document.getElementById(
-            "nbEcarts"
-        );
-
-    const conformes =
-        document.getElementById(
-            "nbConformes"
-        );
-
-    if (produits) {
-        produits.textContent =
-            nbProduits;
-    }
-
-    if (ecarts) {
-        ecarts.textContent =
-            nbEcarts;
-    }
-
-    if (conformes) {
-        conformes.textContent =
-            nbConformes;
-    }
-}
-
-function initialiserInventaire() {
-    const bouton =
-        document.getElementById(
-            "btnEnregistrerInventaire"
-        );
-
-    if (
-        !bouton ||
-        bouton.dataset.stocksReady === "true"
-    ) {
-        return;
-    }
-
-    bouton.dataset.stocksReady = "true";
-
-    bouton.addEventListener(
-        "click",
-        enregistrerInventaire
-    );
-}
-
-async function enregistrerInventaire() {
-    const champs =
-        document.querySelectorAll(
-            ".stock-physique"
-        );
-
-    if (!champs.length) {
-        alert(
-            "Aucun produit à inventorier."
-        );
-
-        return;
-    }
-
-    let modifications = 0;
-
-    try {
-        for (const champ of champs) {
-            const idProduit =
-                champ.dataset.id;
-
-            const stockPhysique =
-                Number(
-                    champ.value
-                );
-
-            if (
-                !Number.isFinite(
-                    stockPhysique
-                ) ||
-                stockPhysique < 0
-            ) {
-                continue;
-            }
-
-            const produit =
-                await lireLocalement(
-                    STOCKS_TABLE_PRODUITS,
-                    idProduit
-                );
-
-            if (!produit) {
-                continue;
-            }
-
-            const stockSysteme =
-                Number(
-                    produit.stock
-                ) || 0;
-
-            const ecart =
-                stockPhysique -
-                stockSysteme;
-
-            if (ecart === 0) {
-                continue;
-            }
-
-            produit.stock =
-                stockPhysique;
-
-            produit.synchronise =
-                false;
-
-            await enregistrerLocalement(
-                STOCKS_TABLE_PRODUITS,
-                produit
-            );
-
-            await creerMouvementStock({
-                produit,
-                type: "AJUSTEMENT",
-                quantite: ecart,
-                commentaire:
-                    `Ajustement inventaire : ${
-                        stockSysteme
-                    } → ${
-                        stockPhysique
-                    }`,
-                referenceTable:
-                    "inventaires",
-                referenceId:
-                    crypto.randomUUID()
-            });
-
-            modifications++;
-        }
-
-        if (!modifications) {
-            alert(
-                "Aucun écart à enregistrer."
-            );
-
-            return;
-        }
-
-        alert(
-            `${modifications} ajustement(s) d'inventaire enregistré(s) localement.`
-        );
-
-        await chargerInventaire();
-
-    } catch (error) {
-        console.error(
-            "❌ Erreur inventaire :",
-            error
-        );
-
-        alert(
-            "Impossible d'enregistrer l'inventaire."
-        );
-    }
-}
-
-/* =========================================================
-   HISTORIQUE
-   ========================================================= */
-
-async function chargerHistorique() {
-    const table =
-        document.getElementById(
-            "historiqueMouvements"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    const [
-        produits,
-        mouvementsTous
-    ] = await Promise.all([
-        lireProduitsStocks(),
-        lireMouvementsStocks()
-    ]);
-
-    const filtreDate =
-        document.getElementById(
-            "filtreDate"
-        )?.value || "";
-
-    const filtreProduit =
-        document.getElementById(
-            "filtreProduit"
-        )?.value
-            ?.trim()
-            .toLowerCase() || "";
-
-    const filtreType =
-        document.getElementById(
-            "filtreType"
-        )?.value || "";
-
-    let mouvements =
-        mouvementsTous.filter(
-            mouvement => {
-                const nomProduit =
-                    nomProduitDepuisMouvement(
-                        mouvement,
-                        produits
-                    ).toLowerCase();
-
-                const date =
-                    String(
-                        mouvement.date ||
-                        mouvement.created_at ||
-                        ""
-                    ).slice(0, 10);
-
-                let typePourFiltre =
-                    libelleTypeMouvement(
-                        mouvement.type
-                    );
-
-                if (
-                    typePourFiltre ===
-                    "Vente"
-                ) {
-                    typePourFiltre =
-                        "Sortie";
-                }
-
-                return (
-                    (!filtreDate ||
-                        date === filtreDate) &&
-
-                    (!filtreProduit ||
-                        nomProduit.includes(
-                            filtreProduit
-                        )) &&
-
-                    (!filtreType ||
-                        typePourFiltre ===
-                        filtreType)
-                );
-            }
-        );
-
-    mouvements.sort(
-        (a, b) =>
-            new Date(
-                b.date ||
-                b.created_at ||
-                0
-            ) -
-            new Date(
-                a.date ||
-                a.created_at ||
-                0
-            )
-    );
-
-    let totalEntrees = 0;
-    let totalSorties = 0;
-
-    mouvements.forEach(
-        mouvement => {
-            const q =
-                Number(
-                    mouvement.quantite
-                ) || 0;
-
-            if (q > 0) {
-                totalEntrees += q;
-            }
-
-            if (q < 0) {
-                totalSorties +=
-                    Math.abs(q);
-            }
-        }
-    );
-
-    const nb =
-        document.getElementById(
-            "nbMouvements"
-        );
-
-    const entrees =
-        document.getElementById(
-            "totalEntrees"
-        );
-
-    const sorties =
-        document.getElementById(
-            "totalSorties"
-        );
-
-    if (nb) {
-        nb.textContent =
-            mouvements.length;
-    }
-
-    if (entrees) {
-        entrees.textContent =
-            afficherNombre(
-                totalEntrees
-            );
-    }
-
-    if (sorties) {
-        sorties.textContent =
-            afficherNombre(
-                totalSorties
-            );
-    }
-
-    if (!mouvements.length) {
-        table.innerHTML = `
-            <tr>
-                <td
-                    colspan="8"
-                    class="text-center text-muted"
-                >
-                    Aucun mouvement trouvé.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    table.innerHTML =
-        mouvements
-            .map(mouvement => {
-                const produit =
-                    produits.find(
-                        p =>
-                            String(p.id) ===
-                            String(
-                                mouvement.produit_id
-                            )
-                    );
-
-                const prix =
-                    valeurUnitaireProduit(
-                        produit
-                    );
-
-                const quantite =
-                    Math.abs(
-                        Number(
-                            mouvement.quantite
-                        ) || 0
-                    );
-
-                const montant =
-                    quantite * prix;
-
-                return `
-                    <tr>
-
-                        <td>
-                            ${echapperHTML(
-                                String(
-                                    mouvement.date ||
-                                    mouvement.created_at ||
-                                    ""
-                                ).slice(0, 10)
-                            )}
-                        </td>
-
-                        <td>
-                            ${echapperHTML(
-                                nomProduitDepuisMouvement(
-                                    mouvement,
-                                    produits
-                                )
-                            )}
-                        </td>
-
-                        <td>
-                            <span
-                                class="badge ${
-                                    classeTypeMouvement(
-                                        mouvement.type
-                                    )
-                                }"
-                            >
-                                ${echapperHTML(
-                                    libelleTypeMouvement(
-                                        mouvement.type
-                                    )
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${echapperHTML(
-                                mouvement.commentaire ||
-                                "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${afficherNombre(
-                                quantite
-                            )}
-                        </td>
-
-                        <td>
-                            ${afficherNombre(
-                                prix
-                            )} FC
-                        </td>
-
-                        <td>
-                            ${afficherNombre(
-                                montant
-                            )} FC
-                        </td>
-
-                        <td>
-                            ${echapperHTML(
-                                mouvement.utilisateur ||
-                                "Administrateur"
-                            )}
-                        </td>
-
-                    </tr>
-                `;
-            })
-            .join("");
-}
-
-function initialiserFiltresHistorique() {
-    const date =
-        document.getElementById(
-            "filtreDate"
-        );
+async function ajusterStockInventaire(
+    produitId,
+    nouveauStock,
+    commentaire = "Ajustement inventaire"
+) {
 
     const produit =
-        document.getElementById(
-            "filtreProduit"
-        );
-
-    const type =
-        document.getElementById(
-            "filtreType"
-        );
-
-    if (
-        date &&
-        date.dataset.stocksReady !== "true"
-    ) {
-        date.dataset.stocksReady = "true";
-
-        date.addEventListener(
-            "change",
-            chargerHistorique
-        );
-    }
-
-    if (
-        produit &&
-        produit.dataset.stocksReady !== "true"
-    ) {
-        produit.dataset.stocksReady = "true";
-
-        produit.addEventListener(
-            "input",
-            chargerHistorique
-        );
-    }
-
-    if (
-        type &&
-        type.dataset.stocksReady !== "true"
-    ) {
-        type.dataset.stocksReady = "true";
-
-        type.addEventListener(
-            "change",
-            chargerHistorique
-        );
-    }
-}
-
-/* =========================================================
-   STATISTIQUES MENSUELLES
-   ========================================================= */
-
-async function chargerStatistiquesMensuelles() {
-    const elementEntrees =
-        document.getElementById(
-            "entreesMois"
-        );
-
-    const elementSorties =
-        document.getElementById(
-            "sortiesMois"
-        );
-
-    if (
-        !elementEntrees &&
-        !elementSorties
-    ) {
-        return;
-    }
-
-    const mois =
-        dateLocale().slice(0, 7);
-
-    const mouvements =
-        await lireMouvementsStocks();
-
-    let entrees = 0;
-    let sorties = 0;
-
-    mouvements.forEach(
-        mouvement => {
-            const date =
-                String(
-                    mouvement.date ||
-                    mouvement.created_at ||
-                    ""
-                ).slice(0, 7);
-
-            if (date !== mois) {
-                return;
-            }
-
-            const q =
-                Number(
-                    mouvement.quantite
-                ) || 0;
-
-            if (q > 0) {
-                entrees += q;
-            }
-
-            if (q < 0) {
-                sorties +=
-                    Math.abs(q);
-            }
-        }
-    );
-
-    if (elementEntrees) {
-        elementEntrees.textContent =
-            afficherNombre(
-                entrees
-            );
-    }
-
-    if (elementSorties) {
-        elementSorties.textContent =
-            afficherNombre(
-                sorties
-            );
-    }
-}
-
-/* =========================================================
-   COMPATIBILITE ANCIENNES FONCTIONS
-   ========================================================= */
-
-async function retirerStockApresVente(vente) {
-    if (
-        !vente?.produitId ||
-        !vente?.quantite
-    ) {
-        return false;
-    }
-
-    const produit =
-        await lireLocalement(
-            STOCKS_TABLE_PRODUITS,
-            String(
-                vente.produitId
-            )
+        await trouverProduit(
+            produitId
         );
 
     if (!produit) {
-        return false;
-    }
 
-    const quantite =
-        Number(
-            vente.quantite
+        throw new Error(
+            "Produit introuvable."
         );
-
-    if (
-        !Number.isFinite(
-            quantite
-        ) ||
-        quantite <= 0
-    ) {
-        return false;
     }
 
-    const stock =
-        Number(
-            produit.stock
-        ) || 0;
+    const ancienStock =
+        nombre(produit.stock);
 
-    if (
-        quantite > stock
-    ) {
-        return false;
+    const stockFinal =
+        nombre(nouveauStock);
+
+    const difference =
+        stockFinal - ancienStock;
+
+    if (difference === 0) {
+
+        return null;
     }
 
-    produit.stock =
-        stock - quantite;
+    return creerMouvementStock({
 
-    produit.synchronise =
-        false;
+        produitId,
 
-    await enregistrerLocalement(
-        STOCKS_TABLE_PRODUITS,
-        produit
-    );
+        type:
+            "INVENTAIRE",
 
-    await creerMouvementStock({
-        produit,
-        type: "VENTE",
+        quantite:
+            difference,
+
+        referenceTable:
+            "inventaire",
+
+        referenceId:
+            crypto.randomUUID(),
+
+        commentaire,
+
+        utilisateur:
+            obtenirUtilisateur(),
+
+        date:
+            new Date().toISOString()
+    });
+}
+
+
+/* ============================================================
+   COMPATIBILITÉ AVEC ANCIENS APPELS
+   ============================================================ */
+
+async function retirerStockApresVente(
+    produitId,
+    quantite,
+    venteId = null
+) {
+
+    return creerMouvementStock({
+
+        produitId,
+
+        type:
+            "VENTE",
+
         quantite:
             -Math.abs(
-                quantite
+                nombre(quantite)
             ),
-        commentaire:
-            "Sortie automatique suite à une vente.",
+
         referenceTable:
             "ventes",
-        referenceId:
-            String(
-                vente.id ||
-                crypto.randomUUID()
-            )
-    });
 
-    return true;
+        referenceId:
+            venteId
+                ? String(venteId)
+                : crypto.randomUUID(),
+
+        commentaire:
+            "Sortie de stock suite à une vente",
+
+        utilisateur:
+            obtenirUtilisateur(),
+
+        date:
+            new Date().toISOString()
+    });
 }
 
-async function remettreStockApresAnnulation(vente) {
-    if (
-        !vente?.produitId ||
-        !vente?.quantite
-    ) {
-        return false;
-    }
 
-    const produit =
-        await lireLocalement(
-            STOCKS_TABLE_PRODUITS,
-            String(
-                vente.produitId
-            )
-        );
+async function remettreStockApresAnnulation(
+    produitId,
+    quantite,
+    venteId = null
+) {
 
-    if (!produit) {
-        return false;
-    }
+    return creerMouvementStock({
 
-    const quantite =
-        Number(
-            vente.quantite
-        );
+        produitId,
 
-    if (
-        !Number.isFinite(
-            quantite
-        ) ||
-        quantite <= 0
-    ) {
-        return false;
-    }
+        type:
+            "ANNULATION_VENTE",
 
-    produit.stock =
-        (Number(
-            produit.stock
-        ) || 0) +
-        quantite;
-
-    produit.synchronise =
-        false;
-
-    await enregistrerLocalement(
-        STOCKS_TABLE_PRODUITS,
-        produit
-    );
-
-    await creerMouvementStock({
-        produit,
-        type: "RETOUR",
         quantite:
             Math.abs(
-                quantite
+                nombre(quantite)
             ),
-        commentaire:
-            "Retour suite à annulation de vente.",
-        referenceTable:
-            "ventes_annulation",
-        referenceId:
-            String(
-                vente.id ||
-                crypto.randomUUID()
-            )
-    });
 
-    return true;
+        referenceTable:
+            "ventes",
+
+        referenceId:
+            venteId
+                ? String(venteId)
+                : crypto.randomUUID(),
+
+        commentaire:
+            "Retour de stock suite à annulation de vente",
+
+        utilisateur:
+            obtenirUtilisateur(),
+
+        date:
+            new Date().toISOString()
+    });
 }
 
-/* =========================================================
-   INITIALISATION
-   ========================================================= */
 
-async function initialiserStocksERP() {
+/* ============================================================
+   ACTUALISATION APRÈS SYNCHRONISATION
+   ============================================================ */
 
-    try {
+window.addEventListener(
+    "online",
+    async function() {
 
-        await chargerDependancesStocks();
-
-        console.log(
-            "=== DÉPENDANCES STOCKS ==="
-        );
-
-        console.log(
-            "Supabase :",
-            typeof window.supabaseClient
-        );
-
-        console.log(
-            "Local DB :",
-            typeof lireToutLocalement
-        );
-
-        console.log(
-            "Enregistrer local :",
-            typeof enregistrerLocalement
-        );
-
-        console.log(
-            "Sync :",
-            typeof synchroniserDonnees
+        stockLog(
+            "Connexion Internet détectée."
         );
 
         if (
-            typeof lireToutLocalement !==
+            typeof window.synchroniserDonnees ===
             "function"
         ) {
-            throw new Error(
-                "local-db.js n'est pas disponible."
-            );
+
+            try {
+
+                await window.synchroniserDonnees();
+
+                await chargerStocks();
+
+            } catch (error) {
+
+                stockErreur(
+                    "Erreur synchronisation online :",
+                    error
+                );
+            }
         }
-/* =========================================================
-   EXPORTS GLOBAUX
-   ========================================================= */
+    }
+);
+
+
+/* ============================================================
+   INITIALISATION AUTOMATIQUE
+   ============================================================ */
 
 document.addEventListener(
     "DOMContentLoaded",
-    initialiserStocksERP
+    async function() {
+
+        try {
+
+            if (
+                document.getElementById(
+                    "stocksTable"
+                )
+            ) {
+
+                await chargerStocks();
+
+            }
+
+            if (
+                document.getElementById(
+                    "entreeForm"
+                )
+            ) {
+
+                await initialiserPageEntree();
+
+            }
+
+            if (
+                document.getElementById(
+                    "sortieForm"
+                )
+            ) {
+
+                await initialiserPageSortie();
+
+            }
+
+        } catch (error) {
+
+            stockErreur(
+                "Erreur initialisation page :",
+                error
+            );
+        }
+    }
 );
+
+
+/* ============================================================
+   EXPORTS GLOBAUX
+   ============================================================ */
+
+window.STOCKS_VERSION =
+    STOCKS_VERSION;
 
 window.chargerStocks =
     chargerStocks;
 
-window.entreeStock =
-    entreeStock;
+window.initialiserStocksERP =
+    initialiserStocksERP;
 
-window.sortieStock =
-    sortieStock;
+window.chargerProduitsLocaux =
+    chargerProduitsLocaux;
+
+window.chargerMouvementsLocaux =
+    chargerMouvementsLocaux;
 
 window.chargerListeProduits =
     chargerListeProduits;
+
+window.creerMouvementStock =
+    creerMouvementStock;
+
+window.enregistrerEntreeStock =
+    enregistrerEntreeStock;
+
+window.enregistrerSortieStock =
+    enregistrerSortieStock;
 
 window.initialiserPageEntree =
     initialiserPageEntree;
@@ -2084,26 +2157,17 @@ window.initialiserPageSortie =
 window.chargerInventaire =
     chargerInventaire;
 
-window.calculerEcartsInventaire =
-    calculerEcartsInventaire;
-
-window.initialiserInventaire =
-    initialiserInventaire;
-
-window.enregistrerInventaire =
-    enregistrerInventaire;
-
-window.chargerHistorique =
-    chargerHistorique;
-
-window.initialiserFiltresHistorique =
-    initialiserFiltresHistorique;
-
-window.chargerStatistiquesMensuelles =
-    chargerStatistiquesMensuelles;
+window.ajusterStockInventaire =
+    ajusterStockInventaire;
 
 window.retirerStockApresVente =
     retirerStockApresVente;
 
 window.remettreStockApresAnnulation =
     remettreStockApresAnnulation;
+
+stockLog(
+    "stocks.js version " +
+    STOCKS_VERSION +
+    " chargé."
+);
