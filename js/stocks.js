@@ -2017,45 +2017,43 @@ async function remettreStockApresAnnulation(vente) {
    ========================================================= */
 
 async function initialiserStocksERP() {
-    if (!verifierDependancesStocks()) {
-        return;
-    }
 
     try {
-        if (
-            typeof ouvrirBaseLocale ===
-            "function"
-        ) {
-            await ouvrirBaseLocale();
-        }
 
-        initialiserRecherche();
-        initialiserFiltres();
-        initialiserFiltresHistorique();
-        initialiserInventaire();
-
-        await Promise.all([
-            chargerStocks(),
-            chargerListeProduits(),
-            chargerInventaire(),
-            chargerHistorique(),
-            chargerStatistiquesMensuelles(),
-            initialiserPageEntree(),
-            initialiserPageSortie()
-        ]);
+        await chargerDependancesStocks();
 
         console.log(
-            `✓ Ferme Asher ERP - Stocks.js Version ${STOCKS_VERSION} chargé.`
+            "=== DÉPENDANCES STOCKS ==="
         );
 
-    } catch (error) {
-        console.error(
-            "❌ Initialisation Stocks impossible :",
-            error
+        console.log(
+            "Supabase :",
+            typeof window.supabaseClient
         );
-    }
-}
 
+        console.log(
+            "Local DB :",
+            typeof lireToutLocalement
+        );
+
+        console.log(
+            "Enregistrer local :",
+            typeof enregistrerLocalement
+        );
+
+        console.log(
+            "Sync :",
+            typeof synchroniserDonnees
+        );
+
+        if (
+            typeof lireToutLocalement !==
+            "function"
+        ) {
+            throw new Error(
+                "local-db.js n'est pas disponible."
+            );
+        }
 /* =========================================================
    EXPORTS GLOBAUX
    ========================================================= */
