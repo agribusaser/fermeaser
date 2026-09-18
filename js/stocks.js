@@ -242,42 +242,56 @@ async function initialiserStocksERP() {
         return true;
     }
 
-    try {
+    // Si une initialisation est déjà en cours,
+    // on attend simplement la même opération.
+    if (stocksInitialisationPromise) {
+        return stocksInitialisationPromise;
+    }
 
-        await chargerDependancesStocks();
+    stocksInitialisationPromise = (async () => {
 
-        if (
-            typeof window.ouvrirBaseLocale !== "function"
-        ) {
+        try {
 
-            throw new Error(
-                "local-db.js n'est pas disponible."
+            await chargerDependancesStocks();
+
+            if (
+                typeof window.ouvrirBaseLocale !== "function"
+            ) {
+                throw new Error(
+                    "local-db.js n'est pas disponible."
+                );
+            }
+
+            await window.ouvrirBaseLocale();
+
+            stocksInitialises = true;
+
+            stockLog(
+                "Ferme Asher ERP - Stocks " +
+                STOCKS_VERSION +
+                " initialisé."
             );
+
+            return true;
+
+        } catch (error) {
+
+            stockErreur(
+                "Erreur initialisation :",
+                error
+            );
+
+            return false;
+
+        } finally {
+
+            stocksInitialisationPromise = null;
         }
 
-        await window.ouvrirBaseLocale();
+    })();
 
-        stocksInitialises = true;
-
-        stockLog(
-            "Ferme Asher ERP - Stocks " +
-            STOCKS_VERSION +
-            " initialisé."
-        );
-
-        return true;
-
-    } catch (error) {
-
-        stockErreur(
-            "Erreur initialisation :",
-            error
-        );
-
-        return false;
-    }
+    return stocksInitialisationPromise;
 }
-
 
 /* ============================================================
    LECTURE DES PRODUITS
