@@ -1118,66 +1118,98 @@ function initialiserRechercheEtFiltres() {
 
 async function chargerListeProduits() {
 
-    await chargerProduitsLocaux();
+    await initialiserStocksERP();
 
-    const select =
-        document.getElementById(
-            "produit"
+    try {
+
+        produitsStocks = await window.lireToutLocalement(
+            TABLE_PRODUITS
         );
 
-    if (!select) {
-        return;
+        produitsStocks = Array.isArray(produitsStocks)
+            ? produitsStocks
+            : [];
+
+        const select = document.getElementById("produit");
+
+        if (!select) {
+            return;
+        }
+
+        const produitSelectionne =
+            new URLSearchParams(window.location.search)
+                .get("produit");
+
+        select.innerHTML = "";
+
+        const optionVide =
+            document.createElement("option");
+
+        optionVide.value = "";
+        optionVide.textContent =
+            "Sélectionner un produit";
+
+        select.appendChild(optionVide);
+
+        produitsStocks
+            .sort((a, b) =>
+                String(a.nom || "").localeCompare(
+                    String(b.nom || ""),
+                    "fr"
+                )
+            )
+            .forEach(produit => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    String(produit.id);
+
+                option.textContent =
+                    `${produit.nom} — Stock : ${formatNombre(produit.stock)} ${produit.unite || ""}`;
+
+                if (
+                    produitSelectionne &&
+                    String(produit.id) ===
+                    String(produitSelectionne)
+                ) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+
+        stockLog(
+            "Liste produits chargée :",
+            produitsStocks.length,
+            "produits"
+        );
+
+        select.dispatchEvent(
+            new Event("change")
+        );
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur chargement liste produits :",
+            error
+        );
+
+        const select =
+            document.getElementById("produit");
+
+        if (select) {
+
+            select.innerHTML = `
+                <option value="">
+                    Erreur de chargement des produits
+                </option>
+            `;
+        }
     }
-
-    const produitSelectionne =
-        new URLSearchParams(
-            window.location.search
-        ).get("produit");
-
-    select.innerHTML = `
-        <option value="">
-            Sélectionner un produit
-        </option>
-    `;
-
-    produitsStocks
-        .sort(
-            (a, b) =>
-                String(a.nom || "")
-                    .localeCompare(
-                        String(b.nom || ""),
-                        "fr"
-                    )
-        )
-        .forEach(produit => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                String(produit.id);
-
-            option.textContent =
-                `${produit.nom} — Stock : ${formatNombre(produit.stock)} ${produit.unite || ""}`;
-
-            if (
-                produitSelectionne &&
-                String(produit.id) ===
-                String(produitSelectionne)
-            ) {
-                option.selected = true;
-            }
-
-            select.appendChild(option);
-        });
-
-    select.dispatchEvent(
-        new Event("change")
-    );
 }
-
 
 /* ============================================================
    UTILISATEUR
