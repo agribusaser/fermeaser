@@ -18,6 +18,7 @@ const TABLE_MOUVEMENTS = "mouvements_stock";
 const TABLE_QUEUE = "sync_queue";
 
 let stocksInitialises = false;
+let stocksInitialisationPromise = null;
 let produitsStocks = [];
 let mouvementsStocks = [];
 
