@@ -352,7 +352,11 @@ if (
        - crée le mouvement
        - évite les doublons
     ============================================= */
-
+   
+console.log("🔎 DEBUG produit_id AVANT RPC :", donneesSupabase.produit_id);
+console.log("🔎 DEBUG produit_id JSON :", JSON.stringify(donneesSupabase.produit_id));
+console.log("🔎 DEBUG longueur :", String(donneesSupabase.produit_id).length);
+   
     const {
         data: mouvement,
         error
