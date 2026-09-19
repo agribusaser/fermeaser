@@ -174,64 +174,35 @@ function chargerScript(src) {
 
 async function chargerDependancesStocks() {
 
-    stockLog(
-        "Chargement des dépendances..."
-    );
+    console.log("[STOCKS] Vérification des dépendances...");
 
-    /*
-       1. SDK Supabase
-    */
-
-    if (!window.supabase) {
-
-        await chargerScript(
-            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"
-        );
+    if (typeof window.supabaseClient === "undefined") {
+        throw new Error("Supabase n'est pas chargé.");
     }
 
-    /*
-       2. Client Supabase
-    */
-
-    if (!window.supabaseClient) {
-
-        await chargerScript(
-            "../../js/supabase.js"
-        );
+    if (typeof enregistrerLocalement !== "function") {
+        throw new Error("local-db.js n'est pas chargé.");
     }
 
-    /*
-       3. IndexedDB
-    */
-
-    if (
-        typeof window.ouvrirBaseLocale !== "function"
-    ) {
-
-        await chargerScript(
-            "../../js/local-db.js?v=3"
-        );
+    if (typeof lireLocalement !== "function") {
+        throw new Error("local-db.js est incomplet.");
     }
 
-    /*
-       4. Moteur de synchronisation
-    */
-
-    if (
-        typeof window.synchroniserDonnees !== "function"
-    ) {
-
-        await chargerScript(
-            "../../js/sync.js"
-        );
+    if (typeof lireToutLocalement !== "function") {
+        throw new Error("local-db.js est incomplet.");
     }
 
-    stockLog(
-        "Dépendances prêtes."
-    );
+    if (typeof ajouterFileSynchronisation !== "function") {
+        throw new Error("local-db.js / sync.js non disponibles.");
+    }
+
+    if (typeof synchroniserDonnees !== "function") {
+        throw new Error("sync.js n'est pas chargé.");
+    }
+
+    console.log("[STOCKS] ✓ Dépendances déjà chargées.");
+    return true;
 }
-
-
 /* ============================================================
    INITIALISATION
    ============================================================ */
