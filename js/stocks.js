@@ -2614,7 +2614,7 @@ stockLog(
     "stocks.js version " +
     STOCKS_VERSION +
     " chargé."
-   window.chargerHistorique =
-    chargerHistorique;
 );
 
+window.chargerHistorique =
+    chargerHistorique;
