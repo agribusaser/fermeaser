@@ -10,12 +10,17 @@
 
 <title>Historique des Stocks | Ferme Asher ERP</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet">
 
-<link rel="stylesheet" href="../../css/stocks.css">
+<link
+    rel="stylesheet"
+    href="../../css/stocks.css">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
@@ -23,243 +28,269 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+        <div>
 
-<h2>
+            <h2>
 
-<i class="fa-solid fa-clock-rotate-left"></i>
+                <i class="fa-solid fa-clock-rotate-left"></i>
 
-Historique des mouvements
+                Historique des mouvements
 
-</h2>
+            </h2>
 
-<p class="text-muted">
+            <p class="text-muted">
 
-Toutes les entrées, sorties et ajustements de stock.
+                Toutes les entrées, sorties et ajustements de stock.
 
-</p>
+            </p>
+
+        </div>
+
+        <a
+            href="index.html"
+            class="btn btn-secondary">
+
+            Retour
+
+        </a>
+
+    </div>
+
+
+    <!-- ============================================================
+         FILTRES
+         ============================================================ -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- FILTRE DATE -->
+
+                <div class="col-lg-3">
+
+                    <input
+                        type="date"
+                        id="filtreDate"
+                        class="form-control">
+
+                </div>
+
+
+                <!-- FILTRE PRODUIT -->
+
+                <div class="col-lg-3">
+
+                    <select
+                        id="filtreProduit"
+                        class="form-select">
+
+                        <option value="">
+
+                            Tous les produits
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- FILTRE TYPE -->
+
+                <div class="col-lg-3">
+
+                    <select
+                        id="filtreType"
+                        class="form-select">
+
+                        <option value="">
+
+                            Tous
+
+                        </option>
+
+                        <option value="Entrée">
+
+                            Entrée
+
+                        </option>
+
+                        <option value="Sortie">
+
+                            Sortie
+
+                        </option>
+
+                        <option value="Inventaire">
+
+                            Inventaire
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- BOUTON -->
+
+                <div class="col-lg-3">
+
+                    <button
+                        class="btn btn-success w-100"
+                        onclick="chargerHistorique()">
+
+                        Actualiser
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         TABLEAU HISTORIQUE
+         ============================================================ -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-success">
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>Produit</th>
+
+                            <th>Type</th>
+
+                            <th>Nature</th>
+
+                            <th>Quantité</th>
+
+                            <th>Prix</th>
+
+                            <th>Montant</th>
+
+                            <th>Utilisateur</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="historiqueMouvements">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         COMPTEURS
+         ============================================================ -->
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="nbMouvements">
+
+                        0
+
+                    </h3>
+
+                    <p>
+
+                        Mouvements
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="totalEntrees">
+
+                        0
+
+                    </h3>
+
+                    <p>
+
+                        Entrées
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="totalSorties">
+
+                        0
+
+                    </h3>
+
+                    <p>
+
+                        Sorties
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
-<a href="index.html"
-
-class="btn btn-secondary">
-
-Retour
-
-</a>
-
-</div>
-
-  <div class="card shadow-sm border-0 mb-4">
-
-<div class="card-body">
-
-<div class="row">
-
-<div class="col-lg-3">
-
-<input
-
-type="date"
-
-id="filtreDate"
-
-class="form-control">
-
-</div>
-
-<div class="col-lg-3">
-
-<input
-
-type="text"
-
-id="filtreProduit"
-
-class="form-control"
-
-placeholder="Produit">
-
-</div>
-
-<div class="col-lg-3">
-
-<select
-
-id="filtreType"
-
-class="form-select">
-
-<option value="">
-
-Tous
-
-</option>
-
-<option>
-
-Entrée
-
-</option>
-
-<option>
-
-Sortie
-
-</option>
-
-<option>
-
-Inventaire
-
-</option>
-
-</select>
-
-</div>
-
-<div class="col-lg-3">
-
-<button
-
-class="btn btn-success w-100"
-
-onclick="chargerHistorique()">
-
-Actualiser
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-  <div class="card shadow-sm border-0">
-
-<div class="card-body">
-
-<div class="table-responsive">
-
-<table class="table table-hover">
-
-<thead class="table-success">
-
-<tr>
-
-<th>Date</th>
-
-<th>Produit</th>
-
-<th>Type</th>
-
-<th>Nature</th>
-
-<th>Quantité</th>
-
-<th>Prix</th>
-
-<th>Montant</th>
-
-<th>Utilisateur</th>
-
-</tr>
-
-</thead>
-
-<tbody id="historiqueMouvements">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-  <div class="row mt-4">
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="nbMouvements">
-
-0
-
-</h3>
-
-<p>
-
-Mouvements
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="totalEntrees">
-
-0
-
-</h3>
-
-<p>
-
-Entrées
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="totalSorties">
-
-0
-
-</h3>
-
-<p>
-
-Sorties
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
 
 <!-- ============================================================
      DEPENDANCES ERP
@@ -275,22 +306,103 @@ Sorties
 
 <script src="../../js/stocks.js?v=5"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-    chargerHistorique();
+<!-- ============================================================
+     INITIALISATION HISTORIQUE
+     ============================================================ -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+    try {
+
+        /*
+         * Initialiser le module Stocks
+         */
+
+        await initialiserStocksERP();
+
+        /*
+         * Charger les produits locaux
+         */
+
+        await chargerProduitsLocaux();
+
+        /*
+         * Remplir automatiquement
+         * la liste des produits
+         */
+
+        const selectProduit =
+            document.getElementById(
+                "filtreProduit"
+            );
+
+        if (selectProduit) {
+
+            selectProduit.innerHTML = `
+                <option value="">
+                    Tous les produits
+                </option>
+            `;
+
+            produitsStocks
+                .slice()
+                .sort((a, b) =>
+                    String(a.nom || "")
+                        .localeCompare(
+                            String(b.nom || ""),
+                            "fr"
+                        )
+                )
+                .forEach(produit => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        String(
+                            produit.id || ""
+                        );
+
+                    option.textContent =
+                        String(
+                            produit.nom ||
+                            produit.id ||
+                            "-"
+                        );
+
+                    selectProduit.appendChild(
+                        option
+                    );
+
+                });
+
+        }
+
+        /*
+         * Charger l'historique
+         */
+
+        await chargerHistorique();
+
+    } catch (error) {
+
+        console.error(
+            "Erreur initialisation historique :",
+            error
+        );
+
+    }
 
 });
-</script>
-
-<script>
-
-chargerHistorique();
 
 </script>
 
-  </body>
+
+</body>
 
 </html>
-
-
