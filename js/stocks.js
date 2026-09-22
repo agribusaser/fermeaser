@@ -1987,14 +1987,25 @@ async function chargerHistorique() {
                 mouvements.filter(
                     mouvement => {
 
-                        const produit =
-                            produitsStocks.find(
-                                p =>
-                                    String(p.id) ===
-                                    String(
-                                        mouvement.produit_id
-                                    )
-                            );
+                        const produitIdHistorique =
+    String(
+        mouvement.produit_id || ""
+    ).trim();
+
+const produitIdNormalise =
+    /^PROD\d{5}$/i.test(
+        produitIdHistorique
+    )
+        ? produitIdHistorique.slice(0, 4) +
+          produitIdHistorique.slice(5)
+        : produitIdHistorique;
+
+const produit =
+    produitsStocks.find(
+        p =>
+            String(p.id).trim().toUpperCase() ===
+            produitIdNormalise.toUpperCase()
+    );
 
                         const nomProduit =
                             String(
