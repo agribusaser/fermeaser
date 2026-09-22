@@ -169,15 +169,45 @@ function preparerDonneesSupabase(donnees) {
         ...donnees
     };
 
-    /*
-     * Champ utilisé uniquement localement.
-     */
-
     delete donneesSupabase.synchronise;
+
+    /*
+     * Les produits historiques de Supabase utilisent :
+     * PROD0001
+     *
+     * Le stockage local du ERP utilise :
+     * PROD00001
+     *
+     * On convertit uniquement lors de l'envoi
+     * vers Supabase.
+     */
+    if (donneesSupabase.produit_id) {
+
+        const produitIdLocal =
+            String(donneesSupabase.produit_id).trim();
+
+        const produitIdSupabase =
+            /^PROD\d{5}$/i.test(produitIdLocal)
+                ? produitIdLocal.slice(0, 4) +
+                  produitIdLocal.slice(5)
+                : produitIdLocal;
+
+        if (produitIdLocal !== produitIdSupabase) {
+
+            console.log(
+                "🔄 Conversion ID produit pour Supabase :",
+                produitIdLocal,
+                "→",
+                produitIdSupabase
+            );
+        }
+
+        donneesSupabase.produit_id =
+            produitIdSupabase;
+    }
 
     return donneesSupabase;
 }
-
 
 /* ==================================================
    SYNCHRONISER UNE OPÉRATION
