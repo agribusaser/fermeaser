@@ -261,7 +261,27 @@ Sorties
 
 </div>
 
-  <script src="../../js/stocks.js"></script>
+<!-- ============================================================
+     DEPENDANCES ERP
+     ============================================================ -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<script src="../../js/supabase.js"></script>
+
+<script src="../../js/local-db.js?v=3"></script>
+
+<script src="../../js/sync.js"></script>
+
+<script src="../../js/stocks.js?v=5"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    chargerHistorique();
+
+});
+</script>
 
 <script>
 
