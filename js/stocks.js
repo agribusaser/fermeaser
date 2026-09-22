@@ -1897,6 +1897,432 @@ async function initialiserPageSortie() {
     );
 }
 
+/* ============================================================
+   PAGE HISTORIQUE
+   ============================================================ */
+
+async function chargerHistorique() {
+
+    await initialiserStocksERP();
+
+    try {
+
+        await chargerProduitsLocaux();
+
+        await chargerMouvementsLocaux();
+
+        const tableau =
+            document.getElementById(
+                "historiqueMouvements"
+            );
+
+        if (!tableau) {
+            return;
+        }
+
+        const filtreDate =
+            document.getElementById(
+                "filtreDate"
+            )?.value || "";
+
+        const filtreProduit =
+            (
+                document.getElementById(
+                    "filtreProduit"
+                )?.value || ""
+            )
+            .trim()
+            .toLowerCase();
+
+        const filtreType =
+            document.getElementById(
+                "filtreType"
+            )?.value || "";
+
+        let mouvements =
+            [...mouvementsStocks];
+
+        /*
+         * Filtre par date
+         */
+        if (filtreDate) {
+
+            mouvements =
+                mouvements.filter(
+                    mouvement => {
+
+                        const date =
+                            new Date(
+                                mouvement.date ||
+                                mouvement.created_at
+                            );
+
+                        if (
+                            Number.isNaN(
+                                date.getTime()
+                            )
+                        ) {
+                            return false;
+                        }
+
+                        const dateLocale =
+                            date
+                                .toISOString()
+                                .split("T")[0];
+
+                        return (
+                            dateLocale ===
+                            filtreDate
+                        );
+                    }
+                );
+        }
+
+        /*
+         * Filtre par produit
+         */
+        if (filtreProduit) {
+
+            mouvements =
+                mouvements.filter(
+                    mouvement => {
+
+                        const produit =
+                            produitsStocks.find(
+                                p =>
+                                    String(p.id) ===
+                                    String(
+                                        mouvement.produit_id
+                                    )
+                            );
+
+                        const nomProduit =
+                            String(
+                                produit?.nom || ""
+                            )
+                            .toLowerCase();
+
+                        const idProduit =
+                            String(
+                                mouvement.produit_id || ""
+                            )
+                            .toLowerCase();
+
+                        return (
+                            nomProduit.includes(
+                                filtreProduit
+                            ) ||
+                            idProduit.includes(
+                                filtreProduit
+                            )
+                        );
+                    }
+                );
+        }
+
+        /*
+         * Filtre par type
+         */
+        if (filtreType) {
+
+            const typeRecherche =
+                filtreType === "Entrée"
+                    ? "ENTREE"
+                    : filtreType === "Sortie"
+                        ? "SORTIE"
+                        : filtreType === "Inventaire"
+                            ? "INVENTAIRE"
+                            : filtreType;
+
+            mouvements =
+                mouvements.filter(
+                    mouvement =>
+                        String(
+                            mouvement.type || ""
+                        ).toUpperCase() ===
+                        typeRecherche
+                );
+        }
+
+        /*
+         * Plus récent en premier
+         */
+        mouvements.sort(
+            (a, b) =>
+                new Date(
+                    b.date ||
+                    b.created_at ||
+                    0
+                ) -
+                new Date(
+                    a.date ||
+                    a.created_at ||
+                    0
+                )
+        );
+
+        /*
+         * Compteurs
+         */
+        let totalEntrees = 0;
+        let totalSorties = 0;
+
+        mouvements.forEach(
+            mouvement => {
+
+                const quantite =
+                    nombre(
+                        mouvement.quantite
+                    );
+
+                if (quantite > 0) {
+
+                    totalEntrees +=
+                        quantite;
+
+                } else if (quantite < 0) {
+
+                    totalSorties +=
+                        Math.abs(
+                            quantite
+                        );
+                }
+            }
+        );
+
+        /*
+         * Compteur mouvements
+         */
+        const nbMouvements =
+            document.getElementById(
+                "nbMouvements"
+            );
+
+        if (nbMouvements) {
+
+            nbMouvements.textContent =
+                formatNombre(
+                    mouvements.length
+                );
+        }
+
+        /*
+         * Compteur entrées
+         */
+        const totalEntreesEl =
+            document.getElementById(
+                "totalEntrees"
+            );
+
+        if (totalEntreesEl) {
+
+            totalEntreesEl.textContent =
+                formatNombre(
+                    totalEntrees
+                );
+        }
+
+        /*
+         * Compteur sorties
+         */
+        const totalSortiesEl =
+            document.getElementById(
+                "totalSorties"
+            );
+
+        if (totalSortiesEl) {
+
+            totalSortiesEl.textContent =
+                formatNombre(
+                    totalSorties
+                );
+        }
+
+        /*
+         * Aucun mouvement
+         */
+        if (
+            mouvements.length === 0
+        ) {
+
+            tableau.innerHTML = `
+                <tr>
+                    <td colspan="8"
+                        class="text-center text-muted py-4">
+                        Aucun mouvement trouvé.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        /*
+         * Affichage
+         */
+        tableau.innerHTML =
+            mouvements
+                .map(mouvement => {
+
+                    const produit =
+                        produitsStocks.find(
+                            p =>
+                                String(p.id) ===
+                                String(
+                                    mouvement.produit_id
+                                )
+                        );
+
+                    const quantite =
+                        nombre(
+                            mouvement.quantite
+                        );
+
+                    const prix =
+                        nombre(
+                            produit?.prix
+                        );
+
+                    const montant =
+                        Math.abs(
+                            quantite
+                        ) * prix;
+
+                    const type =
+                        String(
+                            mouvement.type || ""
+                        ).toUpperCase();
+
+                    let nature =
+                        type;
+
+                    if (
+                        type === "ENTREE"
+                    ) {
+                        nature = "Entrée";
+                    } else if (
+                        type === "SORTIE"
+                    ) {
+                        nature = "Sortie";
+                    } else if (
+                        type === "INVENTAIRE"
+                    ) {
+                        nature = "Inventaire";
+                    } else if (
+                        type === "VENTE"
+                    ) {
+                        nature = "Vente";
+                    } else if (
+                        type === "ANNULATION_VENTE"
+                    ) {
+                        nature =
+                            "Annulation vente";
+                    }
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${formatDateHeure(
+                                    mouvement.date ||
+                                    mouvement.created_at
+                                )}
+                            </td>
+
+                            <td>
+                                ${echapperHTML(
+                                    produit?.nom ||
+                                    mouvement.produit_id ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                <span class="badge ${
+                                    quantite >= 0
+                                        ? "bg-success"
+                                        : "bg-danger"
+                                }">
+                                    ${echapperHTML(
+                                        type
+                                    )}
+                                </span>
+                            </td>
+
+                            <td>
+                                ${echapperHTML(
+                                    nature
+                                )}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ${
+                                        quantite >= 0
+                                            ? "+"
+                                            : ""
+                                    }
+                                    ${formatNombre(
+                                        quantite
+                                    )}
+                                </strong>
+                            </td>
+
+                            <td>
+                                ${formatFC(
+                                    prix
+                                )}
+                            </td>
+
+                            <td>
+                                ${formatFC(
+                                    montant
+                                )}
+                            </td>
+
+                            <td>
+                                ${echapperHTML(
+                                    mouvement.utilisateur ||
+                                    "-"
+                                )}
+                            </td>
+
+                        </tr>
+                    `;
+                })
+                .join("");
+
+        stockLog(
+            "Historique chargé :",
+            mouvements.length,
+            "mouvements"
+        );
+
+    } catch (error) {
+
+        stockErreur(
+            "Erreur chargement historique :",
+            error
+        );
+
+        const tableau =
+            document.getElementById(
+                "historiqueMouvements"
+            );
+
+        if (tableau) {
+
+            tableau.innerHTML = `
+                <tr>
+                    <td colspan="8"
+                        class="text-center text-danger py-4">
+                        Erreur lors du chargement de l'historique.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+}
 
 /* ============================================================
    INVENTAIRE
