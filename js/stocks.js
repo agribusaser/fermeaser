@@ -1943,41 +1943,57 @@ async function chargerHistorique() {
             [...mouvementsStocks];
 
         /*
-         * Filtre par date
-         */
-        if (filtreDate) {
+/*
+ * Filtre par date
+ */
+if (filtreDate) {
 
-            mouvements =
-                mouvements.filter(
-                    mouvement => {
+    mouvements =
+        mouvements.filter(
+            mouvement => {
 
-                        const date =
-                            new Date(
-                                mouvement.date ||
-                                mouvement.created_at
-                            );
+                const date =
+                    new Date(
+                        mouvement.date ||
+                        mouvement.created_at
+                    );
 
-                        if (
-                            Number.isNaN(
-                                date.getTime()
-                            )
-                        ) {
-                            return false;
-                        }
+                if (
+                    Number.isNaN(
+                        date.getTime()
+                    )
+                ) {
+                    return false;
+                }
 
-                        const dateLocale =
-                            date
-                                .toISOString()
-                                .split("T")[0];
+                /*
+                 * Comparaison avec la date locale.
+                 * On évite toISOString() pour ne pas
+                 * provoquer de décalage de jour.
+                 */
+                const annee =
+                    date.getFullYear();
 
-                        return (
-                            dateLocale ===
-                            filtreDate
-                        );
-                    }
+                const mois =
+                    String(
+                        date.getMonth() + 1
+                    ).padStart(2, "0");
+
+                const jour =
+                    String(
+                        date.getDate()
+                    ).padStart(2, "0");
+
+                const dateLocale =
+                    `${annee}-${mois}-${jour}`;
+
+                return (
+                    dateLocale ===
+                    filtreDate
                 );
-        }
-
+            }
+        );
+}
         /*
          * Filtre par produit
          */
