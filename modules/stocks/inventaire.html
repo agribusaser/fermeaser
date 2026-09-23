@@ -10,12 +10,20 @@
 
 <title>Inventaire | Ferme Asher ERP</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
 
-<link rel="stylesheet" href="../../css/stocks.css">
+<link
+    rel="stylesheet"
+    href="../../css/stocks.css"
+>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+>
 
 </head>
 
@@ -23,176 +31,219 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- =========================================================
+         EN-TÊTE
+         ========================================================= -->
 
-<div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<h2>
+        <div>
 
-<i class="fa-solid fa-clipboard-check"></i>
+            <h2>
+                <i class="fa-solid fa-clipboard-check"></i>
+                Inventaire des Stocks
+            </h2>
 
-Inventaire des Stocks
+            <p class="text-muted mb-0">
+                Comparer le stock théorique avec le stock physique.
+            </p>
 
-</h2>
+        </div>
 
-<p class="text-muted">
+        <a href="index.html" class="btn btn-secondary">
 
-Comparer le stock théorique avec le stock physique.
+            <i class="fa-solid fa-arrow-left"></i>
 
-</p>
+            Retour
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         TABLEAU INVENTAIRE
+         ========================================================= -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-success">
+
+                        <tr>
+
+                            <th>Code</th>
+
+                            <th>Produit</th>
+
+                            <th>Catégorie</th>
+
+                            <th>Stock système</th>
+
+                            <th>Stock physique</th>
+
+                            <th>Écart</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="inventaireTable">
+
+                        <!-- Les produits seront chargés automatiquement -->
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         STATISTIQUES
+         ========================================================= -->
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="nbProduitsInventaire">
+                        0
+                    </h3>
+
+                    <p class="mb-0">
+                        Produits inventoriés
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="nbEcarts">
+                        0
+                    </h3>
+
+                    <p class="mb-0">
+                        Écarts détectés
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card text-center">
+
+                <div class="card-body">
+
+                    <h3 id="nbConformes">
+                        0
+                    </h3>
+
+                    <p class="mb-0">
+                        Produits conformes
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         BOUTON ENREGISTREMENT
+         ========================================================= -->
+
+    <div class="text-end mt-4">
+
+        <button
+            id="btnEnregistrerInventaire"
+            class="btn btn-success"
+            type="button"
+        >
+
+            <i class="fa-solid fa-floppy-disk"></i>
+
+            Enregistrer l'inventaire
+
+        </button>
+
+    </div>
 
 </div>
 
-<a href="index.html" class="btn btn-secondary">
 
-<i class="fa-solid fa-arrow-left"></i>
+<!-- ============================================================
+     DÉPENDANCES ERP
+     ============================================================ -->
 
-Retour
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-</a>
+<script src="../../js/supabase.js"></script>
 
-</div>
+<script src="../../js/local-db.js?v=3"></script>
 
-  <div class="card shadow-sm border-0">
+<script src="../../js/sync.js"></script>
 
-<div class="card-body">
+<script src="../../js/stocks.js?v=5"></script>
 
-<div class="table-responsive">
 
-<table class="table table-hover align-middle">
-
-<thead class="table-success">
-
-<tr>
-
-<th>Code</th>
-
-<th>Produit</th>
-
-<th>Catégorie</th>
-
-<th>Stock système</th>
-
-<th>Stock physique</th>
-
-<th>Écart</th>
-
-</tr>
-
-</thead>
-
-<tbody id="inventaireTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-  <div class="row mt-4">
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="nbProduitsInventaire">
-
-0
-
-</h3>
-
-<p>
-
-Produits inventoriés
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="nbEcarts">
-
-0
-
-</h3>
-
-<p>
-
-Écarts détectés
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-4">
-
-<div class="card text-center">
-
-<div class="card-body">
-
-<h3 id="nbConformes">
-
-0
-
-</h3>
-
-<p>
-
-Produits conformes
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-  <div class="text-end mt-4">
-
-<button
-
-id="btnEnregistrerInventaire"
-
-class="btn btn-success">
-
-<i class="fa-solid fa-floppy-disk"></i>
-
-Enregistrer l'inventaire
-
-</button>
-
-</div>
-
-  <script src="../../js/stocks.js"></script>
+<!-- ============================================================
+     INITIALISATION DE L'INVENTAIRE
+     ============================================================ -->
 
 <script>
 
-initialiserInventaire();
+document.addEventListener("DOMContentLoaded", function () {
+
+    console.log("[INVENTAIRE] Initialisation de la page...");
+
+    if (typeof initialiserInventaire === "function") {
+
+        initialiserInventaire();
+
+    } else {
+
+        console.error(
+            "[INVENTAIRE] La fonction initialiserInventaire() est introuvable."
+        );
+
+    }
+
+});
 
 </script>
-  
-  </body>
+
+
+</body>
 
 </html>
