@@ -1383,20 +1383,42 @@ Voulez-vous quand même créer ce nouveau lot ?`
     };
 
 
-    lots.push(
-        nouveauLot
+   /*
+ * ENREGISTREMENT PRINCIPAL DANS SUPABASE
+ */
+try {
+
+    const lotEnregistre =
+        await enregistrerLotSupabase(
+            nouveauLot
+        );
+
+    /*
+     * Mettre à jour le cache local
+     */
+    const lotsSupabase =
+        await chargerLotsSupabase();
+
+    sauvegarderLotsElevage(
+        lotsSupabase
     );
 
+}
+catch (erreur) {
 
-    if (
-        !sauvegarderLotsElevage(
-            lots
-        )
-    ) {
+    console.error(
+        "Erreur enregistrement lot :",
+        erreur
+    );
 
-        return false;
+    alert(
+        "Impossible d'enregistrer le lot dans Supabase.\n\n" +
+        (erreur.message || erreur)
+    );
 
-    }
+    return false;
+
+}
 
 
     const formulaire =
