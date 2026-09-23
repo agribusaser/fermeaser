@@ -1457,23 +1457,219 @@ Voulez-vous quand même créer ce nouveau lot ?`
 }
 
 
-function chargerLots() {
+async function chargerLots() {
 
     const tableau =
-        document.getElementById(
-            "listeLots"
-        );
-
+        document.getElementById("listeLots");
 
     if (!tableau) {
+        return;
+    }
+
+    let lots = [];
+
+    /*
+     * SOURCE PRINCIPALE :
+     * Supabase
+     */
+    if (supabaseDisponible()) {
+
+        lots =
+            await chargerLotsSupabase();
+
+        /*
+         * Mettre à jour le cache local
+         * pour les autres fonctions de l'ERP.
+         */
+        if (Array.isArray(lots)) {
+
+            sauvegarderLotsElevage(lots);
+
+        }
+
+    } else {
+
+        /*
+         * Secours : ancien stockage local
+         */
+        lots =
+            obtenirLotsElevage();
+
+    }
+
+
+    tableau.innerHTML = "";
+
+
+    if (
+        !Array.isArray(lots)
+        ||
+        lots.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="text-center text-muted py-4">
+
+                    Aucun lot enregistré.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        mettreAJourStatistiquesLots();
 
         return;
 
     }
 
 
-    const lots =
-        obtenirLotsElevage();
+    lots
+        .slice()
+        .reverse()
+        .forEach(
+            function (lot) {
+
+                let couleur =
+                    "success";
+
+
+                if (
+                    lot.statut ===
+                    "Terminé"
+                ) {
+
+                    couleur =
+                        "secondary";
+
+                }
+
+
+                if (
+                    lot.statut ===
+                    "Transféré"
+                ) {
+
+                    couleur =
+                        "warning";
+
+                }
+
+
+                tableau.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${
+                                    lot.code ||
+                                    lot.id ||
+                                    "-"
+                                }
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${
+                                obtenirEspeceLot(
+                                    lot
+                                )
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                lot.race ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                obtenirNomLot(
+                                    lot
+                                )
+                                ||
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterDate(
+                                    lot.dateEntree ||
+                                    lot.date
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    lot.quantiteInitiale
+                                )
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                formaterNombre(
+                                    obtenirQuantiteLot(
+                                        lot
+                                    )
+                                )
+                            }
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge bg-${couleur}">
+
+                                ${
+                                    lot.statut ||
+                                    "Actif"
+                                }
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="supprimerLot('${lot.id}')">
+
+                                <i
+                                    class="fa-solid fa-trash">
+                                </i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+    mettreAJourStatistiquesLots();
+
+}
 
 
     tableau.innerHTML =
