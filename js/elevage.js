@@ -552,9 +552,12 @@ function chargerAnimaux() {
 
 function obtenirLotsElevage() {
 
-    return obtenirDonnees(
-        "lotsElevage"
-    );
+    const lots =
+        obtenirDonnees("lotsElevage");
+
+    return Array.isArray(lots)
+        ? lots
+        : [];
 
 }
 
