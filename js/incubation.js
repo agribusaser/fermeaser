@@ -3523,15 +3523,22 @@ if (!modal) {
      * Informations.
      */
 
+   const infoIncubation =
     document.getElementById(
         "eclosionIncubationInfo"
-    ).textContent =
+    );
+
+if (infoIncubation) {
+
+    infoIncubation.textContent =
         incubation.id +
         " — " +
         (
             incubation.lot_nom ||
             "Lot origine"
         );
+
+}
 
 
     document.getElementById(
