@@ -1,197 +1,583 @@
 /* =========================================================
    FERME ASHER ERP
    GESTION DES PRODUITS
+   VERSION 7.0
+
+   Architecture :
+   - Supabase = base centrale
+   - IndexedDB = base locale / hors ligne
+   - Synchronisation automatique
+   - Plus de localStorage pour les produits
    ========================================================= */
+
+"use strict";
 
 
 /* =========================================================
-   CONSTANTE LOCALSTORAGE
+   CONFIGURATION
    ========================================================= */
 
-const PRODUITS_KEY = "produits";
+const PRODUITS_TABLE = "produits";
+const PRODUITS_VERSION = "7.0";
+
+let produitsMemoire = [];
+let produitsInitialises = false;
+let produitsInitialisationPromise = null;
 
 
 /* =========================================================
-   LECTURE SECURISEE DES PRODUITS
+   OUTILS
    ========================================================= */
 
-function lireProduits() {
+function produitLog(...args) {
+    console.log("[PRODUITS]", ...args);
+}
+
+
+function produitErreur(...args) {
+    console.error("[PRODUITS]", ...args);
+}
+
+
+function nombre(valeur) {
+
+    const n = Number(valeur);
+
+    return Number.isFinite(n) ? n : 0;
+}
+
+
+function formatFC(valeur) {
+
+    return nombre(valeur).toLocaleString("fr-FR", {
+        maximumFractionDigits: 0
+    }) + " FC";
+}
+
+
+function echapperHTML(valeur) {
+
+    if (
+        valeur === null ||
+        valeur === undefined
+    ) {
+        return "";
+    }
+
+    return String(valeur)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   VERIFIER LES DEPENDANCES
+   ========================================================= */
+
+function produitsDependancesDisponibles() {
+
+    const indexedDBDisponible =
+        typeof window.lireToutLocalement === "function" &&
+        typeof window.enregistrerLocalement === "function";
+
+    const supabaseDisponible =
+        !!window.supabaseClient;
+
+    return {
+        indexedDB: indexedDBDisponible,
+        supabase: supabaseDisponible
+    };
+}
+
+
+/* =========================================================
+   NORMALISER UN PRODUIT
+   ========================================================= */
+
+function normaliserProduit(produit) {
+
+    if (!produit) {
+        return null;
+    }
+
+    return {
+
+        id:
+            String(produit.id || ""),
+
+        nom:
+            String(produit.nom || "").trim(),
+
+        categorie:
+            produit.categorie || "",
+
+        prix:
+            nombre(produit.prix),
+
+        stock:
+            nombre(produit.stock),
+
+        minimum:
+            nombre(produit.minimum),
+
+        unite:
+            produit.unite || "",
+
+        description:
+            produit.description || "",
+
+        actif:
+            produit.actif !== false,
+
+        created_at:
+            produit.created_at ||
+            produit.dateCreation ||
+            new Date().toISOString(),
+
+        synchronise:
+            produit.synchronise !== false
+
+    };
+}
+
+
+/* =========================================================
+   PREPARER POUR SUPABASE
+   =========================================================
+
+   On envoie uniquement les colonnes métier connues.
+
+   Le champ "synchronise" reste local et ne doit jamais
+   être envoyé à Supabase.
+   ========================================================= */
+
+function preparerProduitSupabase(produit) {
+
+    if (!produit) {
+        return null;
+    }
+
+    return {
+
+        id:
+            String(produit.id),
+
+        nom:
+            String(produit.nom || "").trim(),
+
+        categorie:
+            produit.categorie || null,
+
+        prix:
+            nombre(produit.prix),
+
+        stock:
+            nombre(produit.stock),
+
+        minimum:
+            nombre(produit.minimum),
+
+        unite:
+            produit.unite || null,
+
+        description:
+            produit.description || null,
+
+        actif:
+            produit.actif !== false
+
+    };
+}
+
+
+/* =========================================================
+   LIRE LES PRODUITS LOCALEMENT
+   ========================================================= */
+
+async function lireProduitsLocaux() {
+
+    if (
+        typeof window.lireToutLocalement !==
+        "function"
+    ) {
+        produitErreur(
+            "IndexedDB indisponible."
+        );
+
+        return [];
+    }
 
     try {
 
-        const donnees = localStorage.getItem(PRODUITS_KEY);
-
-        if (!donnees) {
-            return null;
-        }
-
-        const produits = JSON.parse(donnees);
+        const produits =
+            await window.lireToutLocalement(
+                PRODUITS_TABLE
+            );
 
         if (!Array.isArray(produits)) {
-            return null;
+            return [];
         }
+
+        return produits
+            .map(normaliserProduit)
+            .filter(function (produit) {
+
+                return (
+                    produit &&
+                    produit.id
+                );
+
+            });
+
+    } catch (error) {
+
+        produitErreur(
+            "Erreur lecture IndexedDB :",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+/* =========================================================
+   ENREGISTRER UN PRODUIT LOCALEMENT
+   ========================================================= */
+
+async function enregistrerProduitLocal(produit) {
+
+    if (
+        typeof window.enregistrerLocalement !==
+        "function"
+    ) {
+        throw new Error(
+            "IndexedDB indisponible."
+        );
+    }
+
+    const produitNormalise =
+        normaliserProduit(produit);
+
+    return await window.enregistrerLocalement(
+        PRODUITS_TABLE,
+        produitNormalise
+    );
+}
+
+
+/* =========================================================
+   CHARGER LES PRODUITS DEPUIS SUPABASE
+   ========================================================= */
+
+async function chargerProduitsSupabase() {
+
+    if (!window.supabaseClient) {
+
+        produitLog(
+            "Supabase indisponible."
+        );
+
+        return [];
+
+    }
+
+    if (!navigator.onLine) {
+
+        produitLog(
+            "Hors ligne : utilisation des données locales."
+        );
+
+        return [];
+
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await window.supabaseClient
+                .from(PRODUITS_TABLE)
+                .select("*")
+                .order("nom", {
+                    ascending: true
+                });
+
+        if (error) {
+
+            produitErreur(
+                "Erreur Supabase produits :",
+                error
+            );
+
+            return [];
+
+        }
+
+        if (!Array.isArray(data)) {
+            return [];
+        }
+
+
+        const produits =
+            data
+                .map(function (produit) {
+
+                    return normaliserProduit({
+
+                        ...produit,
+
+                        synchronise: true
+
+                    });
+
+                })
+                .filter(function (produit) {
+
+                    return (
+                        produit &&
+                        produit.id
+                    );
+
+                });
+
+
+        /*
+         * Mise en cache IndexedDB
+         */
+
+        for (
+            const produit
+            of produits
+        ) {
+
+            await enregistrerProduitLocal(
+                produit
+            );
+
+        }
+
+
+        produitLog(
+            "Produits chargés depuis Supabase :",
+            produits.length
+        );
+
 
         return produits;
 
-    } catch (erreur) {
+    } catch (error) {
 
-        console.error(
-            "Erreur de lecture des produits :",
-            erreur
+        produitErreur(
+            "Erreur accès Supabase :",
+            error
         );
 
-        return null;
-
+        return [];
     }
-
 }
 
 
 /* =========================================================
-   INITIALISATION DES PRODUITS
+   SYNCHRONISER LES PRODUITS LOCAUX NON SYNCHRONISES
    ========================================================= */
 
-function initialiserProduits() {
+async function synchroniserProduitsLocaux() {
 
-    const produitsExistants = lireProduits();
-
-
-    if (produitsExistants !== null) {
-
+    if (
+        !navigator.onLine ||
+        !window.supabaseClient
+    ) {
         return;
-
     }
 
+    try {
 
-    const produitsParDefaut = [
-
-        {
-            id: "PROD0001",
-            nom: "Œufs de caille",
-            categorie: "Élevage",
-            prix: 9000,
-            stock: 0,
-            minimum: 5,
-            unite: "Plateau",
-            description: "Plateau de 15 œufs de caille",
-            actif: true,
-            dateCreation: new Date().toISOString()
-        },
-
-        {
-            id: "PROD0002",
-            nom: "Cailles",
-            categorie: "Élevage",
-            prix: 6000,
-            stock: 0,
-            minimum: 10,
-            unite: "Unité",
-            description: "Caille vivante",
-            actif: true,
-            dateCreation: new Date().toISOString()
-        },
-
-        {
-            id: "PROD0003",
-            nom: "Soja",
-            categorie: "Agriculture",
-            prix: 0,
-            stock: 0,
-            minimum: 0,
-            unite: "Kg",
-            description: "Soja produit à la ferme",
-            actif: true,
-            dateCreation: new Date().toISOString()
-        }
-
-    ];
+        const produitsLocaux =
+            await lireProduitsLocaux();
 
 
-    localStorage.setItem(
-        PRODUITS_KEY,
-        JSON.stringify(produitsParDefaut)
-    );
+        const produitsNonSynchronises =
+            produitsLocaux.filter(
+                function (produit) {
 
-}
+                    return (
+                        produit.synchronise === false
+                    );
 
-
-/* =========================================================
-   OBTENIR TOUS LES PRODUITS
-   ========================================================= */
-
-function obtenirProduits() {
-
-    initialiserProduits();
-
-    const produits = lireProduits();
-
-    return produits || [];
-
-}
-
-
-/* =========================================================
-   ENREGISTRER LES PRODUITS
-   ========================================================= */
-
-function enregistrerProduits(produits) {
-
-    localStorage.setItem(
-        PRODUITS_KEY,
-        JSON.stringify(produits)
-    );
-
-}
-
-
-/* =========================================================
-   GENERER UN ID PRODUIT UNIQUE
-   ========================================================= */
-
-function genererIdProduit() {
-
-    const produits = obtenirProduits();
-
-
-    let numeroMaximum = 0;
-
-
-    produits.forEach(function (produit) {
-
-        if (!produit.id) {
-            return;
-        }
-
-
-        const numero = parseInt(
-            String(produit.id)
-                .replace("PROD", ""),
-            10
-        );
+                }
+            );
 
 
         if (
-            !isNaN(numero) &&
-            numero > numeroMaximum
+            produitsNonSynchronises.length === 0
         ) {
 
-            numeroMaximum = numero;
+            return;
 
         }
 
-    });
+
+        produitLog(
+            "Synchronisation de",
+            produitsNonSynchronises.length,
+            "produit(s)..."
+        );
 
 
-    const nouveauNumero =
-        numeroMaximum + 1;
+        for (
+            const produit
+            of produitsNonSynchronises
+        ) {
+
+            const donnees =
+                preparerProduitSupabase(
+                    produit
+                );
 
 
-    return (
-        "PROD" +
-        String(nouveauNumero)
-            .padStart(4, "0")
-    );
+            if (!donnees) {
+                continue;
+            }
 
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(PRODUITS_TABLE)
+                    .upsert(
+                        donnees,
+                        {
+                            onConflict: "id"
+                        }
+                    )
+                    .select()
+                    .single();
+
+
+            if (error) {
+
+                produitErreur(
+                    "Erreur synchronisation produit :",
+                    produit.id,
+                    error
+                );
+
+                continue;
+
+            }
+
+
+            await enregistrerProduitLocal({
+
+                ...data,
+
+                synchronise: true
+
+            });
+
+
+            produitLog(
+                "✓ Produit synchronisé :",
+                produit.id
+            );
+
+        }
+
+
+        produitsMemoire =
+            await lireProduitsLocaux();
+
+    } catch (error) {
+
+        produitErreur(
+            "Erreur synchronisation produits :",
+            error
+        );
+
+    }
+}
+
+
+/* =========================================================
+   CHARGER TOUS LES PRODUITS
+   ========================================================= */
+
+async function obtenirProduits(
+    forcerSupabase = false
+) {
+
+    /*
+     * Lire d'abord IndexedDB.
+     */
+
+    let produitsLocaux =
+        await lireProduitsLocaux();
+
+
+    /*
+     * Si certains produits locaux ne sont pas encore
+     * synchronisés, on ne les écrase pas avec Supabase.
+     */
+
+    const modificationsLocales =
+        produitsLocaux.some(
+            function (produit) {
+
+                return (
+                    produit.synchronise === false
+                );
+
+            }
+        );
+
+
+    /*
+     * Charger Supabase lorsque :
+     *
+     * 1. on demande explicitement le distant
+     * 2. ou aucune donnée locale n'existe
+     * 3. et qu'il n'y a pas de modification locale
+     */
+
+    if (
+        navigator.onLine &&
+        window.supabaseClient &&
+        !modificationsLocales &&
+        (
+            forcerSupabase ||
+            produitsLocaux.length === 0
+        )
+    ) {
+
+        const produitsDistant =
+            await chargerProduitsSupabase();
+
+
+        if (
+            produitsDistant.length > 0
+        ) {
+
+            produitsLocaux =
+                produitsDistant;
+
+        }
+
+    }
+
+
+    produitsMemoire =
+        produitsLocaux;
+
+
+    return produitsMemoire;
 }
 
 
@@ -199,30 +585,84 @@ function genererIdProduit() {
    TROUVER UN PRODUIT
    ========================================================= */
 
-function trouverProduit(id) {
+async function trouverProduit(id) {
 
-    const produits = obtenirProduits();
+    const produits =
+        await obtenirProduits();
+
 
     return produits.find(
-        produit =>
-            String(produit.id) === String(id)
-    );
+        function (produit) {
 
+            return (
+                String(produit.id) ===
+                String(id)
+            );
+
+        }
+    ) || null;
 }
 
 
 /* =========================================================
-   AJOUTER UN PRODUIT
+   GENERER UN ID PRODUIT
    ========================================================= */
 
-function ajouterProduit(event) {
+function genererIdProduit(
+    produits = produitsMemoire
+) {
 
-    event.preventDefault();
+    let numeroMaximum = 0;
 
 
-    /* =============================================
-       RECUPERATION DES CHAMPS
-    ============================================= */
+    produits.forEach(
+        function (produit) {
+
+            if (!produit.id) {
+                return;
+            }
+
+
+            const numero =
+                parseInt(
+                    String(produit.id)
+                        .replace("PROD", ""),
+                    10
+                );
+
+
+            if (
+                !Number.isNaN(numero) &&
+                numero > numeroMaximum
+            ) {
+
+                numeroMaximum =
+                    numero;
+
+            }
+
+        }
+    );
+
+
+    return (
+        "PROD" +
+        String(numeroMaximum + 1)
+            .padStart(4, "0")
+    );
+}
+
+
+/* =========================================================
+   ENREGISTRER UN NOUVEAU PRODUIT
+   ========================================================= */
+
+async function ajouterProduit(event) {
+
+    if (event) {
+        event.preventDefault();
+    }
+
 
     const champNom =
         document.getElementById("nom");
@@ -246,10 +686,6 @@ function ajouterProduit(event) {
         document.getElementById("description");
 
 
-    /* =============================================
-       VERIFICATION DES CHAMPS
-    ============================================= */
-
     if (
         !champNom ||
         !champCategorie ||
@@ -260,10 +696,6 @@ function ajouterProduit(event) {
         !champDescription
     ) {
 
-        console.error(
-            "Un ou plusieurs champs du formulaire sont introuvables."
-        );
-
         alert(
             "Erreur : certains champs du formulaire sont introuvables."
         );
@@ -272,10 +704,6 @@ function ajouterProduit(event) {
 
     }
 
-
-    /* =============================================
-       RECUPERATION DES VALEURS
-    ============================================= */
 
     const nom =
         champNom.value.trim();
@@ -299,10 +727,6 @@ function ajouterProduit(event) {
         champDescription.value.trim();
 
 
-    /* =============================================
-       VALIDATIONS
-    ============================================= */
-
     if (!nom) {
 
         alert(
@@ -312,12 +736,11 @@ function ajouterProduit(event) {
         champNom.focus();
 
         return;
-
     }
 
 
     if (
-        isNaN(prix) ||
+        !Number.isFinite(prix) ||
         prix < 0
     ) {
 
@@ -328,12 +751,11 @@ function ajouterProduit(event) {
         champPrix.focus();
 
         return;
-
     }
 
 
     if (
-        isNaN(stock) ||
+        !Number.isFinite(stock) ||
         stock < 0
     ) {
 
@@ -344,12 +766,11 @@ function ajouterProduit(event) {
         champStock.focus();
 
         return;
-
     }
 
 
     if (
-        isNaN(minimum) ||
+        !Number.isFinite(minimum) ||
         minimum < 0
     ) {
 
@@ -360,30 +781,35 @@ function ajouterProduit(event) {
         champMinimum.focus();
 
         return;
-
     }
 
 
-    /* =============================================
-       RECUPERATION DES PRODUITS
-    ============================================= */
+    /*
+     * Toujours récupérer la version la plus récente
+     * avant de générer le nouvel ID.
+     */
 
     const produits =
-        obtenirProduits();
+        await obtenirProduits(true);
 
 
-    /* =============================================
-       VERIFICATION DOUBLON
-    ============================================= */
+    /*
+     * Vérifier les doublons.
+     */
 
     const produitExiste =
         produits.some(
-            produit =>
-                produit.nom
-                    .trim()
-                    .toLowerCase()
-                ===
-                nom.toLowerCase()
+            function (produit) {
+
+                return (
+                    produit.actif !== false &&
+                    String(produit.nom || "")
+                        .trim()
+                        .toLowerCase() ===
+                    nom.toLowerCase()
+                );
+
+            }
         );
 
 
@@ -394,97 +820,162 @@ function ajouterProduit(event) {
         );
 
         return;
-
     }
 
 
-    /* =============================================
-       CREATION DU PRODUIT
-    ============================================= */
+    /*
+     * Créer le produit.
+     */
 
     const nouveauProduit = {
 
-        id: genererIdProduit(),
+        id:
+            genererIdProduit(produits),
 
-        nom: nom,
+        nom:
+            nom,
 
-        categorie: categorie,
+        categorie:
+            categorie,
 
-        prix: prix,
+        prix:
+            prix,
 
-        stock: stock,
+        stock:
+            stock,
 
-        minimum: minimum,
+        minimum:
+            minimum,
 
-        unite: unite,
+        unite:
+            unite,
 
-        description: description,
+        description:
+            description,
 
-        actif: true,
+        actif:
+            true,
 
-        dateCreation:
-            new Date().toISOString()
+        created_at:
+            new Date().toISOString(),
+
+        synchronise:
+            false
 
     };
 
 
-    /* =============================================
-       ENREGISTREMENT
-    ============================================= */
+    /*
+     * EN LIGNE
+     * → envoyer directement à Supabase.
+     */
 
-    produits.push(
-        nouveauProduit
-    );
+    if (
+        navigator.onLine &&
+        window.supabaseClient
+    ) {
 
+        try {
 
-    enregistrerProduits(
-        produits
-    );
-
-
-    /* =============================================
-       VERIFICATION
-    ============================================= */
-
-    const produitsVerification =
-        obtenirProduits();
+            const donnees =
+                preparerProduitSupabase(
+                    nouveauProduit
+                );
 
 
-    const produitEnregistre =
-        produitsVerification.find(
-            produit =>
-                produit.id ===
-                nouveauProduit.id
-        );
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(PRODUITS_TABLE)
+                    .insert(donnees)
+                    .select()
+                    .single();
 
 
-    if (!produitEnregistre) {
+            if (error) {
 
-        alert(
-            "Erreur : le produit n'a pas pu être enregistré."
-        );
+                produitErreur(
+                    "Erreur création Supabase :",
+                    error
+                );
 
-        return;
+                /*
+                 * On garde quand même le produit
+                 * localement pour éviter la perte de données.
+                 */
+
+                await enregistrerProduitLocal(
+                    nouveauProduit
+                );
+
+
+                alert(
+                    "Le produit a été enregistré localement, mais Supabase a refusé l'enregistrement.\n\nConsulte la console du navigateur pour le détail."
+                );
+
+                return;
+            }
+
+
+            await enregistrerProduitLocal({
+
+                ...data,
+
+                synchronise: true
+
+            });
+
+
+            alert(
+                "Produit enregistré avec succès."
+            );
+
+
+            window.location.href =
+                "index.html";
+
+
+            return;
+
+        } catch (error) {
+
+            produitErreur(
+                "Erreur ajout produit :",
+                error
+            );
+
+        }
 
     }
 
 
+    /*
+     * HORS LIGNE
+     * → IndexedDB.
+     */
+
+    await enregistrerProduitLocal(
+        nouveauProduit
+    );
+
+
     alert(
-        "Produit enregistré avec succès."
+        "Produit enregistré hors ligne.\n\nIl sera synchronisé automatiquement lorsque la connexion Internet sera disponible."
     );
 
 
     window.location.href =
         "index.html";
-
 }
 
 
 /* =========================================================
-   CHARGER LA LISTE DES PRODUITS
+   AFFICHER LA LISTE
    ========================================================= */
 
-function chargerProduits() {
+async function chargerProduits() {
 
     const table =
         document.getElementById(
@@ -497,8 +988,13 @@ function chargerProduits() {
     }
 
 
+    /*
+     * Sur la page principale, on demande une actualisation
+     * depuis Supabase si Internet est disponible.
+     */
+
     const produits =
-        obtenirProduits();
+        await obtenirProduits(true);
 
 
     const rechercheElement =
@@ -527,10 +1023,21 @@ function chargerProduits() {
             : "";
 
 
-    const produitsFiltres =
+    const produitsActifs =
         produits.filter(
             function (produit) {
 
+                return (
+                    produit.actif !== false
+                );
+
+            }
+        );
+
+
+    const produitsFiltres =
+        produitsActifs.filter(
+            function (produit) {
 
                 const nom =
                     String(
@@ -545,21 +1052,18 @@ function chargerProduits() {
 
 
                 const correspondRecherche =
-                    nom.includes(recherche)
-                    ||
+                    nom.includes(recherche) ||
                     id.includes(recherche);
 
 
                 const correspondCategorie =
-                    !categorie
-                    ||
+                    !categorie ||
                     produit.categorie ===
                     categorie;
 
 
                 return (
-                    correspondRecherche
-                    &&
+                    correspondRecherche &&
                     correspondCategorie
                 );
 
@@ -591,33 +1095,37 @@ function chargerProduits() {
         `;
 
 
-        mettreAJourNombreProduits(0);
+        mettreAJourNombreProduits(
+            0
+        );
 
         return;
-
     }
 
 
     produitsFiltres.forEach(
         function (produit) {
 
-
             const stock =
-                Number(produit.stock) || 0;
+                nombre(produit.stock);
 
             const minimum =
-                Number(produit.minimum) || 0;
+                nombre(produit.minimum);
 
 
-            let statutStock = "";
+            let statutStock;
 
 
             if (stock <= 0) {
 
                 statutStock = `
+
                     <span class="badge bg-danger">
+
                         Rupture
+
                     </span>
+
                 `;
 
             }
@@ -627,9 +1135,14 @@ function chargerProduits() {
             ) {
 
                 statutStock = `
-                    <span class="badge bg-warning text-dark">
+
+                    <span
+                        class="badge bg-warning text-dark">
+
                         Stock faible
+
                     </span>
+
                 `;
 
             }
@@ -637,9 +1150,13 @@ function chargerProduits() {
             else {
 
                 statutStock = `
+
                     <span class="badge bg-success">
+
                         Disponible
+
                     </span>
+
                 `;
 
             }
@@ -650,15 +1167,15 @@ function chargerProduits() {
                 <tr>
 
                     <td>
-                        ${produit.id}
+                        ${echapperHTML(produit.id)}
                     </td>
 
                     <td>
-                        ${produit.nom}
+                        ${echapperHTML(produit.nom)}
                     </td>
 
                     <td>
-                        ${produit.categorie}
+                        ${echapperHTML(produit.categorie)}
                     </td>
 
                     <td>
@@ -670,41 +1187,37 @@ function chargerProduits() {
                     </td>
 
                     <td>
-                        ${produit.unite}
+                        ${echapperHTML(produit.unite)}
                     </td>
 
                     <td>
-
-                        ${Number(
-                            produit.prix
-                        ).toLocaleString(
-                            "fr-FR"
-                        )} FC
-
+                        ${formatFC(produit.prix)}
                     </td>
 
                     <td>
-
                         ${statutStock}
-
                     </td>
 
                     <td>
 
                         <a
-                            href="detail.html?id=${produit.id}"
+                            href="detail.html?id=${encodeURIComponent(produit.id)}"
                             class="btn btn-sm btn-info">
 
-                            <i class="fa-solid fa-eye"></i>
+                            <i
+                                class="fa-solid fa-eye">
+                            </i>
 
                         </a>
 
 
                         <a
-                            href="modifier.html?id=${produit.id}"
+                            href="modifier.html?id=${encodeURIComponent(produit.id)}"
                             class="btn btn-sm btn-warning">
 
-                            <i class="fa-solid fa-pen"></i>
+                            <i
+                                class="fa-solid fa-pen">
+                            </i>
 
                         </a>
 
@@ -712,9 +1225,11 @@ function chargerProduits() {
                         <button
                             type="button"
                             class="btn btn-sm btn-danger"
-                            onclick="supprimerProduit('${produit.id}')">
+                            onclick="supprimerProduit('${String(produit.id).replace(/'/g, "\\'")}')">
 
-                            <i class="fa-solid fa-trash"></i>
+                            <i
+                                class="fa-solid fa-trash">
+                            </i>
 
                         </button>
 
@@ -731,15 +1246,16 @@ function chargerProduits() {
     mettreAJourNombreProduits(
         produitsFiltres.length
     );
-
 }
 
 
 /* =========================================================
-   METTRE A JOUR LE NOMBRE DE PRODUITS
+   NOMBRE DE PRODUITS
    ========================================================= */
 
-function mettreAJourNombreProduits(nombre) {
+function mettreAJourNombreProduits(
+    nombreProduits
+) {
 
     const element =
         document.getElementById(
@@ -749,21 +1265,29 @@ function mettreAJourNombreProduits(nombre) {
 
     if (element) {
 
-        element.textContent = nombre;
+        element.textContent =
+            nombreProduits;
 
     }
-
 }
 
 
 /* =========================================================
    SUPPRIMER UN PRODUIT
+   =========================================================
+
+   IMPORTANT :
+   On ne supprime PAS physiquement la ligne Supabase.
+
+   On passe actif = false.
+
+   Cela protège l'historique des ventes et des mouvements.
    ========================================================= */
 
-function supprimerProduit(id) {
+async function supprimerProduit(id) {
 
     const produit =
-        trouverProduit(id);
+        await trouverProduit(id);
 
 
     if (!produit) {
@@ -773,13 +1297,12 @@ function supprimerProduit(id) {
         );
 
         return;
-
     }
 
 
     const confirmation =
         confirm(
-            `Voulez-vous vraiment supprimer "${produit.nom}" ?`
+            `Voulez-vous vraiment désactiver "${produit.nom}" ?\n\nLe produit ne sera plus affiché dans la liste active.`
         );
 
 
@@ -788,30 +1311,118 @@ function supprimerProduit(id) {
     }
 
 
-    const produits =
-        obtenirProduits();
+    const produitDesactive = {
+
+        ...produit,
+
+        actif:
+            false,
+
+        synchronise:
+            false
+
+    };
 
 
-    const nouveauxProduits =
-        produits.filter(
-            produit =>
-                String(produit.id) !==
-                String(id)
-        );
+    /*
+     * EN LIGNE
+     */
+
+    if (
+        navigator.onLine &&
+        window.supabaseClient
+    ) {
+
+        try {
+
+            const donnees =
+                preparerProduitSupabase(
+                    produitDesactive
+                );
 
 
-    enregistrerProduits(
-        nouveauxProduits
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(PRODUITS_TABLE)
+                    .update(donnees)
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .select()
+                    .single();
+
+
+            if (error) {
+
+                produitErreur(
+                    "Erreur désactivation Supabase :",
+                    error
+                );
+
+                await enregistrerProduitLocal(
+                    produitDesactive
+                );
+
+                alert(
+                    "Le produit a été désactivé localement, mais la synchronisation Supabase a échoué."
+                );
+
+                await chargerProduits();
+
+                return;
+            }
+
+
+            await enregistrerProduitLocal({
+
+                ...data,
+
+                synchronise:
+                    true
+
+            });
+
+
+            alert(
+                "Produit désactivé avec succès."
+            );
+
+
+            await chargerProduits();
+
+            return;
+
+        } catch (error) {
+
+            produitErreur(
+                "Erreur suppression :",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * HORS LIGNE
+     */
+
+    await enregistrerProduitLocal(
+        produitDesactive
     );
 
 
     alert(
-        "Produit supprimé avec succès."
+        "Produit désactivé hors ligne.\n\nLa modification sera synchronisée automatiquement à la reconnexion."
     );
 
 
-    chargerProduits();
-
+    await chargerProduits();
 }
 
 
@@ -819,7 +1430,7 @@ function supprimerProduit(id) {
    CHARGER PRODUIT POUR MODIFICATION
    ========================================================= */
 
-function chargerProduitModification() {
+async function chargerProduitModification() {
 
     const form =
         document.getElementById(
@@ -852,12 +1463,11 @@ function chargerProduitModification() {
             "index.html";
 
         return;
-
     }
 
 
     const produit =
-        trouverProduit(id);
+        await trouverProduit(id);
 
 
     if (!produit) {
@@ -870,95 +1480,211 @@ function chargerProduitModification() {
             "index.html";
 
         return;
-
     }
 
 
-    document.getElementById(
-        "idProduit"
-    ).value = produit.id;
+    const champId =
+        document.getElementById(
+            "idProduit"
+        );
+
+    const champNom =
+        document.getElementById(
+            "nom"
+        );
+
+    const champCategorie =
+        document.getElementById(
+            "categorie"
+        );
+
+    const champPrix =
+        document.getElementById(
+            "prix"
+        );
+
+    const champStock =
+        document.getElementById(
+            "stock"
+        );
+
+    const champMinimum =
+        document.getElementById(
+            "minimum"
+        );
+
+    const champUnite =
+        document.getElementById(
+            "unite"
+        );
+
+    const champDescription =
+        document.getElementById(
+            "description"
+        );
 
 
-    document.getElementById(
-        "nom"
-    ).value = produit.nom;
+    if (champId) {
+        champId.value = produit.id;
+    }
 
+    if (champNom) {
+        champNom.value = produit.nom;
+    }
 
-    document.getElementById(
-        "categorie"
-    ).value = produit.categorie;
+    if (champCategorie) {
+        champCategorie.value =
+            produit.categorie;
+    }
 
+    if (champPrix) {
+        champPrix.value =
+            produit.prix;
+    }
 
-    document.getElementById(
-        "prix"
-    ).value = produit.prix;
+    if (champStock) {
+        champStock.value =
+            produit.stock;
+    }
 
+    if (champMinimum) {
+        champMinimum.value =
+            produit.minimum;
+    }
 
-    document.getElementById(
-        "stock"
-    ).value = produit.stock;
+    if (champUnite) {
+        champUnite.value =
+            produit.unite;
+    }
 
-
-    document.getElementById(
-        "minimum"
-    ).value = produit.minimum;
-
-
-    document.getElementById(
-        "unite"
-    ).value = produit.unite;
-
-
-    document.getElementById(
-        "description"
-    ).value =
-        produit.description || "";
-
+    if (champDescription) {
+        champDescription.value =
+            produit.description || "";
+    }
 }
 
 
 /* =========================================================
-   MODIFIER PRODUIT
+   MODIFIER UN PRODUIT
    ========================================================= */
 
-function modifierProduit(event) {
+async function modifierProduit(event) {
 
-    event.preventDefault();
+    if (event) {
+        event.preventDefault();
+    }
 
 
-    const id =
+    const champId =
         document.getElementById(
             "idProduit"
-        ).value;
-
-
-    const produits =
-        obtenirProduits();
-
-
-    const index =
-        produits.findIndex(
-            produit =>
-                String(produit.id) ===
-                String(id)
         );
 
 
-    if (index === -1) {
+    if (!champId) {
+
+        alert(
+            "ID produit introuvable."
+        );
+
+        return;
+    }
+
+
+    const id =
+        champId.value;
+
+
+    const produit =
+        await trouverProduit(id);
+
+
+    if (!produit) {
 
         alert(
             "Produit introuvable."
         );
 
         return;
-
     }
 
 
-    const nom =
+    const champNom =
         document.getElementById(
             "nom"
-        ).value.trim();
+        );
+
+    const champCategorie =
+        document.getElementById(
+            "categorie"
+        );
+
+    const champPrix =
+        document.getElementById(
+            "prix"
+        );
+
+    const champStock =
+        document.getElementById(
+            "stock"
+        );
+
+    const champMinimum =
+        document.getElementById(
+            "minimum"
+        );
+
+    const champUnite =
+        document.getElementById(
+            "unite"
+        );
+
+    const champDescription =
+        document.getElementById(
+            "description"
+        );
+
+
+    const nom =
+        champNom
+            ? champNom.value.trim()
+            : "";
+
+
+    const categorie =
+        champCategorie
+            ? champCategorie.value
+            : "";
+
+
+    const prix =
+        champPrix
+            ? Number(champPrix.value)
+            : 0;
+
+
+    const stock =
+        champStock
+            ? Number(champStock.value)
+            : 0;
+
+
+    const minimum =
+        champMinimum
+            ? Number(champMinimum.value)
+            : 0;
+
+
+    const unite =
+        champUnite
+            ? champUnite.value
+            : "";
+
+
+    const description =
+        champDescription
+            ? champDescription.value.trim()
+            : "";
 
 
     if (!nom) {
@@ -967,63 +1693,236 @@ function modifierProduit(event) {
             "Le nom du produit est obligatoire."
         );
 
+        if (champNom) {
+            champNom.focus();
+        }
+
         return;
+    }
+
+
+    if (
+        !Number.isFinite(prix) ||
+        prix < 0
+    ) {
+
+        alert(
+            "Le prix est invalide."
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isFinite(stock) ||
+        stock < 0
+    ) {
+
+        alert(
+            "Le stock est invalide."
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isFinite(minimum) ||
+        minimum < 0
+    ) {
+
+        alert(
+            "Le stock minimum est invalide."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Vérifier les doublons de nom.
+     */
+
+    const produits =
+        await obtenirProduits(true);
+
+
+    const doublon =
+        produits.some(
+            function (autreProduit) {
+
+                return (
+                    String(autreProduit.id) !==
+                    String(id) &&
+
+                    autreProduit.actif !== false &&
+
+                    String(
+                        autreProduit.nom || ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    nom.toLowerCase()
+                );
+
+            }
+        );
+
+
+    if (doublon) {
+
+        alert(
+            "Un autre produit porte déjà ce nom."
+        );
+
+        return;
+    }
+
+
+    const produitModifie = {
+
+        ...produit,
+
+        nom:
+            nom,
+
+        categorie:
+            categorie,
+
+        prix:
+            prix,
+
+        stock:
+            stock,
+
+        minimum:
+            minimum,
+
+        unite:
+            unite,
+
+        description:
+            description,
+
+        actif:
+            produit.actif !== false,
+
+        synchronise:
+            false
+
+    };
+
+
+    /*
+     * EN LIGNE
+     */
+
+    if (
+        navigator.onLine &&
+        window.supabaseClient
+    ) {
+
+        try {
+
+            const donnees =
+                preparerProduitSupabase(
+                    produitModifie
+                );
+
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .from(PRODUITS_TABLE)
+                    .update(donnees)
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .select()
+                    .single();
+
+
+            if (error) {
+
+                produitErreur(
+                    "Erreur modification Supabase :",
+                    error
+                );
+
+                /*
+                 * Conserver localement.
+                 */
+
+                await enregistrerProduitLocal(
+                    produitModifie
+                );
+
+
+                alert(
+                    "Modification enregistrée localement.\n\nLa synchronisation sera faite automatiquement."
+                );
+
+
+                window.location.href =
+                    "index.html";
+
+                return;
+            }
+
+
+            await enregistrerProduitLocal({
+
+                ...data,
+
+                synchronise:
+                    true
+
+            });
+
+
+            alert(
+                "Produit modifié avec succès."
+            );
+
+
+            window.location.href =
+                "index.html";
+
+
+            return;
+
+        } catch (error) {
+
+            produitErreur(
+                "Erreur modification :",
+                error
+            );
+
+        }
 
     }
 
 
-    produits[index].nom = nom;
+    /*
+     * HORS LIGNE
+     */
 
-    produits[index].categorie =
-        document.getElementById(
-            "categorie"
-        ).value;
-
-    produits[index].prix =
-        Number(
-            document.getElementById(
-                "prix"
-            ).value
-        );
-
-    produits[index].stock =
-        Number(
-            document.getElementById(
-                "stock"
-            ).value
-        );
-
-    produits[index].minimum =
-        Number(
-            document.getElementById(
-                "minimum"
-            ).value
-        );
-
-    produits[index].unite =
-        document.getElementById(
-            "unite"
-        ).value;
-
-    produits[index].description =
-        document.getElementById(
-            "description"
-        ).value.trim();
-
-
-    enregistrerProduits(
-        produits
+    await enregistrerProduitLocal(
+        produitModifie
     );
 
 
     alert(
-        "Produit modifié avec succès."
+        "Produit modifié hors ligne.\n\nLa modification sera synchronisée automatiquement à la reconnexion."
     );
 
 
     window.location.href =
         "index.html";
-
 }
 
 
@@ -1031,7 +1930,7 @@ function modifierProduit(event) {
    DETAIL PRODUIT
    ========================================================= */
 
-function chargerDetailProduit() {
+async function chargerDetailProduit() {
 
     const contenu =
         document.getElementById(
@@ -1054,8 +1953,24 @@ function chargerDetailProduit() {
         params.get("id");
 
 
+    if (!id) {
+
+        contenu.innerHTML = `
+
+            <div class="alert alert-danger">
+
+                Aucun produit sélectionné.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
     const produit =
-        trouverProduit(id);
+        await trouverProduit(id);
 
 
     if (!produit) {
@@ -1071,7 +1986,6 @@ function chargerDetailProduit() {
         `;
 
         return;
-
     }
 
 
@@ -1083,7 +1997,7 @@ function chargerDetailProduit() {
 
                 <strong>ID :</strong>
 
-                ${produit.id}
+                ${echapperHTML(produit.id)}
 
             </div>
 
@@ -1092,7 +2006,7 @@ function chargerDetailProduit() {
 
                 <strong>Nom :</strong>
 
-                ${produit.nom}
+                ${echapperHTML(produit.nom)}
 
             </div>
 
@@ -1101,7 +2015,7 @@ function chargerDetailProduit() {
 
                 <strong>Catégorie :</strong>
 
-                ${produit.categorie}
+                ${echapperHTML(produit.categorie)}
 
             </div>
 
@@ -1110,9 +2024,7 @@ function chargerDetailProduit() {
 
                 <strong>Prix :</strong>
 
-                ${Number(
-                    produit.prix
-                ).toLocaleString("fr-FR")} FC
+                ${formatFC(produit.prix)}
 
             </div>
 
@@ -1121,8 +2033,8 @@ function chargerDetailProduit() {
 
                 <strong>Stock :</strong>
 
-                ${produit.stock}
-                ${produit.unite}
+                ${nombre(produit.stock)}
+                ${echapperHTML(produit.unite)}
 
             </div>
 
@@ -1131,8 +2043,21 @@ function chargerDetailProduit() {
 
                 <strong>Stock minimum :</strong>
 
-                ${produit.minimum}
-                ${produit.unite}
+                ${nombre(produit.minimum)}
+                ${echapperHTML(produit.unite)}
+
+            </div>
+
+
+            <div class="col-12">
+
+                <strong>État :</strong>
+
+                ${
+                    produit.actif === false
+                        ? "Désactivé"
+                        : "Actif"
+                }
 
             </div>
 
@@ -1144,8 +2069,10 @@ function chargerDetailProduit() {
                 <p>
 
                     ${
-                        produit.description ||
-                        "Aucune description."
+                        echapperHTML(
+                            produit.description ||
+                            "Aucune description."
+                        )
                     }
 
                 </p>
@@ -1155,36 +2082,37 @@ function chargerDetailProduit() {
         </div>
 
     `;
-
 }
 
 
 /* =========================================================
-   DIMINUER LE STOCK APRES UNE VENTE
+   DIMINUER LE STOCK
+   =========================================================
+
+   Cette fonction est conservée pour compatibilité avec
+   l'ancien ERP.
+
+   La gestion définitive des sorties de stock devra passer
+   par mouvements_stock.
    ========================================================= */
 
-function diminuerStockProduit(
+async function diminuerStockProduit(
     idProduit,
     quantiteVendue
 ) {
 
-    const produits =
-        obtenirProduits();
-
-
-    const index =
-        produits.findIndex(
-            produit =>
-                String(produit.id) ===
-                String(idProduit)
+    const produit =
+        await trouverProduit(
+            idProduit
         );
 
 
-    if (index === -1) {
+    if (!produit) {
 
         return {
 
-            succes: false,
+            succes:
+                false,
 
             message:
                 "Produit introuvable."
@@ -1194,12 +2122,6 @@ function diminuerStockProduit(
     }
 
 
-    const stockActuel =
-        Number(
-            produits[index].stock
-        ) || 0;
-
-
     const quantite =
         Number(
             quantiteVendue
@@ -1207,14 +2129,14 @@ function diminuerStockProduit(
 
 
     if (
-        !Number.isFinite(quantite)
-        ||
+        !Number.isFinite(quantite) ||
         quantite <= 0
     ) {
 
         return {
 
-            succes: false,
+            succes:
+                false,
 
             message:
                 "Quantité invalide."
@@ -1224,61 +2146,246 @@ function diminuerStockProduit(
     }
 
 
+    const stockActuel =
+        nombre(produit.stock);
+
+
     if (
-        stockActuel < quantite
+        stockActuel <
+        quantite
     ) {
 
         return {
 
-            succes: false,
+            succes:
+                false,
 
             message:
                 "Stock insuffisant. Stock disponible : " +
                 stockActuel +
                 " " +
-                produits[index].unite
+                produit.unite
 
         };
 
     }
 
 
-    produits[index].stock =
-        stockActuel - quantite;
+    produit.stock =
+        stockActuel -
+        quantite;
+
+    produit.synchronise =
+        false;
 
 
-    enregistrerProduits(
-        produits
+    await enregistrerProduitLocal(
+        produit
     );
+
+
+    /*
+     * Si Internet est disponible,
+     * synchroniser immédiatement.
+     */
+
+    if (
+        navigator.onLine &&
+        window.supabaseClient
+    ) {
+
+        await synchroniserProduitsLocaux();
+
+    }
 
 
     return {
 
-        succes: true,
+        succes:
+            true,
 
         produit:
-            produits[index]
+            produit
 
     };
-
 }
 
 
 /* =========================================================
-   INITIALISATION AUTOMATIQUE
+   INITIALISATION
+   ========================================================= */
+
+async function initialiserProduitsERP() {
+
+    if (produitsInitialises) {
+        return;
+    }
+
+
+    if (
+        produitsInitialisationPromise
+    ) {
+
+        return produitsInitialisationPromise;
+
+    }
+
+
+    produitsInitialisationPromise =
+        (async function () {
+
+            try {
+
+                /*
+                 * Ouvrir IndexedDB.
+                 */
+
+                if (
+                    typeof window.ouvrirBaseLocale ===
+                    "function"
+                ) {
+
+                    await window.ouvrirBaseLocale();
+
+                }
+
+
+                /*
+                 * Synchroniser les modifications
+                 * locales avant de charger l'interface.
+                 */
+
+                await synchroniserProduitsLocaux();
+
+
+                /*
+                 * Charger les données.
+                 */
+
+                await obtenirProduits(
+                    true
+                );
+
+
+                produitsInitialises =
+                    true;
+
+
+                produitLog(
+                    "✓ Gestion des produits initialisée."
+                );
+
+
+            } catch (error) {
+
+                produitErreur(
+                    "Erreur initialisation produits :",
+                    error
+                );
+
+            }
+
+        })();
+
+
+    return produitsInitialisationPromise;
+}
+
+
+/* =========================================================
+   RECONNEXION INTERNET
+   ========================================================= */
+
+window.addEventListener(
+    "online",
+    async function () {
+
+        produitLog(
+            "Connexion Internet détectée."
+        );
+
+
+        await synchroniserProduitsLocaux();
+
+
+        if (
+            document.getElementById(
+                "tableProduits"
+            )
+        ) {
+
+            await chargerProduits();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DOM READY
    ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    async function () {
 
-        initialiserProduits();
+        await initialiserProduitsERP();
 
-        chargerProduits();
 
-        chargerProduitModification();
+        /*
+         * Page principale
+         */
 
-        chargerDetailProduit();
+        if (
+            document.getElementById(
+                "tableProduits"
+            )
+        ) {
+
+            await chargerProduits();
+
+        }
+
+
+        /*
+         * Page nouveau produit
+         */
+
+        /*
+         * Pas de chargement spécifique.
+         * ajouterProduit() s'occupe du formulaire.
+         */
+
+
+        /*
+         * Page modification
+         */
+
+        if (
+            document.getElementById(
+                "modifierProduitForm"
+            )
+        ) {
+
+            await chargerProduitModification();
+
+        }
+
+
+        /*
+         * Page détail
+         */
+
+        if (
+            document.getElementById(
+                "detailProduit"
+            )
+        ) {
+
+            await chargerDetailProduit();
+
+        }
 
     }
 );
