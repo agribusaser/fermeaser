@@ -1867,7 +1867,7 @@ async function chargerLots() {
 }
 
 
-function supprimerLot(id) {
+async function supprimerLot(id) {
 
     const confirmer =
         confirm(
