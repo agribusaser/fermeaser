@@ -1885,27 +1885,35 @@ function supprimerLot(id) {
     }
 
 
-    let lots =
-        obtenirLotsElevage();
+  try {
 
+    await supprimerLotSupabase(
+        id
+    );
 
-    lots =
-        lots.filter(
-            function (lot) {
-
-                return (
-                    String(lot.id)
-                    !==
-                    String(id)
-                );
-
-            }
-        );
-
+    const lots =
+        await chargerLotsSupabase();
 
     sauvegarderLotsElevage(
         lots
     );
+
+}
+catch (erreur) {
+
+    console.error(
+        "Erreur suppression lot :",
+        erreur
+    );
+
+    alert(
+        "Impossible de supprimer le lot dans Supabase.\n\n" +
+        (erreur.message || erreur)
+    );
+
+    return;
+
+}
 
 
     chargerLots();
