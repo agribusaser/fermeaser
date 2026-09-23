@@ -1075,7 +1075,7 @@ function obtenirQuantiteLot(lot) {
 }
 
 
-function enregistrerLot(event) {
+async function enregistrerLot(event) {
 
     if (event) {
 
