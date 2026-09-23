@@ -3195,12 +3195,64 @@ async function ouvrirModalEclosion(
      */
 
     let modal =
-        document.getElementById(
-            "modalEclosion"
-        );
+    document.getElementById(
+        "modalEclosion"
+    );
 
+/*
+ * Vérifier que le modal existant est complet.
+ * Si un ancien modal incomplet existe,
+ * on le supprime pour le reconstruire.
+ */
+const elementsRequis = [
+    "eclosionIncubationInfo",
+    "eclosionOeufsInitial",
+    "eclosionDate",
+    "eclosionPoussins",
+    "eclosionNonFecondes",
+    "eclosionEmbryonsMorts",
+    "eclosionRetires",
+    "eclosionControle",
+    "eclosionNomLot",
+    "formEclosion"
+];
 
-    if (!modal) {
+let modalComplet = true;
+
+if (modal) {
+
+    elementsRequis.forEach(
+        function (id) {
+
+            if (
+                !modal.querySelector("#" + id)
+            ) {
+
+                modalComplet = false;
+
+            }
+
+        }
+    );
+
+}
+
+if (
+    modal &&
+    !modalComplet
+) {
+
+    console.warn(
+        "Modal éclosion incomplet détecté. Reconstruction..."
+    );
+
+    modal.remove();
+
+    modal = null;
+
+}
+
+if (!modal) {
 
         modal =
             document.createElement(
