@@ -5011,7 +5011,24 @@ document.addEventListener(
 
         chargerLots();
 
-        chargerLotsProduction();
+        chargerLots()
+    .then(
+        function () {
+
+            chargerLotsProduction();
+
+        }
+    )
+    .catch(
+        function (erreur) {
+
+            console.error(
+                "Erreur chargement des lots :",
+                erreur
+            );
+
+        }
+    );
 
 
         /*
