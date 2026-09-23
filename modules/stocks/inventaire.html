@@ -27,9 +27,12 @@
 
 </head>
 
+
 <body>
 
+
 <div class="container-fluid py-4">
+
 
     <!-- =========================================================
          EN-TÊTE
@@ -40,17 +43,26 @@
         <div>
 
             <h2>
+
                 <i class="fa-solid fa-clipboard-check"></i>
+
                 Inventaire des Stocks
+
             </h2>
 
             <p class="text-muted mb-0">
+
                 Comparer le stock théorique avec le stock physique.
+
             </p>
 
         </div>
 
-        <a href="index.html" class="btn btn-secondary">
+
+        <a
+            href="index.html"
+            class="btn btn-secondary"
+        >
 
             <i class="fa-solid fa-arrow-left"></i>
 
@@ -59,6 +71,7 @@
         </a>
 
     </div>
+
 
 
     <!-- =========================================================
@@ -85,7 +98,9 @@
 
                             <th>Stock système</th>
 
-                            <th>Stock physique</th>
+                            <th style="min-width: 170px;">
+                                Stock physique
+                            </th>
 
                             <th>Écart</th>
 
@@ -93,9 +108,23 @@
 
                     </thead>
 
+
                     <tbody id="inventaireTable">
 
-                        <!-- Les produits seront chargés automatiquement -->
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="text-center py-4"
+                            >
+
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                                Chargement des produits...
+
+                            </td>
+
+                        </tr>
 
                     </tbody>
 
@@ -108,11 +137,13 @@
     </div>
 
 
+
     <!-- =========================================================
          STATISTIQUES
          ========================================================= -->
 
     <div class="row mt-4">
+
 
         <div class="col-md-4">
 
@@ -135,6 +166,7 @@
         </div>
 
 
+
         <div class="col-md-4">
 
             <div class="card text-center">
@@ -154,6 +186,7 @@
             </div>
 
         </div>
+
 
 
         <div class="col-md-4">
@@ -179,6 +212,7 @@
     </div>
 
 
+
     <!-- =========================================================
          BOUTON ENREGISTREMENT
          ========================================================= -->
@@ -199,7 +233,9 @@
 
     </div>
 
+
 </div>
+
 
 
 <!-- ============================================================
@@ -217,29 +253,755 @@
 <script src="../../js/stocks.js?v=5"></script>
 
 
+
 <!-- ============================================================
-     INITIALISATION DE L'INVENTAIRE
+     LOGIQUE DE LA PAGE INVENTAIRE
      ============================================================ -->
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+"use strict";
 
-    console.log("[INVENTAIRE] Initialisation de la page...");
 
-    if (typeof initialiserInventaire === "function") {
+/* ============================================================
+   VARIABLES
+   ============================================================ */
 
-        initialiserInventaire();
+let produitsInventaire = [];
 
-    } else {
+
+
+/* ============================================================
+   OUTILS
+   ============================================================ */
+
+function nombreInventaire(valeur) {
+
+    const n = Number(valeur);
+
+    return Number.isFinite(n) ? n : 0;
+
+}
+
+
+function echapperInventaire(valeur) {
+
+    if (
+        valeur === null ||
+        valeur === undefined
+    ) {
+
+        return "";
+
+    }
+
+    return String(valeur)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* ============================================================
+   INITIALISER L'INVENTAIRE
+   ============================================================ */
+
+async function initialiserInventaire() {
+
+    console.log(
+        "[INVENTAIRE] Chargement de l'inventaire..."
+    );
+
+
+    const tableau =
+        document.getElementById(
+            "inventaireTable"
+        );
+
+
+    if (!tableau) {
 
         console.error(
-            "[INVENTAIRE] La fonction initialiserInventaire() est introuvable."
+            "[INVENTAIRE] Tableau introuvable."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+         * chargerInventaire() existe déjà
+         * dans stocks.js.
+         */
+
+        produitsInventaire =
+            await chargerInventaire();
+
+
+        if (
+            !Array.isArray(
+                produitsInventaire
+            )
+        ) {
+
+            produitsInventaire = [];
+
+        }
+
+
+        console.log(
+            "[INVENTAIRE] Produits chargés :",
+            produitsInventaire.length
+        );
+
+
+        afficherInventaire();
+
+
+    } catch (error) {
+
+        console.error(
+            "[INVENTAIRE] Erreur chargement :",
+            error
+        );
+
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="text-center text-danger py-4"
+                >
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    Impossible de charger les produits.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+
+/* ============================================================
+   AFFICHER LES PRODUITS
+   ============================================================ */
+
+function afficherInventaire() {
+
+    const tableau =
+        document.getElementById(
+            "inventaireTable"
+        );
+
+
+    if (!tableau) {
+
+        return;
+
+    }
+
+
+    if (
+        produitsInventaire.length === 0
+    ) {
+
+        tableau.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="text-center text-muted py-4"
+                >
+
+                    Aucun produit trouvé.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        mettreAJourCompteurs();
+
+        return;
+
+    }
+
+
+    tableau.innerHTML =
+        produitsInventaire
+
+        .map(function (produit) {
+
+            const id =
+                produit.id || "";
+
+
+            const code =
+                produit.code ||
+                produit.id ||
+                "-";
+
+
+            const nom =
+                produit.nom ||
+                "Produit sans nom";
+
+
+            const categorie =
+                produit.categorie ||
+                produit.category ||
+                "-";
+
+
+            const stock =
+                nombreInventaire(
+                    produit.stock
+                );
+
+
+            return `
+
+                <tr
+                    data-produit-id="${echapperInventaire(id)}"
+                    data-stock-systeme="${stock}"
+                >
+
+
+                    <td>
+
+                        <strong>
+                            ${echapperInventaire(code)}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${echapperInventaire(nom)}
+
+                    </td>
+
+
+                    <td>
+
+                        ${echapperInventaire(categorie)}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+
+                            ${stock}
+
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        <input
+
+                            type="number"
+
+                            class="form-control stock-physique"
+
+                            min="0"
+
+                            step="0.01"
+
+                            value="${stock}"
+
+                            data-produit-id="${echapperInventaire(id)}"
+
+                            data-stock-systeme="${stock}"
+
+                        >
+
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="badge bg-secondary ecart"
+                        >
+
+                            0
+
+                        </span>
+
+                    </td>
+
+
+                </tr>
+
+            `;
+
+        })
+
+        .join("");
+
+
+    /*
+     * Écoute des changements
+     */
+
+    document
+        .querySelectorAll(
+            ".stock-physique"
+        )
+        .forEach(function (champ) {
+
+
+            champ.addEventListener(
+                "input",
+                function () {
+
+                    calculerEcart(
+                        champ
+                    );
+
+                    mettreAJourCompteurs();
+
+                }
+
+            );
+
+
+        });
+
+
+    mettreAJourCompteurs();
+
+}
+
+
+
+/* ============================================================
+   CALCULER L'ÉCART
+   ============================================================ */
+
+function calculerEcart(champ) {
+
+    const ligne =
+        champ.closest("tr");
+
+
+    if (!ligne) {
+
+        return;
+
+    }
+
+
+    const stockSysteme =
+        nombreInventaire(
+            champ.dataset.stockSysteme
+        );
+
+
+    const stockPhysique =
+        nombreInventaire(
+            champ.value
+        );
+
+
+    const ecart =
+        stockPhysique -
+        stockSysteme;
+
+
+    const affichage =
+        ligne.querySelector(
+            ".ecart"
+        );
+
+
+    if (!affichage) {
+
+        return;
+
+    }
+
+
+    affichage.textContent =
+        ecart > 0
+            ? "+" + ecart
+            : ecart;
+
+
+    affichage.classList.remove(
+        "bg-success",
+        "bg-danger",
+        "bg-secondary"
+    );
+
+
+    if (ecart === 0) {
+
+        affichage.classList.add(
+            "bg-success"
         );
 
     }
 
-});
+    else if (ecart > 0) {
+
+        affichage.classList.add(
+            "bg-primary"
+        );
+
+    }
+
+    else {
+
+        affichage.classList.add(
+            "bg-danger"
+        );
+
+    }
+
+}
+
+
+
+/* ============================================================
+   COMPTEURS
+   ============================================================ */
+
+function mettreAJourCompteurs() {
+
+    const champs =
+        document.querySelectorAll(
+            ".stock-physique"
+        );
+
+
+    let nbEcarts = 0;
+
+    let nbConformes = 0;
+
+
+    champs.forEach(function (champ) {
+
+        const stockSysteme =
+            nombreInventaire(
+                champ.dataset.stockSysteme
+            );
+
+
+        const stockPhysique =
+            nombreInventaire(
+                champ.value
+            );
+
+
+        const ecart =
+            stockPhysique -
+            stockSysteme;
+
+
+        if (ecart === 0) {
+
+            nbConformes++;
+
+        }
+
+        else {
+
+            nbEcarts++;
+
+        }
+
+    });
+
+
+    const nbProduits =
+        document.getElementById(
+            "nbProduitsInventaire"
+        );
+
+
+    const nbEcartsElement =
+        document.getElementById(
+            "nbEcarts"
+        );
+
+
+    const nbConformesElement =
+        document.getElementById(
+            "nbConformes"
+        );
+
+
+    if (nbProduits) {
+
+        nbProduits.textContent =
+            champs.length;
+
+    }
+
+
+    if (nbEcartsElement) {
+
+        nbEcartsElement.textContent =
+            nbEcarts;
+
+    }
+
+
+    if (nbConformesElement) {
+
+        nbConformesElement.textContent =
+            nbConformes;
+
+    }
+
+}
+
+
+
+/* ============================================================
+   ENREGISTRER L'INVENTAIRE
+   ============================================================ */
+
+async function enregistrerInventaire() {
+
+    const champs =
+        document.querySelectorAll(
+            ".stock-physique"
+        );
+
+
+    if (champs.length === 0) {
+
+        alert(
+            "Aucun produit à inventorier."
+        );
+
+        return;
+
+    }
+
+
+    const bouton =
+        document.getElementById(
+            "btnEnregistrerInventaire"
+        );
+
+
+    if (bouton) {
+
+        bouton.disabled = true;
+
+        bouton.innerHTML = `
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            Enregistrement...
+
+        `;
+
+    }
+
+
+    let nombreAjustements = 0;
+
+
+    try {
+
+
+        for (
+            const champ of champs
+        ) {
+
+
+            const produitId =
+                champ.dataset.produitId;
+
+
+            const stockSysteme =
+                nombreInventaire(
+                    champ.dataset.stockSysteme
+                );
+
+
+            const stockPhysique =
+                nombreInventaire(
+                    champ.value
+                );
+
+
+            const ecart =
+                stockPhysique -
+                stockSysteme;
+
+
+            /*
+             * Aucun changement :
+             * on ne crée aucun mouvement.
+             */
+
+            if (ecart === 0) {
+
+                continue;
+
+            }
+
+
+            console.log(
+                "[INVENTAIRE] Ajustement :",
+                produitId,
+                stockSysteme,
+                "→",
+                stockPhysique
+            );
+
+
+            await ajusterStockInventaire(
+
+                produitId,
+
+                stockPhysique,
+
+                "Ajustement suite à inventaire physique"
+
+            );
+
+
+            nombreAjustements++;
+
+        }
+
+
+        alert(
+
+            nombreAjustements === 0
+
+                ? "Inventaire enregistré. Aucun écart détecté."
+
+                : "Inventaire enregistré avec " +
+                  nombreAjustements +
+                  " ajustement(s)."
+
+        );
+
+
+        /*
+         * Recharger les stocks
+         */
+
+        await initialiserInventaire();
+
+
+    } catch (error) {
+
+
+        console.error(
+            "[INVENTAIRE] Erreur enregistrement :",
+            error
+        );
+
+
+        alert(
+            "Erreur lors de l'enregistrement de l'inventaire."
+        );
+
+
+    } finally {
+
+
+        if (bouton) {
+
+            bouton.disabled = false;
+
+            bouton.innerHTML = `
+
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Enregistrer l'inventaire
+
+            `;
+
+        }
+
+    }
+
+}
+
+
+
+/* ============================================================
+   BOUTON
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        console.log(
+            "[INVENTAIRE] Initialisation de la page..."
+        );
+
+
+        /*
+         * Bouton enregistrer
+         */
+
+        const bouton =
+            document.getElementById(
+                "btnEnregistrerInventaire"
+            );
+
+
+        if (bouton) {
+
+            bouton.addEventListener(
+                "click",
+                enregistrerInventaire
+            );
+
+        }
+
+
+        /*
+         * Charger les produits
+         */
+
+        initialiserInventaire();
+
+
+    }
+);
 
 </script>
 
