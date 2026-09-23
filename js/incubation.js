@@ -4147,10 +4147,7 @@ async function enregistrerEclosion(
         date_naissance:
             dateEclosion,
 
-        utilisateur:
-            utilisateur
-
-    };
+       };
 
 
     const {
