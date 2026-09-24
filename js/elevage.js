@@ -3934,6 +3934,28 @@ function enregistrerPoussiniere(
 
 }
 
+function estAdministrateurPoussiniere() {
+
+    if (
+        typeof obtenirRoleERP === "function"
+    ) {
+
+        const role =
+            obtenirRoleERP();
+
+        return (
+            String(role)
+                .trim()
+                .toLowerCase()
+            ===
+            "administrateur"
+        );
+
+    }
+
+    return false;
+
+}
 
 function chargerPoussiniere() {
 
