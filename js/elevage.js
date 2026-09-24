@@ -1684,7 +1684,7 @@ async function chargerLots() {
 
                 `;
 
-            }
+            });
         mettreAJourStatistiquesLots(lots);
 
 }
