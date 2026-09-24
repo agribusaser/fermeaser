@@ -4057,15 +4057,48 @@ function chargerPoussiniere() {
                             }
                         </td>
 
-                        <td>
-                            ${
-                                lot.statut
-                                ||
-                                "-"
-                            }
-                        </td>
+                       <td>
+    ${
+        lot.statut
+        ||
+        "-"
+    }
+</td>
 
-                    </tr>
+<td>
+    ${
+        (() => {
+            let session = null;
+
+            try {
+                session = JSON.parse(
+                    sessionStorage.getItem("sessionERP")
+                );
+            } catch (erreur) {
+                session = null;
+            }
+
+            const estAdministrateur =
+                session &&
+                session.role === "Administrateur";
+
+            return estAdministrateur
+                ? `
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        onclick="modifierPoussiniere('${lot.id}')"
+                        title="Modifier ce lot">
+                        <i class="fa-solid fa-pen-to-to"></i>
+                        Modifier
+                    </button>
+                  `
+                : "";
+        })()
+    }
+</td>
+
+</tr>
 
                 `;
 
