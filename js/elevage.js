@@ -1689,6 +1689,103 @@ async function chargerLots() {
 
 }
 
+async function supprimerLot(id) {
+
+    if (!id) {
+        return;
+    }
+
+    const confirmation =
+        confirm(
+            "Voulez-vous vraiment supprimer ce lot ?\n\n" +
+            "Cette opération supprimera également le lot de Supabase."
+        );
+
+    if (!confirmation) {
+        return;
+    }
+
+    try {
+
+        /*
+         * SOURCE PRINCIPALE :
+         * Supabase
+         */
+        if (supabaseDisponible()) {
+
+            await supprimerLotSupabase(id);
+
+            /*
+             * Recharger les lots depuis Supabase
+             * et mettre à jour le cache local.
+             */
+            const lots =
+                await chargerLotsSupabase();
+
+            sauvegarderLotsElevage(
+                lots
+            );
+
+        } else {
+
+            /*
+             * SECOURS :
+             * suppression dans le stockage local
+             */
+            let lots =
+                obtenirLotsElevage();
+
+            lots =
+                lots.filter(
+                    function (lot) {
+
+                        return (
+                            String(lot.id)
+                            !==
+                            String(id)
+                        );
+
+                    }
+                );
+
+            sauvegarderLotsElevage(
+                lots
+            );
+
+        }
+
+        /*
+         * Actualiser l'affichage
+         */
+        await chargerLots();
+
+        chargerLotsProduction();
+
+        chargerLotsAlimentation();
+
+        alert(
+            "Lot supprimé avec succès."
+        );
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur suppression du lot :",
+            erreur
+        );
+
+        alert(
+            "Impossible de supprimer le lot.\n\n" +
+            (
+                erreur.message ||
+                erreur
+            )
+        );
+
+    }
+
+}
 
 function mettreAJourStatistiquesLots(lotsParametres) {
 
