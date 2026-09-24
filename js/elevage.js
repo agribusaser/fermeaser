@@ -4833,26 +4833,24 @@ document.addEventListener(
          * LOTS
          */
 
-        chargerLots();
+              chargerLots()
+            .then(
+                function () {
 
-        chargerLots()
-    .then(
-        function () {
+                    chargerLotsProduction();
 
-            chargerLotsProduction();
+                }
+            )
+            .catch(
+                function (erreur) {
 
-        }
-    )
-    .catch(
-        function (erreur) {
+                    console.error(
+                        "Erreur chargement des lots :",
+                        erreur
+                    );
 
-            console.error(
-                "Erreur chargement des lots :",
-                erreur
+                }
             );
-
-        }
-    );
 
 
         /*
