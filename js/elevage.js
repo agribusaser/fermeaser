@@ -1690,100 +1690,34 @@ async function chargerLots() {
 }
 
 
-async function supprimerLot(id) {
-
-    const confirmer =
-        confirm(
-
-            "Voulez-vous vraiment supprimer ce lot ?\n\n" +
-            "Cette opération ne supprime pas les productions déjà enregistrées."
-
-        );
-
-
-    if (!confirmer) {
-
-        return;
-
-    }
-
-
-  try {
-
-    await supprimerLotSupabase(
-        id
-    );
+function mettreAJourStatistiquesLots(lotsParametres) {
 
     const lots =
-        await chargerLotsSupabase();
-
-    sauvegarderLotsElevage(
-        lots
-    );
-
-}
-catch (erreur) {
-
-    console.error(
-        "Erreur suppression lot :",
-        erreur
-    );
-
-    alert(
-        "Impossible de supprimer le lot dans Supabase.\n\n" +
-        (erreur.message || erreur)
-    );
-
-    return;
-
-}
-
-
-    chargerLots();
-
-
-    chargerLotsProduction();
-
-
-    alert(
-        "Lot supprimé."
-    );
-
-}
-
-
-function mettreAJourStatistiquesLots() {
-
-    const lots =
-        obtenirLotsElevage();
-
+        Array.isArray(lotsParametres)
+            ? lotsParametres
+            : [];
 
     const actifs =
-        lots.filter(
-            function (lot) {
+        lots.filter(function (lot) {
 
-                return (
-                    lot.statut ===
-                    "Actif"
-                    ||
-                    !lot.statut
-                );
+            return (
+                lot.statut === "Actif"
+                ||
+                !lot.statut
+            );
 
-            }
-        );
-
+        });
 
     const totalAnimaux =
         actifs.reduce(
-            function (
-                total,
-                lot
-            ) {
+            function (total, lot) {
 
                 return (
                     total +
-                    obtenirQuantiteLot(
-                        lot
+                    Number(
+                        lot.quantiteActuelle ||
+                        lot.quantite ||
+                        0
                     )
                 );
 
@@ -1792,37 +1726,14 @@ function mettreAJourStatistiquesLots() {
         );
 
 
+    /* =========================================
+       ANIMAUX
+    ========================================= */
+
     const elementAnimaux =
         document.getElementById(
             "totalAnimaux"
         );
-
-
-    const elementLots =
-        document.getElementById(
-            "totalLots"
-        )
-        ||
-        document.getElementById(
-            "lotsActifs"
-        );
-
-
-    const elementActifs =
-        document.getElementById(
-            "animauxActifs"
-        );
-
-
-    const elementMortalite =
-        document.getElementById(
-            "totalMortalite"
-        )
-        ||
-        document.getElementById(
-            "mortalite"
-        );
-
 
     if (elementAnimaux) {
 
@@ -1834,6 +1745,19 @@ function mettreAJourStatistiquesLots() {
     }
 
 
+    /* =========================================
+       NOMBRE DE LOTS
+    ========================================= */
+
+    const elementLots =
+        document.getElementById(
+            "totalLots"
+        )
+        ||
+        document.getElementById(
+            "lotsActifs"
+        );
+
     if (elementLots) {
 
         elementLots.textContent =
@@ -1843,6 +1767,15 @@ function mettreAJourStatistiquesLots() {
 
     }
 
+
+    /* =========================================
+       ANIMAUX ACTIFS
+    ========================================= */
+
+    const elementActifs =
+        document.getElementById(
+            "animauxActifs"
+        );
 
     if (elementActifs) {
 
@@ -1854,27 +1787,35 @@ function mettreAJourStatistiquesLots() {
     }
 
 
+    /* =========================================
+       MORTALITÉ
+    ========================================= */
+
+    const elementMortalite =
+        document.getElementById(
+            "totalMortalite"
+        )
+        ||
+        document.getElementById(
+            "mortalite"
+        );
+
     if (elementMortalite) {
 
         const mortalite =
             lots.reduce(
-                function (
-                    total,
-                    lot
-                ) {
+                function (total, lot) {
 
                     return (
                         total +
                         Number(
-                            lot.mortalite ||
-                            0
+                            lot.mortalite || 0
                         )
                     );
 
                 },
                 0
             );
-
 
         elementMortalite.textContent =
             formaterNombre(
@@ -1884,7 +1825,6 @@ function mettreAJourStatistiquesLots() {
     }
 
 }
-
 
 /* =========================================================
    5. LOTS CONNECTÉS À LA PRODUCTION
