@@ -3957,178 +3957,101 @@ function estAdministrateurPoussiniere() {
 
 }
 
-function chargerPoussiniere() {
+function modifierLotPoussiniere(id) {
 
-    const tableau =
-        document.getElementById(
-            "listePoussiniere"
+    if (!estAdministrateurPoussiniere()) {
+
+        alert(
+            "Accès réservé à l'administrateur."
         );
 
-
-    if (!tableau) {
-
         return;
-
     }
-
 
     const poussiniere =
         obtenirPoussiniere();
 
-
-    tableau.innerHTML =
-        "";
-
-
-    if (
-        poussiniere.length === 0
-    ) {
-
-        tableau.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="10"
-                    class="text-center text-muted">
-
-                    Aucun lot en poussinière.
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    poussiniere
-        .slice()
-        .reverse()
-        .forEach(
-            function (lot) {
-
-                tableau.innerHTML += `
-
-                    <tr>
-
-                        <td>
-                            ${
-                                lot.id
-                                ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                lot.espece
-                                ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                lot.origine
-                                ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                formaterDate(
-                                    lot.dateEntree
-                                )
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                formaterNombre(
-                                    lot.nombreInitial
-                                )
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                formaterNombre(
-                                    lot.presents
-                                )
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                formaterNombre(
-                                    lot.mortalite
-                                )
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                lot.emplacement
-                                ||
-                                "-"
-                            }
-                        </td>
-
-                       <td>
-    ${
-        lot.statut
-        ||
-        "-"
-    }
-</td>
-
-<td>
-    ${
-        (() => {
-            let session = null;
-
-            try {
-                session = JSON.parse(
-                    sessionStorage.getItem("sessionERP")
-                );
-            } catch (erreur) {
-                session = null;
-            }
-
-            const estAdministrateur =
-                session &&
-                session.role === "Administrateur";
-
-            return estAdministrateur
-                ? `
-                    <button
-                        type="button"
-                        class="btn-secondary"
-                        onclick="modifierPoussiniere('${lot.id}')"
-                        title="Modifier ce lot">
-                        <i class="fa-solid fa-pen-to-to"></i>
-                        Modifier
-                    </button>
-                  `
-                : "";
-        })()
-    }
-</td>
-
-</tr>
-
-                `;
-
+    const lot =
+        poussiniere.find(
+            function (item) {
+                return item.id === id;
             }
         );
 
-}
+    if (!lot) {
 
+        alert(
+            "Lot introuvable."
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "brooderEditId"
+    ).value = lot.id;
+
+    document.getElementById(
+        "brooderEspece"
+    ).value =
+        lot.espece || "";
+
+    document.getElementById(
+        "brooderOrigine"
+    ).value =
+        lot.origine || "";
+
+    document.getElementById(
+        "brooderNombre"
+    ).value =
+        lot.nombreInitial || 0;
+
+    document.getElementById(
+        "brooderDate"
+    ).value =
+        lot.dateEntree || "";
+
+    document.getElementById(
+        "brooderEmplacement"
+    ).value =
+        lot.emplacement || "";
+
+    document.getElementById(
+        "brooderTemperature"
+    ).value =
+        lot.temperature || 0;
+
+    const titre =
+        document.getElementById(
+            "titreModalPoussiniere"
+        );
+
+    if (titre) {
+
+        titre.innerHTML = `
+            <i class="fa-solid fa-pen-to-square"></i>
+            Modifier le lot en poussinière
+        `;
+
+    }
+
+    const bouton =
+        document.getElementById(
+            "btnEnregistrerPoussiniere"
+        );
+
+    if (bouton) {
+
+        bouton.innerHTML = `
+            <i class="fa-solid fa-save"></i>
+            Enregistrer les modifications
+        `;
+
+    }
+
+    ouvrirFormulairePoussiniere();
+
+}
 
 /* =========================================================
    12. TABLEAU DE BORD ÉLEVAGE
