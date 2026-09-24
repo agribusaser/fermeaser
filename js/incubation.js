@@ -3779,9 +3779,6 @@ function calculerControleEclosion() {
 }
 
 
-/* ============================================================
-   ENREGISTRER ÉCLOSION + CRÉER NOUVEAU LOT
-============================================================ */
 
 /* ============================================================
    ENREGISTRER MOUVEMENT D'UN POUSSIN
@@ -3922,6 +3919,10 @@ async function enregistrerMouvementPoussin({
     return data;
 
 }
+
+/* ============================================================
+   ENREGISTRER ÉCLOSION + CRÉER NOUVEAU LOT
+============================================================ */
 
 async function enregistrerEclosion(
     event,
