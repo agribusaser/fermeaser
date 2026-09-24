@@ -3783,6 +3783,146 @@ function calculerControleEclosion() {
    ENREGISTRER ÉCLOSION + CRÉER NOUVEAU LOT
 ============================================================ */
 
+/* ============================================================
+   ENREGISTRER MOUVEMENT D'UN POUSSIN
+   Utilisé après l'éclosion pour affecter les poussins
+   à une destination.
+============================================================ */
+
+async function enregistrerMouvementPoussin({
+    incubationId,
+    lotEclosionId,
+    espece,
+    quantite,
+    destinationType,
+    destinationNom = null,
+    destinationId = null,
+    dateTransfert = null,
+    notes = null
+}) {
+
+    if (!incubationSupabaseDisponible()) {
+
+        throw new Error(
+            "Supabase n'est pas initialisé."
+        );
+
+    }
+
+    const quantiteNumerique =
+        Number(quantite || 0);
+
+    if (
+        !Number.isFinite(
+            quantiteNumerique
+        ) ||
+        quantiteNumerique <= 0
+    ) {
+
+        throw new Error(
+            "La quantité de poussins doit être supérieure à zéro."
+        );
+
+    }
+
+    if (!destinationType) {
+
+        throw new Error(
+            "La destination des poussins est obligatoire."
+        );
+
+    }
+
+    const codeMouvement =
+        "MVT-POS-" +
+        Date.now() +
+        "-" +
+        Math.floor(
+            Math.random() * 1000
+        );
+
+    const mouvement = {
+
+        code_mouvement:
+            codeMouvement,
+
+        incubation_id:
+            incubationId
+                ? Number(incubationId)
+                : null,
+
+        lot_eclosion_id:
+            lotEclosionId
+                ? Number(lotEclosionId)
+                : null,
+
+        espece:
+            espece || "Non précisée",
+
+        quantite:
+            quantiteNumerique,
+
+        destination_type:
+            destinationType,
+
+        destination_nom:
+            destinationNom || null,
+
+        destination_id:
+            destinationId
+                ? Number(destinationId)
+                : null,
+
+        date_transfert:
+            dateTransfert ||
+            incubationAujourdHui(),
+
+        notes:
+            notes || null
+
+    };
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                TABLE_MOUVEMENTS_POUSSINS
+            )
+
+            .insert(
+                mouvement
+            )
+
+            .select()
+
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Erreur enregistrement mouvement poussin :",
+            error
+        );
+
+        throw error;
+
+    }
+
+
+    console.log(
+        "✓ Mouvement poussin enregistré :",
+        data
+    );
+
+
+    return data;
+
+}
+
 async function enregistrerEclosion(
     event,
     idIncubation
