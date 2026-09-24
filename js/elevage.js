@@ -677,7 +677,7 @@ async function chargerLotsSupabase() {
     const {
         data,
         error
-    } = await supabaseClient
+    } = await window.supabaseClient
         .from("lots_elevage")
         .select("*")
         .order(
@@ -776,7 +776,7 @@ async function enregistrerLotSupabase(
     const {
         data,
         error
-    } = await supabaseClient
+    } = await window.supabaseClient
         .from("lots_elevage")
         .insert(
             [donnees]
@@ -822,7 +822,7 @@ async function supprimerLotSupabase(
 
     const {
         error
-    } = await supabaseClient
+    } = await window.supabaseClient
         .from("lots_elevage")
         .delete()
         .eq(
@@ -890,7 +890,7 @@ async function migrerLotsLocauxVersSupabase() {
             const {
                 data: existant,
                 error: erreurRecherche
-            } = await supabaseClient
+            } = await window.supabaseClient
                 .from("lots_elevage")
                 .select("id, code")
                 .eq(
