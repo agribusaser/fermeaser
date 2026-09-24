@@ -36,6 +36,11 @@ const TABLE_PRODUCTIONS_INCUBATION =
 const TABLE_INCUBATIONS =
     "incubations";
 
+const TABLE_MOUVEMENTS_POUSSINS =
+    "mouvements_poussins";
+
+const TABLE_DESTINATIONS_POUSSINS =
+    "destinations_poussins";
 
 /* ============================================================
    DURÉES D'INCUBATION
