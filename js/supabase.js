@@ -10,10 +10,12 @@ const SUPABASE_URL =
     "https://szfftdskbbxrufixdjhw.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS"
+    "sb_publishable_h7DMy9Vj3F2jx6oPko7ViA_pY-VhXyS";
 
+/*====================================================
+ VÉRIFICATION DU SDK SUPABASE
+====================================================*/
 
-// Vérification du SDK Supabase
 if (!window.supabase) {
 
     console.error(
@@ -22,16 +24,15 @@ if (!window.supabase) {
 
 } else {
 
-    // Création du client Supabase
-    const supabaseClient =
+    /*================================================
+     CRÉATION DU CLIENT SUPABASE
+    ================================================*/
+
+    window.supabaseClient =
         window.supabase.createClient(
             SUPABASE_URL,
             SUPABASE_KEY
         );
-
-    // Rend le client disponible pour tous les fichiers JS
-    window.supabaseClient =
-        supabaseClient;
 
     console.log(
         "Ferme Asher ERP : Supabase connecté."
