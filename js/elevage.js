@@ -4812,6 +4812,33 @@ window.sauvegarderDataLocale =
 window.obtenirDateAujourdhui =
     obtenirDateAujourdhui;
 
+/* =========================================================
+   BOUTON NOUVEAU LOT POUSSINIÈRE
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const bouton =
+        document.getElementById(
+            "btnNouveauLotPoussiniere"
+        );
+
+    if (bouton) {
+
+        bouton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                ouvrirFormulairePoussiniere();
+
+            }
+        );
+
+    }
+
+});
 
 /* =========================================================
    17. INITIALISATION
