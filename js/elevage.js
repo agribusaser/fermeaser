@@ -1388,10 +1388,9 @@ Voulez-vous quand même créer ce nouveau lot ?`
  */
 try {
 
-    const lotEnregistre =
-        await enregistrerLotSupabase(
-            nouveauLot
-        );
+   await enregistrerLotSupabase(
+    nouveauLot
+);
 
     /*
      * Mettre à jour le cache local
