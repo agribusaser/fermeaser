@@ -5014,6 +5014,8 @@ window.chargerAnimaux =
 
 window.obtenirLotsElevage =
     obtenirLotsElevage;
+window.supprimerLotPoussiniere =
+    supprimerLotPoussiniere;
 
 window.obtenirLotsConnectes =
     obtenirLotsConnectes;
