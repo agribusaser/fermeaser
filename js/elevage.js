@@ -3757,6 +3757,42 @@ function fermerFormulairePoussiniere() {
 
 }
 
+const editId =
+    document.getElementById(
+        "brooderEditId"
+    );
+
+if (editId) {
+    editId.value = "";
+}
+
+const titre =
+    document.getElementById(
+        "titreModalPoussiniere"
+    );
+
+if (titre) {
+
+    titre.innerHTML = `
+        <i class="fa-solid fa-feather"></i>
+        Nouveau lot en poussinière
+    `;
+
+}
+
+const bouton =
+    document.getElementById(
+        "btnEnregistrerPoussiniere"
+    );
+
+if (bouton) {
+
+    bouton.innerHTML = `
+        <i class="fa-solid fa-save"></i>
+        Créer le lot
+    `;
+
+}
 
 function enregistrerPoussiniere(
     event
