@@ -4943,6 +4943,8 @@ window.ouvrirFormulairePoussiniere =
 window.fermerFormulairePoussiniere =
     fermerFormulairePoussiniere;
 
+window.modifierLotPoussiniere =
+    modifierLotPoussiniere;
 
 /* TABLEAU DE BORD */
 
