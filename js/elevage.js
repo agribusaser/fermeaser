@@ -3843,16 +3843,52 @@ function enregistrerPoussiniere(
     }
 
 
-    const poussiniere =
-        obtenirPoussiniere();
+const poussiniere =
+    obtenirPoussiniere();
+
+const editId =
+    document.getElementById(
+        "brooderEditId"
+    )?.value || "";
 
 
-    const nouveauLot = {
+// =====================================================
+// MODE MODIFICATION
+// =====================================================
 
-        id:
-            genererId(
-                "BRD"
-            ),
+if (editId) {
+
+    if (!estAdministrateurPoussiniere()) {
+
+        alert(
+            "Seul l'administrateur peut modifier un lot."
+        );
+
+        return false;
+    }
+
+    const index =
+        poussiniere.findIndex(
+            function (lot) {
+                return lot.id === editId;
+            }
+        );
+
+    if (index === -1) {
+
+        alert(
+            "Lot introuvable."
+        );
+
+        return false;
+    }
+
+    const ancienLot =
+        poussiniere[index];
+
+    poussiniere[index] = {
+
+        ...ancienLot,
 
         espece:
             espece,
@@ -3869,45 +3905,126 @@ function enregistrerPoussiniere(
         nombreInitial:
             nombre,
 
-        presents:
-            nombre,
-
-        mortalite:
-            0,
-
-        transferes:
-            0,
-
         temperature:
             temperature,
 
-        alimentTotal:
-            0,
-
-        statut:
-            "Actif",
-
-        suivi:
-            [],
-
-        dateCreation:
+        dateModification:
             new Date().toISOString()
 
     };
-
-
-    poussiniere.push(
-        nouveauLot
-    );
-
 
     sauvegarderPoussiniere(
         poussiniere
     );
 
-
     const formulaire =
         document.getElementById(
+            "formPoussiniere"
+        );
+
+    if (formulaire) {
+        formulaire.reset();
+    }
+
+    document.getElementById(
+        "brooderEditId"
+    ).value = "";
+
+    fermerFormulairePoussiniere();
+
+    chargerPoussiniere();
+
+    alert(
+        `Lot ${editId} modifié avec succès.`
+    );
+
+    return true;
+
+}
+
+
+// =====================================================
+// MODE CRÉATION
+// =====================================================
+
+const nouveauLot = {
+
+    id:
+        genererId(
+            "BRD"
+        ),
+
+    espece:
+        espece,
+
+    origine:
+        origine,
+
+    emplacement:
+        emplacement,
+
+    dateEntree:
+        dateEntree,
+
+    nombreInitial:
+        nombre,
+
+    presents:
+        nombre,
+
+    mortalite:
+        0,
+
+    transferes:
+        0,
+
+    temperature:
+        temperature,
+
+    alimentTotal:
+        0,
+
+    statut:
+        "Actif",
+
+    suivi:
+        [],
+
+    dateCreation:
+        new Date().toISOString()
+
+};
+
+poussiniere.push(
+    nouveauLot
+);
+
+sauvegarderPoussiniere(
+    poussiniere
+);
+
+const formulaire =
+    document.getElementById(
+        "formPoussiniere"
+    );
+
+if (formulaire) {
+
+    formulaire.reset();
+
+}
+
+fermerFormulairePoussiniere();
+
+chargerPoussiniere();
+
+alert(
+    `Lot ${nouveauLot.id} créé avec succès.`
+);
+
+return true;
+
+}  document.getElementById(
             "formPoussiniere"
         );
 
@@ -3919,20 +4036,7 @@ function enregistrerPoussiniere(
     }
 
 
-    fermerFormulairePoussiniere();
-
-
-    chargerPoussiniere();
-
-
-    alert(
-        `Lot ${nouveauLot.id} créé avec succès.`
-    );
-
-
-    return true;
-
-}
+    fe
 
 function estAdministrateurPoussiniere() {
 
