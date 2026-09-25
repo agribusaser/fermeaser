@@ -258,6 +258,7 @@ window.chargerPermissionsERP = chargerPermissionsERP;
 window.aPermission = aPermission;
 window.obtenirRoleERP = obtenirRoleERP;
 window.obtenirUtilisateurERP = obtenirUtilisateurERP;
+window.estAdministrateurERP = estAdministrateurERP;
 window.initialiserPermissionsERP = initialiserPermissionsERP;
 window.appliquerPermissionsMenuERP = appliquerPermissionsMenuERP;
 
