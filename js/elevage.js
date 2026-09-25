@@ -4305,7 +4305,7 @@ function modifierLotPoussiniere(id) {
 
 function supprimerLotPoussiniere(id) {
 
-    if (!estAdministrateurPoussiniere()) {
+    if (!estAdministrateurERP()) {
 
         alert(
             "Accès réservé à l'administrateur."
