@@ -193,9 +193,19 @@ async function initialiserPermissionsERP() {
         return false;
     }
 
- await chargerPermissionsERP();
+await chargerPermissionsERP();
 
 appliquerPermissionsMenuERP();
+
+/* =========================================================
+   ACTUALISER LES LOTS APRÈS CHARGEMENT DES PERMISSIONS
+   ========================================================= */
+
+if (
+    typeof chargerPoussiniere === "function"
+) {
+    chargerPoussiniere();
+}
 
 console.log(
     "Système de permissions prêt."
