@@ -159,7 +159,7 @@ function obtenirRoleERP() {
 
 function estAdministrateurERP() {
 
-    return obtenirRoleERP() === "administrateur";
+    return obtenirRoleERP() === "Administrateur";
 }
 
 /* =========================================================
