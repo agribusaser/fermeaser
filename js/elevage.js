@@ -3809,41 +3809,84 @@ function chargerPoussiniere() {
                         ".actions-poussiniere"
                     );
 
-                if (
-                    administrateur
-                    &&
-                    celluleActions
-                ) {
+              if (
+    administrateur
+    &&
+    celluleActions
+) {
 
-                    const bouton =
-                        document.createElement(
-                            "button"
-                        );
+    /* =========================
+       BOUTON MODIFIER
+       ========================= */
 
-                    bouton.type =
-                        "button";
+    const boutonModifier =
+        document.createElement(
+            "button"
+        );
 
-                    bouton.className =
-                        "btn btn-sm btn-primary";
+    boutonModifier.type =
+        "button";
 
-                    bouton.innerHTML = `
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        Modifier
-                    `;
+    boutonModifier.className =
+        "btn btn-sm btn-primary";
 
-                    bouton.addEventListener(
-                        "click",
-                        function () {
-                            modifierLotPoussiniere(
-                                lot.id
-                            );
-                        }
-                    );
+    boutonModifier.innerHTML = `
+        <i class="fa-solid fa-pen-to-square"></i>
+        Modifier
+    `;
 
-                    celluleActions.appendChild(
-                        bouton
-                    );
-                }
+    boutonModifier.addEventListener(
+        "click",
+        function () {
+
+            modifierLotPoussiniere(
+                lot.id
+            );
+
+        }
+    );
+
+    celluleActions.appendChild(
+        boutonModifier
+    );
+
+
+    /* =========================
+       BOUTON SUPPRIMER
+       ========================= */
+
+    const boutonSupprimer =
+        document.createElement(
+            "button"
+        );
+
+    boutonSupprimer.type =
+        "button";
+
+    boutonSupprimer.className =
+        "btn btn-sm btn-danger";
+
+    boutonSupprimer.innerHTML = `
+        <i class="fa-solid fa-trash"></i>
+        Supprimer
+    `;
+
+    boutonSupprimer.addEventListener(
+        "click",
+        function () {
+
+            supprimerLotPoussiniere(
+                lot.id
+            );
+
+        }
+    );
+
+    celluleActions.appendChild(
+        boutonSupprimer
+    );
+
+}
 
                 tableau.appendChild(
                     ligne
