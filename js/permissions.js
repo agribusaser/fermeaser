@@ -153,6 +153,14 @@ function obtenirRoleERP() {
         : null;
 }
 
+/* =========================================================
+   VÉRIFIER SI L'UTILISATEUR EST ADMINISTRATEUR
+   ========================================================= */
+
+function estAdministrateurERP() {
+
+    return obtenirRoleERP() === "administrateur";
+}
 
 /* =========================================================
    OBTENIR L'UTILISATEUR
