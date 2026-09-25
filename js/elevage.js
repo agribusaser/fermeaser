@@ -4023,6 +4023,8 @@ alert(
 
 return true;
 
+}
+   
 function estAdministrateurPoussiniere() {
 
     if (
