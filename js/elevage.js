@@ -3809,7 +3809,7 @@ function chargerPoussiniere() {
                         ".actions-poussiniere"
                     );
 
-              if (
+ if (
     administrateur
     &&
     celluleActions
@@ -3828,7 +3828,7 @@ function chargerPoussiniere() {
         "button";
 
     boutonModifier.className =
-        "btn btn-sm btn-primary";
+        "btn btn-sm btn-primary me-1";
 
     boutonModifier.innerHTML = `
         <i class="fa-solid fa-pen-to-square"></i>
@@ -3851,6 +3851,43 @@ function chargerPoussiniere() {
     );
 
 
+    /* =========================
+       BOUTON SUPPRIMER
+       ========================= */
+
+    const boutonSupprimer =
+        document.createElement(
+            "button"
+        );
+
+    boutonSupprimer.type =
+        "button";
+
+    boutonSupprimer.className =
+        "btn btn-sm btn-danger";
+
+    boutonSupprimer.innerHTML = `
+        <i class="fa-solid fa-trash"></i>
+        Supprimer
+    `;
+
+    boutonSupprimer.addEventListener(
+        "click",
+        function () {
+
+            supprimerLotPoussiniere(
+                lot.id
+            );
+
+        }
+    );
+
+    celluleActions.appendChild(
+        boutonSupprimer
+    );
+
+}
+    
     /* =========================
        BOUTON SUPPRIMER
        ========================= */
