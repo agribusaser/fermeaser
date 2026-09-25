@@ -3697,6 +3697,160 @@ function sauvegarderPoussiniere(
 
 }
 
+function chargerPoussiniere() {
+
+    const tableau =
+        document.getElementById(
+            "listePoussiniere"
+        );
+
+    if (!tableau) {
+        return;
+    }
+
+    const donnees =
+        obtenirPoussiniere();
+
+    tableau.innerHTML = "";
+
+    if (
+        !Array.isArray(donnees)
+        ||
+        donnees.length === 0
+    ) {
+
+        tableau.innerHTML = `
+            <tr>
+                <td
+                    colspan="10"
+                    class="text-center text-muted">
+                    Aucun lot en poussinière.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    const administrateur =
+        estAdministrateurPoussiniere();
+
+    donnees
+        .slice()
+        .reverse()
+        .forEach(
+            function (lot) {
+
+                const ligne =
+                    document.createElement(
+                        "tr"
+                    );
+
+                ligne.innerHTML = `
+                    <td>
+                        ${lot.id || "-"}
+                    </td>
+
+                    <td>
+                        ${lot.espece || "-"}
+                    </td>
+
+                    <td>
+                        ${lot.origine || "-"}
+                    </td>
+
+                    <td>
+                        ${
+                            formaterDate(
+                                lot.dateEntree
+                            )
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            lot.nombreInitial || 0
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            lot.presents ??
+                            lot.nombreInitial ??
+                            0
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            lot.mortalite || 0
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            lot.temperature || 0
+                        } °C
+                    </td>
+
+                    <td>
+                        ${
+                            lot.statut || "-"
+                        }
+                    </td>
+
+                    <td
+                        class="actions-poussiniere">
+                    </td>
+                `;
+
+                const celluleActions =
+                    ligne.querySelector(
+                        ".actions-poussiniere"
+                    );
+
+                if (
+                    administrateur
+                    &&
+                    celluleActions
+                ) {
+
+                    const bouton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    bouton.type =
+                        "button";
+
+                    bouton.className =
+                        "btn btn-sm btn-primary";
+
+                    bouton.innerHTML = `
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Modifier
+                    `;
+
+                    bouton.addEventListener(
+                        "click",
+                        function () {
+                            modifierLotPoussiniere(
+                                lot.id
+                            );
+                        }
+                    );
+
+                    celluleActions.appendChild(
+                        bouton
+                    );
+                }
+
+                tableau.appendChild(
+                    ligne
+                );
+            }
+        );
+}
 
 function ouvrirFormulairePoussiniere() {
 
