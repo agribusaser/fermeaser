@@ -4299,6 +4299,69 @@ function modifierLotPoussiniere(id) {
 }
 
 /* =========================================================
+   SUPPRIMER UN LOT DE POUSSINIÈRE
+   ADMINISTRATEUR UNIQUEMENT
+========================================================= */
+
+function supprimerLotPoussiniere(id) {
+
+    if (!estAdministrateurPoussiniere()) {
+
+        alert(
+            "Accès réservé à l'administrateur."
+        );
+
+        return;
+    }
+
+    const poussiniere =
+        obtenirPoussiniere();
+
+    const index =
+        poussiniere.findIndex(
+            function (lot) {
+                return lot.id === id;
+            }
+        );
+
+    if (index === -1) {
+
+        alert(
+            "Lot introuvable."
+        );
+
+        return;
+    }
+
+    const lot =
+        poussiniere[index];
+
+    const confirmation =
+        confirm(
+            `Voulez-vous vraiment supprimer le lot ${lot.id} ?\n\nCette action est définitive.`
+        );
+
+    if (!confirmation) {
+        return;
+    }
+
+    poussiniere.splice(
+        index,
+        1
+    );
+
+    sauvegarderPoussiniere(
+        poussiniere
+    );
+
+    chargerPoussiniere();
+
+    alert(
+        `Lot ${lot.id} supprimé avec succès.`
+    );
+}
+
+/* =========================================================
    12. TABLEAU DE BORD ÉLEVAGE
 ========================================================= */
 
