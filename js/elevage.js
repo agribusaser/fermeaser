@@ -5159,6 +5159,9 @@ window.fermerFormulairePoussiniere =
 window.modifierLotPoussiniere =
     modifierLotPoussiniere;
 
+window.supprimerLotPoussiniere =
+    supprimerLotPoussiniere;
+
 /* TABLEAU DE BORD */
 
 window.chargerDashboardElevage =
