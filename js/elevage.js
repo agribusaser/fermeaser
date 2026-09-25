@@ -4011,7 +4011,7 @@ const editId =
 
 if (editId) {
 
-    if (!estAdministrateurPoussiniere()) {
+   if (!estAdministrateurERP()) {
 
         alert(
             "Seul l'administrateur peut modifier un lot."
@@ -4204,7 +4204,7 @@ function estAdministrateurPoussiniere() {
 
 function modifierLotPoussiniere(id) {
 
-    if (!estAdministrateurPoussiniere()) {
+    if (!estAdministrateurERP()) {
 
         alert(
             "Accès réservé à l'administrateur."
