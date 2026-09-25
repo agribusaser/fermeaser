@@ -4023,20 +4023,6 @@ alert(
 
 return true;
 
-}  document.getElementById(
-            "formPoussiniere"
-        );
-
-
-    if (formulaire) {
-
-        formulaire.reset();
-
-    }
-
-
-    fe
-
 function estAdministrateurPoussiniere() {
 
     if (
