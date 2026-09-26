@@ -3882,8 +3882,12 @@ function chargerPoussiniere() {
         }
     );
 
-    celluleActions.appendChild(
+       celluleActions.appendChild(
         boutonSupprimer
+    );
+
+    tableau.appendChild(
+        ligne
     );
 
 }
