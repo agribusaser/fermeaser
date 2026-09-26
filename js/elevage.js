@@ -3888,50 +3888,6 @@ function chargerPoussiniere() {
 
 }
     
-    /* =========================
-       BOUTON SUPPRIMER
-       ========================= */
-
-    const boutonSupprimer =
-        document.createElement(
-            "button"
-        );
-
-    boutonSupprimer.type =
-        "button";
-
-    boutonSupprimer.className =
-        "btn btn-sm btn-danger";
-
-    boutonSupprimer.innerHTML = `
-        <i class="fa-solid fa-trash"></i>
-        Supprimer
-    `;
-
-    boutonSupprimer.addEventListener(
-        "click",
-        function () {
-
-            supprimerLotPoussiniere(
-                lot.id
-            );
-
-        }
-    );
-
-    celluleActions.appendChild(
-        boutonSupprimer
-    );
-
-}
-
-                tableau.appendChild(
-                    ligne
-                );
-            }
-        );
-}
-
 function ouvrirFormulairePoussiniere() {
 
     const modal =
