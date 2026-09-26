@@ -3804,89 +3804,95 @@ function chargerPoussiniere() {
                     </td>
                 `;
 
-                const celluleActions =
+                               const celluleActions =
                     ligne.querySelector(
                         ".actions-poussiniere"
                     );
 
- if (
-    administrateur
-    &&
-    celluleActions
-) {
+                if (
+                    administrateur
+                    &&
+                    celluleActions
+                ) {
 
-    /* =========================
-       BOUTON MODIFIER
-       ========================= */
+                    /* =========================
+                       BOUTON MODIFIER
+                       ========================= */
 
-    const boutonModifier =
-        document.createElement(
-            "button"
-        );
+                    const boutonModifier =
+                        document.createElement(
+                            "button"
+                        );
 
-    boutonModifier.type =
-        "button";
+                    boutonModifier.type =
+                        "button";
 
-    boutonModifier.className =
-        "btn btn-sm btn-primary me-1";
+                    boutonModifier.className =
+                        "btn btn-sm btn-primary me-1";
 
-    boutonModifier.innerHTML = `
-        <i class="fa-solid fa-pen-to-square"></i>
-        Modifier
-    `;
+                    boutonModifier.innerHTML = `
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Modifier
+                    `;
 
-    boutonModifier.addEventListener(
-        "click",
-        function () {
+                    boutonModifier.addEventListener(
+                        "click",
+                        function () {
 
-            modifierLotPoussiniere(
-                lot.id
-            );
+                            modifierLotPoussiniere(
+                                lot.id
+                            );
 
-        }
-    );
+                        }
+                    );
 
-    celluleActions.appendChild(
-        boutonModifier
-    );
+                    celluleActions.appendChild(
+                        boutonModifier
+                    );
 
 
-    /* =========================
-       BOUTON SUPPRIMER
-       ========================= */
+                    /* =========================
+                       BOUTON SUPPRIMER
+                       ========================= */
 
-    const boutonSupprimer =
-        document.createElement(
-            "button"
-        );
+                    const boutonSupprimer =
+                        document.createElement(
+                            "button"
+                        );
 
-    boutonSupprimer.type =
-        "button";
+                    boutonSupprimer.type =
+                        "button";
 
-    boutonSupprimer.className =
-        "btn btn-sm btn-danger";
+                    boutonSupprimer.className =
+                        "btn btn-sm btn-danger";
 
-    boutonSupprimer.innerHTML = `
-        <i class="fa-solid fa-trash"></i>
-        Supprimer
-    `;
+                    boutonSupprimer.innerHTML = `
+                        <i class="fa-solid fa-trash"></i>
+                        Supprimer
+                    `;
 
-    boutonSupprimer.addEventListener(
-        "click",
-        function () {
+                    boutonSupprimer.addEventListener(
+                        "click",
+                        function () {
 
-            supprimerLotPoussiniere(
-                lot.id
-            );
+                            supprimerLotPoussiniere(
+                                lot.id
+                            );
 
-        }
-    );
+                        }
+                    );
 
-       celluleActions.appendChild(
-        boutonSupprimer
-    );
+                    celluleActions.appendChild(
+                        boutonSupprimer
+                    );
 
-                   tableau.appendChild(
+                }
+
+                /* =========================
+                   AJOUT DE LA LIGNE
+                   ========================= */
+
+                tableau.appendChild(
                     ligne
                 );
 
