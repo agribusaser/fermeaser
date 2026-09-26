@@ -3886,10 +3886,12 @@ function chargerPoussiniere() {
         boutonSupprimer
     );
 
-    tableau.appendChild(
-        ligne
-    );
+                   tableau.appendChild(
+                    ligne
+                );
 
+            }
+        );
 }
     
 function ouvrirFormulairePoussiniere() {
