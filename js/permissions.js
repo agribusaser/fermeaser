@@ -260,6 +260,70 @@ function appliquerPermissionsMenuERP() {
 }
 
 /* =========================================================
+   APPLIQUER LES PERMISSIONS AU MENU
+   ========================================================= */
+
+function appliquerPermissionsMenuERP() {
+
+    console.log("Application des permissions au menu...");
+
+    const elementsMenu = document.querySelectorAll(
+        ".sidebar li[data-module]"
+    );
+
+    const role = obtenirRoleERP();
+
+    console.log("Rôle détecté :", role);
+
+    elementsMenu.forEach(function(element) {
+
+        const module = element.getAttribute("data-module");
+
+        /*
+         * L'ADMINISTRATEUR A ACCÈS À TOUS LES MODULES
+         */
+        if (
+            role &&
+            role.toLowerCase() === "administrateur"
+        ) {
+
+            element.style.display = "";
+
+            console.log(
+                "ADMIN → accès autorisé :",
+                module
+            );
+
+            return;
+        }
+
+        /*
+         * AUTRES RÔLES :
+         * on applique les permissions enregistrées
+         */
+        const autorise = aPermission(
+            module,
+            "voir"
+        );
+
+        if (autorise) {
+
+            element.style.display = "";
+
+        } else {
+
+            element.style.display = "none";
+
+        }
+
+    });
+
+    console.log(
+        "Permissions du menu appliquées."
+    );
+}
+
+/* =========================================================
    EXPORT GLOBAL
    ========================================================= */
 
