@@ -947,7 +947,7 @@ function initialiserGraphiqueProduits() {
 
 
 /* ==================================================
-   REALTIME SUPABASE
+   REALTIME SUPABASE - VERSION STABLE
 ================================================== */
 
 function initialiserTempsReel() {
@@ -956,43 +956,58 @@ function initialiserTempsReel() {
         return;
     }
 
-    console.log(
-        "Activation du temps réel Supabase..."
-    );
+    /*
+       Si un canal fonctionne déjà,
+       on ne le recrée pas.
+    */
+    if (
+        channelDashboard &&
+        realtimeConnecte
+    ) {
+        console.log(
+            "Realtime déjà connecté. Aucun nouveau canal créé."
+        );
+        return;
+    }
 
-
-    /* Supprimer ancien canal */
-
+    /*
+       Si un ancien canal existe mais est fermé,
+       on le supprime avant d'en créer un nouveau.
+    */
     if (channelDashboard) {
 
         try {
 
-            window.supabaseClient
-                .removeChannel(
-                    channelDashboard
-                );
+            window.supabaseClient.removeChannel(
+                channelDashboard
+            );
 
         } catch (error) {
 
             console.warn(
-                "Impossible de supprimer ancien canal.",
+                "Erreur suppression ancien canal :",
                 error
             );
+
         }
 
         channelDashboard = null;
     }
 
+    realtimeConnecte = false;
 
-    /* Créer nouveau canal */
+    console.log(
+        "Activation du temps réel Supabase..."
+    );
 
+    /*
+       Création d'un canal unique.
+    */
     channelDashboard =
         window.supabaseClient
             .channel(
-                "dashboard-temps-reel-v5-" +
-                Date.now()
+                "dashboard-temps-reel"
             )
-
 
             /* ==========================
                VENTES
@@ -1005,19 +1020,16 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "ventes"
                 },
-
                 async function (payload) {
 
                     console.log(
                         "REALTIME VENTES :",
-                        payload.eventType,
-                        payload
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
                 }
             )
-
 
             /* ==========================
                PRODUITS
@@ -1030,19 +1042,16 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "produits"
                 },
-
                 async function (payload) {
 
                     console.log(
                         "REALTIME PRODUITS :",
-                        payload.eventType,
-                        payload
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
                 }
             )
-
 
             /* ==========================
                CLIENTS
@@ -1055,22 +1064,19 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "clients"
                 },
-
                 async function (payload) {
 
                     console.log(
                         "REALTIME CLIENTS :",
-                        payload.eventType,
-                        payload
+                        payload.eventType
                     );
 
                     await actualiserDashboard();
                 }
             )
 
-
             /* ==========================
-               JOURNAL
+               JOURNAL ACTIONS
             ========================== */
 
             .on(
@@ -1080,7 +1086,6 @@ function initialiserTempsReel() {
                     schema: "public",
                     table: "journal_actions"
                 },
-
                 async function (payload) {
 
                     console.log(
@@ -1091,7 +1096,6 @@ function initialiserTempsReel() {
                     await chargerActivites();
                 }
             )
-
 
             /* ==========================
                SOUSCRIPTION
@@ -1113,52 +1117,75 @@ function initialiserTempsReel() {
                         );
                     }
 
-
+                    /*
+                       Connexion réussie
+                    */
                     if (
                         status === "SUBSCRIBED"
                     ) {
+
+                        realtimeConnecte = true;
+                        reconnexionEnCours = false;
 
                         console.log(
                             "✓ Realtime Dashboard connecté."
                         );
 
-                        reconnexionEnCours = false;
+                        return;
                     }
 
-
+                    /*
+                       Erreur de canal
+                    */
                     if (
                         status === "CHANNEL_ERROR"
                     ) {
+
+                        realtimeConnecte = false;
 
                         console.warn(
                             "⚠ Realtime : CHANNEL_ERROR"
                         );
 
                         programmerReconnexionRealtime();
+
+                        return;
                     }
 
-
+                    /*
+                       Délai dépassé
+                    */
                     if (
                         status === "TIMED_OUT"
                     ) {
+
+                        realtimeConnecte = false;
 
                         console.warn(
                             "⚠ Realtime : TIMED_OUT"
                         );
 
                         programmerReconnexionRealtime();
+
+                        return;
                     }
 
-
+                    /*
+                       Canal fermé
+                    */
                     if (
                         status === "CLOSED"
                     ) {
+
+                        realtimeConnecte = false;
 
                         console.warn(
                             "⚠ Realtime : canal fermé."
                         );
 
                         programmerReconnexionRealtime();
+
+                        return;
                     }
                 }
             );
@@ -1166,15 +1193,29 @@ function initialiserTempsReel() {
 
 
 /* ==================================================
-   RECONNEXION REALTIME
+   RECONNEXION REALTIME - VERSION STABLE
 ================================================== */
 
 function programmerReconnexionRealtime() {
 
+    /*
+       Une seule reconnexion à la fois.
+    */
     if (reconnexionEnCours) {
         return;
     }
 
+    /*
+       Si le Realtime fonctionne déjà,
+       aucune reconnexion nécessaire.
+    */
+    if (realtimeConnecte) {
+        return;
+    }
+
+    /*
+       Pas d'Internet.
+    */
     if (!navigator.onLine) {
 
         console.log(
@@ -1190,7 +1231,9 @@ function programmerReconnexionRealtime() {
         "Reconnexion Realtime programmée..."
     );
 
-
+    /*
+       Annuler un ancien timer.
+    */
     if (timerReconnexion) {
 
         clearTimeout(
@@ -1198,12 +1241,15 @@ function programmerReconnexionRealtime() {
         );
     }
 
-
+    /*
+       Attendre 5 secondes avant
+       de tenter une nouvelle connexion.
+    */
     timerReconnexion =
         setTimeout(
             async function () {
 
-                reconnexionEnCours = false;
+                timerReconnexion = null;
 
                 console.log(
                     "Tentative de reconnexion Realtime..."
@@ -1215,21 +1261,26 @@ function programmerReconnexionRealtime() {
                 if (!sessionOK) {
 
                     console.warn(
-                        "Session indisponible."
+                        "Session Supabase indisponible."
                     );
+
+                    reconnexionEnCours = false;
 
                     return;
                 }
 
+                /*
+                   Nouvelle tentative.
+                */
+                reconnexionEnCours = false;
+
                 initialiserTempsReel();
 
-                await actualiserDashboard();
-
             },
-            2000
+            5000
         );
 }
-
+            
 
 /* ==================================================
    ACTUALISATION DASHBOARD
