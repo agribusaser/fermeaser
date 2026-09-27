@@ -2,8 +2,17 @@
     FERME ASHER ERP
     LOGIN.JS
     AUTHENTIFICATION SUPABASE
-    Version 5.0
+    Version 6.0
+
+    Connexion possible avec :
+    - Adresse e-mail
+    - Numéro de téléphone
+    - Mot de passe
+
+    Le rôle est récupéré depuis :
+    public.utilisateurs
 ====================================================*/
+
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -20,7 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function initialiserConnexion() {
 
-    const formulaire = document.getElementById("loginForm");
+    const formulaire =
+        document.getElementById("loginForm");
 
     if (!formulaire) return;
 
@@ -30,7 +40,10 @@ function initialiserConnexion() {
         e.preventDefault();
 
 
-        // Vérifier que Supabase est disponible
+        /*------------------------------------------
+            Vérifier Supabase
+        ------------------------------------------*/
+
         if (!window.supabaseClient) {
 
             alert(
@@ -45,26 +58,44 @@ function initialiserConnexion() {
         }
 
 
+        /*------------------------------------------
+            Récupérer les informations
+        ------------------------------------------*/
+
         const utilisateur =
-            document.getElementById("username").value.trim();
+            document
+                .getElementById("username")
+                .value
+                .trim();
 
         const motdepasse =
-            document.getElementById("password").value;
+            document
+                .getElementById("password")
+                .value;
 
 
-        if (utilisateur === "" || motdepasse === "") {
+        if (
+            utilisateur === "" ||
+            motdepasse === ""
+        ) {
 
             alert(
-                "Veuillez remplir tous les champs."
+                "Veuillez saisir votre e-mail ou numéro de téléphone et votre mot de passe."
             );
 
             return;
         }
 
 
-        // Désactiver le bouton pendant la connexion
+        /*------------------------------------------
+            Désactiver le bouton
+        ------------------------------------------*/
+
         const bouton =
-            formulaire.querySelector("button[type='submit']");
+            formulaire.querySelector(
+                "button[type='submit']"
+            );
+
 
         if (bouton) {
 
@@ -72,24 +103,81 @@ function initialiserConnexion() {
 
             bouton.innerHTML =
                 '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
+
         }
 
 
         try {
 
-            /*------------------------------------------
-                1. CONNEXION SUPABASE AUTH
-            ------------------------------------------*/
+            /*======================================
+                1. DÉTERMINER LE TYPE D'IDENTIFIANT
+            ======================================*/
 
-            const { data, error } =
-                await window.supabaseClient.auth.signInWithPassword({
+            const estEmail =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                    .test(utilisateur);
 
-                    email: utilisateur,
 
+            let identifiantAuth = utilisateur;
+
+
+            /*======================================
+                2. SI TÉLÉPHONE
+            ======================================*/
+
+            if (!estEmail) {
+
+                const telephone =
+                    normaliserTelephone(utilisateur);
+
+
+                console.log(
+                    "Connexion avec téléphone :",
+                    telephone
+                );
+
+
+                /*
+                    Supabase Auth doit connaître
+                    ce numéro comme téléphone du compte.
+                */
+
+                identifiantAuth = telephone;
+
+            }
+
+
+            /*======================================
+                3. CONNEXION SUPABASE AUTH
+            ======================================*/
+
+            const credentials = estEmail
+
+                ? {
+                    email: identifiantAuth,
                     password: motdepasse
+                }
 
-                });
+                : {
+                    phone: identifiantAuth,
+                    password: motdepasse
+                };
 
+
+            const {
+                data,
+                error
+            } =
+                await window.supabaseClient
+                    .auth
+                    .signInWithPassword(
+                        credentials
+                    );
+
+
+            /*--------------------------------------
+                Erreur de connexion
+            --------------------------------------*/
 
             if (error) {
 
@@ -98,15 +186,21 @@ function initialiserConnexion() {
                     error
                 );
 
+
                 alert(
-                    "Adresse e-mail ou mot de passe incorrect."
+                    "E-mail ou numéro de téléphone, ou mot de passe incorrect."
                 );
 
                 return;
             }
 
 
-            const authUser = data.user;
+            /*======================================
+                4. UTILISATEUR AUTHENTIFIÉ
+            ======================================*/
+
+            const authUser =
+                data.user;
 
 
             if (!authUser) {
@@ -119,20 +213,36 @@ function initialiserConnexion() {
             }
 
 
-            /*------------------------------------------
-                2. CHERCHER LE PROFIL ERP
-            ------------------------------------------*/
+            /*======================================
+                5. RÉCUPÉRER LE PROFIL ERP
+            ======================================*/
 
-            const { data: profil, error: profilError } =
+            const {
+                data: profil,
+                error: profilError
+            } =
                 await window.supabaseClient
                     .from("utilisateurs")
                     .select("*")
-                    .eq("auth_user_id", authUser.id)
-                    .eq("actif", true)
+                    .eq(
+                        "auth_user_id",
+                        authUser.id
+                    )
+                    .eq(
+                        "actif",
+                        true
+                    )
                     .single();
 
 
-            if (profilError || !profil) {
+            /*--------------------------------------
+                Profil introuvable
+            --------------------------------------*/
+
+            if (
+                profilError ||
+                !profil
+            ) {
 
                 console.error(
                     "Profil ERP introuvable :",
@@ -140,7 +250,9 @@ function initialiserConnexion() {
                 );
 
 
-                await window.supabaseClient.auth.signOut();
+                await window.supabaseClient
+                    .auth
+                    .signOut();
 
 
                 alert(
@@ -151,26 +263,43 @@ function initialiserConnexion() {
             }
 
 
-            /*------------------------------------------
-                3. CREER LA SESSION ERP
-            ------------------------------------------*/
+            /*======================================
+                6. CRÉER LA SESSION ERP
+            ======================================*/
 
             const session = {
 
-                auth_user_id: authUser.id,
+                auth_user_id:
+                    authUser.id,
 
-                utilisateur_id: profil.id,
+                utilisateur_id:
+                    profil.id,
 
-                nom: profil.nom,
+                nom:
+                    profil.nom,
 
-                email: profil.email || authUser.email,
+                email:
+                    profil.email ||
+                    authUser.email ||
+                    "",
 
-                role: profil.role,
+                telephone:
+                    profil.telephone ||
+                    authUser.phone ||
+                    "",
 
-                connexion: new Date().toISOString()
+                role:
+                    profil.role,
+
+                connexion:
+                    new Date().toISOString()
 
             };
 
+
+            /*======================================
+                7. ENREGISTRER LA SESSION
+            ======================================*/
 
             sessionStorage.setItem(
                 "sessionERP",
@@ -179,14 +308,14 @@ function initialiserConnexion() {
 
 
             console.log(
-                "Connexion réussie :",
+                "Connexion ERP réussie :",
                 session
             );
 
 
-            /*------------------------------------------
-                4. REDIRECTION
-            ------------------------------------------*/
+            /*======================================
+                8. REDIRECTION
+            ======================================*/
 
             window.location.replace(
                 "dashboard.html"
@@ -201,6 +330,7 @@ function initialiserConnexion() {
                 "Erreur inattendue :",
                 erreur
             );
+
 
             alert(
                 "Une erreur est survenue pendant la connexion."
@@ -228,13 +358,44 @@ function initialiserConnexion() {
 
 
 /*====================================================
+    NORMALISER LE NUMÉRO DE TÉLÉPHONE
+====================================================*/
+
+function normaliserTelephone(numero) {
+
+    let telephone =
+        numero
+            .trim()
+            .replace(/\s+/g, "")
+            .replace(/-/g, "")
+            .replace(/\(/g, "")
+            .replace(/\)/g, "");
+
+
+    /*
+        Exemple :
+
+        097 000 00 00
+        devient :
+        0970000000
+
+        Si tu saisis :
+        +243970000000
+        il reste :
+        +243970000000
+    */
+
+
+    return telephone;
+
+}
+
+
+/*====================================================
     VERIFIER LA SESSION EXISTANTE
 ====================================================*/
 
 async function verifierSession() {
-
-    // Si Supabase n'est pas encore disponible,
-    // on ne bloque pas la page de connexion.
 
     if (!window.supabaseClient) {
 
@@ -248,8 +409,13 @@ async function verifierSession() {
 
     try {
 
-        const { data, error } =
-            await window.supabaseClient.auth.getSession();
+        const {
+            data,
+            error
+        } =
+            await window.supabaseClient
+                .auth
+                .getSession();
 
 
         if (error) {
@@ -270,6 +436,7 @@ async function verifierSession() {
         if (!sessionAuth) {
 
             return;
+
         }
 
 
@@ -277,26 +444,46 @@ async function verifierSession() {
             Récupérer le profil ERP
         ------------------------------------------*/
 
-        const { data: profil, error: profilError } =
+        const {
+            data: profil,
+            error: profilError
+        } =
             await window.supabaseClient
                 .from("utilisateurs")
                 .select("*")
-                .eq("auth_user_id", sessionAuth.user.id)
-                .eq("actif", true)
+                .eq(
+                    "auth_user_id",
+                    sessionAuth.user.id
+                )
+                .eq(
+                    "actif",
+                    true
+                )
                 .single();
 
 
-        if (profilError || !profil) {
+        if (
+            profilError ||
+            !profil
+        ) {
 
-            await window.supabaseClient.auth.signOut();
+            await window.supabaseClient
+                .auth
+                .signOut();
+
 
             sessionStorage.removeItem(
                 "sessionERP"
             );
 
             return;
+
         }
 
+
+        /*------------------------------------------
+            Reconstituer la session ERP
+        ------------------------------------------*/
 
         const session = {
 
@@ -310,7 +497,14 @@ async function verifierSession() {
                 profil.nom,
 
             email:
-                profil.email || sessionAuth.user.email,
+                profil.email ||
+                sessionAuth.user.email ||
+                "",
+
+            telephone:
+                profil.telephone ||
+                sessionAuth.user.phone ||
+                "",
 
             role:
                 profil.role,
@@ -328,14 +522,17 @@ async function verifierSession() {
 
 
         /*------------------------------------------
-            Si déjà connecté et sur login.html
+            Redirection si déjà connecté
         ------------------------------------------*/
 
         const page =
-            window.location.pathname.toLowerCase();
+            window.location.pathname
+                .toLowerCase();
 
 
-        if (page.endsWith("login.html")) {
+        if (
+            page.endsWith("login.html")
+        ) {
 
             window.location.replace(
                 "dashboard.html"
@@ -378,7 +575,9 @@ async function deconnexion() {
 
         if (window.supabaseClient) {
 
-            await window.supabaseClient.auth.signOut();
+            await window.supabaseClient
+                .auth
+                .signOut();
 
         }
 
@@ -408,13 +607,15 @@ async function deconnexion() {
 
 
 /*====================================================
-    UTILISATEUR CONNECTE
+    UTILISATEUR CONNECTÉ
 ====================================================*/
 
 function utilisateurConnecte() {
 
     const session =
-        sessionStorage.getItem("sessionERP");
+        sessionStorage.getItem(
+            "sessionERP"
+        );
 
 
     if (!session) {
@@ -426,7 +627,9 @@ function utilisateurConnecte() {
 
     try {
 
-        return JSON.parse(session);
+        return JSON.parse(
+            session
+        );
 
     }
 
@@ -450,5 +653,5 @@ function utilisateurConnecte() {
 ====================================================*/
 
 console.log(
-    "Ferme Asher ERP - Login.js Version 5.0 chargé."
+    "Ferme Asher ERP - Login.js Version 6.0 chargé."
 );
