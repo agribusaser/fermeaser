@@ -1,33 +1,49 @@
 "use strict";
 
 /**
- * ============================================================
+ * =========================================================
  * FERME ASHER ERP
  * js/permissions.js
  *
- * Gestion centralisée :
- * - Utilisateur connecté
- * - Rôle
- * - Permissions
- * - Accès aux modules
- * - Permissions du menu
- * ============================================================
+ * SYSTÈME CENTRAL DES RÔLES ET PERMISSIONS
+ *
+ * Rôles :
+ * - Administrateur
+ * - Agent central
+ * - Agent spécialisé
+ * - Autres rôles personnalisés
+ *
+ * Actions :
+ * - voir
+ * - ajouter
+ * - modifier
+ * - supprimer
+ * - exporter
+ * - valider
+ * =========================================================
  */
 
 
-/* ============================================================
+/* =========================================================
    VARIABLES GLOBALES
-   ============================================================ */
+   ========================================================= */
 
 let utilisateurERP = null;
 let permissionsERP = [];
 
+let initialisationPermissionsEnCours = false;
+let permissionsInitialisees = false;
 
-/* ============================================================
-   NORMALISER UNE VALEUR
-   ============================================================ */
 
-function normaliserValeurERP(valeur) {
+/* =========================================================
+   OUTILS INTERNES
+   ========================================================= */
+
+/**
+ * Normalise un texte pour éviter les problèmes de majuscules,
+ * espaces ou accents.
+ */
+function normaliserERP(valeur) {
 
     if (valeur === null || valeur === undefined) {
         return "";
@@ -40,30 +56,74 @@ function normaliserValeurERP(valeur) {
 }
 
 
-/* ============================================================
+/**
+ * Vérifie si Supabase est disponible.
+ */
+function supabaseDisponibleERP() {
+
+    return (
+        window.supabaseClient &&
+        typeof window.supabaseClient.from === "function"
+    );
+
+}
+
+
+/**
+ * Attendre que Supabase soit disponible.
+ *
+ * Utile lorsque permissions.js est chargé avant supabase.js.
+ */
+async function attendreSupabaseERP(
+    tentatives = 50,
+    delai = 100
+) {
+
+    for (let i = 0; i < tentatives; i++) {
+
+        if (supabaseDisponibleERP()) {
+            return true;
+        }
+
+        await new Promise(function(resolve) {
+            setTimeout(resolve, delai);
+        });
+
+    }
+
+    return false;
+
+}
+
+
+/* =========================================================
    CHARGER L'UTILISATEUR CONNECTÉ
-   ============================================================ */
+   ========================================================= */
 
 async function chargerUtilisateurERP() {
 
     try {
 
-        if (!window.supabaseClient) {
+        const disponible = await attendreSupabaseERP();
+
+        if (!disponible) {
 
             console.error(
-                "❌ Supabase n'est pas disponible."
+                "FERME ASHER ERP : Supabase n'est pas disponible."
             );
+
+            utilisateurERP = null;
 
             return null;
         }
 
 
-        /* ----------------------------------------------------
-           RÉCUPÉRER L'UTILISATEUR SUPABASE AUTH
-           ---------------------------------------------------- */
+        /* -------------------------------------------------
+           UTILISATEUR AUTHENTIFIÉ SUPABASE
+           ------------------------------------------------- */
 
         const {
-            data: { user },
+            data: authData,
             error: authError
         } = await window.supabaseClient.auth.getUser();
 
@@ -71,27 +131,34 @@ async function chargerUtilisateurERP() {
         if (authError) {
 
             console.error(
-                "❌ Erreur Auth Supabase :",
+                "Erreur Supabase Auth :",
                 authError
             );
 
+            utilisateurERP = null;
+
             return null;
         }
+
+
+        const user = authData?.user;
 
 
         if (!user) {
 
             console.warn(
-                "⚠️ Aucun utilisateur Supabase connecté."
+                "FERME ASHER ERP : aucun utilisateur Supabase connecté."
             );
+
+            utilisateurERP = null;
 
             return null;
         }
 
 
-        /* ----------------------------------------------------
-           CHERCHER LE PROFIL DANS utilisateurs
-           ---------------------------------------------------- */
+        /* -------------------------------------------------
+           CHARGER LE PROFIL ERP
+           ------------------------------------------------- */
 
         const {
             data,
@@ -101,15 +168,18 @@ async function chargerUtilisateurERP() {
             .select("*")
             .eq("auth_user_id", user.id)
             .eq("actif", true)
+            .limit(1)
             .maybeSingle();
 
 
         if (error) {
 
             console.error(
-                "❌ Erreur chargement profil utilisateur :",
+                "Erreur lors du chargement du profil utilisateur ERP :",
                 error
             );
+
+            utilisateurERP = null;
 
             return null;
         }
@@ -118,29 +188,47 @@ async function chargerUtilisateurERP() {
         if (!data) {
 
             console.warn(
-                "⚠️ Aucun profil ERP actif trouvé pour :",
-                user.email
+                "Aucun profil ERP actif trouvé pour l'utilisateur connecté."
             );
+
+            utilisateurERP = null;
 
             return null;
         }
 
 
-        /* ----------------------------------------------------
+        /* -------------------------------------------------
            STOCKER L'UTILISATEUR
-           ---------------------------------------------------- */
+           ------------------------------------------------- */
 
         utilisateurERP = data;
 
 
         console.log(
-            "✅ Utilisateur ERP connecté :",
+            "=========================================="
+        );
+
+        console.log(
+            "FERME ASHER ERP"
+        );
+
+        console.log(
+            "Utilisateur connecté :",
             utilisateurERP.nom
         );
 
         console.log(
-            "✅ Rôle ERP :",
+            "Rôle :",
             utilisateurERP.role
+        );
+
+        console.log(
+            "Statut :",
+            utilisateurERP.actif ? "Actif" : "Inactif"
+        );
+
+        console.log(
+            "=========================================="
         );
 
 
@@ -150,9 +238,11 @@ async function chargerUtilisateurERP() {
     } catch (error) {
 
         console.error(
-            "❌ Exception chargerUtilisateurERP :",
+            "Erreur chargerUtilisateurERP() :",
             error
         );
+
+        utilisateurERP = null;
 
         return null;
     }
@@ -160,17 +250,34 @@ async function chargerUtilisateurERP() {
 }
 
 
-/* ============================================================
+/* =========================================================
    CHARGER LES PERMISSIONS DU RÔLE
-   ============================================================ */
+   ========================================================= */
 
 async function chargerPermissionsERP() {
 
     try {
 
-        /* ----------------------------------------------------
+        if (!supabaseDisponibleERP()) {
+
+            const disponible = await attendreSupabaseERP();
+
+            if (!disponible) {
+
+                console.error(
+                    "Supabase indisponible pour charger les permissions."
+                );
+
+                permissionsERP = [];
+
+                return [];
+            }
+        }
+
+
+        /* -------------------------------------------------
            S'ASSURER QUE L'UTILISATEUR EST CHARGÉ
-           ---------------------------------------------------- */
+           ------------------------------------------------- */
 
         if (!utilisateurERP) {
 
@@ -180,37 +287,21 @@ async function chargerPermissionsERP() {
 
         if (!utilisateurERP) {
 
-            console.warn(
-                "⚠️ Impossible de charger les permissions : utilisateur absent."
-            );
-
             permissionsERP = [];
 
             return [];
         }
 
 
-        if (!window.supabaseClient) {
-
-            console.error(
-                "❌ Supabase n'est pas disponible."
-            );
-
-            permissionsERP = [];
-
-            return [];
-        }
-
-
-        /* ----------------------------------------------------
+        /* -------------------------------------------------
            ADMINISTRATEUR
            
-           Les permissions administrateur sont normalement
-           présentes dans role_permissions.
-           
-           On les charge quand même pour garder un système
-           cohérent.
-           ---------------------------------------------------- */
+           On charge quand même les permissions présentes
+           dans la base pour garder le système cohérent.
+           ------------------------------------------------- */
+
+        const roleUtilisateur = utilisateurERP.role;
+
 
         const {
             data,
@@ -220,20 +311,14 @@ async function chargerPermissionsERP() {
             .select(
                 "module, action, autorise"
             )
-            .eq(
-                "role",
-                utilisateurERP.role
-            )
-            .eq(
-                "autorise",
-                true
-            );
+            .eq("role", roleUtilisateur)
+            .eq("autorise", true);
 
 
         if (error) {
 
             console.error(
-                "❌ Erreur chargement permissions :",
+                "Erreur lors du chargement des permissions :",
                 error
             );
 
@@ -249,7 +334,7 @@ async function chargerPermissionsERP() {
 
 
         console.log(
-            "✅ Permissions chargées :",
+            "Permissions chargées :",
             permissionsERP.length
         );
 
@@ -265,7 +350,7 @@ async function chargerPermissionsERP() {
     } catch (error) {
 
         console.error(
-            "❌ Exception chargerPermissionsERP :",
+            "Erreur chargerPermissionsERP() :",
             error
         );
 
@@ -277,87 +362,9 @@ async function chargerPermissionsERP() {
 }
 
 
-/* ============================================================
-   VÉRIFIER UNE PERMISSION
-   ============================================================ */
-
-function aPermission(module, action) {
-
-    /* ----------------------------------------------------
-       SÉCURITÉ
-       ---------------------------------------------------- */
-
-    if (!module || !action) {
-        return false;
-    }
-
-
-    /* ----------------------------------------------------
-       ADMINISTRATEUR
-       
-       L'administrateur possède tous les droits.
-       ---------------------------------------------------- */
-
-    if (estAdministrateurERP()) {
-
-        return true;
-    }
-
-
-    /* ----------------------------------------------------
-       NORMALISATION
-       
-       Exemple :
-       "Élevage" / "elevage"
-       "Voir" / "voir"
-       ---------------------------------------------------- */
-
-    const moduleRecherche = normaliserValeurERP(
-        module
-    );
-
-    const actionRecherche = normaliserValeurERP(
-        action
-    );
-
-
-    /* ----------------------------------------------------
-       RECHERCHE
-       ---------------------------------------------------- */
-
-    return permissionsERP.some(
-        function(permission) {
-
-            const modulePermission =
-                normaliserValeurERP(
-                    permission.module
-                );
-
-            const actionPermission =
-                normaliserValeurERP(
-                    permission.action
-                );
-
-
-            const autorise =
-                permission.autorise === true;
-
-
-            return (
-                modulePermission === moduleRecherche &&
-                actionPermission === actionRecherche &&
-                autorise
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
+/* =========================================================
    OBTENIR LE RÔLE
-   ============================================================ */
+   ========================================================= */
 
 function obtenirRoleERP() {
 
@@ -370,25 +377,9 @@ function obtenirRoleERP() {
 }
 
 
-/* ============================================================
-   VÉRIFIER ADMINISTRATEUR
-   ============================================================ */
-
-function estAdministrateurERP() {
-
-    const role = normaliserValeurERP(
-        obtenirRoleERP()
-    );
-
-
-    return role === "administrateur";
-
-}
-
-
-/* ============================================================
+/* =========================================================
    OBTENIR L'UTILISATEUR CONNECTÉ
-   ============================================================ */
+   ========================================================= */
 
 function obtenirUtilisateurERP() {
 
@@ -397,9 +388,109 @@ function obtenirUtilisateurERP() {
 }
 
 
-/* ============================================================
-   VÉRIFIER SI L'UTILISATEUR PEUT VOIR UN MODULE
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER ADMINISTRATEUR
+   ========================================================= */
+
+function estAdministrateurERP() {
+
+    const role = obtenirRoleERP();
+
+    return (
+        normaliserERP(role) ===
+        "administrateur"
+    );
+
+}
+
+
+/* =========================================================
+   VÉRIFIER UNE PERMISSION
+   ========================================================= */
+
+/**
+ * Exemple :
+ *
+ * aPermission("Ventes", "voir")
+ * aPermission("Ventes", "ajouter")
+ * aPermission("Ventes", "modifier")
+ * aPermission("Ventes", "supprimer")
+ * aPermission("Ventes", "exporter")
+ * aPermission("Ventes", "valider")
+ *
+ * Retourne true ou false.
+ */
+
+function aPermission(module, action) {
+
+    /* -------------------------------------------------
+       AUCUN UTILISATEUR
+       ------------------------------------------------- */
+
+    if (!utilisateurERP) {
+
+        return false;
+    }
+
+
+    /* -------------------------------------------------
+       ADMINISTRATEUR
+       
+       L'administrateur possède tous les droits.
+       ------------------------------------------------- */
+
+    if (estAdministrateurERP()) {
+
+        return true;
+    }
+
+
+    /* -------------------------------------------------
+       NORMALISER LES VALEURS
+       ------------------------------------------------- */
+
+    const moduleRecherche = normaliserERP(
+        module
+    );
+
+    const actionRecherche = normaliserERP(
+        action
+    );
+
+
+    /* -------------------------------------------------
+       RECHERCHER LA PERMISSION
+       ------------------------------------------------- */
+
+    return permissionsERP.some(
+        function(permission) {
+
+            const modulePermission =
+                normaliserERP(
+                    permission.module
+                );
+
+            const actionPermission =
+                normaliserERP(
+                    permission.action
+                );
+
+
+            return (
+                modulePermission === moduleRecherche &&
+                actionPermission === actionRecherche &&
+                permission.autorise === true
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   VÉRIFIER L'ACCÈS À UN MODULE
+   ========================================================= */
 
 function peutVoirModuleERP(module) {
 
@@ -411,9 +502,9 @@ function peutVoirModuleERP(module) {
 }
 
 
-/* ============================================================
-   VÉRIFIER AJOUTER
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER AJOUT
+   ========================================================= */
 
 function peutAjouterERP(module) {
 
@@ -425,9 +516,9 @@ function peutAjouterERP(module) {
 }
 
 
-/* ============================================================
-   VÉRIFIER MODIFIER
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER MODIFICATION
+   ========================================================= */
 
 function peutModifierERP(module) {
 
@@ -439,9 +530,9 @@ function peutModifierERP(module) {
 }
 
 
-/* ============================================================
-   VÉRIFIER SUPPRIMER
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER SUPPRESSION
+   ========================================================= */
 
 function peutSupprimerERP(module) {
 
@@ -453,9 +544,9 @@ function peutSupprimerERP(module) {
 }
 
 
-/* ============================================================
-   VÉRIFIER EXPORTER
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER EXPORT
+   ========================================================= */
 
 function peutExporterERP(module) {
 
@@ -467,9 +558,9 @@ function peutExporterERP(module) {
 }
 
 
-/* ============================================================
-   VÉRIFIER VALIDER
-   ============================================================ */
+/* =========================================================
+   VÉRIFIER VALIDATION
+   ========================================================= */
 
 function peutValiderERP(module) {
 
@@ -481,50 +572,20 @@ function peutValiderERP(module) {
 }
 
 
-/* ============================================================
-   MASQUER / AFFICHER UN ÉLÉMENT
-   ============================================================ */
-
-function appliquerVisibilitePermissionERP(
-    element,
-    module,
-    action = "voir"
-) {
-
-    if (!element) {
-        return;
-    }
-
-
-    const autorise = aPermission(
-        module,
-        action
-    );
-
-
-    if (autorise) {
-
-        element.style.display = "";
-
-    } else {
-
-        element.style.display = "none";
-
-    }
-
-}
-
-
-/* ============================================================
+/* =========================================================
    APPLIQUER LES PERMISSIONS AU MENU
-   ============================================================ */
+   ========================================================= */
 
 function appliquerPermissionsMenuERP() {
 
     console.log(
-        "🔐 Application des permissions au menu..."
+        "Application des permissions au menu..."
     );
 
+
+    /* -------------------------------------------------
+       RECHERCHER LES ÉLÉMENTS DU MENU
+       ------------------------------------------------- */
 
     const elementsMenu =
         document.querySelectorAll(
@@ -532,32 +593,28 @@ function appliquerPermissionsMenuERP() {
         );
 
 
-    const role = obtenirRoleERP();
-
-
-    console.log(
-        "👤 Rôle détecté :",
-        role
-    );
-
-
-    /* ----------------------------------------------------
-       SI AUCUN MENU
-       ---------------------------------------------------- */
-
     if (!elementsMenu.length) {
 
         console.warn(
-            "⚠️ Aucun élément de menu data-module trouvé."
+            "Aucun élément de menu data-module trouvé."
         );
 
         return;
     }
 
 
-    /* ----------------------------------------------------
-       TRAITER CHAQUE MODULE
-       ---------------------------------------------------- */
+    const role = obtenirRoleERP();
+
+
+    console.log(
+        "Rôle détecté :",
+        role
+    );
+
+
+    /* -------------------------------------------------
+       PARCOURIR LES MODULES
+       ------------------------------------------------- */
 
     elementsMenu.forEach(
         function(element) {
@@ -573,26 +630,23 @@ function appliquerPermissionsMenuERP() {
             }
 
 
-            /* ------------------------------------------------
+            /* -----------------------------------------
                ADMINISTRATEUR
-               ------------------------------------------------ */
+               ----------------------------------------- */
 
-            if (estAdministrateurERP()) {
+            if (
+                estAdministrateurERP()
+            ) {
 
                 element.style.display = "";
-
-                console.log(
-                    "🟢 ADMIN → accès autorisé :",
-                    module
-                );
 
                 return;
             }
 
 
-            /* ------------------------------------------------
+            /* -----------------------------------------
                AUTRES RÔLES
-               ------------------------------------------------ */
+               ----------------------------------------- */
 
             const autorise =
                 peutVoirModuleERP(
@@ -604,19 +658,9 @@ function appliquerPermissionsMenuERP() {
 
                 element.style.display = "";
 
-                console.log(
-                    "🟢 Accès autorisé :",
-                    module
-                );
-
             } else {
 
                 element.style.display = "none";
-
-                console.log(
-                    "🔴 Accès refusé :",
-                    module
-                );
 
             }
 
@@ -625,38 +669,33 @@ function appliquerPermissionsMenuERP() {
 
 
     console.log(
-        "✅ Permissions du menu appliquées."
+        "Permissions du menu appliquées."
     );
 
 }
 
 
-/* ============================================================
-   ACTIVER / DÉSACTIVER LES BOUTONS D'ACTION
-   ============================================================ */
+/* =========================================================
+   APPLIQUER LES PERMISSIONS AUX BOUTONS
+   ========================================================= */
 
-function appliquerPermissionsActionsERP() {
+/**
+ * Cette fonction permet plus tard de contrôler
+ * automatiquement les boutons :
+ *
+ * data-module="Ventes"
+ * data-action="modifier"
+ *
+ * Exemple :
+ *
+ * <button
+ *     data-module="Ventes"
+ *     data-action="modifier">
+ *     Modifier
+ * </button>
+ */
 
-    console.log(
-        "🔐 Application des permissions aux actions..."
-    );
-
-
-    /*
-     * Les boutons peuvent utiliser :
-     *
-     * data-module="Ventes"
-     * data-action="ajouter"
-     *
-     * Exemple :
-     *
-     * <button
-     *   data-module="Ventes"
-     *   data-action="supprimer">
-     *   Supprimer
-     * </button>
-     */
-
+function appliquerPermissionsBoutonsERP() {
 
     const elements =
         document.querySelectorAll(
@@ -672,12 +711,32 @@ function appliquerPermissionsActionsERP() {
                     "data-module"
                 );
 
-
             const action =
                 element.getAttribute(
                     "data-action"
                 );
 
+
+            if (!module || !action) {
+                return;
+            }
+
+
+            /* ADMINISTRATEUR */
+
+            if (
+                estAdministrateurERP()
+            ) {
+
+                element.style.display = "";
+
+                element.disabled = false;
+
+                return;
+            }
+
+
+            /* AUTRES RÔLES */
 
             const autorise =
                 aPermission(
@@ -703,36 +762,219 @@ function appliquerPermissionsActionsERP() {
         }
     );
 
+}
 
-    console.log(
-        "✅ Permissions des actions appliquées."
-    );
+
+/* =========================================================
+   APPLIQUER TOUTES LES PERMISSIONS
+   ========================================================= */
+
+function appliquerToutesPermissionsERP() {
+
+    appliquerPermissionsMenuERP();
+
+    appliquerPermissionsBoutonsERP();
 
 }
 
 
-/* ============================================================
-   INITIALISER LE SYSTÈME DE PERMISSIONS
-   ============================================================ */
+/* =========================================================
+   INITIALISATION DU SYSTÈME
+   ========================================================= */
 
 async function initialiserPermissionsERP() {
 
-    console.log(
-        "=========================================="
-    );
+    /* -------------------------------------------------
+       ÉVITER LES INITIALISATIONS MULTIPLES
+       ------------------------------------------------- */
+
+    if (initialisationPermissionsEnCours) {
+
+        console.warn(
+            "Initialisation des permissions déjà en cours."
+        );
+
+        return false;
+    }
+
+
+    if (permissionsInitialisees) {
+
+        console.log(
+            "Permissions ERP déjà initialisées."
+        );
+
+        appliquerToutesPermissionsERP();
+
+        return true;
+    }
+
+
+    initialisationPermissionsEnCours = true;
+
+
+    try {
+
+        console.log(
+            "=========================================="
+        );
+
+        console.log(
+            "INITIALISATION PERMISSIONS FERME ASHER ERP"
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        /* -------------------------------------------------
+           ATTENDRE SUPABASE
+           ------------------------------------------------- */
+
+        const supabasePret =
+            await attendreSupabaseERP();
+
+
+        if (!supabasePret) {
+
+            console.error(
+                "Impossible d'initialiser les permissions : Supabase indisponible."
+            );
+
+            return false;
+        }
+
+
+        /* -------------------------------------------------
+           CHARGER UTILISATEUR
+           ------------------------------------------------- */
+
+        const utilisateur =
+            await chargerUtilisateurERP();
+
+
+        if (!utilisateur) {
+
+            console.warn(
+                "Impossible d'initialiser les permissions : utilisateur introuvable."
+            );
+
+            return false;
+        }
+
+
+        /* -------------------------------------------------
+           CHARGER PERMISSIONS
+           ------------------------------------------------- */
+
+        await chargerPermissionsERP();
+
+
+        /* -------------------------------------------------
+           APPLIQUER MENU + BOUTONS
+           ------------------------------------------------- */
+
+        appliquerToutesPermissionsERP();
+
+
+        /* -------------------------------------------------
+           ACTUALISER LA POUSSINIÈRE SI LA FONCTION EXISTE
+           ------------------------------------------------- */
+
+        if (
+            typeof window.chargerPoussiniere ===
+            "function"
+        ) {
+
+            try {
+
+                await window.chargerPoussiniere();
+
+            } catch (error) {
+
+                console.warn(
+                    "Impossible d'actualiser la poussinière :",
+                    error
+                );
+
+            }
+
+        }
+
+
+        permissionsInitialisees = true;
+
+
+        console.log(
+            "=========================================="
+        );
+
+        console.log(
+            "SYSTÈME DE PERMISSIONS PRÊT"
+        );
+
+        console.log(
+            "Utilisateur :",
+            utilisateurERP.nom
+        );
+
+        console.log(
+            "Rôle :",
+            utilisateurERP.role
+        );
+
+        console.log(
+            "Permissions :",
+            permissionsERP.length
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur initialiserPermissionsERP() :",
+            error
+        );
+
+        return false;
+
+
+    } finally {
+
+        initialisationPermissionsEnCours =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   RECHARGER LES PERMISSIONS
+   ========================================================= */
+
+/**
+ * Fonction utile lorsqu'un administrateur modifie
+ * les permissions d'un rôle.
+ */
+
+async function rechargerPermissionsERP() {
 
     console.log(
-        "🔐 INITIALISATION DES PERMISSIONS ERP"
-    );
-
-    console.log(
-        "=========================================="
+        "Rechargement des permissions ERP..."
     );
 
 
-    /* ----------------------------------------------------
-       1. CHARGER UTILISATEUR
-       ---------------------------------------------------- */
+    permissionsInitialisees = false;
+
 
     const utilisateur =
         await chargerUtilisateurERP();
@@ -740,93 +982,21 @@ async function initialiserPermissionsERP() {
 
     if (!utilisateur) {
 
-        console.warn(
-            "⚠️ Impossible d'initialiser les permissions."
-        );
-
         return false;
     }
 
 
-    /* ----------------------------------------------------
-       2. CHARGER PERMISSIONS
-       ---------------------------------------------------- */
-
     await chargerPermissionsERP();
 
 
-    /* ----------------------------------------------------
-       3. APPLIQUER MENU
-       ---------------------------------------------------- */
-
-    appliquerPermissionsMenuERP();
+    appliquerToutesPermissionsERP();
 
 
-    /* ----------------------------------------------------
-       4. APPLIQUER ACTIONS
-       ---------------------------------------------------- */
+    permissionsInitialisees = true;
 
-    appliquerPermissionsActionsERP();
-
-
-    /* ----------------------------------------------------
-       5. CHARGER POUSSINIÈRE SI DISPONIBLE
-       ---------------------------------------------------- */
-
-    if (
-        typeof window.chargerPoussiniere === "function"
-    ) {
-
-        try {
-
-            await window.chargerPoussiniere();
-
-        } catch (error) {
-
-            console.warn(
-                "⚠️ Erreur chargement poussinière :",
-                error
-            );
-
-        }
-
-    }
-
-
-    /* ----------------------------------------------------
-       6. INFORMATIONS CONSOLE
-       ---------------------------------------------------- */
 
     console.log(
-        "=========================================="
-    );
-
-    console.log(
-        "✅ SYSTÈME DE PERMISSIONS PRÊT"
-    );
-
-    console.log(
-        "Utilisateur :",
-        utilisateurERP.nom
-    );
-
-    console.log(
-        "Rôle :",
-        utilisateurERP.role
-    );
-
-    console.log(
-        "Nombre de permissions :",
-        permissionsERP.length
-    );
-
-    console.log(
-        "Administrateur :",
-        estAdministrateurERP()
-    );
-
-    console.log(
-        "=========================================="
+        "Permissions ERP rechargées."
     );
 
 
@@ -835,9 +1005,9 @@ async function initialiserPermissionsERP() {
 }
 
 
-/* ============================================================
+/* =========================================================
    EXPORTS GLOBAUX
-   ============================================================ */
+   ========================================================= */
 
 window.chargerUtilisateurERP =
     chargerUtilisateurERP;
@@ -875,33 +1045,74 @@ window.peutExporterERP =
 window.peutValiderERP =
     peutValiderERP;
 
-window.appliquerVisibilitePermissionERP =
-    appliquerVisibilitePermissionERP;
-
 window.appliquerPermissionsMenuERP =
     appliquerPermissionsMenuERP;
 
-window.appliquerPermissionsActionsERP =
-    appliquerPermissionsActionsERP;
+window.appliquerPermissionsBoutonsERP =
+    appliquerPermissionsBoutonsERP;
+
+window.appliquerToutesPermissionsERP =
+    appliquerToutesPermissionsERP;
 
 window.initialiserPermissionsERP =
     initialiserPermissionsERP;
 
+window.rechargerPermissionsERP =
+    rechargerPermissionsERP;
 
-/* ============================================================
+
+/* =========================================================
    DÉMARRAGE AUTOMATIQUE
-   ============================================================ */
+   ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async function() {
+function demarrerPermissionsERP() {
 
-        console.log(
-            "📋 DOM chargé → démarrage permissions ERP..."
-        );
+    initialiserPermissionsERP()
+        .then(function(resultat) {
+
+            if (resultat) {
+
+                console.log(
+                    "FERME ASHER ERP : permissions initialisées avec succès."
+                );
+
+            } else {
+
+                console.warn(
+                    "FERME ASHER ERP : initialisation des permissions non terminée."
+                );
+
+            }
+
+        })
+        .catch(function(error) {
+
+            console.error(
+                "Erreur au démarrage du système de permissions :",
+                error
+            );
+
+        });
+
+}
 
 
-        await initialiserPermissionsERP();
+/* =========================================================
+   DOM READY
+   ========================================================= */
 
-    }
-);
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        demarrerPermissionsERP
+    );
+
+} else {
+
+    demarrerPermissionsERP();
+
+}
