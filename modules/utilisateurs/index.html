@@ -1,24 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Gestion des utilisateurs - Ferme Asher ERP</title>
 
-    <!-- Bootstrap -->
+
+    <!-- =====================================================
+         BOOTSTRAP
+    ====================================================== -->
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
-    <!-- Font Awesome -->
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
+
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
+
+    <!-- =====================================================
+         STYLE
+    ====================================================== -->
+
     <style>
+
         body {
             background: #f4f7f5;
             font-family: Arial, sans-serif;
@@ -88,6 +105,7 @@
             align-items: center;
             justify-content: center;
             margin-right: 10px;
+            flex-shrink: 0;
         }
 
         .loading {
@@ -113,140 +131,282 @@
         .required {
             color: red;
         }
+
+        .connection-status {
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container-fluid p-4">
 
-    <!-- EN-TÊTE -->
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
 
         <div>
+
             <h2 class="page-title mb-1">
+
                 <i class="fa-solid fa-users-gear"></i>
+
                 Gestion des utilisateurs
+
             </h2>
 
             <p class="text-muted mb-0">
+
                 Gestion des comptes utilisateurs de Ferme Asher ERP
+
             </p>
+
+            <div
+                id="etatConnexion"
+                class="connection-status text-muted"
+            >
+                Vérification de la connexion...
+
+            </div>
+
         </div>
+
 
         <button
             class="btn btn-asher px-4"
             onclick="ouvrirFormulaireUtilisateur()"
         >
+
             <i class="fa-solid fa-user-plus"></i>
+
             Nouvel utilisateur
+
         </button>
 
     </div>
 
 
-    <!-- STATISTIQUES -->
+
+    <!-- =====================================================
+         STATISTIQUES
+    ====================================================== -->
+
     <div class="row g-3 mb-4">
 
+
+        <!-- TOTAL -->
+
         <div class="col-md-4">
+
             <div class="card p-3">
+
                 <div class="d-flex align-items-center">
+
                     <div class="user-icon">
+
                         <i class="fa-solid fa-users"></i>
+
                     </div>
 
                     <div>
-                        <small class="text-muted">Total utilisateurs</small>
-                        <h4 id="totalUtilisateurs" class="mb-0">0</h4>
+
+                        <small class="text-muted">
+                            Total utilisateurs
+                        </small>
+
+                        <h4
+                            id="totalUtilisateurs"
+                            class="mb-0"
+                        >
+                            0
+                        </h4>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
 
 
+
+        <!-- ACTIFS -->
+
         <div class="col-md-4">
+
             <div class="card p-3">
+
                 <div class="d-flex align-items-center">
+
                     <div class="user-icon">
+
                         <i class="fa-solid fa-user-check"></i>
+
                     </div>
 
                     <div>
-                        <small class="text-muted">Utilisateurs actifs</small>
-                        <h4 id="utilisateursActifs" class="mb-0">0</h4>
+
+                        <small class="text-muted">
+                            Utilisateurs actifs
+                        </small>
+
+                        <h4
+                            id="utilisateursActifs"
+                            class="mb-0"
+                        >
+                            0
+                        </h4>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
 
 
+
+        <!-- INACTIFS -->
+
         <div class="col-md-4">
+
             <div class="card p-3">
+
                 <div class="d-flex align-items-center">
+
                     <div class="user-icon">
+
                         <i class="fa-solid fa-user-slash"></i>
+
                     </div>
 
                     <div>
-                        <small class="text-muted">Utilisateurs inactifs</small>
-                        <h4 id="utilisateursInactifs" class="mb-0">0</h4>
+
+                        <small class="text-muted">
+                            Utilisateurs inactifs
+                        </small>
+
+                        <h4
+                            id="utilisateursInactifs"
+                            class="mb-0"
+                        >
+                            0
+                        </h4>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
 
     </div>
 
 
-    <!-- LISTE UTILISATEURS -->
+
+    <!-- =====================================================
+         LISTE DES UTILISATEURS
+    ====================================================== -->
+
     <div class="card">
 
         <div class="card-body">
 
+
             <div class="d-flex justify-content-between align-items-center mb-3">
 
                 <h5 class="mb-0">
+
                     <i class="fa-solid fa-list"></i>
+
                     Liste des utilisateurs
+
                 </h5>
+
 
                 <button
                     class="btn btn-sm btn-outline-success"
                     onclick="chargerUtilisateurs()"
                 >
+
                     <i class="fa-solid fa-rotate"></i>
+
                     Actualiser
+
                 </button>
 
             </div>
+
 
 
             <div class="table-responsive">
 
                 <table class="table table-hover align-middle">
 
+
                     <thead>
+
                         <tr>
-                            <th>Utilisateur</th>
-                            <th>E-mail</th>
-                            <th>Téléphone</th>
-                            <th>Rôle</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
+
+                            <th>
+                                Utilisateur
+                            </th>
+
+                            <th>
+                                E-mail
+                            </th>
+
+                            <th>
+                                Téléphone
+                            </th>
+
+                            <th>
+                                Rôle
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
                         </tr>
+
                     </thead>
+
 
                     <tbody id="tableUtilisateurs">
 
                         <tr>
+
                             <td colspan="6">
+
                                 <div class="loading">
+
                                     <div class="spinner-border text-success"></div>
+
                                     <p class="mt-2 mb-0">
                                         Chargement des utilisateurs...
                                     </p>
+
                                 </div>
+
                             </td>
+
                         </tr>
 
                     </tbody>
@@ -262,9 +422,10 @@
 </div>
 
 
-<!-- ===================================================== -->
-<!-- MODAL UTILISATEUR -->
-<!-- ===================================================== -->
+
+<!-- =====================================================
+     MODAL UTILISATEUR
+====================================================== -->
 
 <div
     class="modal fade"
@@ -273,18 +434,27 @@
     aria-hidden="true"
 >
 
+
     <div class="modal-dialog modal-lg">
 
+
         <div class="modal-content">
+
+
+            <!-- HEADER -->
 
             <div class="modal-header">
 
                 <h5 class="modal-title">
+
                     <i class="fa-solid fa-user-plus"></i>
+
                     <span id="titreModal">
                         Nouvel utilisateur
                     </span>
+
                 </h5>
+
 
                 <button
                     type="button"
@@ -295,9 +465,14 @@
             </div>
 
 
+
+            <!-- BODY -->
+
             <div class="modal-body">
 
+
                 <form id="formUtilisateur">
+
 
                     <input
                         type="hidden"
@@ -307,11 +482,17 @@
 
                     <div class="row g-3">
 
+
+                        <!-- NOM -->
+
                         <div class="col-md-6">
 
                             <label class="form-label">
+
                                 Nom complet
+
                                 <span class="required">*</span>
+
                             </label>
 
                             <input
@@ -324,10 +505,15 @@
                         </div>
 
 
+
+                        <!-- TELEPHONE -->
+
                         <div class="col-md-6">
 
                             <label class="form-label">
+
                                 Téléphone
+
                             </label>
 
                             <input
@@ -339,11 +525,17 @@
                         </div>
 
 
+
+                        <!-- EMAIL -->
+
                         <div class="col-md-6">
 
                             <label class="form-label">
+
                                 E-mail
+
                                 <span class="required">*</span>
+
                             </label>
 
                             <input
@@ -356,39 +548,49 @@
                         </div>
 
 
+
+                        <!-- ROLE -->
+
                         <div class="col-md-6">
 
                             <label class="form-label">
+
                                 Rôle
+
                             </label>
 
-                           <select
-    id="roleUtilisateur"
-    class="form-select"
-    required
->
+                            <select
+                                id="roleUtilisateur"
+                                class="form-select"
+                                required
+                            >
 
-    <option value="Administrateur">
-        Administrateur
-    </option>
+                                <option value="Administrateur">
+                                    Administrateur
+                                </option>
 
-    <option value="Agent central">
-        Agent central
-    </option>
+                                <option value="Agent central">
+                                    Agent central
+                                </option>
 
-    <option value="Agent spécialisé">
-        Agent spécialisé
-    </option>
+                                <option value="Agent spécialisé">
+                                    Agent spécialisé
+                                </option>
 
-</select>
+                            </select>
 
                         </div>
 
 
+
+                        <!-- STATUT -->
+
                         <div class="col-md-6">
 
                             <label class="form-label">
+
                                 Statut
+
                             </label>
 
                             <select
@@ -408,33 +610,47 @@
 
                         </div>
 
+
                     </div>
+
 
                 </form>
 
             </div>
 
 
+
+            <!-- FOOTER -->
+
             <div class="modal-footer">
+
 
                 <button
                     type="button"
                     class="btn btn-secondary"
                     data-bs-dismiss="modal"
                 >
+
                     Annuler
+
                 </button>
+
 
                 <button
                     type="button"
                     class="btn btn-asher"
                     onclick="enregistrerUtilisateur()"
                 >
+
                     <i class="fa-solid fa-save"></i>
+
                     Enregistrer
+
                 </button>
 
+
             </div>
+
 
         </div>
 
@@ -443,494 +659,325 @@
 </div>
 
 
-<!-- Bootstrap JS -->
+
+<!-- =====================================================
+     BOOTSTRAP JS
+====================================================== -->
+
 <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
-</script>
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
 
 
-<!-- Supabase -->
-<script src="../../js/supabase.js"></script>
 
+<!-- =====================================================
+     IMPORTANT :
+     SDK SUPABASE
+     
+     DOIT ÊTRE CHARGÉ AVANT ../../js/supabase.js
+====================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+
+<!-- =====================================================
+     CONNEXION CENTRALE FERME ASHER
+====================================================== -->
+
+<script
+    src="../../js/supabase.js"
+></script>
+
+
+
+<!-- =====================================================
+     LOGIQUE UTILISATEURS
+====================================================== -->
 
 <script>
 
+"use strict";
+
+
 let utilisateurs = [];
-let modalUtilisateur;
+
+let modalUtilisateur = null;
+
 
 
 /* =====================================================
    INITIALISATION
 ===================================================== */
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
 
-    modalUtilisateur = new bootstrap.Modal(
-        document.getElementById("modalUtilisateur")
-    );
+        console.log(
+            "FERME ASHER ERP : Initialisation utilisateurs..."
+        );
 
-    await chargerUtilisateurs();
 
-});
+        const modalElement =
+            document.getElementById(
+                "modalUtilisateur"
+            );
+
+
+        if (modalElement) {
+
+            modalUtilisateur =
+                new bootstrap.Modal(
+                    modalElement
+                );
+
+        }
+
+
+        /*
+         * On laisse le temps à supabase.js
+         * de créer window.supabaseClient.
+         */
+
+        let essais = 0;
+
+        while (
+            !window.supabaseClient &&
+            essais < 20
+        ) {
+
+            await attendre(100);
+
+            essais++;
+
+        }
+
+
+        if (!window.supabaseClient) {
+
+            afficherEtatConnexion(
+                false,
+                "Connexion Supabase indisponible."
+            );
+
+            afficherErreur(
+                "Le client Supabase n'a pas pu être initialisé."
+            );
+
+            return;
+
+        }
+
+
+        afficherEtatConnexion(
+            true,
+            "Supabase connecté."
+        );
+
+
+        await chargerUtilisateurs();
+
+    }
+);
+
 
 
 /* =====================================================
-   CHARGER LES UTILISATEURS
+   ATTENDRE
+===================================================== */
+
+function attendre(ms) {
+
+    return new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
+
+}
+
+
+
+/* =====================================================
+   ETAT CONNEXION
+===================================================== */
+
+function afficherEtatConnexion(
+    connecte,
+    message
+) {
+
+    const element =
+        document.getElementById(
+            "etatConnexion"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    if (connecte) {
+
+        element.innerHTML =
+            '<i class="fa-solid fa-circle-check"></i> ' +
+            message;
+
+        element.className =
+            "connection-status text-success";
+
+    } else {
+
+        element.innerHTML =
+            '<i class="fa-solid fa-circle-xmark"></i> ' +
+            message;
+
+        element.className =
+            "connection-status text-danger";
+
+    }
+
+}
+
+
+
+/* =====================================================
+   CHARGER UTILISATEURS
 ===================================================== */
 
 async function chargerUtilisateurs() {
 
-    const tbody = document.getElementById("tableUtilisateurs");
+
+    const tbody =
+        document.getElementById(
+            "tableUtilisateurs"
+        );
+
 
     tbody.innerHTML = `
+
         <tr>
+
             <td colspan="6">
+
                 <div class="loading">
+
                     <div class="spinner-border text-success"></div>
+
                     <p class="mt-2">
                         Chargement des utilisateurs...
                     </p>
+
                 </div>
+
             </td>
+
         </tr>
+
     `;
+
+
 
     try {
 
+
+        /* -------------------------------------------------
+           VERIFICATION SUPABASE
+        ------------------------------------------------- */
+
         if (!window.supabaseClient) {
-            throw new Error("Connexion Supabase non disponible.");
+
+            throw new Error(
+                "Connexion Supabase non disponible."
+            );
+
         }
 
-        const { data, error } = await window.supabaseClient
-            .from("utilisateurs")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
 
-        if (error) {
-            throw error;
+
+        /* -------------------------------------------------
+           REQUETE PRINCIPALE
+        ------------------------------------------------- */
+
+        let resultat =
+            await window.supabaseClient
+
+                .from("utilisateurs")
+
+                .select("*")
+
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+
+        /*
+         * Si created_at n'existe pas,
+         * on recharge sans le tri.
+         */
+
+        if (
+            resultat.error &&
+            resultat.error.message &&
+            resultat.error.message
+                .toLowerCase()
+                .includes("created_at")
+        ) {
+
+            console.warn(
+                "created_at absent : nouvelle tentative sans tri."
+            );
+
+
+            resultat =
+                await window.supabaseClient
+
+                    .from("utilisateurs")
+
+                    .select("*");
+
         }
 
-        utilisateurs = data || [];
+
+
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+
+        utilisateurs =
+            resultat.data || [];
+
+
 
         afficherUtilisateurs();
 
+
     } catch (error) {
+
 
         console.error(
             "Erreur chargement utilisateurs :",
             error
         );
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    <div class="alert alert-danger m-3">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        Impossible de charger les utilisateurs.
-                        <br>
-                        <small>${escapeHtml(error.message)}</small>
-                    </div>
-                </td>
-            </tr>
-        `;
 
-    }
-
-}
-
-
-/* =====================================================
-   AFFICHER LES UTILISATEURS
-===================================================== */
-
-function afficherUtilisateurs() {
-
-    const tbody = document.getElementById("tableUtilisateurs");
-
-    document.getElementById("totalUtilisateurs").textContent =
-        utilisateurs.length;
-
-    const actifs = utilisateurs.filter(
-        utilisateur => utilisateur.actif === true
-    ).length;
-
-    document.getElementById("utilisateursActifs").textContent =
-        actifs;
-
-    document.getElementById("utilisateursInactifs").textContent =
-        utilisateurs.length - actifs;
-
-
-    if (utilisateurs.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    <div class="empty-message">
-                        <i class="fa-solid fa-users fa-2x mb-3"></i>
-
-                        <h5>
-                            Aucun utilisateur
-                        </h5>
-
-                        <p>
-                            Aucun utilisateur n'est encore enregistré.
-                        </p>
-                    </div>
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML = utilisateurs.map(utilisateur => {
-
-        const nom =
-            utilisateur.nom ||
-            "Utilisateur";
-
-        const email =
-            utilisateur.email ||
-            "-";
-
-        const telephone =
-            utilisateur.telephone ||
-            "-";
-
-        const role =
-            utilisateur.role ||
-            "Agent";
-
-        const actif =
-            utilisateur.actif === true;
-
-
-        return `
-
-            <tr>
-
-                <td>
-
-                    <div class="d-flex align-items-center">
-
-                        <div class="user-icon">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-
-                        <strong>
-                            ${escapeHtml(nom)}
-                        </strong>
-
-                    </div>
-
-                </td>
-
-
-                <td>
-                    ${escapeHtml(email)}
-                </td>
-
-
-                <td>
-                    ${escapeHtml(telephone)}
-                </td>
-
-
-                <td>
-                    <span class="badge bg-secondary">
-                        ${escapeHtml(role)}
-                    </span>
-                </td>
-
-
-                <td>
-
-                    ${
-                        actif
-
-                        ?
-
-                        `<span class="badge badge-actif">
-                            <i class="fa-solid fa-circle-check"></i>
-                            Actif
-                        </span>`
-
-                        :
-
-                        `<span class="badge badge-inactif">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                            Inactif
-                        </span>`
-                    }
-
-                </td>
-
-
-                <td>
-
-                    <button
-                        class="btn btn-sm btn-outline-primary me-1"
-                        onclick="modifierUtilisateur('${utilisateur.id}')"
-                        title="Modifier"
-                    >
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-
-
-                    <button
-                        class="btn btn-sm ${
-                            actif
-                            ? "btn-outline-danger"
-                            : "btn-outline-success"
-                        }"
-                        onclick="changerStatutUtilisateur(
-                            '${utilisateur.id}',
-                            ${actif}
-                        )"
-                        title="${
-                            actif
-                            ? "Désactiver"
-                            : "Activer"
-                        }"
-                    >
-
-                        <i class="fa-solid ${
-                            actif
-                            ? "fa-user-slash"
-                            : "fa-user-check"
-                        }"></i>
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    }).join("");
-
-}
-
-
-/* =====================================================
-   OUVRIR FORMULAIRE
-===================================================== */
-
-function ouvrirFormulaireUtilisateur() {
-
-    document.getElementById("formUtilisateur").reset();
-
-    document.getElementById("utilisateurId").value = "";
-
-    document.getElementById("titreModal").textContent =
-        "Nouvel utilisateur";
-
-    document.getElementById("actifUtilisateur").value =
-        "true";
-
-    modalUtilisateur.show();
-
-}
-
-
-/* =====================================================
-   MODIFIER UTILISATEUR
-===================================================== */
-
-function modifierUtilisateur(id) {
-
-    const utilisateur = utilisateurs.find(
-        item => item.id === id
-    );
-
-    if (!utilisateur) {
-        return;
-    }
-
-
-    document.getElementById("utilisateurId").value =
-        utilisateur.id || "";
-
-    document.getElementById("nomUtilisateur").value =
-        utilisateur.nom || "";
-
-    document.getElementById("telephoneUtilisateur").value =
-        utilisateur.telephone || "";
-
-    document.getElementById("emailUtilisateur").value =
-        utilisateur.email || "";
-
-    document.getElementById("roleUtilisateur").value =
-        utilisateur.role || "Agent";
-
-    document.getElementById("actifUtilisateur").value =
-        utilisateur.actif === true
-            ? "true"
-            : "false";
-
-
-    document.getElementById("titreModal").textContent =
-        "Modifier l'utilisateur";
-
-
-    modalUtilisateur.show();
-
-}
-
-
-/* =====================================================
-   ENREGISTRER
-===================================================== */
-
-async function enregistrerUtilisateur() {
-
-    const id =
-        document.getElementById("utilisateurId").value;
-
-    const nom =
-        document.getElementById("nomUtilisateur").value.trim();
-
-    const telephone =
-        document.getElementById("telephoneUtilisateur").value.trim();
-
-    const email =
-        document.getElementById("emailUtilisateur").value.trim();
-
-    const role =
-        document.getElementById("roleUtilisateur").value;
-
-    const actif =
-        document.getElementById("actifUtilisateur").value === "true";
-
-
-    if (!nom || !email) {
-
-        alert(
-            "Veuillez remplir le nom et l'e-mail."
-        );
-
-        return;
-    }
-
-
-    try {
-
-        const donnees = {
-            nom: nom,
-            telephone: telephone,
-            email: email,
-            role: role,
-            actif: actif
-        };
-
-
-        let resultat;
-
-
-        if (id) {
-
-            resultat =
-                await window.supabaseClient
-                    .from("utilisateurs")
-                    .update(donnees)
-                    .eq("id", id);
-
-        } else {
-
-            resultat =
-                await window.supabaseClient
-                    .from("utilisateurs")
-                    .insert([donnees]);
-
-        }
-
-
-        if (resultat.error) {
-            throw resultat.error;
-        }
-
-
-        alert(
-            id
-                ? "Utilisateur modifié avec succès."
-                : "Utilisateur enregistré avec succès."
+        afficherEtatConnexion(
+            false,
+            "Erreur de connexion ou de base de données."
         );
 
 
-        modalUtilisateur.hide();
-
-        await chargerUtilisateurs();
-
-
-    } catch (error) {
-
-        console.error(
-            "Erreur enregistrement utilisateur :",
-            error
-        );
-
-        alert(
-            "Erreur : " + error.message
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   ACTIVER / DESACTIVER
-===================================================== */
-
-async function changerStatutUtilisateur(id, statutActuel) {
-
-    const nouveauStatut = !statutActuel;
-
-    const confirmation = confirm(
-        nouveauStatut
-            ? "Voulez-vous activer cet utilisateur ?"
-            : "Voulez-vous désactiver cet utilisateur ?"
-    );
-
-
-    if (!confirmation) {
-        return;
-    }
-
-
-    try {
-
-        const { error } =
-            await window.supabaseClient
-                .from("utilisateurs")
-                .update({
-                    actif: nouveauStatut
-                })
-                .eq("id", id);
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        await chargerUtilisateurs();
-
-
-    } catch (error) {
-
-        console.error(
-            "Erreur changement statut :",
-            error
-        );
-
-        alert(
-            "Impossible de modifier le statut : " +
+        afficherErreur(
             error.message
         );
 
@@ -939,25 +986,920 @@ async function changerStatutUtilisateur(id, statutActuel) {
 }
 
 
+
 /* =====================================================
-   SECURITE AFFICHAGE
+   AFFICHER ERREUR
+===================================================== */
+
+function afficherErreur(message) {
+
+
+    const tbody =
+        document.getElementById(
+            "tableUtilisateurs"
+        );
+
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td colspan="6">
+
+                <div class="alert alert-danger m-3">
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    <strong>
+                        Impossible de charger les utilisateurs.
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        ${escapeHtml(message)}
+                    </small>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   AFFICHER UTILISATEURS
+===================================================== */
+
+function afficherUtilisateurs() {
+
+
+    const tbody =
+        document.getElementById(
+            "tableUtilisateurs"
+        );
+
+
+    /* -------------------------------------------------
+       STATISTIQUES
+    ------------------------------------------------- */
+
+    document.getElementById(
+        "totalUtilisateurs"
+    ).textContent =
+        utilisateurs.length;
+
+
+
+    const actifs =
+        utilisateurs.filter(
+            utilisateur =>
+                utilisateur.actif === true
+        ).length;
+
+
+
+    document.getElementById(
+        "utilisateursActifs"
+    ).textContent =
+        actifs;
+
+
+
+    document.getElementById(
+        "utilisateursInactifs"
+    ).textContent =
+        utilisateurs.length - actifs;
+
+
+
+    /* -------------------------------------------------
+       AUCUN UTILISATEUR
+    ------------------------------------------------- */
+
+    if (utilisateurs.length === 0) {
+
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    <div class="empty-message">
+
+                        <i
+                            class="fa-solid fa-users fa-2x mb-3"
+                        ></i>
+
+                        <h5>
+                            Aucun utilisateur
+                        </h5>
+
+                        <p>
+                            Aucun utilisateur n'est encore enregistré.
+                        </p>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        return;
+
+    }
+
+
+
+    /* -------------------------------------------------
+       AFFICHAGE
+    ------------------------------------------------- */
+
+    tbody.innerHTML =
+        utilisateurs
+            .map(
+                utilisateur => {
+
+
+                    const nom =
+                        utilisateur.nom ||
+                        "Utilisateur";
+
+
+                    const email =
+                        utilisateur.email ||
+                        "-";
+
+
+                    const telephone =
+                        utilisateur.telephone ||
+                        "-";
+
+
+                    const role =
+                        utilisateur.role ||
+                        "Agent spécialisé";
+
+
+                    const actif =
+                        utilisateur.actif === true;
+
+
+
+                    return `
+
+                        <tr>
+
+
+                            <!-- UTILISATEUR -->
+
+                            <td>
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="user-icon">
+
+                                        <i class="fa-solid fa-user"></i>
+
+                                    </div>
+
+                                    <strong>
+
+                                        ${escapeHtml(nom)}
+
+                                    </strong>
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- EMAIL -->
+
+                            <td>
+
+                                ${escapeHtml(email)}
+
+                            </td>
+
+
+
+                            <!-- TELEPHONE -->
+
+                            <td>
+
+                                ${escapeHtml(telephone)}
+
+                            </td>
+
+
+
+                            <!-- ROLE -->
+
+                            <td>
+
+                                <span class="badge bg-secondary">
+
+                                    ${escapeHtml(role)}
+
+                                </span>
+
+                            </td>
+
+
+
+                            <!-- STATUT -->
+
+                            <td>
+
+                                ${
+                                    actif
+
+                                    ?
+
+                                    `
+                                    <span class="badge badge-actif">
+
+                                        <i
+                                            class="fa-solid fa-circle-check"
+                                        ></i>
+
+                                        Actif
+
+                                    </span>
+                                    `
+
+                                    :
+
+                                    `
+                                    <span class="badge badge-inactif">
+
+                                        <i
+                                            class="fa-solid fa-circle-xmark"
+                                        ></i>
+
+                                        Inactif
+
+                                    </span>
+                                    `
+                                }
+
+                            </td>
+
+
+
+                            <!-- ACTIONS -->
+
+                            <td>
+
+
+                                <!-- MODIFIER -->
+
+                                <button
+
+                                    class="btn btn-sm btn-outline-primary me-1"
+
+                                    onclick="
+                                        modifierUtilisateur(
+                                            '${escapeJs(utilisateur.id)}'
+                                        )
+                                    "
+
+                                    title="Modifier"
+
+                                >
+
+                                    <i
+                                        class="fa-solid fa-pen"
+                                    ></i>
+
+                                </button>
+
+
+
+                                <!-- ACTIVER / DESACTIVER -->
+
+                                <button
+
+                                    class="
+                                        btn
+                                        btn-sm
+                                        ${
+                                            actif
+                                            ?
+                                            "btn-outline-danger"
+                                            :
+                                            "btn-outline-success"
+                                        }
+                                    "
+
+                                    onclick="
+                                        changerStatutUtilisateur(
+                                            '${escapeJs(utilisateur.id)}',
+                                            ${actif}
+                                        )
+                                    "
+
+                                    title="${
+                                        actif
+                                        ? "Désactiver"
+                                        : "Activer"
+                                    }"
+
+                                >
+
+                                    <i
+                                        class="
+                                            fa-solid
+                                            ${
+                                                actif
+                                                ?
+                                                "fa-user-slash"
+                                                :
+                                                "fa-user-check"
+                                            }
+                                        "
+                                    ></i>
+
+                                </button>
+
+
+                            </td>
+
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+
+
+
+/* =====================================================
+   OUVRIR FORMULAIRE
+===================================================== */
+
+function ouvrirFormulaireUtilisateur() {
+
+
+    document
+        .getElementById("formUtilisateur")
+        .reset();
+
+
+    document
+        .getElementById("utilisateurId")
+        .value = "";
+
+
+    document
+        .getElementById("titreModal")
+        .textContent =
+            "Nouvel utilisateur";
+
+
+    document
+        .getElementById("actifUtilisateur")
+        .value =
+            "true";
+
+
+    document
+        .getElementById("roleUtilisateur")
+        .value =
+            "Agent spécialisé";
+
+
+    if (modalUtilisateur) {
+
+        modalUtilisateur.show();
+
+    }
+
+}
+
+
+
+/* =====================================================
+   MODIFIER UTILISATEUR
+===================================================== */
+
+function modifierUtilisateur(id) {
+
+
+    const utilisateur =
+        utilisateurs.find(
+            item =>
+                String(item.id) === String(id)
+        );
+
+
+    if (!utilisateur) {
+
+        alert(
+            "Utilisateur introuvable."
+        );
+
+        return;
+
+    }
+
+
+
+    document
+        .getElementById("utilisateurId")
+        .value =
+            utilisateur.id || "";
+
+
+
+    document
+        .getElementById("nomUtilisateur")
+        .value =
+            utilisateur.nom || "";
+
+
+
+    document
+        .getElementById("telephoneUtilisateur")
+        .value =
+            utilisateur.telephone || "";
+
+
+
+    document
+        .getElementById("emailUtilisateur")
+        .value =
+            utilisateur.email || "";
+
+
+
+    document
+        .getElementById("roleUtilisateur")
+        .value =
+            utilisateur.role ||
+            "Agent spécialisé";
+
+
+
+    document
+        .getElementById("actifUtilisateur")
+        .value =
+            utilisateur.actif === true
+            ? "true"
+            : "false";
+
+
+
+    document
+        .getElementById("titreModal")
+        .textContent =
+            "Modifier l'utilisateur";
+
+
+
+    if (modalUtilisateur) {
+
+        modalUtilisateur.show();
+
+    }
+
+}
+
+
+
+/* =====================================================
+   ENREGISTRER UTILISATEUR
+===================================================== */
+
+async function enregistrerUtilisateur() {
+
+
+    try {
+
+
+        if (!window.supabaseClient) {
+
+            throw new Error(
+                "Connexion Supabase non disponible."
+            );
+
+        }
+
+
+
+        const id =
+            document
+                .getElementById("utilisateurId")
+                .value
+                .trim();
+
+
+
+        const nom =
+            document
+                .getElementById("nomUtilisateur")
+                .value
+                .trim();
+
+
+
+        const telephone =
+            document
+                .getElementById("telephoneUtilisateur")
+                .value
+                .trim();
+
+
+
+        const email =
+            document
+                .getElementById("emailUtilisateur")
+                .value
+                .trim();
+
+
+
+        const role =
+            document
+                .getElementById("roleUtilisateur")
+                .value;
+
+
+
+        const actif =
+            document
+                .getElementById("actifUtilisateur")
+                .value === "true";
+
+
+
+        /* -------------------------------------------------
+           VALIDATION
+        ------------------------------------------------- */
+
+        if (!nom) {
+
+            alert(
+                "Veuillez saisir le nom complet."
+            );
+
+            return;
+
+        }
+
+
+
+        if (!email) {
+
+            alert(
+                "Veuillez saisir l'e-mail."
+            );
+
+            return;
+
+        }
+
+
+
+        /* -------------------------------------------------
+           DONNEES
+        ------------------------------------------------- */
+
+        const donnees = {
+
+            nom: nom,
+
+            telephone: telephone,
+
+            email: email,
+
+            role: role,
+
+            actif: actif
+
+        };
+
+
+
+        let resultat;
+
+
+
+        /* -------------------------------------------------
+           MODIFICATION
+        ------------------------------------------------- */
+
+        if (id) {
+
+
+            resultat =
+                await window.supabaseClient
+
+                    .from("utilisateurs")
+
+                    .update(donnees)
+
+                    .eq("id", id);
+
+
+        }
+
+        /* -------------------------------------------------
+           CREATION
+        ------------------------------------------------- */
+
+        else {
+
+
+            resultat =
+                await window.supabaseClient
+
+                    .from("utilisateurs")
+
+                    .insert([
+                        donnees
+                    ]);
+
+        }
+
+
+
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+
+        alert(
+
+            id
+
+            ?
+
+            "Utilisateur modifié avec succès."
+
+            :
+
+            "Utilisateur enregistré avec succès."
+
+        );
+
+
+
+        /* -------------------------------------------------
+           FERMER MODAL
+        ------------------------------------------------- */
+
+        if (modalUtilisateur) {
+
+            modalUtilisateur.hide();
+
+        }
+
+
+
+        /* -------------------------------------------------
+           RECHARGER
+        ------------------------------------------------- */
+
+        await chargerUtilisateurs();
+
+
+    } catch (error) {
+
+
+        console.error(
+            "Erreur enregistrement utilisateur :",
+            error
+        );
+
+
+        alert(
+            "Erreur : " +
+            error.message
+        );
+
+    }
+
+}
+
+
+
+/* =====================================================
+   ACTIVER / DESACTIVER
+===================================================== */
+
+async function changerStatutUtilisateur(
+    id,
+    statutActuel
+) {
+
+
+    const nouveauStatut =
+        !statutActuel;
+
+
+
+    const confirmation =
+        confirm(
+
+            nouveauStatut
+
+            ?
+
+            "Voulez-vous activer cet utilisateur ?"
+
+            :
+
+            "Voulez-vous désactiver cet utilisateur ?"
+
+        );
+
+
+
+    if (!confirmation) {
+
+        return;
+
+    }
+
+
+
+    try {
+
+
+        if (!window.supabaseClient) {
+
+            throw new Error(
+                "Connexion Supabase non disponible."
+            );
+
+        }
+
+
+
+        const resultat =
+            await window.supabaseClient
+
+                .from("utilisateurs")
+
+                .update({
+
+                    actif:
+                        nouveauStatut
+
+                })
+
+                .eq(
+                    "id",
+                    id
+                );
+
+
+
+        if (resultat.error) {
+
+            throw resultat.error;
+
+        }
+
+
+
+        await chargerUtilisateurs();
+
+
+    } catch (error) {
+
+
+        console.error(
+            "Erreur changement statut :",
+            error
+        );
+
+
+        alert(
+
+            "Impossible de modifier le statut : " +
+
+            error.message
+
+        );
+
+    }
+
+}
+
+
+
+/* =====================================================
+   SECURITE HTML
 ===================================================== */
 
 function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
         return "";
+
     }
 
+
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+
+/* =====================================================
+   SECURITE JAVASCRIPT
+===================================================== */
+
+function escapeJs(value) {
+
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+
+        .replace(
+            /'/g,
+            "\\'"
+        )
+
+        .replace(
+            /\r/g,
+            "\\r"
+        )
+
+        .replace(
+            /\n/g,
+            "\\n"
+        );
+
 }
 
 </script>
 
+
 </body>
+
 </html>
