@@ -34,16 +34,254 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <link rel="stylesheet" href="css/dashboard.css">
 
-
 <!-- =====================================================
      CSS PERSONNALISÉ
 ===================================================== -->
-
 <!-- =====================================================
      CSS PERSONNALISÉ
 ===================================================== -->
 
 <style>
+
+/* =====================================================
+   SOUS-MENU EMPLOYÉS
+   Utilisateurs est contenu dans Employés
+===================================================== */
+
+.sidebar > ul > li[data-module="Employes"] > .submenu {
+    display: block !important;
+    list-style: none;
+    margin: 2px 0 8px 0 !important;
+    padding: 4px 0 4px 34px !important;
+    border-left: 2px solid rgba(255, 255, 255, 0.28);
+}
+
+.sidebar > ul > li[data-module="Employes"] > .submenu li {
+    list-style: none;
+    margin: 2px 0 !important;
+    padding: 0 !important;
+}
+
+.sidebar > ul > li[data-module="Employes"] > .submenu a {
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.90);
+    text-decoration: none;
+}
+
+.sidebar > ul > li[data-module="Employes"] > .submenu a:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+
+.sidebar > ul > li[data-module="Employes"] > .submenu a i {
+    width: 18px;
+    font-size: 13px !important;
+}
+
+
+/* =====================================================
+   AVATAR UTILISATEUR
+===================================================== */
+
+.profile-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #e8f5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-avatar i {
+    font-size: 25px;
+    color: #176b2c;
+}
+
+
+/* =====================================================
+   GRAND AVATAR - MODAL PROFIL
+===================================================== */
+
+.profile-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #e8f5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-avatar-large i {
+    font-size: 55px;
+    color: #176b2c;
+}
+
+
+/* =====================================================
+   CORRECTION MOBILE
+   FERME ASHER ERP
+===================================================== */
+
+@media (max-width: 992px) {
+
+    .main {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 12px !important;
+        overflow-x: hidden !important;
+    }
+
+    .topbar {
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 18px 8px 15px 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .topbar > div:first-child {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 72px 0 0 0 !important;
+    }
+
+    .topbar h2 {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 30px !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+    }
+
+    .topbar p {
+        margin: 6px 0 0 0 !important;
+        padding: 0 !important;
+        font-size: 16px !important;
+        line-height: 1.35 !important;
+    }
+
+    #mobileMenuBtn {
+        position: absolute !important;
+        top: 18px !important;
+        left: 12px !important;
+        width: 64px !important;
+        height: 64px !important;
+        margin: 0 !important;
+        z-index: 10001 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    #mobileMenuBtn i {
+        font-size: 28px !important;
+    }
+
+    .top-icons {
+        width: 100% !important;
+        margin-top: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .top-icons > button {
+        margin: 0 !important;
+    }
+
+    .profile {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        margin-top: 4px !important;
+    }
+
+    .profile-avatar {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    .profile-avatar i {
+        font-size: 24px !important;
+    }
+
+    .card-kpi {
+        margin-bottom: 14px !important;
+    }
+
+    .dashboard-card {
+        margin-bottom: 14px !important;
+    }
+}
+
+
+/* =====================================================
+   PETITS TELEPHONES
+===================================================== */
+
+@media (max-width: 576px) {
+
+    .main {
+        padding: 10px !important;
+    }
+
+    .topbar {
+        padding: 16px 8px 12px 8px !important;
+    }
+
+    .topbar > div:first-child {
+        padding-top: 68px !important;
+    }
+
+    .topbar h2 {
+        font-size: 28px !important;
+    }
+
+    .topbar p {
+        font-size: 15px !important;
+    }
+
+    #mobileMenuBtn {
+        top: 16px !important;
+        left: 10px !important;
+        width: 62px !important;
+        height: 62px !important;
+    }
+
+    #mobileMenuBtn i {
+        font-size: 27px !important;
+    }
+
+    .top-icons {
+        margin-top: 12px !important;
+        gap: 8px !important;
+    }
+
+    .profile-avatar {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    .profile-avatar i {
+        font-size: 23px !important;
+    }
+
+}
+
+</style>
 
 /* =====================================================
    SOUS-MENU EMPLOYÉS
