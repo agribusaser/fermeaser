@@ -3,917 +3,523 @@
 
 <head>
 
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard | Ferme Asher ERP</title>
-
-
-<!-- =====================================================
-     BOOTSTRAP
-===================================================== -->
-
-<link
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-rel="stylesheet">
-
-
-<!-- =====================================================
-     FONT AWESOME
-===================================================== -->
-
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-
-<!-- =====================================================
-     CSS DASHBOARD
-===================================================== -->
-
-<link rel="stylesheet" href="css/dashboard.css">
-
-<!-- =====================================================
-     CSS PERSONNALISÉ
-===================================================== -->
-<!-- =====================================================
-     CSS PERSONNALISÉ
-===================================================== -->
-
-<style>
-
-/* =====================================================
-   SOUS-MENU EMPLOYÉS
-   Utilisateurs est contenu dans Employés
-===================================================== */
-
-.sidebar > ul > li[data-module="Employes"] > .submenu {
-    display: block !important;
-    list-style: none;
-    margin: 2px 0 8px 0 !important;
-    padding: 4px 0 4px 34px !important;
-    border-left: 2px solid rgba(255, 255, 255, 0.28);
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu li {
-    list-style: none;
-    margin: 2px 0 !important;
-    padding: 0 !important;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a {
-    display: flex !important;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 12px !important;
-    margin: 0 !important;
-    font-size: 13px !important;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.90);
-    text-decoration: none;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a:hover {
-    background: rgba(255, 255, 255, 0.10);
-    color: #ffffff;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a i {
-    width: 18px;
-    font-size: 13px !important;
-}
-
-
-/* =====================================================
-   AVATAR UTILISATEUR
-===================================================== */
-
-.profile-avatar {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: #e8f5e9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.profile-avatar i {
-    font-size: 25px;
-    color: #176b2c;
-}
-
-
-/* =====================================================
-   GRAND AVATAR - MODAL PROFIL
-===================================================== */
-
-.profile-avatar-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #e8f5e9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.profile-avatar-large i {
-    font-size: 55px;
-    color: #176b2c;
-}
-
-
-/* =====================================================
-   CORRECTION MOBILE
-   FERME ASHER ERP
-===================================================== */
-
-@media (max-width: 992px) {
-
-    .main {
-        width: 100% !important;
-        margin-left: 0 !important;
-        padding: 12px !important;
-        overflow-x: hidden !important;
-    }
-
-    .topbar {
-        position: relative !important;
-        display: block !important;
-        width: 100% !important;
-        min-height: auto !important;
-        padding: 18px 8px 15px 8px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .topbar > div:first-child {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 72px 0 0 0 !important;
-    }
-
-    .topbar h2 {
-        margin: 0 !important;
-        padding: 0 !important;
-        font-size: 30px !important;
-        line-height: 1.15 !important;
-        white-space: normal !important;
-    }
-
-    .topbar p {
-        margin: 6px 0 0 0 !important;
-        padding: 0 !important;
-        font-size: 16px !important;
-        line-height: 1.35 !important;
-    }
-
-    #mobileMenuBtn {
-        position: absolute !important;
-        top: 18px !important;
-        left: 12px !important;
-        width: 64px !important;
-        height: 64px !important;
-        margin: 0 !important;
-        z-index: 10001 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    #mobileMenuBtn i {
-        font-size: 28px !important;
-    }
-
-    .top-icons {
-        width: 100% !important;
-        margin-top: 14px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        gap: 10px !important;
-        flex-wrap: wrap !important;
-    }
-
-    .top-icons > button {
-        margin: 0 !important;
-    }
-
-    .profile {
-        max-width: 100% !important;
-        overflow: hidden !important;
-        margin-top: 4px !important;
-    }
-
-    .profile-avatar {
-        width: 52px !important;
-        height: 52px !important;
-    }
-
-    .profile-avatar i {
-        font-size: 24px !important;
-    }
-
-    .card-kpi {
-        margin-bottom: 14px !important;
-    }
-
-    .dashboard-card {
-        margin-bottom: 14px !important;
-    }
-}
-
-
-/* =====================================================
-   PETITS TELEPHONES
-===================================================== */
-
-@media (max-width: 576px) {
-
-    .main {
-        padding: 10px !important;
-    }
-
-    .topbar {
-        padding: 16px 8px 12px 8px !important;
-    }
-
-    .topbar > div:first-child {
-        padding-top: 68px !important;
-    }
-
-    .topbar h2 {
-        font-size: 28px !important;
-    }
-
-    .topbar p {
-        font-size: 15px !important;
-    }
-
-    #mobileMenuBtn {
-        top: 16px !important;
-        left: 10px !important;
-        width: 62px !important;
-        height: 62px !important;
-    }
-
-    #mobileMenuBtn i {
-        font-size: 27px !important;
-    }
-
-    .top-icons {
-        margin-top: 12px !important;
-        gap: 8px !important;
-    }
-
-    .profile-avatar {
-        width: 50px !important;
-        height: 50px !important;
-    }
-
-    .profile-avatar i {
-        font-size: 23px !important;
-    }
-
-}
-
-</style>
-
-/* =====================================================
-   SOUS-MENU EMPLOYÉS
-   Utilisateurs est contenu dans Employés
-===================================================== */
-
-.sidebar > ul > li[data-module="Employes"] > .submenu {
-    display: block !important;
-    list-style: none;
-    margin: 2px 0 8px 0 !important;
-    padding: 4px 0 4px 34px !important;
-    border-left: 2px solid rgba(255, 255, 255, 0.28);
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu li {
-    list-style: none;
-    margin: 2px 0 !important;
-    padding: 0 !important;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a {
-    display: flex !important;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 12px !important;
-    margin: 0 !important;
-    font-size: 13px !important;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.90);
-    text-decoration: none;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a:hover {
-    background: rgba(255, 255, 255, 0.10);
-    color: #ffffff;
-}
-
-.sidebar > ul > li[data-module="Employes"] > .submenu a i {
-    width: 18px;
-    font-size: 13px !important;
-}
-
-
-/* =====================================================
-   AVATAR UTILISATEUR
-===================================================== */
-
-.profile-avatar {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: #e8f5e9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.profile-avatar i {
-    font-size: 25px;
-    color: #176b2c;
-}
-
-
-/* =====================================================
-   GRAND AVATAR - MODAL PROFIL
-===================================================== */
-
-.profile-avatar-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #e8f5e9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.profile-avatar-large i {
-    font-size: 55px;
-    color: #176b2c;
-}
-
-
-/* =====================================================
-   CORRECTION MOBILE
-   FERME ASHER ERP
-===================================================== */
-
-@media (max-width: 992px) {
-
-    .main {
-        width: 100% !important;
-        margin-left: 0 !important;
-        padding: 12px !important;
-        overflow-x: hidden !important;
-    }
-
-    .topbar {
-        position: relative !important;
-        display: block !important;
-        width: 100% !important;
-        min-height: auto !important;
-        padding: 18px 8px 15px 8px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .topbar > div:first-child {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 72px 0 0 0 !important;
-    }
-
-    .topbar h2 {
-        margin: 0 !important;
-        padding: 0 !important;
-        font-size: 30px !important;
-        line-height: 1.15 !important;
-        white-space: normal !important;
-    }
-
-    .topbar p {
-        margin: 6px 0 0 0 !important;
-        padding: 0 !important;
-        font-size: 16px !important;
-        line-height: 1.35 !important;
-    }
-
-    #mobileMenuBtn {
-        position: absolute !important;
-        top: 18px !important;
-        left: 12px !important;
-        width: 64px !important;
-        height: 64px !important;
-        margin: 0 !important;
-        z-index: 10001 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    #mobileMenuBtn i {
-        font-size: 28px !important;
-    }
-
-    .top-icons {
-        width: 100% !important;
-        margin-top: 14px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        gap: 10px !important;
-        flex-wrap: wrap !important;
-    }
-
-    .top-icons > button {
-        margin: 0 !important;
-    }
-
-    .profile {
-        max-width: 100% !important;
-        overflow: hidden !important;
-        margin-top: 4px !important;
-    }
-
-    .profile-avatar {
-        width: 52px !important;
-        height: 52px !important;
-    }
-
-    .profile-avatar i {
-        font-size: 24px !important;
-    }
-
-    .card-kpi {
-        margin-bottom: 14px !important;
-    }
-
-    .dashboard-card {
-        margin-bottom: 14px !important;
-    }
-}
-
-
-/* =====================================================
-   PETITS TELEPHONES
-===================================================== */
-
-@media (max-width: 576px) {
-
-    .main {
-        padding: 10px !important;
-    }
-
-    .topbar {
-        padding: 16px 8px 12px 8px !important;
-    }
-
-    .topbar > div:first-child {
-        padding-top: 68px !important;
-    }
-
-    .topbar h2 {
-        font-size: 28px !important;
-    }
-
-    .topbar p {
-        font-size: 15px !important;
-    }
-
-    #mobileMenuBtn {
-        top: 16px !important;
-        left: 10px !important;
-        width: 62px !important;
-        height: 62px !important;
-    }
-
-    #mobileMenuBtn i {
-        font-size: 27px !important;
-    }
-
-    .top-icons {
-        margin-top: 12px !important;
-        gap: 8px !important;
-    }
-
-    .profile-avatar {
-        width: 50px !important;
-        height: 50px !important;
-    }
-
-    .profile-avatar i {
-        font-size: 23px !important;
-    }
-
-}
-
-</style>
-     
-/* =====================================================
-   SOUS-MENU EMPLOYES
-   ===================================================== */
-
-.sidebar .submenu {
-    list-style: none;
-    padding: 0 0 0 25px;
-    margin: 0;
-}
-
-.sidebar .submenu li {
-    margin: 3px 0;
-}
-
-.sidebar .submenu a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 15px;
-    font-size: 14px;
-}
-
-.sidebar .submenu a i {
-    font-size: 14px;
-}
-     
-<style>
-
-/* =====================================================
-   AVATAR UTILISATEUR
-===================================================== */
-
-.profile-avatar {
-
-    width: 55px;
+    <meta charset="UTF-8">
 
-    height: 55px;
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    border-radius: 50%;
+    <title>Dashboard | Ferme Asher ERP</title>
 
-    background: #e8f5e9;
 
-    display: flex;
+    <!-- =====================================================
+         BOOTSTRAP
+    ===================================================== -->
 
-    align-items: center;
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
-    justify-content: center;
 
-    flex-shrink: 0;
+    <!-- =====================================================
+         FONT AWESOME
+    ===================================================== -->
 
-}
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 
-.profile-avatar i {
+    <!-- =====================================================
+         CSS PRINCIPAL DU DASHBOARD
+    ===================================================== -->
 
-    font-size: 25px;
+    <link
+        rel="stylesheet"
+        href="css/dashboard.css">
 
-    color: #176b2c;
 
-}
+    <!-- =====================================================
+         CSS PERSONNALISÉ DU DASHBOARD
+    ===================================================== -->
 
+    <style>
 
-/* =====================================================
-   GRAND AVATAR - MODAL PROFIL
-===================================================== */
+        /* =================================================
+           SOUS-MENU EMPLOYÉS
+           Utilisateurs appartient à Employés
+        ================================================= */
 
-.profile-avatar-large {
+        .sidebar > ul > li[data-module="Employes"] > .submenu {
 
-    width: 120px;
+            display: block !important;
 
-    height: 120px;
+            list-style: none;
 
-    border-radius: 50%;
+            margin: 2px 0 8px 0 !important;
 
-    background: #e8f5e9;
+            padding: 4px 0 4px 34px !important;
 
-    display: flex;
+            border-left: 2px solid rgba(255,255,255,0.28);
 
-    align-items: center;
+        }
 
-    justify-content: center;
 
-    margin-left: auto;
+        .sidebar > ul > li[data-module="Employes"] > .submenu li {
 
-    margin-right: auto;
+            list-style: none;
 
-}
+            margin: 2px 0 !important;
 
+            padding: 0 !important;
 
-.profile-avatar-large i {
+        }
 
-    font-size: 55px;
 
-    color: #176b2c;
+        .sidebar > ul > li[data-module="Employes"] > .submenu a {
 
-}
+            display: flex !important;
 
+            align-items: center;
 
-/* =====================================================
-   CORRECTION MOBILE
-   FERME ASHER ERP
-===================================================== */
+            gap: 9px;
 
-@media (max-width: 992px) {
+            padding: 8px 12px !important;
 
+            margin: 0 !important;
 
-    /* CONTENEUR PRINCIPAL */
+            font-size: 13px !important;
 
-    .main {
+            border-radius: 8px;
 
-        width: 100% !important;
+            color: rgba(255,255,255,0.90);
 
-        margin-left: 0 !important;
+            text-decoration: none;
 
-        padding: 12px !important;
+        }
 
-        overflow-x: hidden !important;
 
-    }
+        .sidebar > ul > li[data-module="Employes"] > .submenu a:hover {
 
+            background: rgba(255,255,255,0.10);
 
-    /* =================================================
-       TOPBAR
-    ================================================= */
+            color: #ffffff;
 
-    .topbar {
+        }
 
-        position: relative !important;
 
-        display: block !important;
+        .sidebar > ul > li[data-module="Employes"] > .submenu a i {
 
-        width: 100% !important;
+            width: 18px;
 
-        min-height: auto !important;
+            font-size: 13px !important;
 
-        padding: 18px 8px 15px 8px !important;
+        }
 
-        margin-bottom: 10px !important;
 
-    }
+        /* =================================================
+           AVATAR
+        ================================================= */
 
+        .profile-avatar {
 
-    /* =================================================
-       BLOC TITRE
-    ================================================= */
+            width: 55px;
 
-    .topbar > div:first-child {
+            height: 55px;
 
-        width: 100% !important;
+            border-radius: 50%;
 
-        margin: 0 !important;
+            background: #e8f5e9;
 
-        padding: 72px 0 0 0 !important;
+            display: flex;
 
-    }
+            align-items: center;
 
+            justify-content: center;
 
-    .topbar h2 {
+            flex-shrink: 0;
 
-        margin: 0 !important;
+        }
 
-        padding: 0 !important;
 
-        font-size: 30px !important;
+        .profile-avatar i {
 
-        line-height: 1.15 !important;
+            font-size: 25px;
 
-        white-space: normal !important;
+            color: #176b2c;
 
-    }
+        }
 
 
-    .topbar p {
+        /* =================================================
+           GRAND AVATAR
+        ================================================= */
 
-        margin: 6px 0 0 0 !important;
+        .profile-avatar-large {
 
-        padding: 0 !important;
+            width: 120px;
 
-        font-size: 16px !important;
+            height: 120px;
 
-        line-height: 1.35 !important;
+            border-radius: 50%;
 
-    }
+            background: #e8f5e9;
 
+            display: flex;
 
-    /* =================================================
-       BOUTON HAMBURGER
-    ================================================= */
+            align-items: center;
 
-    #mobileMenuBtn {
+            justify-content: center;
 
-        position: absolute !important;
+            margin-left: auto;
 
-        top: 18px !important;
+            margin-right: auto;
 
-        left: 12px !important;
+        }
 
-        width: 64px !important;
 
-        height: 64px !important;
+        .profile-avatar-large i {
 
-        margin: 0 !important;
+            font-size: 55px;
 
-        z-index: 10001 !important;
+            color: #176b2c;
 
-        display: flex !important;
+        }
 
-        align-items: center !important;
 
-        justify-content: center !important;
+        /* =================================================
+           CORRECTION DU MENU EMPLOYÉS
+        ================================================= */
 
-    }
+        .sidebar > ul > li[data-module="Employes"] {
 
+            position: relative;
 
-    #mobileMenuBtn i {
+        }
 
-        font-size: 28px !important;
 
-    }
+        .sidebar > ul > li[data-module="Employes"] > a {
 
+            display: flex;
 
-    /* =================================================
-       ICONES + PROFIL
-    ================================================= */
+            align-items: center;
 
-    .top-icons {
+        }
 
-        width: 100% !important;
 
-        margin-top: 14px !important;
+        /* =================================================
+           LOADER
+        ================================================= */
 
-        display: flex !important;
+        #loader {
 
-        align-items: center !important;
+            position: fixed;
 
-        justify-content: flex-start !important;
+            inset: 0;
 
-        gap: 10px !important;
+            background: rgba(255,255,255,0.95);
 
-        flex-wrap: wrap !important;
+            display: flex;
 
-    }
+            align-items: center;
 
+            justify-content: center;
 
-    .top-icons > button {
+            z-index: 99999;
 
-        margin: 0 !important;
+            transition: opacity 0.3s ease;
 
-    }
+        }
 
 
-    /* =================================================
-       PROFIL
-    ================================================= */
+        #loader.hidden {
 
-    .profile {
+            opacity: 0;
 
-        max-width: 100% !important;
+            pointer-events: none;
 
-        overflow: hidden !important;
+        }
 
-        margin-top: 4px !important;
 
-    }
+        /* =================================================
+           FOOTER
+        ================================================= */
 
+        .erp-footer {
 
-    .profile-avatar {
+            padding: 20px;
 
-        width: 52px !important;
+            border-top: 1px solid #e5e7eb;
 
-        height: 52px !important;
+            color: #6b7280;
 
-    }
+        }
 
 
-    .profile-avatar i {
+        /* =================================================
+           MOBILE
+        ================================================= */
 
-        font-size: 24px !important;
+        @media (max-width: 992px) {
 
-    }
+            .main {
 
+                width: 100% !important;
 
-    /* =================================================
-       CARTES KPI
-    ================================================= */
+                margin-left: 0 !important;
 
-    .card-kpi {
+                padding: 12px !important;
 
-        margin-bottom: 14px !important;
+                overflow-x: hidden !important;
 
-    }
+            }
 
 
-    .dashboard-card {
+            .topbar {
 
-        margin-bottom: 14px !important;
+                position: relative !important;
 
-    }
+                display: block !important;
 
-}
+                width: 100% !important;
 
+                min-height: auto !important;
 
-/* =====================================================
-   PETITS TELEPHONES
-===================================================== */
+                padding: 18px 8px 15px 8px !important;
 
-@media (max-width: 576px) {
+                margin-bottom: 10px !important;
 
+            }
 
-    .main {
 
-        padding: 10px !important;
+            .topbar > div:first-child {
 
-    }
+                width: 100% !important;
 
+                margin: 0 !important;
 
-    .topbar {
+                padding: 72px 0 0 0 !important;
 
-        padding: 16px 8px 12px 8px !important;
+            }
 
-    }
 
+            .topbar h2 {
 
-    .topbar > div:first-child {
+                margin: 0 !important;
 
-        padding-top: 68px !important;
+                padding: 0 !important;
 
-    }
+                font-size: 30px !important;
 
+                line-height: 1.15 !important;
 
-    .topbar h2 {
+                white-space: normal !important;
 
-        font-size: 28px !important;
+            }
 
-    }
 
+            .topbar p {
 
-    .topbar p {
+                margin: 6px 0 0 0 !important;
 
-        font-size: 15px !important;
+                padding: 0 !important;
 
-    }
+                font-size: 16px !important;
 
+                line-height: 1.35 !important;
 
-    #mobileMenuBtn {
+            }
 
-        top: 16px !important;
 
-        left: 10px !important;
+            #mobileMenuBtn {
 
-        width: 62px !important;
+                position: absolute !important;
 
-        height: 62px !important;
+                top: 18px !important;
 
-    }
+                left: 12px !important;
 
+                width: 64px !important;
 
-    #mobileMenuBtn i {
+                height: 64px !important;
 
-        font-size: 27px !important;
+                margin: 0 !important;
 
-    }
+                z-index: 10001 !important;
 
+                display: flex !important;
 
-    .top-icons {
+                align-items: center !important;
 
-        margin-top: 12px !important;
+                justify-content: center !important;
 
-        gap: 8px !important;
+            }
 
-    }
 
+            #mobileMenuBtn i {
 
-    .profile-avatar {
+                font-size: 28px !important;
 
-        width: 50px !important;
+            }
 
-        height: 50px !important;
 
-    }
+            .top-icons {
 
+                width: 100% !important;
 
-    .profile-avatar i {
+                margin-top: 14px !important;
 
-        font-size: 23px !important;
+                display: flex !important;
 
-    }
+                align-items: center !important;
 
-}
+                justify-content: flex-start !important;
 
-</style>
+                gap: 10px !important;
+
+                flex-wrap: wrap !important;
+
+            }
+
+
+            .top-icons > button {
+
+                margin: 0 !important;
+
+            }
+
+
+            .profile {
+
+                max-width: 100% !important;
+
+                overflow: hidden !important;
+
+                margin-top: 4px !important;
+
+            }
+
+
+            .profile-avatar {
+
+                width: 52px !important;
+
+                height: 52px !important;
+
+            }
+
+
+            .profile-avatar i {
+
+                font-size: 24px !important;
+
+            }
+
+
+            .card-kpi {
+
+                margin-bottom: 14px !important;
+
+            }
+
+
+            .dashboard-card {
+
+                margin-bottom: 14px !important;
+
+            }
+
+        }
+
+
+        /* =================================================
+           PETITS TELEPHONES
+        ================================================= */
+
+        @media (max-width: 576px) {
+
+            .main {
+
+                padding: 10px !important;
+
+            }
+
+
+            .topbar {
+
+                padding: 16px 8px 12px 8px !important;
+
+            }
+
+
+            .topbar > div:first-child {
+
+                padding-top: 68px !important;
+
+            }
+
+
+            .topbar h2 {
+
+                font-size: 28px !important;
+
+            }
+
+
+            .topbar p {
+
+                font-size: 15px !important;
+
+            }
+
+
+            #mobileMenuBtn {
+
+                top: 16px !important;
+
+                left: 10px !important;
+
+                width: 62px !important;
+
+                height: 62px !important;
+
+            }
+
+
+            #mobileMenuBtn i {
+
+                font-size: 27px !important;
+
+            }
+
+
+            .top-icons {
+
+                margin-top: 12px !important;
+
+                gap: 8px !important;
+
+            }
+
+
+            .profile-avatar {
+
+                width: 50px !important;
+
+                height: 50px !important;
+
+            }
+
+
+            .profile-avatar i {
+
+                font-size: 23px !important;
+
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -928,1929 +534,1949 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 <div class="wrapper">
 
 
-<!-- =====================================================
-     FOND MENU MOBILE
-===================================================== -->
-
-<div
-class="sidebar-overlay"
-id="sidebarOverlay">
-</div>
-
-
-<!-- =====================================================
-     SIDEBAR
-===================================================== -->
-
-<nav class="sidebar">
-
-
-<!-- =====================================================
-     LOGO
-===================================================== -->
-
-<div class="logo-area">
-
-<img
-src="images/logo.png"
-class="logo"
-alt="Ferme Asher">
-
-<h2>
-Ferme Asher
-</h2>
-
-<p>
-ERP Agricole
-</p>
-
-</div>
-
-
-<!-- =====================================================
-     MENU
-===================================================== -->
-
-<ul>
-
-
-<!-- DASHBOARD -->
-
-<li
-class="active"
-data-module="Dashboard">
-
-<a href="dashboard.html">
-
-<i class="fa-solid fa-house"></i>
-
-<span>
-Dashboard
-</span>
-
-</a>
-
-</li>
-
-
-<!-- VENTES -->
-
-<li
-data-module="Ventes">
-
-<a href="modules/ventes/index.html">
-
-<i class="fa-solid fa-cart-shopping"></i>
-
-<span>
-Ventes
-</span>
-
-</a>
-
-</li>
-
-
-<!-- ACHATS -->
-
-<li
-data-module="Achats">
-
-<a href="modules/achats/index.html">
-
-<i class="fa-solid fa-cart-shopping"></i>
-
-<span>
-Achats
-</span>
-
-</a>
-
-</li>
-
-
-<!-- FOURNISSEURS -->
-
-<li
-data-module="Fournisseurs">
-
-<a href="modules/fournisseurs/index.html">
-
-<i class="fa-solid fa-truck"></i>
-
-<span>
-Fournisseurs
-</span>
-
-</a>
-
-</li>
-
-
-<!-- PRODUITS -->
-
-<li
-data-module="Produits">
-
-<a href="modules/produits/index.html">
-
-<i class="fa-solid fa-box"></i>
-
-<span>
-Produits
-</span>
-
-</a>
-
-</li>
-
-
-<!-- STOCKS -->
-
-<li
-data-module="Stocks">
-
-<a href="modules/stocks/index.html">
-
-<i class="fa-solid fa-warehouse"></i>
-
-<span>
-Stocks
-</span>
-
-</a>
-
-</li>
-
-
-<!-- CLIENTS -->
-
-<li
-data-module="Clients">
-
-<a href="#">
-
-<i class="fa-solid fa-users"></i>
-
-<span>
-Clients
-</span>
-
-</a>
-
-</li>
-
-
-<!-- AGRICULTURE -->
-
-<li
-data-module="Agriculture">
-
-<a href="modules/agriculture/index.html">
-
-<i class="fa-solid fa-seedling"></i>
-
-<span>
-Agriculture
-</span>
-
-</a>
-
-</li>
-
-
-<!-- ELEVAGE -->
-
-<li
-data-module="Elevage">
-
-<a
-href="modules/elevage/index.html"
-class="nav-link">
-
-<i class="fa-solid fa-cow"></i>
-
-<span>
-Élevage
-</span>
-
-</a>
-
-</li>
-
-
-<!-- FINANCES -->
-
-<li
-data-module="Finances">
-
-<a href="#">
-
-<i class="fa-solid fa-money-bill-wave"></i>
-
-<span>
-Finances
-</span>
-
-</a>
-
-</li>
-
-  <!-- =====================================================
-     EMPLOYÉS
-===================================================== -->
-
-<li data-module="Employes">
-
-    <a href="modules/employes/index.html">
-
-        <i class="fa-solid fa-users"></i>
-
-        <span>
-            Employés
-        </span>
-
-    </a>
+    <!-- =================================================
+         OVERLAY MOBILE
+    ================================================= -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay">
+    </div>
 
 
     <!-- =================================================
-         SOUS-MENU EMPLOYÉS
-         ================================================= -->
+         SIDEBAR
+    ================================================= -->
 
-    <ul class="submenu">
+    <nav class="sidebar">
 
-        <!-- UTILISATEURS -->
 
-        <li data-module="Utilisateurs">
+        <!-- =================================================
+             LOGO
+        ================================================= -->
 
-            <a href="modules/utilisateurs/index.html">
+        <div class="logo-area">
 
-                <i class="fa-solid fa-user-shield"></i>
+            <img
+                src="images/logo.png"
+                class="logo"
+                alt="Ferme Asher">
 
-                <span>
-                    Utilisateurs
-                </span>
+            <h2>
+                Ferme Asher
+            </h2>
 
-            </a>
+            <p>
+                ERP Agricole
+            </p>
 
-        </li>
+        </div>
 
-    </ul>
 
-</li>
+        <!-- =================================================
+             MENU PRINCIPAL
+        ================================================= -->
 
+        <ul>
 
 
-<!-- PARAMETRES -->
+            <!-- =================================================
+                 DASHBOARD
+            ================================================= -->
 
-<li>
+            <li
+                class="active"
+                data-module="Dashboard">
 
-<a href="modules/parametres/index.html">
+                <a href="dashboard.html">
 
-<i class="fa-solid fa-gear"></i>
+                    <i class="fa-solid fa-house"></i>
 
-<span>
-Paramètres
-</span>
+                    <span>
+                        Dashboard
+                    </span>
 
-</a>
+                </a>
 
-</li>
+            </li>
 
 
-<!-- DECONNEXION -->
+            <!-- =================================================
+                 VENTES
+            ================================================= -->
 
-<li>
+            <li
+                data-module="Ventes">
 
-<a
-href="login.html"
-onclick="deconnexion()">
+                <a href="modules/ventes/index.html">
 
-<i class="fa-solid fa-right-from-bracket"></i>
+                    <i class="fa-solid fa-cart-shopping"></i>
 
-<span>
-Déconnexion
-</span>
+                    <span>
+                        Ventes
+                    </span>
 
-</a>
+                </a>
 
-</li>
+            </li>
 
 
-</ul>
+            <!-- =================================================
+                 ACHATS
+            ================================================= -->
 
-</nav>
+            <li
+                data-module="Achats">
 
+                <a href="modules/achats/index.html">
 
-<!-- =====================================================
-     CONTENU PRINCIPAL
-===================================================== -->
+                    <i class="fa-solid fa-cart-shopping"></i>
 
-<div class="main">
+                    <span>
+                        Achats
+                    </span>
 
+                </a>
 
-<!-- =====================================================
-     BOUTON MENU MOBILE
-===================================================== -->
+            </li>
 
-<button
-id="mobileMenuBtn"
-class="mobile-menu-btn"
-type="button">
 
-<i class="fa-solid fa-bars"></i>
+            <!-- =================================================
+                 FOURNISSEURS
+            ================================================= -->
 
-</button>
+            <li
+                data-module="Fournisseurs">
 
+                <a href="modules/fournisseurs/index.html">
 
-<!-- =====================================================
-     TOPBAR
-===================================================== -->
+                    <i class="fa-solid fa-truck"></i>
 
-<header class="topbar">
+                    <span>
+                        Fournisseurs
+                    </span>
 
+                </a>
 
-<div>
+            </li>
 
-<h2>
-Tableau de bord
-</h2>
 
-<p>
-Bienvenue dans Ferme Asher ERP
-</p>
+            <!-- =================================================
+                 PRODUITS
+            ================================================= -->
 
-</div>
+            <li
+                data-module="Produits">
 
+                <a href="modules/produits/index.html">
 
-<div class="top-icons">
+                    <i class="fa-solid fa-box"></i>
 
+                    <span>
+                        Produits
+                    </span>
 
-<!-- NOTIFICATIONS -->
+                </a>
 
-<button
-type="button"
-data-bs-toggle="modal"
-data-bs-target="#notificationModal">
+            </li>
 
-<i class="fa-solid fa-bell"></i>
 
-</button>
+            <!-- =================================================
+                 STOCKS
+            ================================================= -->
 
+            <li
+                data-module="Stocks">
 
-<!-- MESSAGES -->
+                <a href="modules/stocks/index.html">
 
-<button
-type="button">
+                    <i class="fa-solid fa-warehouse"></i>
 
-<i class="fa-solid fa-envelope"></i>
+                    <span>
+                        Stocks
+                    </span>
 
-</button>
+                </a>
 
+            </li>
 
-<!-- PROFIL -->
 
-<div
-class="profile"
-data-bs-toggle="modal"
-data-bs-target="#profilModal">
+            <!-- =================================================
+                 CLIENTS
+            ================================================= -->
 
+            <li
+                data-module="Clients">
 
-<div class="profile-avatar">
+                <a href="#">
 
-<i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-users"></i>
 
-</div>
+                    <span>
+                        Clients
+                    </span>
 
+                </a>
 
-<div>
+            </li>
 
-<strong>
-Administrateur
-</strong>
 
-<br>
+            <!-- =================================================
+                 AGRICULTURE
+            ================================================= -->
 
-<small>
-Admin
-</small>
+            <li
+                data-module="Agriculture">
 
-</div>
+                <a href="modules/agriculture/index.html">
 
+                    <i class="fa-solid fa-seedling"></i>
 
-</div>
+                    <span>
+                        Agriculture
+                    </span>
 
+                </a>
 
-</div>
+            </li>
 
-</header>
 
+            <!-- =================================================
+                 ELEVAGE
+            ================================================= -->
 
-<!-- =====================================================
-     CARTES KPI
-===================================================== -->
+            <li
+                data-module="Elevage">
 
-<div class="cards">
+                <a
+                    href="modules/elevage/index.html"
+                    class="nav-link">
 
+                    <i class="fa-solid fa-cow"></i>
 
-<!-- VENTES -->
+                    <span>
+                        Élevage
+                    </span>
 
-<div class="card-kpi">
+                </a>
 
-<div>
+            </li>
 
-<h3 id="kpiVentes">
-0
-</h3>
 
-<p>
-Ventes
-</p>
+            <!-- =================================================
+                 FINANCES
+            ================================================= -->
 
-</div>
+            <li
+                data-module="Finances">
 
-<i class="fa-solid fa-cart-shopping"></i>
+                <a href="#">
 
-</div>
+                    <i class="fa-solid fa-money-bill-wave"></i>
 
+                    <span>
+                        Finances
+                    </span>
 
-<!-- PRODUITS -->
+                </a>
 
-<div class="card-kpi">
+            </li>
 
-<div>
 
-<h3 id="kpiStock">
-0
-</h3>
+            <!-- =================================================
+                 EMPLOYÉS
+                 UTILISATEURS EST À L'INTÉRIEUR
+            ================================================= -->
 
-<p>
-Produits
-</p>
+            <li
+                data-module="Employes">
 
-</div>
 
-<i class="fa-solid fa-box"></i>
+                <!-- MENU EMPLOYÉS -->
 
-</div>
+                <a href="modules/employes/index.html">
 
+                    <i class="fa-solid fa-users"></i>
 
-<!-- CLIENTS -->
+                    <span>
+                        Employés
+                    </span>
 
-<div class="card-kpi">
+                </a>
 
-<div>
 
-<h3 id="kpiClients">
-0
-</h3>
+                <!-- =================================================
+                     SOUS-MENU EMPLOYÉS
+                ================================================= -->
 
-<p>
-Clients
-</p>
+                <ul class="submenu">
 
-</div>
 
-<i class="fa-solid fa-users"></i>
+                    <!-- UTILISATEURS -->
 
-</div>
+                    <li
+                        data-module="Utilisateurs">
 
+                        <a href="modules/utilisateurs/index.html">
 
-<!-- CHIFFRE D'AFFAIRES -->
+                            <i class="fa-solid fa-user-shield"></i>
 
-<div class="card-kpi">
+                            <span>
+                                Utilisateurs
+                            </span>
 
-<div>
+                        </a>
 
-<h3 id="kpiCA">
-0 FC
-</h3>
+                    </li>
 
-<p>
-Chiffre d'affaires
-</p>
 
-</div>
+                </ul>
 
-<i class="fa-solid fa-sack-dollar"></i>
+            </li>
 
-</div>
 
+            <!-- =================================================
+                 PARAMÈTRES
+            ================================================= -->
 
-</div>
+            <li
+                data-module="Parametres">
 
+                <a href="modules/parametres/index.html">
 
-<!-- =====================================================
-     GRAPHIQUES
-===================================================== -->
+                    <i class="fa-solid fa-gear"></i>
 
-<div class="row mt-4">
+                    <span>
+                        Paramètres
+                    </span>
 
+                </a>
 
-<!-- EVOLUTION DES VENTES -->
+            </li>
 
-<div class="col-lg-8">
 
-<div class="dashboard-card">
+            <!-- =================================================
+                 DÉCONNEXION
+            ================================================= -->
 
+            <li>
 
-<div class="card-header-custom">
+                <a
+                    href="login.html"
+                    onclick="deconnexion()">
 
-<h4>
+                    <i class="fa-solid fa-right-from-bracket"></i>
 
-<i class="fa-solid fa-chart-line"></i>
+                    <span>
+                        Déconnexion
+                    </span>
 
-Evolution des ventes
+                </a>
 
-</h4>
+            </li>
 
-</div>
 
+        </ul>
 
-<div class="card-body">
+    </nav>
 
-<div
-style="position:relative;height:320px;">
 
-<canvas
-id="salesChart">
-</canvas>
+    <!-- =====================================================
+         CONTENU PRINCIPAL
+    ===================================================== -->
 
-</div>
+    <div class="main">
 
-</div>
 
+        <!-- =================================================
+             MENU MOBILE
+        ================================================= -->
 
-</div>
+        <button
+            id="mobileMenuBtn"
+            class="mobile-menu-btn"
+            type="button">
 
-</div>
+            <i class="fa-solid fa-bars"></i>
 
+        </button>
 
-<!-- REPARTITION PRODUITS -->
 
-<div class="col-lg-4">
+        <!-- =================================================
+             TOPBAR
+        ================================================= -->
 
-<div class="dashboard-card">
+        <header class="topbar">
 
 
-<div class="card-header-custom">
+            <div>
 
-<h4>
+                <h2>
+                    Tableau de bord
+                </h2>
 
-<i class="fa-solid fa-chart-pie"></i>
+                <p>
+                    Bienvenue dans Ferme Asher ERP
+                </p>
 
-Répartition des produits
+            </div>
 
-</h4>
 
-</div>
+            <div class="top-icons">
 
 
-<div class="card-body">
+                <!-- NOTIFICATIONS -->
 
-<div
-style="position:relative;height:320px;">
+                <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#notificationModal">
 
-<canvas
-id="productChart">
-</canvas>
+                    <i class="fa-solid fa-bell"></i>
 
-</div>
+                </button>
 
 
-<p
-class="text-muted text-center mt-3 mb-0">
+                <!-- MESSAGES -->
 
-Répartition des produits enregistrés
+                <button
+                    type="button">
 
-</p>
+                    <i class="fa-solid fa-envelope"></i>
 
+                </button>
 
-</div>
 
+                <!-- PROFIL -->
 
-</div>
+                <div
+                    class="profile"
+                    data-bs-toggle="modal"
+                    data-bs-target="#profilModal">
 
-</div>
 
+                    <div class="profile-avatar">
 
-</div>
+                        <i class="fa-solid fa-user"></i>
 
+                    </div>
 
-<!-- =====================================================
-     ACTIVITES RECENTES + STOCK
-===================================================== -->
 
-<div class="row mt-4">
+                    <div>
 
+                        <strong>
+                            Administrateur
+                        </strong>
 
-<!-- ACTIVITES -->
+                        <br>
 
-<div class="col-lg-7">
+                        <small>
+                            Admin
+                        </small>
 
-<div class="dashboard-card">
+                    </div>
 
+                </div>
 
-<div class="card-header-custom">
 
-<h4>
+            </div>
 
-<i class="fa-solid fa-clock-rotate-left"></i>
+        </header>
 
-Activités récentes
 
-</h4>
+        <!-- =================================================
+             CARTES KPI
+        ================================================= -->
 
-</div>
+        <div class="cards">
 
 
-<div class="card-body">
+            <!-- VENTES -->
 
-<div class="table-responsive">
+            <div class="card-kpi">
 
-<table class="table table-hover">
+                <div>
 
+                    <h3 id="kpiVentes">
+                        0
+                    </h3>
 
-<thead>
+                    <p>
+                        Ventes
+                    </p>
 
-<tr>
+                </div>
 
-<th>
-Date
-</th>
+                <i class="fa-solid fa-cart-shopping"></i>
 
-<th>
-Client
-</th>
+            </div>
 
-<th>
-Activité
-</th>
 
-</tr>
+            <!-- PRODUITS -->
 
-</thead>
+            <div class="card-kpi">
 
+                <div>
 
-<tbody id="recentActivities">
+                    <h3 id="kpiStock">
+                        0
+                    </h3>
 
+                    <p>
+                        Produits
+                    </p>
 
-<tr>
+                </div>
 
-<td
-colspan="3"
-class="text-center text-muted">
+                <i class="fa-solid fa-box"></i>
 
-Aucune activité récente.
+            </div>
 
-</td>
 
-</tr>
+            <!-- CLIENTS -->
 
+            <div class="card-kpi">
 
-</tbody>
+                <div>
 
+                    <h3 id="kpiClients">
+                        0
+                    </h3>
 
-</table>
+                    <p>
+                        Clients
+                    </p>
 
-</div>
+                </div>
 
-</div>
+                <i class="fa-solid fa-users"></i>
 
+            </div>
 
-</div>
 
-</div>
+            <!-- CHIFFRE D'AFFAIRES -->
 
+            <div class="card-kpi">
 
-<!-- STOCK -->
+                <div>
 
-<div class="col-lg-5">
+                    <h3 id="kpiCA">
+                        0 FC
+                    </h3>
 
-<div class="dashboard-card">
+                    <p>
+                        Chiffre d'affaires
+                    </p>
 
+                </div>
 
-<div class="card-header-custom">
+                <i class="fa-solid fa-sack-dollar"></i>
 
-<h4>
+            </div>
 
-<i class="fa-solid fa-boxes-stacked"></i>
 
-État du stock
+        </div>
 
-</h4>
 
-</div>
+        <!-- =================================================
+             GRAPHIQUES
+        ================================================= -->
 
+        <div class="row mt-4">
 
-<div class="card-body">
 
-<table class="table table-borderless">
+            <!-- ÉVOLUTION DES VENTES -->
 
+            <div class="col-lg-8">
 
-<tr>
+                <div class="dashboard-card">
 
-<td>
-Œufs
-</td>
 
-<td>
+                    <div class="card-header-custom">
 
-<span class="badge bg-success">
-120
-</span>
+                        <h4>
 
-</td>
+                            <i class="fa-solid fa-chart-line"></i>
 
-</tr>
+                            Evolution des ventes
 
+                        </h4>
 
-<tr>
+                    </div>
 
-<td>
-Soja
-</td>
 
-<td>
+                    <div class="card-body">
 
-<span class="badge bg-warning">
-45
-</span>
+                        <div
+                            style="position:relative;height:320px;">
 
-</td>
+                            <canvas
+                                id="salesChart">
+                            </canvas>
 
-</tr>
+                        </div>
 
+                    </div>
 
-<tr>
 
-<td>
-Farine
-</td>
+                </div>
 
-<td>
+            </div>
 
-<span class="badge bg-danger">
-12
-</span>
 
-</td>
+            <!-- RÉPARTITION PRODUITS -->
 
-</tr>
+            <div class="col-lg-4">
 
+                <div class="dashboard-card">
 
-</table>
 
-</div>
+                    <div class="card-header-custom">
 
+                        <h4>
 
-</div>
+                            <i class="fa-solid fa-chart-pie"></i>
 
-</div>
+                            Répartition des produits
 
+                        </h4>
 
-</div>
+                    </div>
 
 
-<!-- =====================================================
-     AGRICULTURE + ELEVAGE + PARCELLES
-===================================================== -->
+                    <div class="card-body">
 
-<div class="row mt-4">
+                        <div
+                            style="position:relative;height:320px;">
 
+                            <canvas
+                                id="productChart">
+                            </canvas>
 
-<!-- AGRICULTURE -->
+                        </div>
 
-<div class="col-lg-4">
 
-<div class="dashboard-card">
+                        <p
+                            class="text-muted text-center mt-3 mb-0">
 
+                            Répartition des produits enregistrés
 
-<div class="card-header-custom">
+                        </p>
 
-<h4>
+                    </div>
 
-<i class="fa-solid fa-seedling"></i>
 
-Agriculture
+                </div>
 
-</h4>
+            </div>
 
-</div>
 
+        </div>
 
-<div class="card-body">
 
-<table class="table table-borderless">
+        <!-- =================================================
+             ACTIVITÉS + STOCK
+        ================================================= -->
 
+        <div class="row mt-4">
 
-<tr>
 
-<td>
-Activités aujourd'hui
-</td>
+            <!-- ACTIVITÉS -->
 
-<td>
+            <div class="col-lg-7">
 
-<span
-id="totalActivites"
-class="badge bg-success">
+                <div class="dashboard-card">
 
-0
 
-</span>
+                    <div class="card-header-custom">
 
-</td>
+                        <h4>
 
-</tr>
+                            <i class="fa-solid fa-clock-rotate-left"></i>
 
+                            Activités récentes
 
-<tr>
+                        </h4>
 
-<td>
-Aujourd'hui
-</td>
+                    </div>
 
-<td>
 
-<span
-id="activitesAujourdhui"
-class="badge bg-primary">
+                    <div class="card-body">
 
-0
 
-</span>
+                        <div class="table-responsive">
 
-</td>
+                            <table class="table table-hover">
 
-</tr>
 
+                                <thead>
 
-<tr>
+                                    <tr>
 
-<td>
-En cours
-</td>
+                                        <th>
+                                            Date
+                                        </th>
 
-<td>
+                                        <th>
+                                            Client
+                                        </th>
 
-<span
-id="activitesEnCours"
-class="badge bg-warning">
+                                        <th>
+                                            Activité
+                                        </th>
 
-0
+                                    </tr>
 
-</span>
+                                </thead>
 
-</td>
 
-</tr>
+                                <tbody id="recentActivities">
 
+                                    <tr>
 
-</table>
+                                        <td
+                                            colspan="3"
+                                            class="text-center text-muted">
 
-</div>
+                                            Aucune activité récente.
 
+                                        </td>
 
-</div>
+                                    </tr>
 
-</div>
+                                </tbody>
 
 
-<!-- ELEVAGE -->
+                            </table>
 
-<div class="col-lg-4">
+                        </div>
 
-<div class="dashboard-card">
 
+                    </div>
 
-<div class="card-header-custom">
+                </div>
 
-<h4>
+            </div>
 
-<i class="fa-solid fa-cow"></i>
 
-Élevage
+            <!-- STOCK -->
 
-</h4>
+            <div class="col-lg-5">
 
-</div>
+                <div class="dashboard-card">
 
 
-<div class="card-body">
+                    <div class="card-header-custom">
 
-<table class="table table-borderless">
+                        <h4>
 
+                            <i class="fa-solid fa-boxes-stacked"></i>
 
-<tr>
+                            État du stock
 
-<td>
-Cailles
-</td>
+                        </h4>
 
-<td>
+                    </div>
 
-<span class="badge bg-success">
-70
-</span>
 
-</td>
+                    <div class="card-body">
 
-</tr>
 
+                        <table class="table table-borderless">
 
-<tr>
 
-<td>
-Poules locales
-</td>
+                            <tr>
 
-<td>
+                                <td>
+                                    Œufs
+                                </td>
 
-<span class="badge bg-success">
-4
-</span>
+                                <td>
 
-</td>
+                                    <span class="badge bg-success">
+                                        120
+                                    </span>
 
-</tr>
+                                </td>
 
+                            </tr>
 
-<tr>
 
-<td>
-Production œufs
-</td>
+                            <tr>
 
-<td>
+                                <td>
+                                    Soja
+                                </td>
 
-<span class="badge bg-warning">
-15-18/jour
-</span>
+                                <td>
 
-</td>
+                                    <span class="badge bg-warning">
+                                        45
+                                    </span>
 
-</tr>
+                                </td>
 
+                            </tr>
 
-</table>
 
-</div>
+                            <tr>
 
+                                <td>
+                                    Farine
+                                </td>
 
-</div>
+                                <td>
 
-</div>
+                                    <span class="badge bg-danger">
+                                        12
+                                    </span>
 
+                                </td>
 
-<!-- PARCELLES -->
+                            </tr>
 
-<div class="col-lg-4">
 
-<div class="dashboard-card">
+                        </table>
 
 
-<div class="card-header-custom">
+                    </div>
 
-<h4>
+                </div>
 
-<i class="fa-solid fa-map-location-dot"></i>
+            </div>
 
-Parcelles
 
-</h4>
+        </div>
 
-</div>
 
+        <!-- =================================================
+             AGRICULTURE + ÉLEVAGE + PARCELLES
+        ================================================= -->
 
-<div class="card-body">
+        <div class="row mt-4">
 
-<table class="table table-borderless">
 
+            <!-- AGRICULTURE -->
 
-<tr>
+            <div class="col-lg-4">
 
-<td>
-Parcelle Nord
-</td>
+                <div class="dashboard-card">
 
-<td>
 
-<span class="badge bg-success">
-En exploitation
-</span>
+                    <div class="card-header-custom">
 
-</td>
+                        <h4>
 
-</tr>
+                            <i class="fa-solid fa-seedling"></i>
 
+                            Agriculture
 
-<tr>
+                        </h4>
 
-<td>
-Parcelle Sud
-</td>
+                    </div>
 
-<td>
 
-<span class="badge bg-warning">
-Préparation
-</span>
+                    <div class="card-body">
 
-</td>
 
-</tr>
+                        <table class="table table-borderless">
 
 
-<tr>
+                            <tr>
 
-<td>
-Parcelle Est
-</td>
+                                <td>
+                                    Activités aujourd'hui
+                                </td>
 
-<td>
+                                <td>
 
-<span class="badge bg-info">
-Dessouchage
-</span>
+                                    <span
+                                        id="totalActivites"
+                                        class="badge bg-success">
 
-</td>
+                                        0
 
-</tr>
+                                    </span>
 
+                                </td>
 
-</table>
+                            </tr>
 
-</div>
 
+                            <tr>
 
-</div>
+                                <td>
+                                    Aujourd'hui
+                                </td>
 
-</div>
+                                <td>
 
+                                    <span
+                                        id="activitesAujourdhui"
+                                        class="badge bg-primary">
 
-</div>
+                                        0
 
+                                    </span>
 
-<!-- =====================================================
-     FINANCES + CLIENTS
-===================================================== -->
+                                </td>
 
-<div class="row mt-4">
+                            </tr>
 
 
-<!-- FINANCES -->
+                            <tr>
 
-<div class="col-lg-6">
+                                <td>
+                                    En cours
+                                </td>
 
-<div class="dashboard-card">
+                                <td>
 
+                                    <span
+                                        id="activitesEnCours"
+                                        class="badge bg-warning">
 
-<div class="card-header-custom">
+                                        0
 
-<h4>
+                                    </span>
 
-<i class="fa-solid fa-sack-dollar"></i>
+                                </td>
 
-Situation financière
+                            </tr>
 
-</h4>
 
-</div>
+                        </table>
 
 
-<div class="card-body">
+                    </div>
 
-<table class="table">
+                </div>
 
+            </div>
 
-<tr>
 
-<td>
-Revenus du mois
-</td>
+            <!-- ÉLEVAGE -->
 
-<td class="text-success">
+            <div class="col-lg-4">
 
-<strong>
-2 450 000 FC
-</strong>
+                <div class="dashboard-card">
 
-</td>
 
-</tr>
+                    <div class="card-header-custom">
 
+                        <h4>
 
-<tr>
+                            <i class="fa-solid fa-cow"></i>
 
-<td>
-Dépenses
-</td>
+                            Élevage
 
-<td class="text-danger">
+                        </h4>
 
-<strong>
-1 230 000 FC
-</strong>
+                    </div>
 
-</td>
 
-</tr>
+                    <div class="card-body">
 
 
-<tr>
+                        <table class="table table-borderless">
 
-<td>
-Bénéfice estimé
-</td>
 
-<td class="text-primary">
+                            <tr>
 
-<strong>
-1 220 000 FC
-</strong>
+                                <td>
+                                    Cailles
+                                </td>
 
-</td>
+                                <td>
 
-</tr>
+                                    <span class="badge bg-success">
+                                        70
+                                    </span>
 
+                                </td>
 
-</table>
+                            </tr>
 
-</div>
 
+                            <tr>
 
-</div>
+                                <td>
+                                    Poules locales
+                                </td>
 
-</div>
+                                <td>
 
+                                    <span class="badge bg-success">
+                                        4
+                                    </span>
 
-<!-- NOUVEAUX CLIENTS -->
+                                </td>
 
-<div class="col-lg-6">
+                            </tr>
 
-<div class="dashboard-card">
 
+                            <tr>
 
-<div class="card-header-custom">
+                                <td>
+                                    Production œufs
+                                </td>
 
-<h4>
+                                <td>
 
-<i class="fa-solid fa-user-plus"></i>
+                                    <span class="badge bg-warning">
+                                        15-18/jour
+                                    </span>
 
-Nouveaux clients
+                                </td>
 
-</h4>
+                            </tr>
 
-</div>
 
+                        </table>
 
-<div class="card-body">
 
-<ul class="list-group list-group-flush">
+                    </div>
 
+                </div>
 
-<li class="list-group-item">
-Restaurant ABC
-</li>
+            </div>
 
 
-<li class="list-group-item">
-Supermarché Espoir
-</li>
+            <!-- PARCELLES -->
 
+            <div class="col-lg-4">
 
-<li class="list-group-item">
-Jean Mukendi
-</li>
+                <div class="dashboard-card">
 
 
-<li class="list-group-item">
-Ferme Nzambe
-</li>
+                    <div class="card-header-custom">
 
+                        <h4>
 
-</ul>
+                            <i class="fa-solid fa-map-location-dot"></i>
 
-</div>
+                            Parcelles
 
+                        </h4>
 
-</div>
+                    </div>
 
-</div>
 
+                    <div class="card-body">
 
-</div>
 
+                        <table class="table table-borderless">
 
-<!-- =====================================================
-     CALENDRIER - EMPLOYES - EQUIPEMENTS
-===================================================== -->
 
-<div class="row mt-4">
+                            <tr>
 
+                                <td>
+                                    Parcelle Nord
+                                </td>
 
-<!-- CALENDRIER -->
+                                <td>
 
-<div class="col-lg-4">
+                                    <span class="badge bg-success">
+                                        En exploitation
+                                    </span>
 
-<div class="dashboard-card">
+                                </td>
 
+                            </tr>
 
-<div class="card-header-custom">
 
-<h4>
+                            <tr>
 
-<i class="fa-solid fa-calendar-days"></i>
+                                <td>
+                                    Parcelle Sud
+                                </td>
 
-Calendrier
+                                <td>
 
-</h4>
+                                    <span class="badge bg-warning">
+                                        Préparation
+                                    </span>
 
-</div>
+                                </td>
 
+                            </tr>
 
-<div class="card-body">
 
-<table class="table table-borderless">
+                            <tr>
 
+                                <td>
+                                    Parcelle Est
+                                </td>
 
-<tr>
+                                <td>
 
-<td>
-Aujourd'hui
-</td>
+                                    <span class="badge bg-info">
+                                        Dessouchage
+                                    </span>
 
-<td>
+                                </td>
 
-<strong>
-08 Septembre 2026
-</strong>
+                            </tr>
 
-</td>
 
-</tr>
+                        </table>
 
 
-<tr>
+                    </div>
 
-<td>
-Réunion
-</td>
+                </div>
 
-<td>
-08:00
-</td>
+            </div>
 
-</tr>
 
+        </div>
 
-<tr>
 
-<td>
-Livraison
-</td>
+        <!-- =================================================
+             FINANCES + CLIENTS
+        ================================================= -->
 
-<td>
-10:30
-</td>
+        <div class="row mt-4">
 
-</tr>
 
+            <!-- FINANCES -->
 
-<tr>
+            <div class="col-lg-6">
 
-<td>
-Vaccination
-</td>
+                <div class="dashboard-card">
 
-<td>
-14:00
-</td>
 
-</tr>
+                    <div class="card-header-custom">
 
+                        <h4>
 
-<tr>
+                            <i class="fa-solid fa-sack-dollar"></i>
 
-<td>
-Récolte
-</td>
+                            Situation financière
 
-<td>
-16:00
-</td>
+                        </h4>
 
-</tr>
+                    </div>
 
 
-</table>
+                    <div class="card-body">
 
-</div>
 
+                        <table class="table">
 
-</div>
 
-</div>
+                            <tr>
 
+                                <td>
+                                    Revenus du mois
+                                </td>
 
-<!-- EMPLOYES -->
+                                <td class="text-success">
 
-<div class="col-lg-4">
+                                    <strong>
+                                        2 450 000 FC
+                                    </strong>
 
-<div class="dashboard-card">
+                                </td>
 
+                            </tr>
 
-<div class="card-header-custom">
 
-<h4>
+                            <tr>
 
-<i class="fa-solid fa-user-group"></i>
+                                <td>
+                                    Dépenses
+                                </td>
 
-Employés présents
+                                <td class="text-danger">
 
-</h4>
+                                    <strong>
+                                        1 230 000 FC
+                                    </strong>
 
-</div>
+                                </td>
 
+                            </tr>
 
-<div class="card-body">
 
-<table class="table table-hover">
+                            <tr>
 
+                                <td>
+                                    Bénéfice estimé
+                                </td>
 
-<thead>
+                                <td class="text-primary">
 
-<tr>
+                                    <strong>
+                                        1 220 000 FC
+                                    </strong>
 
-<th>
-Nom
-</th>
+                                </td>
 
-<th>
-Statut
-</th>
+                            </tr>
 
-</tr>
 
-</thead>
+                        </table>
 
 
-<tbody>
+                    </div>
 
+                </div>
 
-<tr>
+            </div>
 
-<td>
-Rigaine
-</td>
 
-<td>
+            <!-- CLIENTS -->
 
-<span class="badge bg-success">
-Présent
-</span>
+            <div class="col-lg-6">
 
-</td>
+                <div class="dashboard-card">
 
-</tr>
 
+                    <div class="card-header-custom">
 
-<tr>
+                        <h4>
 
-<td>
-Eddy
-</td>
+                            <i class="fa-solid fa-user-plus"></i>
 
-<td>
+                            Nouveaux clients
 
-<span class="badge bg-success">
-Présent
-</span>
+                        </h4>
 
-</td>
+                    </div>
 
-</tr>
 
+                    <div class="card-body">
 
-<tr>
 
-<td>
-Agent 3
-</td>
+                        <ul class="list-group list-group-flush">
 
-<td>
 
-<span class="badge bg-warning">
-Congé
-</span>
+                            <li class="list-group-item">
+                                Restaurant ABC
+                            </li>
 
-</td>
 
-</tr>
+                            <li class="list-group-item">
+                                Supermarché Espoir
+                            </li>
 
 
-</tbody>
+                            <li class="list-group-item">
+                                Jean Mukendi
+                            </li>
 
 
-</table>
+                            <li class="list-group-item">
+                                Ferme Nzambe
+                            </li>
 
-</div>
 
+                        </ul>
 
-</div>
 
-</div>
+                    </div>
 
+                </div>
 
-<!-- EQUIPEMENTS -->
+            </div>
 
-<div class="col-lg-4">
 
-<div class="dashboard-card">
+        </div>
 
 
-<div class="card-header-custom">
+        <!-- =================================================
+             CALENDRIER + EMPLOYÉS + ÉQUIPEMENTS
+        ================================================= -->
 
-<h4>
+        <div class="row mt-4">
 
-<i class="fa-solid fa-tractor"></i>
 
-Équipements
+            <!-- CALENDRIER -->
 
-</h4>
+            <div class="col-lg-4">
 
-</div>
+                <div class="dashboard-card">
 
 
-<div class="card-body">
+                    <div class="card-header-custom">
 
-<table class="table table-borderless">
+                        <h4>
 
+                            <i class="fa-solid fa-calendar-days"></i>
 
-<tr>
+                            Calendrier
 
-<td>
-Tracteur
-</td>
+                        </h4>
 
-<td>
+                    </div>
 
-<span class="badge bg-success">
-Disponible
-</span>
 
-</td>
+                    <div class="card-body">
 
-</tr>
 
+                        <table class="table table-borderless">
 
-<tr>
 
-<td>
-Pompe
-</td>
+                            <tr>
 
-<td>
+                                <td>
+                                    Aujourd'hui
+                                </td>
 
-<span class="badge bg-success">
-Disponible
-</span>
+                                <td>
+                                    <strong>
+                                        28 Septembre 2026
+                                    </strong>
+                                </td>
 
-</td>
+                            </tr>
 
-</tr>
 
+                            <tr>
 
-<tr>
+                                <td>
+                                    Réunion
+                                </td>
 
-<td>
-Incubateur
-</td>
+                                <td>
+                                    08:00
+                                </td>
 
-<td>
+                            </tr>
 
-<span class="badge bg-success">
-En service
-</span>
 
-</td>
+                            <tr>
 
-</tr>
+                                <td>
+                                    Livraison
+                                </td>
 
+                                <td>
+                                    10:30
+                                </td>
 
-<tr>
+                            </tr>
 
-<td>
-Broyeur
-</td>
 
-<td>
+                            <tr>
 
-<span class="badge bg-danger">
-Maintenance
-</span>
+                                <td>
+                                    Vaccination
+                                </td>
 
-</td>
+                                <td>
+                                    14:00
+                                </td>
 
-</tr>
+                            </tr>
 
 
-</table>
+                            <tr>
 
-</div>
+                                <td>
+                                    Récolte
+                                </td>
 
+                                <td>
+                                    16:00
+                                </td>
 
-</div>
+                            </tr>
 
-</div>
 
+                        </table>
 
-</div>
 
+                    </div>
 
-<!-- =====================================================
-     OBJECTIFS DU MOIS
-===================================================== -->
+                </div>
 
-<div class="row mt-4">
+            </div>
 
 
-<div class="col-lg-12">
+            <!-- EMPLOYÉS -->
 
-<div class="dashboard-card">
+            <div class="col-lg-4">
 
+                <div class="dashboard-card">
 
-<div class="card-header-custom">
 
-<h4>
+                    <div class="card-header-custom">
 
-<i class="fa-solid fa-bullseye"></i>
+                        <h4>
 
-Objectifs du mois
+                            <i class="fa-solid fa-user-group"></i>
 
-</h4>
+                            Employés présents
 
-</div>
+                        </h4>
 
+                    </div>
 
-<div class="card-body">
 
+                    <div class="card-body">
 
-<!-- SOJA -->
 
-<div class="mb-3">
+                        <table class="table table-hover">
 
-<label>
-Production de soja
-</label>
 
-<div class="progress">
+                            <thead>
 
-<div
-class="progress-bar bg-success"
-style="width:65%;">
+                                <tr>
 
-65%
+                                    <th>
+                                        Nom
+                                    </th>
 
-</div>
+                                    <th>
+                                        Statut
+                                    </th>
 
-</div>
+                                </tr>
 
-</div>
+                            </thead>
 
 
-<!-- OEUFS -->
+                            <tbody>
 
-<div class="mb-3">
 
-<label>
-Production d'œufs
-</label>
+                                <tr>
 
-<div class="progress">
+                                    <td>
+                                        Rigaine
+                                    </td>
 
-<div
-class="progress-bar bg-warning"
-style="width:82%;">
+                                    <td>
 
-82%
+                                        <span class="badge bg-success">
+                                            Présent
+                                        </span>
 
-</div>
+                                    </td>
 
-</div>
+                                </tr>
 
-</div>
 
+                                <tr>
 
-<!-- VENTES -->
+                                    <td>
+                                        Eddy
+                                    </td>
 
-<div class="mb-3">
+                                    <td>
 
-<label>
-Ventes mensuelles
-</label>
+                                        <span class="badge bg-success">
+                                            Présent
+                                        </span>
 
-<div class="progress">
+                                    </td>
 
-<div
-class="progress-bar bg-primary"
-style="width:48%;">
+                                </tr>
 
-48%
 
-</div>
+                                <tr>
 
-</div>
+                                    <td>
+                                        Agent 3
+                                    </td>
 
-</div>
+                                    <td>
 
+                                        <span class="badge bg-warning">
+                                            Congé
+                                        </span>
 
-<!-- PARCELLES -->
+                                    </td>
 
-<div class="mb-3">
+                                </tr>
 
-<label>
-Développement des parcelles
-</label>
 
-<div class="progress">
+                            </tbody>
 
-<div
-class="progress-bar bg-info"
-style="width:72%;">
 
-72%
+                        </table>
 
-</div>
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
+            </div>
 
-</div>
 
+            <!-- ÉQUIPEMENTS -->
 
-</div>
+            <div class="col-lg-4">
 
-</div>
+                <div class="dashboard-card">
 
 
-</div>
+                    <div class="card-header-custom">
 
+                        <h4>
 
-<!-- =====================================================
-     TACHES + METEO
-===================================================== -->
+                            <i class="fa-solid fa-tractor"></i>
 
-<div class="row mt-4">
+                            Équipements
 
+                        </h4>
 
-<!-- TACHES -->
+                    </div>
 
-<div class="col-lg-6">
 
-<div class="dashboard-card">
+                    <div class="card-body">
 
 
-<div class="card-header-custom">
+                        <table class="table table-borderless">
 
-<h4>
 
-<i class="fa-solid fa-list-check"></i>
+                            <tr>
 
-Tâches du jour
+                                <td>
+                                    Tracteur
+                                </td>
 
-</h4>
+                                <td>
 
-</div>
+                                    <span class="badge bg-success">
+                                        Disponible
+                                    </span>
 
+                                </td>
 
-<div class="card-body">
+                            </tr>
 
 
-<div class="form-check mb-3">
+                            <tr>
 
-<input
-class="form-check-input"
-type="checkbox"
-checked>
+                                <td>
+                                    Pompe
+                                </td>
 
-<label class="form-check-label">
+                                <td>
 
-Récolte de soja
+                                    <span class="badge bg-success">
+                                        Disponible
+                                    </span>
 
-</label>
+                                </td>
 
-</div>
+                            </tr>
 
 
-<div class="form-check mb-3">
+                            <tr>
 
-<input
-class="form-check-input"
-type="checkbox">
+                                <td>
+                                    Incubateur
+                                </td>
 
-<label class="form-check-label">
+                                <td>
 
-Livraison des œufs
+                                    <span class="badge bg-success">
+                                        En service
+                                    </span>
 
-</label>
+                                </td>
 
-</div>
+                            </tr>
 
 
-<div class="form-check mb-3">
+                            <tr>
 
-<input
-class="form-check-input"
-type="checkbox">
+                                <td>
+                                    Broyeur
+                                </td>
 
-<label class="form-check-label">
+                                <td>
 
-Nettoyage des cages
+                                    <span class="badge bg-danger">
+                                        Maintenance
+                                    </span>
 
-</label>
+                                </td>
 
-</div>
+                            </tr>
 
 
-<div class="form-check mb-3">
+                        </table>
 
-<input
-class="form-check-input"
-type="checkbox">
 
-<label class="form-check-label">
+                    </div>
 
-Contrôle du stock
+                </div>
 
-</label>
+            </div>
 
-</div>
 
+        </div>
 
-<div class="form-check">
 
-<input
-class="form-check-input"
-type="checkbox">
+        <!-- =================================================
+             OBJECTIFS DU MOIS
+        ================================================= -->
 
-<label class="form-check-label">
+        <div class="row mt-4">
 
-Préparer les commandes
+            <div class="col-lg-12">
 
-</label>
+                <div class="dashboard-card">
 
-</div>
 
+                    <div class="card-header-custom">
 
-</div>
+                        <h4>
 
+                            <i class="fa-solid fa-bullseye"></i>
 
-</div>
+                            Objectifs du mois
 
-</div>
+                        </h4>
 
+                    </div>
 
-<!-- METEO -->
 
-<div class="col-lg-6">
+                    <div class="card-body">
 
-<div class="dashboard-card">
 
+                        <!-- SOJA -->
 
-<div class="card-header-custom">
+                        <div class="mb-3">
 
-<h4>
+                            <label>
+                                Production de soja
+                            </label>
 
-<i class="fa-solid fa-cloud-sun"></i>
+                            <div class="progress">
 
-Conditions météo
+                                <div
+                                    class="progress-bar bg-success"
+                                    style="width:65%;">
 
-</h4>
+                                    65%
 
-</div>
+                                </div>
 
+                            </div>
 
-<div class="card-body">
+                        </div>
 
 
-<div class="row text-center">
+                        <!-- OEUFS -->
 
+                        <div class="mb-3">
 
-<div class="col-4">
+                            <label>
+                                Production d'œufs
+                            </label>
 
-<i
-class="fa-solid fa-sun fa-3x text-warning">
-</i>
+                            <div class="progress">
 
-<h5 class="mt-3">
-28°C
-</h5>
+                                <div
+                                    class="progress-bar bg-warning"
+                                    style="width:82%;">
 
-<small>
-Ensoleillé
-</small>
+                                    82%
 
-</div>
+                                </div>
 
+                            </div>
 
-<div class="col-4">
+                        </div>
 
-<i
-class="fa-solid fa-droplet fa-3x text-primary">
-</i>
 
-<h5 class="mt-3">
-55 %
-</h5>
+                        <!-- VENTES -->
 
-<small>
-Humidité
-</small>
+                        <div class="mb-3">
 
-</div>
+                            <label>
+                                Ventes mensuelles
+                            </label>
 
+                            <div class="progress">
 
-<div class="col-4">
+                                <div
+                                    class="progress-bar bg-primary"
+                                    style="width:48%;">
 
-<i
-class="fa-solid fa-wind fa-3x text-success">
-</i>
+                                    48%
 
-<h5 class="mt-3">
-12 km/h
-</h5>
+                                </div>
 
-<small>
-Vent
-</small>
+                            </div>
 
-</div>
+                        </div>
 
 
-</div>
+                        <!-- PARCELLES -->
 
+                        <div class="mb-3">
 
-<hr>
+                            <label>
+                                Développement des parcelles
+                            </label>
 
+                            <div class="progress">
 
-<p class="mb-0">
+                                <div
+                                    class="progress-bar bg-info"
+                                    style="width:72%;">
 
-Conditions favorables pour les travaux agricoles.
+                                    72%
 
-</p>
+                                </div>
 
+                            </div>
 
-</div>
+                        </div>
 
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
+            </div>
 
-</div>
+        </div>
 
 
-<!-- =====================================================
-     FOOTER
-===================================================== -->
+        <!-- =================================================
+             TÂCHES + MÉTÉO
+        ================================================= -->
 
-<footer class="erp-footer mt-5">
+        <div class="row mt-4">
 
 
-<div class="row align-items-center">
+            <!-- TÂCHES -->
 
+            <div class="col-lg-6">
 
-<div class="col-md-6">
+                <div class="dashboard-card">
 
-© 2026
 
-<strong>
-Ferme Asher ERP
-</strong>
+                    <div class="card-header-custom">
 
-</div>
+                        <h4>
 
+                            <i class="fa-solid fa-list-check"></i>
 
-<div class="col-md-6 text-md-end">
+                            Tâches du jour
 
-Version 1.0 • Agriculture • Élevage • Gestion
+                        </h4>
 
-</div>
+                    </div>
 
 
-</div>
+                    <div class="card-body">
 
 
-</footer>
+                        <div class="form-check mb-3">
 
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                checked>
 
-</div>
-<!-- FIN .main -->
+                            <label class="form-check-label">
+                                Récolte de soja
+                            </label>
+
+                        </div>
+
+
+                        <div class="form-check mb-3">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox">
+
+                            <label class="form-check-label">
+                                Livraison des œufs
+                            </label>
+
+                        </div>
+
+
+                        <div class="form-check mb-3">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox">
+
+                            <label class="form-check-label">
+                                Nettoyage des cages
+                            </label>
+
+                        </div>
+
+
+                        <div class="form-check mb-3">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox">
+
+                            <label class="form-check-label">
+                                Contrôle du stock
+                            </label>
+
+                        </div>
+
+
+                        <div class="form-check">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox">
+
+                            <label class="form-check-label">
+                                Préparer les commandes
+                            </label>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MÉTÉO -->
+
+            <div class="col-lg-6">
+
+                <div class="dashboard-card">
+
+
+                    <div class="card-header-custom">
+
+                        <h4>
+
+                            <i class="fa-solid fa-cloud-sun"></i>
+
+                            Conditions météo
+
+                        </h4>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <div class="row text-center">
+
+
+                            <div class="col-4">
+
+                                <i
+                                    class="fa-solid fa-sun fa-3x text-warning">
+                                </i>
+
+                                <h5 class="mt-3">
+                                    28°C
+                                </h5>
+
+                                <small>
+                                    Ensoleillé
+                                </small>
+
+                            </div>
+
+
+                            <div class="col-4">
+
+                                <i
+                                    class="fa-solid fa-droplet fa-3x text-primary">
+                                </i>
+
+                                <h5 class="mt-3">
+                                    55 %
+                                </h5>
+
+                                <small>
+                                    Humidité
+                                </small>
+
+                            </div>
+
+
+                            <div class="col-4">
+
+                                <i
+                                    class="fa-solid fa-wind fa-3x text-success">
+                                </i>
+
+                                <h5 class="mt-3">
+                                    12 km/h
+                                </h5>
+
+                                <small>
+                                    Vent
+                                </small>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <hr>
+
+
+                        <p class="mb-0">
+                            Conditions favorables pour les travaux agricoles.
+                        </p>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================= -->
+
+        <footer class="erp-footer mt-5">
+
+
+            <div class="row align-items-center">
+
+
+                <div class="col-md-6">
+
+                    © 2026
+
+                    <strong>
+                        Ferme Asher ERP
+                    </strong>
+
+                </div>
+
+
+                <div class="col-md-6 text-md-end">
+
+                    Version 1.0 • Agriculture • Élevage • Gestion
+
+                </div>
+
+
+            </div>
+
+
+        </footer>
+
+
+    </div>
+    <!-- FIN .main -->
 
 
 </div>
@@ -2862,120 +2488,118 @@ Version 1.0 • Agriculture • Élevage • Gestion
 ===================================================== -->
 
 <div
-class="modal fade"
-id="profilModal"
-tabindex="-1"
-aria-hidden="true">
+    class="modal fade"
+    id="profilModal"
+    tabindex="-1"
+    aria-hidden="true">
 
 
-<div class="modal-dialog">
+    <div class="modal-dialog">
 
 
-<div class="modal-content">
+        <div class="modal-content">
 
 
-<div class="modal-header bg-success text-white">
+            <div class="modal-header bg-success text-white">
 
 
-<h5 class="modal-title">
+                <h5 class="modal-title">
 
-<i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-user"></i>
 
-Profil utilisateur
+                    Profil utilisateur
 
-</h5>
-
-
-<button
-type="button"
-class="btn-close btn-close-white"
-data-bs-dismiss="modal"
-aria-label="Fermer">
-</button>
+                </h5>
 
 
-</div>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer">
+                </button>
 
 
-<div class="modal-body">
+            </div>
 
 
-<div class="text-center">
+            <div class="modal-body">
 
 
-<div class="profile-avatar-large mb-3">
-
-<i class="fa-solid fa-user"></i>
-
-</div>
+                <div class="text-center">
 
 
-<h4>
-Administrateur
-</h4>
+                    <div class="profile-avatar-large mb-3">
+
+                        <i class="fa-solid fa-user"></i>
+
+                    </div>
 
 
-<p class="text-muted">
-Ferme Asher ERP
-</p>
+                    <h4>
+                        Administrateur
+                    </h4>
 
 
-</div>
+                    <p class="text-muted">
+                        Ferme Asher ERP
+                    </p>
 
 
-<table class="table">
+                </div>
 
 
-<tr>
-
-<th>
-Nom
-</th>
-
-<td>
-Administrateur
-</td>
-
-</tr>
+                <table class="table">
 
 
-<tr>
+                    <tr>
 
-<th>
-Rôle
-</th>
+                        <th>
+                            Nom
+                        </th>
 
-<td>
-Administrateur
-</td>
+                        <td>
+                            Administrateur
+                        </td>
 
-</tr>
-
-
-<tr>
-
-<th>
-Dernière connexion
-</th>
-
-<td id="lastLogin">
-Aujourd'hui
-</td>
-
-</tr>
+                    </tr>
 
 
-</table>
+                    <tr>
+
+                        <th>
+                            Rôle
+                        </th>
+
+                        <td>
+                            Administrateur
+                        </td>
+
+                    </tr>
 
 
-</div>
+                    <tr>
+
+                        <th>
+                            Dernière connexion
+                        </th>
+
+                        <td id="lastLogin">
+                            Aujourd'hui
+                        </td>
+
+                    </tr>
 
 
-</div>
+                </table>
 
 
-</div>
+            </div>
 
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -2985,86 +2609,76 @@ Aujourd'hui
 ===================================================== -->
 
 <div
-class="modal fade"
-id="notificationModal"
-tabindex="-1"
-aria-hidden="true">
+    class="modal fade"
+    id="notificationModal"
+    tabindex="-1"
+    aria-hidden="true">
 
 
-<div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg">
 
 
-<div class="modal-content">
+        <div class="modal-content">
 
 
-<div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-primary text-white">
 
 
-<h5 class="modal-title">
+                <h5 class="modal-title">
 
-<i class="fa-solid fa-bell"></i>
+                    <i class="fa-solid fa-bell"></i>
 
-Notifications
+                    Notifications
 
-</h5>
-
-
-<button
-type="button"
-class="btn-close btn-close-white"
-data-bs-dismiss="modal"
-aria-label="Fermer">
-</button>
+                </h5>
 
 
-</div>
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer">
+                </button>
 
 
-<div class="modal-body">
+            </div>
 
 
-<div class="list-group">
+            <div class="modal-body">
 
 
-<div class="list-group-item">
-
-🟢 Nouvelle vente enregistrée.
-
-</div>
+                <div class="list-group">
 
 
-<div class="list-group-item">
-
-🟡 Stock de soja faible.
-
-</div>
+                    <div class="list-group-item">
+                        🟢 Nouvelle vente enregistrée.
+                    </div>
 
 
-<div class="list-group-item">
-
-🔵 Livraison prévue demain.
-
-</div>
+                    <div class="list-group-item">
+                        🟡 Stock de soja faible.
+                    </div>
 
 
-<div class="list-group-item">
-
-🔴 Vaccination des cailles demain.
-
-</div>
+                    <div class="list-group-item">
+                        🔵 Livraison prévue demain.
+                    </div>
 
 
-</div>
+                    <div class="list-group-item">
+                        🔴 Vaccination des cailles demain.
+                    </div>
 
 
-</div>
+                </div>
 
 
-</div>
+            </div>
 
 
-</div>
+        </div>
 
+    </div>
 
 </div>
 
@@ -3075,9 +2689,7 @@ aria-label="Fermer">
 
 <div id="loader">
 
-<div class="spinner-border text-success">
-
-</div>
+    <div class="spinner-border text-success"></div>
 
 </div>
 
@@ -3086,38 +2698,55 @@ aria-label="Fermer">
      SCRIPTS
 ===================================================== -->
 
+
+<!-- BOOTSTRAP -->
+
 <script
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
 </script>
 
 
+<!-- CHART.JS -->
+
 <script
-src="https://cdn.jsdelivr.net/npm/chart.js">
+    src="https://cdn.jsdelivr.net/npm/chart.js">
 </script>
 
 
+<!-- SUPABASE SDK -->
+
 <script
-src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 </script>
 
 
+<!-- SUPABASE CONFIGURATION -->
+
 <script
-src="js/supabase.js">
+    src="js/supabase.js">
 </script>
 
 
+<!-- PERMISSIONS -->
+
 <script
-src="js/permissions.js">
+    src="js/permissions.js">
 </script>
 
 
-<script
-src="js/local-db.js">
-</script>
+<!-- BASE LOCALE -->
 
 <script
-src="js/dashboard.js?v=6">
+    src="js/local-db.js">
 </script>
+
+
+<!-- DASHBOARD -->
+
+<script
+    src="js/dashboard.js?v=6">
+</script>
+
 
 </body>
 
