@@ -161,18 +161,53 @@ function initialiserConnexion() {
             }
 
 
-            /*================================================
-                2. CONNEXION SUPABASE AUTH
-            =================================================*/
+           /*------------------------------------------
+    1. CONNEXION SUPABASE AUTH
+------------------------------------------*/
 
-            const { data, error } =
-                await window.supabaseClient.auth.signInWithPassword({
+const estEmail =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(utilisateur);
 
-                    email: emailConnexion,
+let credentials;
 
-                    password: motdepasse
+if (estEmail) {
 
-                });
+    // Connexion avec adresse e-mail
+    credentials = {
+        email: utilisateur,
+        password: motdepasse
+    };
+
+} else {
+
+    // Connexion avec numéro de téléphone
+    credentials = {
+        phone: utilisateur,
+        password: motdepasse
+    };
+
+}
+
+
+const { data, error } =
+    await window.supabaseClient.auth.signInWithPassword(
+        credentials
+    );
+
+
+if (error) {
+
+    console.error(
+        "Erreur Supabase Auth :",
+        error
+    );
+
+    alert(
+        "Numéro de téléphone/e-mail ou mot de passe incorrect."
+    );
+
+    return;
+}
 
 
             if (error) {
