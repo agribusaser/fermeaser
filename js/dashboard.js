@@ -16,11 +16,11 @@ let produitsERP = [];
 let clientsERP = [];
 
 let channelDashboard = null;
-
 let dashboardInitialise = false;
 let actualisationEnCours = false;
 let reconnexionEnCours = false;
 let timerReconnexion = null;
+let realtimeConnecte = false;
 
 
 /* ==================================================
