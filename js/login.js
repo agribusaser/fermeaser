@@ -682,12 +682,12 @@ async function deconnexion(event) {
 
         if (window.supabaseClient) {
 
-            const {
-                error
-            } =
-                await window.supabaseClient
-                    .auth
-                    .signOut();
+           const {
+    error
+} =
+    await window.supabaseClient
+        .auth
+        .signOut();
 
 
             if (error) {
