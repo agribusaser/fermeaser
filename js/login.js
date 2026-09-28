@@ -1,16 +1,18 @@
+"use strict";
+
 /*====================================================
     FERME ASHER ERP
     LOGIN.JS
     AUTHENTIFICATION SUPABASE
-    Version 7.0
+    VERSION 7.0
 
-    CONNEXION :
-    - E-mail + mot de passe
-    - Téléphone + mot de passe
-
-    Le téléphone est recherché dans la table
-    public.utilisateurs puis l'e-mail associé
-    est utilisé pour Supabase Auth.
+    Fonctionnalités :
+    - Connexion par e-mail
+    - Connexion par téléphone
+    - Vérification du profil ERP
+    - Gestion de session ERP
+    - Déconnexion complète Supabase
+    - Changement de compte sans reconnexion automatique
 ====================================================*/
 
 
@@ -18,7 +20,12 @@
     INITIALISATION
 ====================================================*/
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async function () {
+
+    console.log("==========================================");
+    console.log("FERME ASHER ERP - LOGIN VERSION 7.0");
+    console.log("Initialisation...");
+    console.log("==========================================");
 
     await verifierSession();
 
@@ -37,30 +44,25 @@ function initialiserConnexion() {
         document.getElementById("loginForm");
 
     if (!formulaire) {
-
-        console.error(
-            "Formulaire loginForm introuvable."
-        );
-
         return;
     }
 
 
     formulaire.addEventListener(
         "submit",
-        async function (e) {
+        async function (event) {
 
-            e.preventDefault();
+            event.preventDefault();
 
 
             /*------------------------------------------
-                1. VERIFIER SUPABASE
+                Vérifier Supabase
             ------------------------------------------*/
 
             if (!window.supabaseClient) {
 
                 alert(
-                    "Erreur : Supabase n'est pas disponible. Vérifiez le chargement de supabase.js."
+                    "Erreur : Supabase n'est pas disponible."
                 );
 
                 console.error(
@@ -72,7 +74,7 @@ function initialiserConnexion() {
 
 
             /*------------------------------------------
-                2. RECUPERER LES CHAMPS
+                Récupérer les champs
             ------------------------------------------*/
 
             const champIdentifiant =
@@ -85,11 +87,7 @@ function initialiserConnexion() {
             if (!champIdentifiant || !champMotDePasse) {
 
                 console.error(
-                    "Champ username ou password introuvable."
-                );
-
-                alert(
-                    "Erreur : les champs de connexion sont introuvables."
+                    "Champs de connexion introuvables."
                 );
 
                 return;
@@ -104,7 +102,7 @@ function initialiserConnexion() {
 
 
             /*------------------------------------------
-                3. VERIFIER LES CHAMPS
+                Vérifier les champs
             ------------------------------------------*/
 
             if (
@@ -121,7 +119,7 @@ function initialiserConnexion() {
 
 
             /*------------------------------------------
-                4. BOUTON CONNEXION
+                Désactiver le bouton
             ------------------------------------------*/
 
             const bouton =
@@ -136,15 +134,14 @@ function initialiserConnexion() {
 
                 bouton.innerHTML =
                     '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
-
             }
 
 
             try {
 
-                /*--------------------------------------
-                    5. DETERMINER LE TYPE D'IDENTIFIANT
-                --------------------------------------*/
+                /*======================================
+                    1. DETERMINER LE TYPE D'IDENTIFIANT
+                ======================================*/
 
                 const estEmail =
                     /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -156,7 +153,7 @@ function initialiserConnexion() {
 
 
                 /*======================================
-                    CAS 1 : CONNEXION PAR TELEPHONE
+                    2. SI TELEPHONE
                 ======================================*/
 
                 if (!estEmail) {
@@ -166,10 +163,6 @@ function initialiserConnexion() {
                     );
 
 
-                    /*----------------------------------
-                        Rechercher le téléphone
-                    ----------------------------------*/
-
                     const {
                         data: profilTelephone,
                         error: telephoneError
@@ -177,7 +170,7 @@ function initialiserConnexion() {
                         await window.supabaseClient
                             .from("utilisateurs")
                             .select(
-                                "id, auth_user_id, nom, email, telephone, role, actif"
+                                "email, actif"
                             )
                             .eq(
                                 "telephone",
@@ -189,10 +182,6 @@ function initialiserConnexion() {
                             )
                             .maybeSingle();
 
-
-                    /*----------------------------------
-                        Erreur recherche téléphone
-                    ----------------------------------*/
 
                     if (telephoneError) {
 
@@ -209,10 +198,6 @@ function initialiserConnexion() {
                     }
 
 
-                    /*----------------------------------
-                        Téléphone introuvable
-                    ----------------------------------*/
-
                     if (!profilTelephone) {
 
                         alert(
@@ -223,49 +208,28 @@ function initialiserConnexion() {
                     }
 
 
-                    /*----------------------------------
-                        Vérifier l'e-mail associé
-                    ----------------------------------*/
-
-                    if (
-                        !profilTelephone.email ||
-                        profilTelephone.email.trim() === ""
-                    ) {
-
-                        console.error(
-                            "Aucun e-mail associé au téléphone."
-                        );
+                    if (!profilTelephone.email) {
 
                         alert(
-                            "Ce compte possède un numéro de téléphone mais aucune adresse e-mail associée. Contactez l'administrateur."
+                            "Ce compte n'a pas d'adresse e-mail associée."
                         );
 
                         return;
                     }
 
 
-                    /*----------------------------------
-                        Utiliser l'e-mail pour Supabase
-                    ----------------------------------*/
-
                     emailConnexion =
-                        profilTelephone.email.trim();
-
-
-                    console.log(
-                        "Téléphone reconnu. E-mail Auth utilisé :",
-                        emailConnexion
-                    );
-
+                        profilTelephone.email;
                 }
 
 
                 /*======================================
-                    CAS 2 : CONNEXION SUPABASE AUTH
+                    3. CONNEXION SUPABASE AUTH
                 ======================================*/
 
                 console.log(
-                    "Connexion Supabase Auth..."
+                    "Connexion Supabase avec :",
+                    emailConnexion
                 );
 
 
@@ -286,10 +250,6 @@ function initialiserConnexion() {
                         });
 
 
-                /*--------------------------------------
-                    Erreur authentification
-                --------------------------------------*/
-
                 if (error) {
 
                     console.error(
@@ -298,16 +258,12 @@ function initialiserConnexion() {
                     );
 
                     alert(
-                        "E-mail, numéro de téléphone ou mot de passe incorrect."
+                        "Identifiant ou mot de passe incorrect."
                     );
 
                     return;
                 }
 
-
-                /*--------------------------------------
-                    Utilisateur Auth
-                --------------------------------------*/
 
                 const authUser =
                     data.user;
@@ -324,13 +280,13 @@ function initialiserConnexion() {
 
 
                 console.log(
-                    "Utilisateur Supabase Auth :",
+                    "Utilisateur Supabase :",
                     authUser.id
                 );
 
 
                 /*======================================
-                    6. CHERCHER LE PROFIL ERP
+                    4. CHERCHER LE PROFIL ERP
                 ======================================*/
 
                 const {
@@ -348,12 +304,8 @@ function initialiserConnexion() {
                             "actif",
                             true
                         )
-                        .maybeSingle();
+                        .single();
 
-
-                /*--------------------------------------
-                    Profil ERP introuvable
-                --------------------------------------*/
 
                 if (
                     profilError ||
@@ -377,7 +329,7 @@ function initialiserConnexion() {
 
 
                     alert(
-                        "Votre compte existe dans Supabase, mais aucun profil ERP actif ne lui est attribué."
+                        "Votre compte existe, mais aucun profil ERP actif ne lui est attribué."
                     );
 
                     return;
@@ -385,7 +337,7 @@ function initialiserConnexion() {
 
 
                 /*======================================
-                    7. CREER LA SESSION ERP
+                    5. CREER LA SESSION ERP
                 ======================================*/
 
                 const session = {
@@ -401,8 +353,7 @@ function initialiserConnexion() {
 
                     email:
                         profil.email ||
-                        authUser.email ||
-                        null,
+                        authUser.email,
 
                     telephone:
                         profil.telephone ||
@@ -417,10 +368,6 @@ function initialiserConnexion() {
                 };
 
 
-                /*--------------------------------------
-                    Enregistrer la session
-                --------------------------------------*/
-
                 sessionStorage.setItem(
                     "sessionERP",
                     JSON.stringify(session)
@@ -428,13 +375,30 @@ function initialiserConnexion() {
 
 
                 console.log(
-                    "Connexion ERP réussie :",
-                    session
+                    "=========================================="
+                );
+
+                console.log(
+                    "CONNEXION REUSSIE"
+                );
+
+                console.log(
+                    "Utilisateur :",
+                    session.nom
+                );
+
+                console.log(
+                    "Rôle :",
+                    session.role
+                );
+
+                console.log(
+                    "=========================================="
                 );
 
 
                 /*======================================
-                    8. REDIRECTION
+                    6. REDIRECTION
                 ======================================*/
 
                 window.location.replace(
@@ -447,7 +411,7 @@ function initialiserConnexion() {
             catch (erreur) {
 
                 console.error(
-                    "Erreur inattendue pendant la connexion :",
+                    "Erreur inattendue :",
                     erreur
                 );
 
@@ -467,14 +431,11 @@ function initialiserConnexion() {
 
                     bouton.innerHTML =
                         '<i class="fa-solid fa-right-to-bracket"></i> Se connecter';
-
                 }
-
             }
 
         }
     );
-
 }
 
 
@@ -483,10 +444,6 @@ function initialiserConnexion() {
 ====================================================*/
 
 async function verifierSession() {
-
-    /*------------------------------------------
-        Vérifier Supabase
-    ------------------------------------------*/
 
     if (!window.supabaseClient) {
 
@@ -499,10 +456,6 @@ async function verifierSession() {
 
 
     try {
-
-        /*------------------------------------------
-            Récupérer la session Supabase
-        ------------------------------------------*/
 
         const {
             data,
@@ -534,13 +487,17 @@ async function verifierSession() {
 
         if (!sessionAuth) {
 
+            console.log(
+                "Aucune session Supabase active."
+            );
+
             return;
         }
 
 
-        /*==========================================
+        /*------------------------------------------
             Récupérer le profil ERP
-        ==========================================*/
+        ------------------------------------------*/
 
         const {
             data: profil,
@@ -557,17 +514,22 @@ async function verifierSession() {
                     "actif",
                     true
                 )
-                .maybeSingle();
+                .single();
 
 
         /*------------------------------------------
-            Profil absent ou inactif
+            Session invalide
         ------------------------------------------*/
 
         if (
             profilError ||
             !profil
         ) {
+
+            console.warn(
+                "Session Supabase sans profil ERP actif."
+            );
+
 
             await window.supabaseClient
                 .auth
@@ -583,9 +545,9 @@ async function verifierSession() {
         }
 
 
-        /*==========================================
+        /*------------------------------------------
             Recréer la session ERP
-        ==========================================*/
+        ------------------------------------------*/
 
         const session = {
 
@@ -600,8 +562,7 @@ async function verifierSession() {
 
             email:
                 profil.email ||
-                sessionAuth.user.email ||
-                null,
+                sessionAuth.user.email,
 
             telephone:
                 profil.telephone ||
@@ -622,8 +583,24 @@ async function verifierSession() {
         );
 
 
+        console.log(
+            "Session Supabase active."
+        );
+
+        console.log(
+            "Utilisateur :",
+            session.nom
+        );
+
+        console.log(
+            "Rôle :",
+            session.role
+        );
+
+
         /*------------------------------------------
-            Redirection si déjà connecté
+            Si déjà sur login.html,
+            retourner automatiquement au dashboard
         ------------------------------------------*/
 
         const page =
@@ -640,7 +617,6 @@ async function verifierSession() {
             window.location.replace(
                 "dashboard.html"
             );
-
         }
 
     }
@@ -654,35 +630,112 @@ async function verifierSession() {
         );
 
     }
-
 }
 
 
 /*====================================================
-    DECONNEXION
+    DECONNEXION COMPLETE
 ====================================================*/
 
-async function deconnexion() {
+async function deconnexion(event) {
 
-    if (
-        !confirm(
-            "Voulez-vous vraiment vous déconnecter ?"
-        )
-    ) {
+    /*
+     * IMPORTANT :
+     * empêcher le lien <a href="login.html">
+     * de naviguer immédiatement.
+     */
 
-        return;
+    if (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
     }
+
+
+    /*------------------------------------------
+        Confirmation
+    ------------------------------------------*/
+
+    const confirmation =
+        confirm(
+            "Voulez-vous vraiment vous déconnecter ?"
+        );
+
+
+    if (!confirmation) {
+
+        return false;
+    }
+
+
+    console.log(
+        "Déconnexion en cours..."
+    );
 
 
     try {
 
+        /*------------------------------------------
+            Déconnexion Supabase
+        ------------------------------------------*/
+
         if (window.supabaseClient) {
 
-            await window.supabaseClient
-                .auth
-                .signOut();
+            const {
+                error
+            } =
+                await window.supabaseClient
+                    .auth
+                    .signOut();
 
+
+            if (error) {
+
+                console.error(
+                    "Erreur Supabase déconnexion :",
+                    error
+                );
+
+                alert(
+                    "Impossible de terminer la déconnexion."
+                );
+
+                return false;
+            }
         }
+
+
+        /*------------------------------------------
+            Supprimer la session ERP
+        ------------------------------------------*/
+
+        sessionStorage.removeItem(
+            "sessionERP"
+        );
+
+
+        localStorage.removeItem(
+            "sessionERP"
+        );
+
+
+        console.log(
+            "Session Supabase supprimée."
+        );
+
+        console.log(
+            "Session ERP supprimée."
+        );
+
+
+        /*------------------------------------------
+            Redirection vers login
+        ------------------------------------------*/
+
+        window.location.replace(
+            "login.html"
+        );
 
     }
 
@@ -694,26 +747,34 @@ async function deconnexion() {
             erreur
         );
 
+
+        /*
+         * Même en cas d'erreur,
+         * supprimer la session locale.
+         */
+
+        sessionStorage.removeItem(
+            "sessionERP"
+        );
+
+
+        localStorage.removeItem(
+            "sessionERP"
+        );
+
+
+        alert(
+            "La session locale a été supprimée."
+        );
+
+
+        window.location.replace(
+            "login.html"
+        );
     }
 
 
-    /*------------------------------------------
-        Supprimer la session ERP locale
-    ------------------------------------------*/
-
-    sessionStorage.removeItem(
-        "sessionERP"
-    );
-
-
-    /*------------------------------------------
-        Retour à la connexion
-    ------------------------------------------*/
-
-    window.location.replace(
-        "login.html"
-    );
-
+    return false;
 }
 
 
@@ -732,7 +793,6 @@ function utilisateurConnecte() {
     if (!session) {
 
         return null;
-
     }
 
 
@@ -752,11 +812,21 @@ function utilisateurConnecte() {
             erreur
         );
 
+
         return null;
-
     }
-
 }
+
+
+/*====================================================
+    EXPORT GLOBAL
+====================================================*/
+
+window.deconnexion =
+    deconnexion;
+
+window.utilisateurConnecte =
+    utilisateurConnecte;
 
 
 /*====================================================
