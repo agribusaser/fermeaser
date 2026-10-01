@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-   const sessionOK = await attendreSessionSupabase();
+  const sessionOK = await attendreSessionSupabase();
 
 if (!sessionOK) {
     afficherErreurDashboard(
@@ -56,6 +56,11 @@ if (!sessionOK) {
     );
     return;
 }
+
+/* Afficher l'utilisateur actuellement connecté */
+afficherUtilisateurSession();
+
+await chargerDashboard();
 
 
 /* ==================================================
