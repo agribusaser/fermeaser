@@ -211,6 +211,74 @@ async function attendreSessionSupabase() {
     return false;
 }
 
+/* ==================================================
+   AFFICHER L'UTILISATEUR DE LA SESSION ACTIVE
+   ================================================== */
+
+function afficherUtilisateurSession() {
+
+    const nomElement =
+        document.getElementById("nomUtilisateur");
+
+    const roleElement =
+        document.getElementById("roleUtilisateur");
+
+    /* Récupérer la session ERP */
+    const sessionStockee =
+        sessionStorage.getItem("sessionERP");
+
+    if (!sessionStockee) {
+
+        console.warn(
+            "Aucune session ERP trouvée."
+        );
+
+        if (nomElement) {
+            nomElement.textContent = "Utilisateur";
+        }
+
+        if (roleElement) {
+            roleElement.textContent = "Rôle";
+        }
+
+        return;
+    }
+
+    try {
+
+        const session =
+            JSON.parse(sessionStockee);
+
+        console.log(
+            "Utilisateur de la session active :",
+            session
+        );
+
+        /* NOM */
+        if (nomElement) {
+
+            nomElement.textContent =
+                session.nom ||
+                session.email ||
+                "Utilisateur";
+        }
+
+        /* RÔLE */
+        if (roleElement) {
+
+            roleElement.textContent =
+                session.role ||
+                "Rôle";
+        }
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur lecture sessionERP :",
+            erreur
+        );
+    }
+}
 
 /* ==================================================
    LOADER
