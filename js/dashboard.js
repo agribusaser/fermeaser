@@ -1953,6 +1953,153 @@ function fermerMenuMobile() {
     }
 }
 
+/* ==================================================
+   AFFICHER LE PROFIL UTILISATEUR ERP
+================================================== */
+
+function afficherProfilUtilisateurERP() {
+
+    const utilisateur =
+        obtenirUtilisateurERP();
+
+    if (!utilisateur) {
+
+        console.warn(
+            "Aucun profil utilisateur ERP disponible."
+        );
+
+        return;
+    }
+
+
+    const nom =
+        utilisateur.nom ||
+        "Utilisateur";
+
+
+    const role =
+        utilisateur.role ||
+        "Rôle";
+
+
+    /* ------------------------------------------------
+       PROFIL DANS LA TOPBAR
+    ------------------------------------------------ */
+
+    const nomDashboard =
+        document.getElementById(
+            "nomUtilisateurDashboard"
+        );
+
+    const roleDashboard =
+        document.getElementById(
+            "roleUtilisateurDashboard"
+        );
+
+
+    if (nomDashboard) {
+
+        nomDashboard.textContent =
+            nom;
+
+    }
+
+
+    if (roleDashboard) {
+
+        roleDashboard.textContent =
+            role;
+
+    }
+
+
+    /* ------------------------------------------------
+       PROFIL DANS LE MODAL
+    ------------------------------------------------ */
+
+    const nomProfil =
+        document.getElementById(
+            "nomProfilUtilisateur"
+        );
+
+    const nomDetail =
+        document.getElementById(
+            "nomProfilDetail"
+        );
+
+    const roleDetail =
+        document.getElementById(
+            "roleProfilDetail"
+        );
+
+
+    if (nomProfil) {
+
+        nomProfil.textContent =
+            nom;
+
+    }
+
+
+    if (nomDetail) {
+
+        nomDetail.textContent =
+            nom;
+
+    }
+
+
+    if (roleDetail) {
+
+        roleDetail.textContent =
+            role;
+
+    }
+
+
+    /* ------------------------------------------------
+       DERNIÈRE CONNEXION
+    ------------------------------------------------ */
+
+    const lastLogin =
+        document.getElementById(
+            "lastLogin"
+        );
+
+
+    if (lastLogin) {
+
+        const connexion =
+            utilisateur.connexion;
+
+        if (connexion) {
+
+            const date =
+                new Date(connexion);
+
+            lastLogin.textContent =
+                date.toLocaleString(
+                    "fr-FR"
+                );
+
+        } else {
+
+            lastLogin.textContent =
+                "Aujourd'hui";
+
+        }
+
+    }
+
+
+    console.log(
+        "Profil Dashboard affiché :",
+        {
+            nom: nom,
+            role: role
+        }
+    );
+}
 
 /* ==================================================
    EXPORT GLOBAL
