@@ -48,18 +48,56 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
-    const sessionOK = await attendreSessionSupabase();
+   const sessionOK = await attendreSessionSupabase();
 
-    if (!sessionOK) {
-        afficherErreurDashboard(
-            "Session utilisateur indisponible."
-        );
-        return;
-    }
+if (!sessionOK) {
+    afficherErreurDashboard(
+        "Session utilisateur indisponible."
+    );
+    return;
+}
 
-    await chargerDashboard();
 
-    initialiserTempsReel();
+/* ==================================================
+   CHARGER LE PROFIL ERP
+================================================== */
+
+const utilisateurERP =
+    await chargerUtilisateurERP();
+
+if (!utilisateurERP) {
+
+    afficherErreurDashboard(
+        "Profil utilisateur ERP introuvable."
+    );
+
+    return;
+}
+
+
+/* ==================================================
+   CHARGER LES PERMISSIONS
+================================================== */
+
+await chargerPermissionsERP();
+
+appliquerPermissionsMenuERP();
+
+
+/* ==================================================
+   AFFICHER LE PROFIL
+================================================== */
+
+afficherProfilUtilisateurERP();
+
+
+/* ==================================================
+   CHARGER LE DASHBOARD
+================================================== */
+
+await chargerDashboard();
+
+initialiserTempsReel();
 
     dashboardInitialise = true;
 
