@@ -2131,3 +2131,62 @@ window.deconnexion =
 console.log(
     "Ferme Asher ERP - Dashboard.js Version 5.0 chargé."
 );
+
+/* ==================================================
+   DÉCONNEXION COMPLÈTE
+   ================================================== */
+
+async function deconnexion(event) {
+
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    console.log("Déconnexion en cours...");
+
+    try {
+
+        /* Déconnexion Supabase */
+        if (window.supabaseClient) {
+
+            const { error } =
+                await window.supabaseClient
+                    .auth
+                    .signOut();
+
+            if (error) {
+                console.error(
+                    "Erreur Supabase déconnexion :",
+                    error
+                );
+            }
+        }
+
+        /* Supprimer la session ERP */
+        sessionStorage.removeItem("sessionERP");
+        localStorage.removeItem("sessionERP");
+
+        console.log("Session ERP supprimée.");
+
+        /* Retour immédiat à la connexion */
+        window.location.replace("login.html");
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur déconnexion :",
+            erreur
+        );
+
+        /* Même en cas d'erreur,
+           supprimer la session locale */
+        sessionStorage.removeItem("sessionERP");
+        localStorage.removeItem("sessionERP");
+
+        window.location.replace("login.html");
+    }
+}
+
+/* Rendre la fonction disponible depuis le HTML */
+window.deconnexion = deconnexion;
