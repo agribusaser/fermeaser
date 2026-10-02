@@ -51,8 +51,9 @@ function normaliserERP(valeur) {
 
     return String(valeur)
         .trim()
-        .toLowerCase();
-
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
 
