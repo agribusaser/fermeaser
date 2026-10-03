@@ -271,16 +271,23 @@ function afficherAlimentation(data) {
 
             <td>
 
-                <button
-                    class="btn btn-sm btn-outline-danger"
-                    onclick="supprimerAlimentation('${item.id}')">
+    ${
+        typeof aPermission === "function" &&
+        aPermission("Élevage", "supprimer")
+        ? `
+            <button
+                class="btn btn-sm btn-outline-danger"
+                onclick="supprimerAlimentation('${item.id}')"
+                title="Supprimer">
 
-                    <i class="fa-solid fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
 
-                </button>
+            </button>
+        `
+        : ""
+    }
 
-            </td>
-        `;
+</td>
 
 
         tbody.appendChild(tr);
