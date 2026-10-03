@@ -282,10 +282,10 @@ data.forEach(function (item) {
                   `
                 : ""
             }
-        </td>
-    `;
+      </td>
+`;
 
-    tbody.appendChild(tr);
+        tbody.appendChild(tr);
 
 });
 
