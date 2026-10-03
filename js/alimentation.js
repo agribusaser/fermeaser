@@ -267,28 +267,30 @@ data.forEach(function (item) {
             ${echapperHTML(item.notes || "-")}
         </td>
 
-        <td>
-            ${
-                typeof aPermission === "function" &&
-                aPermission("Élevage", "supprimer")
-                ? `
-                    <button
-                        class="btn btn-sm btn-outline-danger"
-                        onclick="supprimerAlimentation('${item.id}')"
-                        title="Supprimer"
-                    >
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                  `
-                : ""
-            }
-      </td>
+              <td>
+    ${
+        typeof aPermission === "function" &&
+        aPermission("Élevage", "supprimer")
+        ? `
+            <button
+                class="btn btn-sm btn-outline-danger"
+                onclick="supprimerAlimentation('${item.id}')"
+                title="Supprimer">
+
+                <i class="fa-solid fa-trash"></i>
+
+            </button>
+        `
+        : ""
+    }
+
+</td>
 `;
 
         tbody.appendChild(tr);
 
-});
-
+    });
+}
 
 // ============================================================
 // ENREGISTRER UNE CONSOMMATION
