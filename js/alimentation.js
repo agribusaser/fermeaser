@@ -290,7 +290,7 @@ data.forEach(function (item) {
     tbody.appendChild(tr);
 
 });
-
+}
 
 // ============================================================
 // ENREGISTRER UNE CONSOMMATION
