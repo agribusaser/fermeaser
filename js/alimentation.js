@@ -237,63 +237,59 @@ function afficherAlimentation(data) {
     tbody.innerHTML = "";
 
 
-    data.forEach(function (item) {
+data.forEach(function (item) {
 
-        const tr = document.createElement("tr");
+    const tr = document.createElement("tr");
 
-        tr.innerHTML = `
+    tr.innerHTML = `
+        <td>
+            ${formaterDate(item.date)}
+        </td>
 
-            <td>
-                ${formaterDate(item.date)}
-            </td>
+        <td>
+            <strong>
+                ${echapperHTML(item.lot_nom || "-")}
+            </strong>
+        </td>
 
-            <td>
-                <strong>
-                    ${echapperHTML(item.lot_nom || "-")}
-                </strong>
-            </td>
+        <td>
+            ${echapperHTML(item.produit || "-")}
+        </td>
 
-            <td>
-                ${echapperHTML(item.produit || "-")}
-            </td>
+        <td>
+            ${item.quantite ?? 0}
+        </td>
 
-            <td>
-                ${item.quantite ?? 0}
-            </td>
+        <td>
+            ${echapperHTML(item.unite || "Kg")}
+        </td>
 
-            <td>
-                ${echapperHTML(item.unite || "Kg")}
-            </td>
+        <td>
+            ${echapperHTML(item.notes || "-")}
+        </td>
 
-            <td>
-                ${echapperHTML(item.notes || "-")}
-            </td>
+        <td>
+            ${
+                typeof aPermission === "function" &&
+                aPermission("Élevage", "supprimer")
+                ? `
+                    <button
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="supprimerAlimentation('${item.id}')"
+                        title="Supprimer">
 
-            <td>
+                        <i class="fa-solid fa-trash"></i>
 
-    ${
-        typeof aPermission === "function" &&
-        aPermission("Élevage", "supprimer")
-        ? `
-            <button
-                class="btn btn-sm btn-outline-danger"
-                onclick="supprimerAlimentation('${item.id}')"
-                title="Supprimer">
+                    </button>
+                `
+                : ""
+            }
+        </td>
+    `;
 
-                <i class="fa-solid fa-trash"></i>
+    tbody.appendChild(tr);
 
-            </button>
-        `
-        : ""
-    }
-
-</td>
-
-
-        tbody.appendChild(tr);
-
-    });
-}
+});
 
 
 // ============================================================
