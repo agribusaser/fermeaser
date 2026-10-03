@@ -1,7 +1,8 @@
 /* ==================================================
    FERME ASHER ERP
    SERVICE WORKER
-   VERSION 3.0 - OFFLINE ROBUSTE
+   VERSION 4.0
+   CACHE + MISE À JOUR AUTOMATIQUE
 ================================================== */
 
 "use strict";
@@ -11,7 +12,7 @@
    CONFIGURATION
 ================================================== */
 
-const CACHE_VERSION = "ferme-asher-v6";
+const CACHE_VERSION = "ferme-asher-v7";
 
 const CACHE_APP =
     `${CACHE_VERSION}-app`;
@@ -24,7 +25,7 @@ const CACHE_CDN =
 
 
 /* ==================================================
-   FICHIERS LOCAUX ESSENTIELS
+   FICHIERS APPLICATION
 ================================================== */
 
 const FICHIERS_APP = [
@@ -33,20 +34,23 @@ const FICHIERS_APP = [
     "/fermeaser/index.html",
     "/fermeaser/dashboard.html",
     "/fermeaser/login.html",
+
     "/fermeaser/modules/ventes/index.html",
     "/fermeaser/modules/ventes/nouvelle.html",
+
     "/fermeaser/js/supabase.js",
     "/fermeaser/js/permissions.js",
     "/fermeaser/js/local-db.js",
     "/fermeaser/js/sync.js",
     "/fermeaser/js/ventes.js",
+
     "/fermeaser/css/ventes.css"
 
 ];
 
 
 /* ==================================================
-   RESSOURCES CDN
+   CDN
 ================================================== */
 
 const FICHIERS_CDN = [
@@ -66,383 +70,387 @@ const FICHIERS_CDN = [
    INSTALLATION
 ================================================== */
 
-self.addEventListener(
-    "install",
-    function (event) {
+self.addEventListener("install", function(event) {
 
-        console.log(
-            "Ferme Asher ERP - Service Worker V3 installation."
-        );
+    console.log(
+        "Ferme Asher ERP - Service Worker V4 installation."
+    );
 
+    event.waitUntil(
 
-        event.waitUntil(
+        Promise.all([
 
-            Promise.all([
+            /* ==============================
+               CACHE APPLICATION
+            ============================== */
 
-                /* ----------------------------------
-                   CACHE APPLICATION
-                ---------------------------------- */
+            caches.open(CACHE_APP)
+                .then(async function(cache) {
 
-                caches.open(CACHE_APP)
-                    .then(
-                        async function (cache) {
+                    for (const fichier of FICHIERS_APP) {
 
-                            for (
-                                const fichier
-                                of FICHIERS_APP
-                            ) {
+                        try {
 
-                                try {
+                            await cache.add(fichier);
 
-                                    await cache.add(
-                                        fichier
-                                    );
+                            console.log(
+                                "✓ Cache application :",
+                                fichier
+                            );
 
-                                    console.log(
-                                        "✓ Cache application :",
-                                        fichier
-                                    );
+                        } catch(error) {
 
-                                } catch (error) {
-
-                                    console.warn(
-                                        "⚠ Impossible de mettre en cache :",
-                                        fichier,
-                                        error
-                                    );
-
-                                }
-
-                            }
+                            console.warn(
+                                "⚠ Impossible de mettre en cache :",
+                                fichier,
+                                error
+                            );
 
                         }
-                    ),
+
+                    }
+
+                }),
 
 
-                /* ----------------------------------
-                   CACHE CDN
-                ---------------------------------- */
+            /* ==============================
+               CACHE CDN
+            ============================== */
 
-                caches.open(CACHE_CDN)
-                    .then(
-                        async function (cache) {
+            caches.open(CACHE_CDN)
+                .then(async function(cache) {
 
-                            for (
-                                const fichier
-                                of FICHIERS_CDN
-                            ) {
+                    for (const fichier of FICHIERS_CDN) {
 
-                                try {
+                        try {
 
-                                    await cache.add(
-                                        fichier
-                                    );
+                            await cache.add(fichier);
 
-                                    console.log(
-                                        "✓ Cache CDN :",
-                                        fichier
-                                    );
+                            console.log(
+                                "✓ Cache CDN :",
+                                fichier
+                            );
 
-                                } catch (error) {
+                        } catch(error) {
 
-                                    console.warn(
-                                        "⚠ CDN non disponible au moment du cache :",
-                                        fichier
-                                    );
-
-                                }
-
-                            }
+                            console.warn(
+                                "⚠ CDN non disponible :",
+                                fichier
+                            );
 
                         }
-                    )
 
-            ])
+                    }
 
-        );
+                })
 
-    }
-);
+        ])
+
+        .then(function() {
+
+            /*
+             * Permet au nouveau Service Worker
+             * de prendre immédiatement le contrôle.
+             */
+
+            return self.skipWaiting();
+
+        })
+
+    );
+
+});
 
 
 /* ==================================================
    ACTIVATION
 ================================================== */
 
-self.addEventListener(
-    "activate",
-    function (event) {
+self.addEventListener("activate", function(event) {
 
-        console.log(
-            "Ferme Asher ERP - Service Worker V3 activation."
-        );
+    console.log(
+        "Ferme Asher ERP - Service Worker V4 activation."
+    );
 
+    event.waitUntil(
 
-        event.waitUntil(
+        caches.keys()
 
-            caches.keys()
-                .then(
-                    function (nomsCaches) {
+            .then(function(nomsCaches) {
 
-                        return Promise.all(
+                return Promise.all(
 
-                            nomsCaches
-                                .filter(
-                                    function (nom) {
+                    nomsCaches
 
-                                        return (
-                                            nom.startsWith(
-                                                "ferme-asher-"
-                                            ) &&
-                                            nom !== CACHE_APP &&
-                                            nom !== CACHE_RUNTIME &&
-                                            nom !== CACHE_CDN
-                                        );
+                        .filter(function(nom) {
 
-                                    }
-                                )
-                                .map(
-                                    function (nom) {
+                            return (
 
-                                        console.log(
-                                            "Suppression ancien cache :",
-                                            nom
-                                        );
+                                nom.startsWith("ferme-asher-")
 
-                                        return caches.delete(
-                                            nom
-                                        );
+                                &&
 
-                                    }
-                                )
+                                nom !== CACHE_APP
 
-                        );
+                                &&
 
-                    }
-                )
-                .then(
-                    function () {
+                                nom !== CACHE_RUNTIME
 
-                        return self.clients.claim();
+                                &&
 
-                    }
-                )
+                                nom !== CACHE_CDN
 
-        );
+                            );
 
-    }
-);
+                        })
+
+                        .map(function(nom) {
+
+                            console.log(
+                                "Suppression ancien cache :",
+                                nom
+                            );
+
+                            return caches.delete(nom);
+
+                        })
+
+                );
+
+            })
+
+            .then(function() {
+
+                return self.clients.claim();
+
+            })
+
+    );
+
+});
 
 
 /* ==================================================
-   REQUÊTES RÉSEAU
+   REQUÊTES
 ================================================== */
 
-self.addEventListener(
-    "fetch",
-    function (event) {
+self.addEventListener("fetch", function(event) {
 
-        const requete =
-            event.request;
+    const requete = event.request;
 
 
-        /* ------------------------------------------
-           Nous traitons uniquement les requêtes GET.
-        ------------------------------------------ */
+    /* =========================================
+       UNIQUEMENT GET
+    ========================================= */
 
-        if (
-            requete.method !== "GET"
-        ) {
+    if (requete.method !== "GET") {
 
-            return;
+        return;
 
-        }
+    }
 
 
-        const url =
-            new URL(
-                requete.url
-            );
+    const url = new URL(requete.url);
 
 
-        /* =========================================
-           NAVIGATION HTML
-        ========================================= */
+    /* =========================================
+       PAGES HTML
+       
+       INTERNET D'ABORD
+       CACHE EN SECOURS
+    ========================================= */
 
-        if (
-            requete.mode === "navigate"
-        ) {
-
-            event.respondWith(
-
-                caches.match(
-                    requete
-                )
-                .then(
-                    function (reponseCache) {
-
-                        if (reponseCache) {
-
-                            console.log(
-                                "✓ Page chargée depuis le cache :",
-                                requete.url
-                            );
-
-                            return reponseCache;
-
-                        }
-
-
-                        /*
-                         * Si la page n'est pas encore
-                         * dans le cache, essayer Internet.
-                         */
-
-                        return fetch(
-                            requete
-                        )
-                        .then(
-                            function (reponse) {
-
-                                return reponse;
-
-                            }
-                        )
-                        .catch(
-                            function () {
-
-                                console.warn(
-                                    "⚠ Navigation hors ligne :",
-                                    requete.url
-                                );
-
-
-                                /*
-                                 * Dernier secours :
-                                 * chercher la page demandée
-                                 * sans tenir compte des paramètres URL.
-                                 */
-
-                                return caches.match(
-                                    requete,
-                                    {
-                                        ignoreSearch: true
-                                    }
-                                )
-                                .then(
-                                    function (reponseCache) {
-
-                                        if (reponseCache) {
-
-                                            return reponseCache;
-
-                                        }
-
-
-                                        /*
-                                         * Dernier secours absolu :
-                                         * retourner le dashboard.
-                                         */
-
-                                        return caches.match(
-                                            "/fermeaser/dashboard.html"
-                                        );
-
-                                    }
-                                );
-
-                            }
-                        );
-
-                    }
-                )
-
-            );
-
-
-            return;
-
-        }
-
-
-        /* =========================================
-           RESSOURCES LOCALES
-        ========================================= */
-
-        if (
-            url.origin === self.location.origin
-        ) {
-
-            event.respondWith(
-
-                caches.match(
-                    requete
-                )
-                .then(
-                    function (reponseCache) {
-
-                        if (reponseCache) {
-
-                            return reponseCache;
-
-                        }
-
-
-                        /*
-                         * Ressource locale inconnue :
-                         * essayer le réseau.
-                         */
-
-                        return fetch(
-                            requete
-                        )
-                        .then(
-                            async function (reponse) {
-
-                                if (
-                                    reponse &&
-                                    reponse.ok
-                                ) {
-
-                                    const cache =
-                                        await caches.open(
-                                            CACHE_RUNTIME
-                                        );
-
-                                    await cache.put(
-                                        requete,
-                                        reponse.clone()
-                                    );
-
-                                }
-
-                                return reponse;
-
-                            }
-                        );
-
-                    }
-                )
-
-            );
-
-
-            return;
-
-        }
-
-
-        /* =========================================
-           RESSOURCES CDN / EXTERNES
-        ========================================= */
+    if (requete.mode === "navigate") {
 
         event.respondWith(
 
-            caches.match(
-                requete
-            )
-            .then(
-                function (reponseCache) {
+            fetch(requete)
+
+                .then(function(reponse) {
+
+                    if (
+                        reponse &&
+                        reponse.ok
+                    ) {
+
+                        const copie =
+                            reponse.clone();
+
+                        caches.open(CACHE_RUNTIME)
+                            .then(function(cache) {
+
+                                cache.put(
+                                    requete,
+                                    copie
+                                );
+
+                            });
+
+                    }
+
+                    console.log(
+                        "✓ Page chargée depuis Internet :",
+                        requete.url
+                    );
+
+                    return reponse;
+
+                })
+
+                .catch(function() {
+
+                    console.warn(
+                        "⚠ Internet indisponible. Utilisation du cache :",
+                        requete.url
+                    );
+
+                    return caches.match(
+                        requete,
+                        {
+                            ignoreSearch: true
+                        }
+                    )
+
+                    .then(function(reponseCache) {
+
+                        if (reponseCache) {
+
+                            return reponseCache;
+
+                        }
+
+
+                        return caches.match(
+                            "/fermeaser/dashboard.html"
+                        );
+
+                    });
+
+                })
+
+        );
+
+        return;
+
+    }
+
+
+    /* =========================================
+       FICHIERS LOCAUX
+       
+       INTERNET D'ABORD
+       CACHE EN SECOURS
+    ========================================= */
+
+    if (
+        url.origin === self.location.origin
+    ) {
+
+        event.respondWith(
+
+            fetch(requete)
+
+                .then(function(reponse) {
+
+                    if (
+                        reponse &&
+                        reponse.ok
+                    ) {
+
+                        const copie =
+                            reponse.clone();
+
+                        caches.open(CACHE_RUNTIME)
+                            .then(function(cache) {
+
+                                cache.put(
+                                    requete,
+                                    copie
+                                );
+
+                            });
+
+                    }
+
+                    return reponse;
+
+                })
+
+                .catch(function() {
+
+                    console.warn(
+                        "⚠ Fichier local hors ligne :",
+                        requete.url
+                    );
+
+                    return caches.match(
+                        requete,
+                        {
+                            ignoreSearch: true
+                        }
+                    );
+
+                })
+
+        );
+
+        return;
+
+    }
+
+
+    /* =========================================
+       CDN / RESSOURCES EXTERNES
+       
+       INTERNET D'ABORD
+       CACHE EN SECOURS
+    ========================================= */
+
+    event.respondWith(
+
+        fetch(requete)
+
+            .then(function(reponse) {
+
+                if (
+                    reponse &&
+                    (
+                        reponse.ok ||
+                        reponse.type === "opaque"
+                    )
+                ) {
+
+                    const copie =
+                        reponse.clone();
+
+                    caches.open(CACHE_CDN)
+                        .then(function(cache) {
+
+                            cache.put(
+                                requete,
+                                copie
+                            );
+
+                        });
+
+                }
+
+                return reponse;
+
+            })
+
+            .catch(function() {
+
+                console.warn(
+                    "⚠ CDN indisponible. Utilisation du cache :",
+                    requete.url
+                );
+
+                return caches.match(
+                    requete
+                )
+
+                .then(function(reponseCache) {
 
                     if (reponseCache) {
 
@@ -450,103 +458,39 @@ self.addEventListener(
 
                     }
 
-
-                    /*
-                     * Sinon essayer Internet.
-                     */
-
-                    return fetch(
-                        requete
-                    )
-                    .then(
-                        async function (reponse) {
-
-                            /*
-                             * Mettre en cache la ressource
-                             * pour les prochaines utilisations.
-                             */
-
-                            if (
-                                reponse &&
-                                (
-                                    reponse.ok ||
-                                    reponse.type ===
-                                    "opaque"
-                                )
-                            ) {
-
-                                const cache =
-                                    await caches.open(
-                                        CACHE_CDN
-                                    );
-
-                                await cache.put(
-                                    requete,
-                                    reponse.clone()
-                                );
-
-                            }
-
-
-                            return reponse;
-
-                        }
-                    )
-                    .catch(
-                        function () {
-
-                            console.warn(
-                                "⚠ Ressource externe indisponible hors ligne :",
-                                requete.url
-                            );
-
-
-                            /*
-                             * Retourner une réponse 503
-                             * plutôt que faire planter
-                             * toute l'application.
-                             */
-
-                            return new Response(
-                                "",
-                                {
-                                    status: 503,
-                                    statusText:
-                                        "Ressource indisponible hors ligne"
-                                }
-                            );
-
+                    return new Response(
+                        "",
+                        {
+                            status: 503,
+                            statusText:
+                                "Ressource indisponible hors ligne"
                         }
                     );
 
-                }
-            )
+                });
 
-        );
+            })
 
-    }
-);
+    );
+
+});
 
 
 /* ==================================================
-   MESSAGE DEPUIS L'APPLICATION
+   MESSAGES
 ================================================== */
 
-self.addEventListener(
-    "message",
-    function (event) {
+self.addEventListener("message", function(event) {
 
-        if (
-            event.data ===
-            "SKIP_WAITING"
-        ) {
+    if (
+        event.data === "SKIP_WAITING"
+    ) {
 
-            self.skipWaiting();
-
-        }
+        self.skipWaiting();
 
     }
-);
+
+});
 
 
 /* ==================================================
@@ -554,5 +498,5 @@ self.addEventListener(
 ================================================== */
 
 console.log(
-    "Ferme Asher ERP - Service Worker V3 chargé."
+    "Ferme Asher ERP - Service Worker V4 chargé."
 );
