@@ -1,18 +1,18 @@
 /* ==================================================
    FERME ASHER ERP
    SERVICE WORKER
-   VERSION 4.0
-   CACHE + MISE À JOUR AUTOMATIQUE
-================================================== */
+   VERSION 5.0
+   MISE À JOUR AUTOMATIQUE
+   ================================================== */
 
 "use strict";
 
 
 /* ==================================================
    CONFIGURATION
-================================================== */
+   ================================================== */
 
-const CACHE_VERSION = "ferme-asher-v7";
+const CACHE_VERSION = "ferme-asher-v8";
 
 const CACHE_APP =
     `${CACHE_VERSION}-app`;
@@ -25,8 +25,8 @@ const CACHE_CDN =
 
 
 /* ==================================================
-   FICHIERS APPLICATION
-================================================== */
+   FICHIERS APPLICATION À PRÉ-CACHER
+   ================================================== */
 
 const FICHIERS_APP = [
 
@@ -35,23 +35,28 @@ const FICHIERS_APP = [
     "/fermeaser/dashboard.html",
     "/fermeaser/login.html",
 
+    /* Ventes */
     "/fermeaser/modules/ventes/index.html",
     "/fermeaser/modules/ventes/nouvelle.html",
 
+    /* JavaScript */
     "/fermeaser/js/supabase.js",
     "/fermeaser/js/permissions.js",
     "/fermeaser/js/local-db.js",
     "/fermeaser/js/sync.js",
     "/fermeaser/js/ventes.js",
+    "/fermeaser/js/alimentation.js",
 
-    "/fermeaser/css/ventes.css"
+    /* CSS */
+    "/fermeaser/css/ventes.css",
+    "/fermeaser/css/elevage.css"
 
 ];
 
 
 /* ==================================================
    CDN
-================================================== */
+   ================================================== */
 
 const FICHIERS_CDN = [
 
@@ -68,21 +73,21 @@ const FICHIERS_CDN = [
 
 /* ==================================================
    INSTALLATION
-================================================== */
+   ================================================== */
 
 self.addEventListener("install", function(event) {
 
     console.log(
-        "Ferme Asher ERP - Service Worker V4 installation."
+        "Ferme Asher ERP - Service Worker V5 installation."
     );
 
     event.waitUntil(
 
         Promise.all([
 
-            /* ==============================
+            /* ==========================================
                CACHE APPLICATION
-            ============================== */
+               ========================================== */
 
             caches.open(CACHE_APP)
                 .then(async function(cache) {
@@ -91,7 +96,14 @@ self.addEventListener("install", function(event) {
 
                         try {
 
-                            await cache.add(fichier);
+                            await cache.add(
+                                new Request(
+                                    fichier,
+                                    {
+                                        cache: "no-store"
+                                    }
+                                )
+                            );
 
                             console.log(
                                 "✓ Cache application :",
@@ -113,9 +125,9 @@ self.addEventListener("install", function(event) {
                 }),
 
 
-            /* ==============================
+            /* ==========================================
                CACHE CDN
-            ============================== */
+               ========================================== */
 
             caches.open(CACHE_CDN)
                 .then(async function(cache) {
@@ -135,7 +147,8 @@ self.addEventListener("install", function(event) {
 
                             console.warn(
                                 "⚠ CDN non disponible :",
-                                fichier
+                                fichier,
+                                error
                             );
 
                         }
@@ -149,9 +162,13 @@ self.addEventListener("install", function(event) {
         .then(function() {
 
             /*
-             * Permet au nouveau Service Worker
-             * de prendre immédiatement le contrôle.
+             * Le nouveau Service Worker
+             * devient actif immédiatement.
              */
+
+            console.log(
+                "✓ Installation terminée."
+            );
 
             return self.skipWaiting();
 
@@ -164,12 +181,12 @@ self.addEventListener("install", function(event) {
 
 /* ==================================================
    ACTIVATION
-================================================== */
+   ================================================== */
 
 self.addEventListener("activate", function(event) {
 
     console.log(
-        "Ferme Asher ERP - Service Worker V4 activation."
+        "Ferme Asher ERP - Service Worker V5 activation."
     );
 
     event.waitUntil(
@@ -186,7 +203,9 @@ self.addEventListener("activate", function(event) {
 
                             return (
 
-                                nom.startsWith("ferme-asher-")
+                                nom.startsWith(
+                                    "ferme-asher-"
+                                )
 
                                 &&
 
@@ -207,7 +226,7 @@ self.addEventListener("activate", function(event) {
                         .map(function(nom) {
 
                             console.log(
-                                "Suppression ancien cache :",
+                                "🗑 Suppression ancien cache :",
                                 nom
                             );
 
@@ -221,7 +240,68 @@ self.addEventListener("activate", function(event) {
 
             .then(function() {
 
+                /*
+                 * Le nouveau Service Worker
+                 * prend immédiatement le contrôle
+                 * des pages ouvertes.
+                 */
+
                 return self.clients.claim();
+
+            })
+
+            .then(function() {
+
+                /*
+                 * IMPORTANT :
+                 *
+                 * Les anciennes pages déjà ouvertes
+                 * peuvent encore afficher l'ancienne
+                 * version du HTML.
+                 *
+                 * On force donc leur rechargement
+                 * après l'activation du nouveau SW.
+                 */
+
+                return self.clients.matchAll({
+
+                    type: "window",
+
+                    includeUncontrolled: true
+
+                });
+
+            })
+
+            .then(function(clients) {
+
+                for (const client of clients) {
+
+                    try {
+
+                        /*
+                         * Recharge automatiquement
+                         * la page actuellement ouverte.
+                         */
+
+                        client.navigate(client.url);
+
+                        console.log(
+                            "↻ Rechargement automatique :",
+                            client.url
+                        );
+
+                    } catch(error) {
+
+                        console.warn(
+                            "⚠ Impossible de recharger :",
+                            client.url,
+                            error
+                        );
+
+                    }
+
+                }
 
             })
 
@@ -232,16 +312,16 @@ self.addEventListener("activate", function(event) {
 
 /* ==================================================
    REQUÊTES
-================================================== */
+   ================================================== */
 
 self.addEventListener("fetch", function(event) {
 
     const requete = event.request;
 
 
-    /* =========================================
+    /* ==========================================
        UNIQUEMENT GET
-    ========================================= */
+       ========================================== */
 
     if (requete.method !== "GET") {
 
@@ -253,18 +333,27 @@ self.addEventListener("fetch", function(event) {
     const url = new URL(requete.url);
 
 
-    /* =========================================
+    /* ==========================================
        PAGES HTML
        
-       INTERNET D'ABORD
-       CACHE EN SECOURS
-    ========================================= */
+       RÉSEAU TOUJOURS EN PRIORITÉ
+       + NO CACHE HTTP
+       ========================================== */
 
     if (requete.mode === "navigate") {
 
         event.respondWith(
 
-            fetch(requete)
+            fetch(
+
+                new Request(
+                    requete,
+                    {
+                        cache: "no-store"
+                    }
+                )
+
+            )
 
                 .then(function(reponse) {
 
@@ -273,10 +362,16 @@ self.addEventListener("fetch", function(event) {
                         reponse.ok
                     ) {
 
+                        /*
+                         * Copie de la nouvelle page
+                         * dans le cache runtime.
+                         */
+
                         const copie =
                             reponse.clone();
 
                         caches.open(CACHE_RUNTIME)
+
                             .then(function(cache) {
 
                                 cache.put(
@@ -300,31 +395,40 @@ self.addEventListener("fetch", function(event) {
                 .catch(function() {
 
                     console.warn(
-                        "⚠ Internet indisponible. Utilisation du cache :",
+                        "⚠ Internet indisponible.",
+                        "Utilisation du cache :",
                         requete.url
                     );
 
                     return caches.match(
+
                         requete,
+
                         {
                             ignoreSearch: true
                         }
+
                     )
 
-                    .then(function(reponseCache) {
+                        .then(function(reponseCache) {
 
-                        if (reponseCache) {
+                            if (reponseCache) {
 
-                            return reponseCache;
+                                return reponseCache;
 
-                        }
+                            }
 
 
-                        return caches.match(
-                            "/fermeaser/dashboard.html"
-                        );
+                            /*
+                             * Dernier secours :
+                             * Dashboard.
+                             */
 
-                    });
+                            return caches.match(
+                                "/fermeaser/dashboard.html"
+                            );
+
+                        });
 
                 })
 
@@ -335,12 +439,13 @@ self.addEventListener("fetch", function(event) {
     }
 
 
-    /* =========================================
+    /* ==========================================
        FICHIERS LOCAUX
        
-       INTERNET D'ABORD
-       CACHE EN SECOURS
-    ========================================= */
+       RÉSEAU EN PRIORITÉ
+       NO-CACHE POUR ÉVITER LES ANCIENNES
+       VERSIONS DE JS / CSS
+       ========================================== */
 
     if (
         url.origin === self.location.origin
@@ -348,7 +453,16 @@ self.addEventListener("fetch", function(event) {
 
         event.respondWith(
 
-            fetch(requete)
+            fetch(
+
+                new Request(
+                    requete,
+                    {
+                        cache: "no-store"
+                    }
+                )
+
+            )
 
                 .then(function(reponse) {
 
@@ -361,6 +475,7 @@ self.addEventListener("fetch", function(event) {
                             reponse.clone();
 
                         caches.open(CACHE_RUNTIME)
+
                             .then(function(cache) {
 
                                 cache.put(
@@ -384,10 +499,13 @@ self.addEventListener("fetch", function(event) {
                     );
 
                     return caches.match(
+
                         requete,
+
                         {
                             ignoreSearch: true
                         }
+
                     );
 
                 })
@@ -399,12 +517,12 @@ self.addEventListener("fetch", function(event) {
     }
 
 
-    /* =========================================
+    /* ==========================================
        CDN / RESSOURCES EXTERNES
        
-       INTERNET D'ABORD
+       INTERNET EN PRIORITÉ
        CACHE EN SECOURS
-    ========================================= */
+       ========================================== */
 
     event.respondWith(
 
@@ -424,6 +542,7 @@ self.addEventListener("fetch", function(event) {
                         reponse.clone();
 
                     caches.open(CACHE_CDN)
+
                         .then(function(cache) {
 
                             cache.put(
@@ -442,32 +561,41 @@ self.addEventListener("fetch", function(event) {
             .catch(function() {
 
                 console.warn(
-                    "⚠ CDN indisponible. Utilisation du cache :",
+                    "⚠ CDN indisponible.",
+                    "Utilisation du cache :",
                     requete.url
                 );
 
                 return caches.match(
+
                     requete
+
                 )
 
-                .then(function(reponseCache) {
+                    .then(function(reponseCache) {
 
-                    if (reponseCache) {
+                        if (reponseCache) {
 
-                        return reponseCache;
+                            return reponseCache;
 
-                    }
-
-                    return new Response(
-                        "",
-                        {
-                            status: 503,
-                            statusText:
-                                "Ressource indisponible hors ligne"
                         }
-                    );
 
-                });
+                        return new Response(
+
+                            "",
+
+                            {
+
+                                status: 503,
+
+                                statusText:
+                                    "Ressource indisponible hors ligne"
+
+                            }
+
+                        );
+
+                    });
 
             })
 
@@ -478,15 +606,72 @@ self.addEventListener("fetch", function(event) {
 
 /* ==================================================
    MESSAGES
-================================================== */
+   ================================================== */
 
 self.addEventListener("message", function(event) {
+
+    if (!event.data) {
+
+        return;
+
+    }
+
+
+    /* ==========================================
+       ACTIVATION IMMÉDIATE
+       ========================================== */
 
     if (
         event.data === "SKIP_WAITING"
     ) {
 
+        console.log(
+            "⚡ SKIP_WAITING reçu."
+        );
+
         self.skipWaiting();
+
+    }
+
+
+    /* ==========================================
+       DEMANDE DE RECHARGEMENT
+       ========================================== */
+
+    if (
+        event.data === "RELOAD_CLIENTS"
+    ) {
+
+        self.clients.matchAll({
+
+            type: "window",
+
+            includeUncontrolled: true
+
+        })
+
+            .then(function(clients) {
+
+                for (const client of clients) {
+
+                    try {
+
+                        client.navigate(
+                            client.url
+                        );
+
+                    } catch(error) {
+
+                        console.warn(
+                            "⚠ Rechargement impossible :",
+                            error
+                        );
+
+                    }
+
+                }
+
+            });
 
     }
 
@@ -495,8 +680,8 @@ self.addEventListener("message", function(event) {
 
 /* ==================================================
    FIN
-================================================== */
+   ================================================== */
 
 console.log(
-    "Ferme Asher ERP - Service Worker V4 chargé."
+    "Ferme Asher ERP - Service Worker V5 chargé."
 );
