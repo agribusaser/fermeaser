@@ -236,7 +236,6 @@ function afficherAlimentation(data) {
 
     tbody.innerHTML = "";
 
-
 data.forEach(function (item) {
 
     const tr = document.createElement("tr");
@@ -276,12 +275,11 @@ data.forEach(function (item) {
                     <button
                         class="btn btn-sm btn-outline-danger"
                         onclick="supprimerAlimentation('${item.id}')"
-                        title="Supprimer">
-
+                        title="Supprimer"
+                    >
                         <i class="fa-solid fa-trash"></i>
-
                     </button>
-                `
+                  `
                 : ""
             }
         </td>
@@ -290,7 +288,7 @@ data.forEach(function (item) {
     tbody.appendChild(tr);
 
 });
-}
+
 
 // ============================================================
 // ENREGISTRER UNE CONSOMMATION
