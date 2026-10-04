@@ -935,6 +935,13 @@ created_at:
             produitMisAJour
         );
 
+        /* =========================================
+   JOURNAL DE L'ACTION
+========================================= */
+
+await enregistrerActionVente(
+    nouvelleVente
+);
 
         console.log(
             "✓ Vente enregistrée localement :",
