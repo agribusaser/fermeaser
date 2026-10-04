@@ -1897,6 +1897,20 @@ async function annulerVente(
     idVente
 ) {
 
+    /* =========================================
+       PERMISSION : ANNULER UNE VENTE
+    ========================================= */
+
+    if (
+        typeof aPermission !== "function" ||
+        !aPermission("Ventes", "supprimer")
+    ) {
+        alert(
+            "Vous n'avez pas l'autorisation d'annuler une vente."
+        );
+        return;
+    }
+    
     if (!ventesSupabaseDisponible()) {
         return;
     }
