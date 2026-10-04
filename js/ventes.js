@@ -228,15 +228,69 @@ document.addEventListener(
             "Initialisation du module Ventes..."
         );
 
+        /* =====================================================
+           PERMISSION : VOIR LE MODULE VENTES
+           ===================================================== */
+
+        if (
+            typeof aPermission !== "function"
+        ) {
+            console.error(
+                "Système de permissions indisponible."
+            );
+
+            alert(
+                "Le système de permissions n'est pas disponible."
+            );
+
+            return;
+        }
+
+        if (
+            !aPermission(
+                "Ventes",
+                "voir"
+            )
+        ) {
+
+            console.warn(
+                "Accès refusé au module Ventes."
+            );
+
+            alert(
+                "Vous n'avez pas l'autorisation d'accéder au module Ventes."
+            );
+
+            return;
+        }
+
+        console.log(
+            "✓ Permission Ventes > voir accordée."
+        );
+
+
+        /* =====================================================
+           SUPABASE
+           ===================================================== */
+
         if (window.supabaseClient) {
+
             console.log(
                 "✓ Supabase disponible."
             );
+
         } else {
+
             console.warn(
                 "⚠ Supabase indisponible : fonctionnement hors ligne."
             );
+
         }
+
+
+        /* =====================================================
+           INITIALISATION DU MODULE VENTES
+           ===================================================== */
 
         await chargerProduitsVente();
 
@@ -250,12 +304,13 @@ document.addEventListener(
 
         initialiserTempsReelVentes();
 
+
         console.log(
             "Module Ventes prêt."
         );
+
     }
 );
-
 async function chargerProduitsVente() {
 
     const select =
