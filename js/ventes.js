@@ -530,7 +530,19 @@ function initialiserFormulaireVente() {
 async function enregistrerVenteSupabase(
     informations
 ) {
+    /* =========================================
+       PERMISSION : AJOUTER UNE VENTE
+    ========================================= */
 
+    if (
+        typeof aPermission !== "function" ||
+        !aPermission("Ventes", "ajouter")
+    ) {
+        alert(
+            "Vous n'avez pas l'autorisation d'ajouter une vente."
+        );
+        return;
+    }
     const {
         client,
         telephone,
