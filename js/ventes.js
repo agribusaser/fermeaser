@@ -1670,6 +1670,20 @@ async function imprimerFacture(
     idVente
 ) {
 
+    /* =========================================
+       PERMISSION : EXPORTER / IMPRIMER
+    ========================================= */
+
+    if (
+        typeof aPermission !== "function" ||
+        !aPermission("Ventes", "exporter")
+    ) {
+        alert(
+            "Vous n'avez pas l'autorisation d'imprimer ou d'exporter les ventes."
+        );
+        return;
+    }
+    
     const ventes =
         await obtenirVentes();
 
