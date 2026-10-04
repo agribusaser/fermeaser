@@ -1561,6 +1561,26 @@ async function voirVente(
     idVente
 ) {
 
+async function voirVente(
+    idVente
+) {
+
+    /* =========================================
+       PERMISSION : VOIR UNE VENTE
+    ========================================= */
+
+    if (
+        typeof aPermission !== "function" ||
+        !aPermission("Ventes", "voir")
+    ) {
+        alert(
+            "Vous n'avez pas l'autorisation de consulter les ventes."
+        );
+        return;
+    }
+
+    // ⬇️ CODE EXISTANT DE voirVente()
+    
     const ventes =
         await obtenirVentes();
 
