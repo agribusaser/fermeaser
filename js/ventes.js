@@ -1447,48 +1447,60 @@ ${statut}
 
 </span>
 
-</td>
-
 <td>
 
-<button
-type="button"
-class="btn btn-primary btn-sm"
-data-action="voir"
-data-id="${vente.id}"
-title="Voir">
+${
+    typeof aPermission === "function" &&
+    aPermission("Ventes", "voir")
+    ? `
+        <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            data-action="voir"
+            data-id="${vente.id}"
+            title="Voir">
 
-<i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-eye"></i>
 
-</button>
-
-<button
-type="button"
-class="btn btn-secondary btn-sm"
-data-action="imprimer"
-data-id="${vente.id}"
-title="Facture">
-
-<i class="fa-solid fa-print"></i>
-
-</button>
+        </button>
+    `
+    : ""
+}
 
 ${
-    statut !== "Annulée"
+    typeof aPermission === "function" &&
+    aPermission("Ventes", "exporter")
     ? `
+        <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            data-action="imprimer"
+            data-id="${vente.id}"
+            title="Facture">
 
-<button
-type="button"
-class="btn btn-danger btn-sm"
-data-action="annuler"
-data-id="${vente.id}"
-title="Annuler">
+            <i class="fa-solid fa-print"></i>
 
-<i class="fa-solid fa-ban"></i>
+        </button>
+    `
+    : ""
+}
 
-</button>
+${
+    statut !== "Annulée" &&
+    typeof aPermission === "function" &&
+    aPermission("Ventes", "supprimer")
+    ? `
+        <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-action="annuler"
+            data-id="${vente.id}"
+            title="Annuler">
 
-`
+            <i class="fa-solid fa-ban"></i>
+
+        </button>
+    `
     : ""
 }
 
