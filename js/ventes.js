@@ -1561,10 +1561,6 @@ async function voirVente(
     idVente
 ) {
 
-async function voirVente(
-    idVente
-) {
-
     /* =========================================
        PERMISSION : VOIR UNE VENTE
     ========================================= */
