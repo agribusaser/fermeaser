@@ -823,14 +823,17 @@ async function enregistrerVenteSupabase(
         total:
             totalCalcule,
 
-        paiement:
-            paiement || null,
+       paiement:
+    paiement || null,
 
-        utilisateur:
-            utilisateurNom,
+statut:
+    "Validée",
 
-        created_at:
-            new Date().toISOString(),
+utilisateur:
+    utilisateurNom,
+
+created_at:
+    new Date().toISOString(),
 
         synchronise:
             false
