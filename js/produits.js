@@ -256,46 +256,43 @@ async function lireProduitsLocaux() {
 
 async function enregistrerProduitLocal(produit) {
 
+    const produitNormalise =
+        normaliserProduit(produit);
+
     if (
         typeof window.enregistrerLocalement !==
         "function"
     ) {
-
         produitLog(
-            "IndexedDB indisponible : cache local ignoré."
+            "IndexedDB indisponible : produit conservé uniquement dans Supabase."
         );
 
-        return false;
+        return produitNormalise;
     }
 
     try {
 
-        const produitNormalise =
-            normaliserProduit(produit);
-
-        await window.enregistrerLocalement(
+        return await window.enregistrerLocalement(
             PRODUITS_TABLE,
             produitNormalise
         );
 
-        produitLog(
-            "✓ Produit mis en cache local :",
-            produitNormalise.id
-        );
-
-        return true;
-
     } catch (error) {
 
         produitErreur(
-            "Cache IndexedDB indisponible. Le produit reste sauvegardé dans Supabase :",
+            "Impossible d'enregistrer localement :",
             error
         );
 
-        return false;
+        /*
+         * IndexedDB est un cache local.
+         * Son échec ne doit jamais empêcher
+         * l'enregistrement central Supabase.
+         */
+
+        return produitNormalise;
     }
 }
-
 
 /* =========================================================
    CHARGER LES PRODUITS DEPUIS SUPABASE
