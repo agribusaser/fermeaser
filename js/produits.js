@@ -956,26 +956,38 @@ async function ajouterProduit(event) {
 }
 
           const cacheLocalOK =
-    await enregistrerProduitLocal({
-        ...data,
-        synchronise: true
-    });
+/*
+ * Mise en cache locale facultative.
+ * L'absence d'IndexedDB ne bloque pas Supabase.
+ */
 
-if (cacheLocalOK) {
+if (
+    typeof window.enregistrerLocalement ===
+    "function"
+) {
 
-    produitLog(
-        "Produit enregistré dans Supabase et mis en cache local."
-    );
+    try {
 
-} else {
+        await enregistrerProduitLocal({
 
-    produitLog(
-        "Produit enregistré dans Supabase. Cache local indisponible."
-    );
+            ...data,
+            synchronise: true
+
+        });
+
+    } catch (localError) {
+
+        produitErreur(
+            "Cache IndexedDB non disponible :",
+            localError
+        );
+
+    }
+
 }
 
 alert(
-    "Produit enregistré avec succès."
+    "Produit enregistré avec succès dans Supabase."
 );
 
 window.location.href =
