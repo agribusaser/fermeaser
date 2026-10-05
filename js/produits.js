@@ -919,30 +919,41 @@ async function ajouterProduit(event) {
                     .single();
 
 
-            if (error) {
+           if (error) {
 
-                produitErreur(
-                    "Erreur création Supabase :",
-                    error
-                );
+    produitErreur(
+        "Erreur création Supabase :",
+        error
+    );
 
-                /*
-                 * On garde quand même le produit
-                 * localement pour éviter la perte de données.
-                 */
+    /*
+     * On essaie le stockage local uniquement
+     * si IndexedDB est réellement disponible.
+     */
 
-                await enregistrerProduitLocal(
-                    nouveauProduit
-                );
+    if (
+        typeof window.enregistrerLocalement ===
+        "function"
+    ) {
 
+        await enregistrerProduitLocal(
+            nouveauProduit
+        );
 
-                alert(
-                    "Le produit a été enregistré localement, mais Supabase a refusé l'enregistrement.\n\nConsulte la console du navigateur pour le détail."
-                );
+        alert(
+            "Supabase a refusé l'enregistrement.\n\nLe produit a été conservé localement et pourra être synchronisé plus tard."
+        );
 
-                return;
-            }
+    } else {
 
+        alert(
+            "Impossible d'enregistrer le produit dans Supabase.\n\nConsulte la console pour voir l'erreur."
+        );
+
+    }
+
+    return;
+}
 
           const cacheLocalOK =
     await enregistrerProduitLocal({
