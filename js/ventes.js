@@ -228,10 +228,51 @@ document.addEventListener(
             "Initialisation du module Ventes..."
         );
 
-        /* =====================================================
-           PERMISSION : VOIR LE MODULE VENTES
-           ===================================================== */
+console.log(
+    "Initialisation du module Ventes..."
+);
 
+/* =====================================================
+   ATTENDRE LE SYSTÈME CENTRAL DES PERMISSIONS
+   ===================================================== */
+
+if (
+    typeof initialiserPermissionsERP === "function"
+) {
+
+    const permissionsOK =
+        await initialiserPermissionsERP();
+
+    if (!permissionsOK) {
+
+        console.error(
+            "Impossible d'initialiser les permissions ERP."
+        );
+
+        alert(
+            "Le système de permissions n'est pas prêt."
+        );
+
+        return;
+    }
+
+} else {
+
+    console.error(
+        "initialiserPermissionsERP() est indisponible."
+    );
+
+    alert(
+        "Le système de permissions n'est pas disponible."
+    );
+
+    return;
+}
+
+/* =====================================================
+   PERMISSION : VOIR LE MODULE VENTES
+   ===================================================== */
+        
         if (
             typeof aPermission !== "function"
         ) {
