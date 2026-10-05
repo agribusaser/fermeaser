@@ -789,14 +789,31 @@ async function initialiserPermissionsERP() {
        ÉVITER LES INITIALISATIONS MULTIPLES
        ------------------------------------------------- */
 
-    if (initialisationPermissionsEnCours) {
+   if (initialisationPermissionsEnCours) {
 
-        console.warn(
-            "Initialisation des permissions déjà en cours."
+    console.log(
+        "Permissions ERP : initialisation déjà en cours, attente..."
+    );
+
+    while (initialisationPermissionsEnCours) {
+
+        await new Promise(function(resolve) {
+            setTimeout(resolve, 50);
+        });
+
+    }
+
+    if (permissionsInitialisees) {
+
+        console.log(
+            "Permissions ERP : initialisation terminée pendant l'attente."
         );
 
-        return false;
+        appliquerToutesPermissionsERP();
+
+        return true;
     }
+}
 
 
     if (permissionsInitialisees) {
