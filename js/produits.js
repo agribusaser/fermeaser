@@ -947,25 +947,33 @@ async function ajouterProduit(event) {
             }
 
 
-            await enregistrerProduitLocal({
+          const cacheLocalOK =
+    await enregistrerProduitLocal({
+        ...data,
+        synchronise: true
+    });
 
-                ...data,
+if (cacheLocalOK) {
 
-                synchronise: true
+    produitLog(
+        "Produit enregistré dans Supabase et mis en cache local."
+    );
 
-            });
+} else {
 
+    produitLog(
+        "Produit enregistré dans Supabase. Cache local indisponible."
+    );
+}
 
-            alert(
-                "Produit enregistré avec succès."
-            );
+alert(
+    "Produit enregistré avec succès."
+);
 
+window.location.href =
+    "index.html";
 
-            window.location.href =
-                "index.html";
-
-
-            return;
+return;
 
         } catch (error) {
 
