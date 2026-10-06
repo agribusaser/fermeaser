@@ -4981,6 +4981,332 @@ function chargerSuiviElevage() {
 
 }
 
+/* =========================================================
+   14 BIS. GESTION DES SHIFTS D'ÉLEVAGE
+   ---------------------------------------------------------
+   Un Shift = service de travail d'un agent
+   Jour ou Nuit
+   Source principale : Supabase
+========================================================= */
+
+
+/* =========================================================
+   VÉRIFIER SUPABASE
+========================================================= */
+
+function supabaseDisponiblePourShift() {
+
+    return (
+        typeof window.supabaseClient !== "undefined" &&
+        window.supabaseClient !== null
+    );
+
+}
+
+
+/* =========================================================
+   TEST DE CONNEXION À LA TABLE SHIFTS
+========================================================= */
+
+async function testerTableShiftsElevage() {
+
+    if (!supabaseDisponiblePourShift()) {
+
+        console.error(
+            "Supabase n'est pas disponible."
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await window.supabaseClient
+            .from("shifts_elevage")
+            .select("id")
+            .limit(1);
+
+
+        if (error) {
+
+            console.error(
+                "Erreur accès table shifts_elevage :",
+                error
+            );
+
+            return false;
+        }
+
+
+        console.log(
+            "✓ Connexion à shifts_elevage réussie.",
+            data
+        );
+
+        return true;
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur test shifts_elevage :",
+            erreur
+        );
+
+        return false;
+    }
+
+}
+
+
+/* =========================================================
+   RÉCUPÉRER LE SHIFT EN COURS DE L'AGENT
+========================================================= */
+
+async function obtenirShiftEnCours() {
+
+    if (!supabaseDisponiblePourShift()) {
+
+        return null;
+    }
+
+
+    const agent =
+        obtenirUtilisateur();
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await window.supabaseClient
+            .from("shifts_elevage")
+            .select("*")
+            .eq("agent_nom", agent)
+            .eq("statut", "En cours")
+            .order(
+                "heure_arrivee",
+                {
+                    ascending: false
+                }
+            )
+            .limit(1)
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Erreur recherche Shift en cours :",
+                error
+            );
+
+            return null;
+        }
+
+
+        return data || null;
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur obtenirShiftEnCours :",
+            erreur
+        );
+
+        return null;
+    }
+
+}
+
+
+/* =========================================================
+   DÉMARRER UN SHIFT
+   ---------------------------------------------------------
+   Cette fonction sera appelée par le futur bouton
+   "DÉMARRER LE SHIFT".
+========================================================= */
+
+async function demarrerShiftElevage(typeShift) {
+
+    if (!supabaseDisponiblePourShift()) {
+
+        alert(
+            "Supabase n'est pas disponible."
+        );
+
+        return null;
+    }
+
+
+    const agent =
+        obtenirUtilisateur();
+
+
+    const type =
+        String(
+            typeShift || ""
+        ).trim();
+
+
+    /* -----------------------------------------------------
+       VÉRIFICATION DU TYPE DE SHIFT
+    ----------------------------------------------------- */
+
+    if (
+        type !== "Jour" &&
+        type !== "Nuit"
+    ) {
+
+        alert(
+            "Veuillez sélectionner le type de Shift : Jour ou Nuit."
+        );
+
+        return null;
+    }
+
+
+    /* -----------------------------------------------------
+       VÉRIFIER S'IL EXISTE DÉJÀ UN SHIFT
+    ----------------------------------------------------- */
+
+    const shiftExistant =
+        await obtenirShiftEnCours();
+
+
+    if (shiftExistant) {
+
+        alert(
+            "Un Shift est déjà en cours pour cet agent.\n\n" +
+            "Vous devez terminer ce Shift avant d'en démarrer un autre."
+        );
+
+        console.warn(
+            "Shift déjà en cours :",
+            shiftExistant
+        );
+
+        return shiftExistant;
+    }
+
+
+    /* -----------------------------------------------------
+       CRÉATION DU SHIFT
+    ----------------------------------------------------- */
+
+    const nouveauShift = {
+
+        agent_nom:
+            agent,
+
+        date_shift:
+            obtenirDateAujourdHui(),
+
+        type_shift:
+            type,
+
+        statut:
+            "En cours"
+
+    };
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await window.supabaseClient
+            .from("shifts_elevage")
+            .insert(
+                [nouveauShift]
+            )
+            .select()
+            .single();
+
+
+        if (error) {
+
+            console.error(
+                "Erreur création Shift :",
+                error
+            );
+
+            alert(
+                "Impossible de démarrer le Shift.\n\n" +
+                (error.message || error)
+            );
+
+            return null;
+        }
+
+
+        console.log(
+            "✓ SHIFT DÉMARRÉ :",
+            data
+        );
+
+
+        /* -------------------------------------------------
+           MÉMORISER UNIQUEMENT L'ID DU SHIFT ACTIF
+           -------------------------------------------------
+           Cela sert à l'interface pendant le service.
+           La donnée officielle reste dans Supabase.
+        ------------------------------------------------- */
+
+        if (data && data.id) {
+
+            localStorage.setItem(
+                "shiftElevageActif",
+                data.id
+            );
+
+        }
+
+
+        return data;
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur demarrerShiftElevage :",
+            erreur
+        );
+
+        alert(
+            "Une erreur est survenue lors du démarrage du Shift."
+        );
+
+        return null;
+    }
+
+}
+
+
+/* =========================================================
+   EXPORTS SHIFT
+========================================================= */
+
+window.testerTableShiftsElevage =
+    testerTableShiftsElevage;
+
+window.obtenirShiftEnCours =
+    obtenirShiftEnCours;
+
+window.demarrerShiftElevage =
+    demarrerShiftElevage;
+
+
+/* =========================================================
+   FIN GESTION DES SHIFTS
+========================================================= */
 
 /* =========================================================
    15. COMPATIBILITÉ
