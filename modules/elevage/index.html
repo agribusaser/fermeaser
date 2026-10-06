@@ -172,7 +172,146 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 </div>
 
+<!-- =====================================================
+     SHIFT DE L'AGENT
+===================================================== -->
 
+<div class="card shadow-sm border-0 mb-4" id="blocShiftElevage">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h4 class="mb-1">
+                    <i class="fa-solid fa-user-clock text-success"></i>
+                    Shift de l'agent
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Gestion de votre présence et de votre shift d'élevage.
+                </p>
+            </div>
+
+            <span
+                id="statutShiftElevage"
+                class="badge bg-secondary">
+                Aucun shift
+            </span>
+
+        </div>
+
+
+        <!-- INFORMATIONS AGENT -->
+
+        <div class="row mb-3">
+
+            <div class="col-md-4 mb-2">
+
+                <label class="form-label fw-bold">
+                    Agent
+                </label>
+
+                <div
+                    id="agentShiftElevage"
+                    class="form-control bg-light">
+                    Chargement...
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4 mb-2">
+
+                <label class="form-label fw-bold">
+                    Date
+                </label>
+
+                <div
+                    id="dateShiftElevage"
+                    class="form-control bg-light">
+                    Chargement...
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4 mb-2">
+
+                <label class="form-label fw-bold">
+                    Heure d'arrivée
+                </label>
+
+                <div
+                    id="heureArriveeShiftElevage"
+                    class="form-control bg-light">
+                    —
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CHOIX DU SHIFT -->
+
+        <div id="zoneDemarrageShiftElevage">
+
+            <label class="form-label fw-bold">
+                Type de shift
+            </label>
+
+            <div class="d-flex gap-2 mb-3">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="btnShiftJour">
+                    <i class="fa-solid fa-sun"></i>
+                    Jour
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline-dark"
+                    id="btnShiftNuit">
+                    <i class="fa-solid fa-moon"></i>
+                    Nuit
+                </button>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn btn-success"
+                id="btnDemarrerShiftElevage">
+
+                <i class="fa-solid fa-play"></i>
+                DÉMARRER MON SHIFT
+
+            </button>
+
+        </div>
+
+
+        <!-- SHIFT EN COURS -->
+
+        <div
+            id="zoneShiftEnCours"
+            class="alert alert-success d-none mb-0">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <strong>Shift en cours.</strong>
+
+            Votre shift est actuellement ouvert.
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- MODULES -->
 
