@@ -5315,12 +5315,20 @@ window.demarrerShiftElevage =
    et les affiche dans le Shift en cours.
 ========================================================= */
 
+/* =========================================================
+   14 TER. BÂTIMENTS DU SHIFT
+   ---------------------------------------------------------
+   Charge les bâtiments actifs depuis Supabase.
+   Affiche les bâtiments affectés au Shift.
+   Permet de sélectionner plusieurs bâtiments.
+========================================================= */
+
 async function chargerBatimentsElevage() {
 
     if (!supabaseDisponiblePourShift()) {
 
         console.error(
-            "Supabase n'est pas disponible pour charger les bâtiments."
+            "Supabase n'est pas disponible pour les bâtiments."
         );
 
         return [];
@@ -5334,7 +5342,7 @@ async function chargerBatimentsElevage() {
     if (!zoneShift) {
 
         console.warn(
-            "La zone zoneShiftEnCours est introuvable."
+            "zoneShiftEnCours est introuvable."
         );
 
         return [];
@@ -5342,9 +5350,30 @@ async function chargerBatimentsElevage() {
 
     try {
 
+        /* =================================================
+           1. RÉCUPÉRER LE SHIFT EN COURS
+        ================================================= */
+
+        const shift =
+            await obtenirShiftEnCours();
+
+        if (!shift) {
+
+            console.warn(
+                "Aucun Shift en cours."
+            );
+
+            return [];
+        }
+
+
+        /* =================================================
+           2. CHARGER LES BÂTIMENTS ACTIFS
+        ================================================= */
+
         const {
-            data,
-            error
+            data: batiments,
+            error: erreurBatiments
         } = await window.supabaseClient
             .from("batiments_elevage")
             .select(
@@ -5361,29 +5390,72 @@ async function chargerBatimentsElevage() {
                 }
             );
 
-        if (error) {
+
+        if (erreurBatiments) {
 
             console.error(
-                "Erreur chargement bâtiments d'élevage :",
-                error
+                "Erreur chargement bâtiments :",
+                erreurBatiments
             );
 
             return [];
         }
 
-        const batiments =
-            Array.isArray(data)
-                ? data
+
+        const listeBatiments =
+            Array.isArray(batiments)
+                ? batiments
                 : [];
 
-        /*
-         * Chercher une zone déjà créée
-         * pour éviter les doublons.
-         */
+
+        /* =================================================
+           3. CHARGER LES BÂTIMENTS DÉJÀ AFFECTÉS AU SHIFT
+        ================================================= */
+
+        const {
+            data: affectations,
+            error: erreurAffectations
+        } = await window.supabaseClient
+            .from("shifts_elevage_batiments")
+            .select("batiment_id")
+            .eq(
+                "shift_id",
+                shift.id
+            );
+
+
+        if (erreurAffectations) {
+
+            console.error(
+                "Erreur chargement affectations bâtiments :",
+                erreurAffectations
+            );
+
+            return [];
+        }
+
+
+        const batimentsAffectes =
+            Array.isArray(affectations)
+                ? affectations.map(
+                    function (ligne) {
+                        return String(
+                            ligne.batiment_id
+                        );
+                    }
+                )
+                : [];
+
+
+        /* =================================================
+           4. ZONE D'AFFICHAGE
+        ================================================= */
+
         let zoneBatiments =
             document.getElementById(
                 "zoneBatimentsElevage"
             );
+
 
         if (!zoneBatiments) {
 
@@ -5403,9 +5475,11 @@ async function chargerBatimentsElevage() {
             );
         }
 
-        /*
-         * Titre
-         */
+
+        /* =================================================
+           5. CONSTRUCTION DE L'INTERFACE
+        ================================================= */
+
         let html = `
 
             <div class="card border-0 shadow-sm">
@@ -5414,7 +5488,7 @@ async function chargerBatimentsElevage() {
 
                     <strong>
                         <i class="fa-solid fa-warehouse me-2"></i>
-                        Bâtiments à gérer
+                        Bâtiments à gérer pendant ce Shift
                     </strong>
 
                 </div>
@@ -5423,24 +5497,41 @@ async function chargerBatimentsElevage() {
 
         `;
 
-        if (batiments.length === 0) {
+
+        if (listeBatiments.length === 0) {
 
             html += `
 
-                    <div class="text-muted">
-                        Aucun bâtiment actif enregistré.
-                    </div>
+                <div class="alert alert-warning mb-0">
+
+                    Aucun bâtiment actif n'est disponible.
+
+                </div>
 
             `;
 
         } else {
 
             html += `
-                    <div class="row g-3">
+
+                <div class="row g-3">
+
             `;
 
-            batiments.forEach(
+
+            listeBatiments.forEach(
                 function (batiment) {
+
+                    const idBatiment =
+                        String(
+                            batiment.id
+                        );
+
+                    const estSelectionne =
+                        batimentsAffectes.includes(
+                            idBatiment
+                        );
+
 
                     html += `
 
@@ -5448,37 +5539,52 @@ async function chargerBatimentsElevage() {
 
                             <div class="border rounded p-3 h-100">
 
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
 
-                                    <strong>
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        value="${idBatiment}"
+                                        id="batimentShift_${idBatiment}"
                                         ${
-                                            batiment.nom ||
-                                            "Bâtiment sans nom"
+                                            estSelectionne
+                                                ? "checked"
+                                                : ""
                                         }
-                                    </strong>
+                                    >
 
-                                    <span class="badge bg-success">
-                                        Actif
-                                    </span>
+                                    <label
+                                        class="form-check-label w-100"
+                                        for="batimentShift_${idBatiment}"
+                                    >
 
-                                </div>
+                                        <strong>
+                                            ${
+                                                batiment.nom ||
+                                                "Bâtiment sans nom"
+                                            }
+                                        </strong>
 
-                                <div class="small text-muted mt-2">
+                                        <div class="small text-muted mt-1">
 
-                                    Type :
-                                    ${
-                                        batiment.type_batiment ||
-                                        "-"
-                                    }
+                                            Type :
+                                            ${
+                                                batiment.type_batiment ||
+                                                "-"
+                                            }
 
-                                    <br>
+                                            <br>
 
-                                    Capacité :
-                                    ${
-                                        batiment.capacite_animaux ??
-                                        0
-                                    }
-                                    animaux
+                                            Capacité :
+                                            ${
+                                                batiment.capacite_animaux ??
+                                                0
+                                            }
+                                            animaux
+
+                                        </div>
+
+                                    </label>
 
                                 </div>
 
@@ -5491,10 +5597,30 @@ async function chargerBatimentsElevage() {
                 }
             );
 
+
             html += `
-                    </div>
+
+                </div>
+
+                <div class="mt-3">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="btnEnregistrerBatimentsShift"
+                    >
+
+                        <i class="fa-solid fa-save me-2"></i>
+
+                        Enregistrer les bâtiments du Shift
+
+                    </button>
+
+                </div>
+
             `;
         }
+
 
         html += `
 
@@ -5504,15 +5630,43 @@ async function chargerBatimentsElevage() {
 
         `;
 
+
         zoneBatiments.innerHTML =
             html;
 
+
+        /* =================================================
+           6. CONNECTER LE BOUTON
+        ================================================= */
+
+        const bouton =
+            document.getElementById(
+                "btnEnregistrerBatimentsShift"
+            );
+
+
+        if (bouton) {
+
+            bouton.addEventListener(
+                "click",
+                enregistrerBatimentsDuShift
+            );
+
+        }
+
+
         console.log(
-            "✓ Bâtiments d'élevage chargés :",
-            batiments
+            "✓ Bâtiments du Shift chargés :",
+            listeBatiments
         );
 
-        return batiments;
+        console.log(
+            "✓ Bâtiments déjà affectés :",
+            batimentsAffectes
+        );
+
+
+        return listeBatiments;
 
     }
     catch (erreur) {
@@ -5523,6 +5677,182 @@ async function chargerBatimentsElevage() {
         );
 
         return [];
+    }
+}
+
+
+/* =========================================================
+   ENREGISTRER LES BÂTIMENTS DU SHIFT
+========================================================= */
+
+async function enregistrerBatimentsDuShift() {
+
+    if (!supabaseDisponiblePourShift()) {
+
+        alert(
+            "Supabase n'est pas disponible."
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        /* =================================================
+           1. RÉCUPÉRER LE SHIFT
+        ================================================= */
+
+        const shift =
+            await obtenirShiftEnCours();
+
+
+        if (!shift) {
+
+            alert(
+                "Aucun Shift en cours."
+            );
+
+            return false;
+        }
+
+
+        /* =================================================
+           2. RÉCUPÉRER LES CASES COCHÉES
+        ================================================= */
+
+        const cases =
+            document.querySelectorAll(
+                '#zoneBatimentsElevage input[type="checkbox"]:checked'
+            );
+
+
+        const batimentIds =
+            Array.from(
+                cases
+            ).map(
+                function (caseElement) {
+
+                    return caseElement.value;
+
+                }
+            );
+
+
+        /* =================================================
+           3. SUPPRIMER LES ANCIENNES AFFECTATIONS
+        ================================================= */
+
+        const {
+            error: erreurSuppression
+        } = await window.supabaseClient
+            .from("shifts_elevage_batiments")
+            .delete()
+            .eq(
+                "shift_id",
+                shift.id
+            );
+
+
+        if (erreurSuppression) {
+
+            console.error(
+                "Erreur suppression anciennes affectations :",
+                erreurSuppression
+            );
+
+            alert(
+                "Impossible de mettre à jour les bâtiments du Shift."
+            );
+
+            return false;
+        }
+
+
+        /* =================================================
+           4. AJOUTER LES NOUVELLES AFFECTATIONS
+        ================================================= */
+
+        if (batimentIds.length > 0) {
+
+            const nouvellesAffectations =
+                batimentIds.map(
+                    function (batimentId) {
+
+                        return {
+
+                            shift_id:
+                                shift.id,
+
+                            batiment_id:
+                                batimentId
+
+                        };
+
+                    }
+                );
+
+
+            const {
+                error: erreurInsertion
+            } = await window.supabaseClient
+                .from("shifts_elevage_batiments")
+                .insert(
+                    nouvellesAffectations
+                );
+
+
+            if (erreurInsertion) {
+
+                console.error(
+                    "Erreur enregistrement bâtiments du Shift :",
+                    erreurInsertion
+                );
+
+                alert(
+                    "Impossible d'enregistrer les bâtiments sélectionnés."
+                );
+
+                return false;
+            }
+        }
+
+
+        console.log(
+            "✓ Bâtiments du Shift enregistrés :",
+            batimentIds
+        );
+
+
+        alert(
+            batimentIds.length > 0
+                ? "Les bâtiments du Shift ont été enregistrés avec succès."
+                : "Aucun bâtiment n'est affecté à ce Shift."
+        );
+
+
+        /* =================================================
+           5. RECHARGER L'AFFICHAGE
+        ================================================= */
+
+        await chargerBatimentsElevage();
+
+
+        return true;
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur enregistrerBatimentsDuShift :",
+            erreur
+        );
+
+        alert(
+            "Une erreur est survenue lors de l'enregistrement."
+        );
+
+        return false;
     }
 }
 
