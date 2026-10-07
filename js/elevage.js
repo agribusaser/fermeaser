@@ -5323,6 +5323,14 @@ window.demarrerShiftElevage =
    Permet de sélectionner plusieurs bâtiments.
 ========================================================= */
 
+/* =========================================================
+   14 TER. BÂTIMENTS DU SHIFT
+   ---------------------------------------------------------
+   Charge les bâtiments actifs depuis Supabase.
+   Affiche les bâtiments affectés au Shift.
+   Permet de sélectionner plusieurs bâtiments.
+========================================================= */
+
 async function chargerBatimentsElevage() {
 
     if (!supabaseDisponiblePourShift()) {
@@ -5858,6 +5866,9 @@ async function enregistrerBatimentsDuShift() {
 
 window.chargerBatimentsElevage =
     chargerBatimentsElevage;
+
+window.enregistrerBatimentsDuShift =
+    enregistrerBatimentsDuShift;
 
 /* =========================================================
    15. COMPATIBILITÉ
