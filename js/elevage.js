@@ -5309,6 +5309,227 @@ window.demarrerShiftElevage =
 ========================================================= */
 
 /* =========================================================
+   14 TER. BÂTIMENTS D'ÉLEVAGE
+   ---------------------------------------------------------
+   Charge les bâtiments actifs depuis Supabase
+   et les affiche dans le Shift en cours.
+========================================================= */
+
+async function chargerBatimentsElevage() {
+
+    if (!supabaseDisponiblePourShift()) {
+
+        console.error(
+            "Supabase n'est pas disponible pour charger les bâtiments."
+        );
+
+        return [];
+    }
+
+    const zoneShift =
+        document.getElementById(
+            "zoneShiftEnCours"
+        );
+
+    if (!zoneShift) {
+
+        console.warn(
+            "La zone zoneShiftEnCours est introuvable."
+        );
+
+        return [];
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await window.supabaseClient
+            .from("batiments_elevage")
+            .select(
+                "id, nom, type_batiment, capacite_animaux, actif, observations"
+            )
+            .eq(
+                "actif",
+                true
+            )
+            .order(
+                "nom",
+                {
+                    ascending: true
+                }
+            );
+
+        if (error) {
+
+            console.error(
+                "Erreur chargement bâtiments d'élevage :",
+                error
+            );
+
+            return [];
+        }
+
+        const batiments =
+            Array.isArray(data)
+                ? data
+                : [];
+
+        /*
+         * Chercher une zone déjà créée
+         * pour éviter les doublons.
+         */
+        let zoneBatiments =
+            document.getElementById(
+                "zoneBatimentsElevage"
+            );
+
+        if (!zoneBatiments) {
+
+            zoneBatiments =
+                document.createElement(
+                    "div"
+                );
+
+            zoneBatiments.id =
+                "zoneBatimentsElevage";
+
+            zoneBatiments.className =
+                "mt-4";
+
+            zoneShift.appendChild(
+                zoneBatiments
+            );
+        }
+
+        /*
+         * Titre
+         */
+        let html = `
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-light">
+
+                    <strong>
+                        <i class="fa-solid fa-warehouse me-2"></i>
+                        Bâtiments à gérer
+                    </strong>
+
+                </div>
+
+                <div class="card-body">
+
+        `;
+
+        if (batiments.length === 0) {
+
+            html += `
+
+                    <div class="text-muted">
+                        Aucun bâtiment actif enregistré.
+                    </div>
+
+            `;
+
+        } else {
+
+            html += `
+                    <div class="row g-3">
+            `;
+
+            batiments.forEach(
+                function (batiment) {
+
+                    html += `
+
+                        <div class="col-md-6">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <strong>
+                                        ${
+                                            batiment.nom ||
+                                            "Bâtiment sans nom"
+                                        }
+                                    </strong>
+
+                                    <span class="badge bg-success">
+                                        Actif
+                                    </span>
+
+                                </div>
+
+                                <div class="small text-muted mt-2">
+
+                                    Type :
+                                    ${
+                                        batiment.type_batiment ||
+                                        "-"
+                                    }
+
+                                    <br>
+
+                                    Capacité :
+                                    ${
+                                        batiment.capacite_animaux ??
+                                        0
+                                    }
+                                    animaux
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+            html += `
+                    </div>
+            `;
+        }
+
+        html += `
+
+                </div>
+
+            </div>
+
+        `;
+
+        zoneBatiments.innerHTML =
+            html;
+
+        console.log(
+            "✓ Bâtiments d'élevage chargés :",
+            batiments
+        );
+
+        return batiments;
+
+    }
+    catch (erreur) {
+
+        console.error(
+            "Erreur chargerBatimentsElevage :",
+            erreur
+        );
+
+        return [];
+    }
+}
+
+window.chargerBatimentsElevage =
+    chargerBatimentsElevage;
+
+/* =========================================================
    15. COMPATIBILITÉ
 ========================================================= */
 
