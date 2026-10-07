@@ -659,7 +659,264 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     src="../../js/elevage.js">
 </script>
 
-    Ajout interface Shift Elevage
+  <script>
+
+/* =========================================================
+   INTERFACE SHIFT ÉLEVAGE
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+    console.log("✓ Interface Shift Élevage initialisée.");
+
+    let typeShiftSelectionne = "Jour";
+
+    const btnJour = document.getElementById("btnShiftJour");
+    const btnNuit = document.getElementById("btnShiftNuit");
+    const btnDemarrer = document.getElementById("btnDemarrerShiftElevage");
+
+    /*
+     * CHOIX SHIFT JOUR
+     */
+    if (btnJour) {
+
+        btnJour.addEventListener("click", function () {
+
+            typeShiftSelectionne = "Jour";
+
+            btnJour.classList.add("active");
+            btnNuit?.classList.remove("active");
+
+        });
+
+    }
+
+
+    /*
+     * CHOIX SHIFT NUIT
+     */
+    if (btnNuit) {
+
+        btnNuit.addEventListener("click", function () {
+
+            typeShiftSelectionne = "Nuit";
+
+            btnNuit.classList.add("active");
+            btnJour?.classList.remove("active");
+
+        });
+
+    }
+
+
+    /*
+     * BOUTON DÉMARRER
+     */
+    if (btnDemarrer) {
+
+        btnDemarrer.addEventListener("click", async function () {
+
+            console.log(
+                "Démarrage du Shift demandé :",
+                typeShiftSelectionne
+            );
+
+            if (typeof window.demarrerShiftElevage !== "function") {
+
+                alert(
+                    "Erreur : la fonction de démarrage du Shift n'est pas disponible."
+                );
+
+                return;
+
+            }
+
+            const shift = await window.demarrerShiftElevage(
+                typeShiftSelectionne
+            );
+
+            /*
+             * Si un nouveau Shift a été créé,
+             * on actualise immédiatement l'interface.
+             */
+            if (shift) {
+
+                await afficherShiftElevage();
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * AFFICHER LE SHIFT EXISTANT AU CHARGEMENT
+     */
+    await afficherShiftElevage();
+
+});
+
+
+/* =========================================================
+   AFFICHER LE SHIFT EN COURS
+   ========================================================= */
+
+async function afficherShiftElevage() {
+
+    const zoneShift = document.getElementById("zoneShiftEnCours");
+
+    if (!zoneShift) {
+
+        console.warn(
+            "⚠ zoneShiftEnCours introuvable."
+        );
+
+        return;
+
+    }
+
+
+    if (typeof window.obtenirShiftEnCours !== "function") {
+
+        console.warn(
+            "⚠ obtenirShiftEnCours() n'est pas disponible."
+        );
+
+        return;
+
+    }
+
+
+    const shift = await window.obtenirShiftEnCours();
+
+
+    /*
+     * AUCUN SHIFT
+     */
+    if (!shift) {
+
+        zoneShift.classList.add("d-none");
+
+        return;
+
+    }
+
+
+    /*
+     * FORMATAGE DE L'HEURE
+     */
+    let heureArrivee = "—";
+
+    if (shift.heure_arrivee) {
+
+        const date = new Date(shift.heure_arrivee);
+
+        heureArrivee = date.toLocaleTimeString(
+            "fr-FR",
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+    }
+
+
+    /*
+     * AFFICHAGE
+     */
+    zoneShift.innerHTML = `
+
+        <div class="alert alert-success mb-0">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <i class="fa-solid fa-circle-check me-2"></i>
+
+                    <strong>SHIFT EN COURS</strong>
+
+                </div>
+
+                <span class="badge bg-success">
+
+                    ${shift.type_shift || "—"}
+
+                </span>
+
+            </div>
+
+
+            <hr>
+
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <strong>Agent</strong><br>
+
+                    ${shift.agent_nom || "—"}
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <strong>Date</strong><br>
+
+                    ${shift.date_shift || "—"}
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <strong>Heure d'arrivée</strong><br>
+
+                    ${heureArrivee}
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <strong>Statut</strong><br>
+
+                    ${shift.statut || "En cours"}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    /*
+     * Afficher la zone
+     */
+    zoneShift.classList.remove("d-none");
+
+
+    /*
+     * Masquer la zone de démarrage
+     */
+    const zoneDemarrage =
+        document.getElementById("zoneDemarrageShiftElevage");
+
+    if (zoneDemarrage) {
+
+        zoneDemarrage.classList.add("d-none");
+
+    }
+
+}
+
+</script>
 
 </body>
 
