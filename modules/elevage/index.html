@@ -720,13 +720,28 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
 
             try {
-                const shift = await window.demarrerShiftElevage(
-                    typeShiftSelectionne
-                );
+            const shift = await window.demarrerShiftElevage(
+    typeShiftSelectionne
+);
 
-                if (shift) {
-                    await afficherShiftElevage();
-                }
+if (shift) {
+    const enregistrementOK =
+        await window.enregistrerBatimentsDuShift();
+
+    if (enregistrementOK === false) {
+        console.error(
+            "Le shift a démarré, mais les bâtiments n'ont pas été enregistrés."
+        );
+
+        alert(
+            "Le shift est démarré, mais l'enregistrement des bâtiments a échoué. Consultez la console."
+        );
+
+        return;
+    }
+
+    await afficherShiftElevage();
+}
             } catch (erreur) {
                 console.error(
                     "Erreur au démarrage du shift :",
