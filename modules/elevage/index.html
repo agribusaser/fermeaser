@@ -763,158 +763,125 @@ document.addEventListener("DOMContentLoaded", async function () {
    ========================================================= */
 
 async function afficherShiftElevage() {
-
     const zoneShift = document.getElementById("zoneShiftEnCours");
+    const badgeStatut = document.getElementById("statutShiftElevage");
+    const zoneDemarrage = document.getElementById("zoneDemarrageShiftElevage");
 
-    if (!zoneShift) {
-
-        console.warn(
-            "⚠ zoneShiftEnCours introuvable."
-        );
-
-        return;
-
-    }
-
+    const champAgent = document.getElementById("agentShiftElevage");
+    const champDate = document.getElementById("dateShiftElevage");
+    const champHeure = document.getElementById("heureArriveeShiftElevage");
 
     if (typeof window.obtenirShiftEnCours !== "function") {
-
-        console.warn(
-            "⚠ obtenirShiftEnCours() n'est pas disponible."
-        );
-
+        console.error("obtenirShiftEnCours() n'est pas disponible.");
         return;
-
     }
 
+    try {
+        const shift = await window.obtenirShiftEnCours();
 
-    const shift = await window.obtenirShiftEnCours();
-
-
-    /*
-     * AUCUN SHIFT
-     */
-    if (!shift) {
-
-        zoneShift.classList.add("d-none");
-
-        return;
-
-    }
-
-
-    /*
-     * FORMATAGE DE L'HEURE
-     */
-    let heureArrivee = "—";
-
-    if (shift.heure_arrivee) {
-
-        const date = new Date(shift.heure_arrivee);
-
-        heureArrivee = date.toLocaleTimeString(
-            "fr-FR",
-            {
-                hour: "2-digit",
-                minute: "2-digit"
+        // AUCUN SHIFT EN COURS
+        if (!shift) {
+            if (badgeStatut) {
+                badgeStatut.textContent = "Aucun shift";
+                badgeStatut.className = "badge bg-secondary";
             }
-        );
 
+            if (champAgent) champAgent.textContent = "—";
+            if (champDate) champDate.textContent = "—";
+            if (champHeure) champHeure.textContent = "—";
+
+            if (zoneShift) zoneShift.classList.add("d-none");
+            if (zoneDemarrage) zoneDemarrage.classList.remove("d-none");
+
+            return;
+        }
+
+        // FORMATAGE DE L'HEURE D'ARRIVÉE
+        let heureArrivee = "—";
+
+        if (shift.heure_arrivee) {
+            const dateArrivee = new Date(shift.heure_arrivee);
+
+            if (!Number.isNaN(dateArrivee.getTime())) {
+                heureArrivee = dateArrivee.toLocaleTimeString("fr-FR", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+        }
+
+        // ACTUALISER LES INFORMATIONS PRINCIPALES
+        if (champAgent) {
+            champAgent.textContent = shift.agent_nom || "—";
+        }
+
+        if (champDate) {
+            champDate.textContent = shift.date_shift || "—";
+        }
+
+        if (champHeure) {
+            champHeure.textContent = heureArrivee;
+        }
+
+        // ACTUALISER LE BADGE SUPÉRIEUR
+        if (badgeStatut) {
+            badgeStatut.textContent = "Shift en cours";
+            badgeStatut.className = "badge bg-success";
+        }
+
+        // AFFICHER LE SHIFT ET SON TYPE
+        if (zoneShift) {
+            zoneShift.innerHTML = `
+                <div class="alert alert-success mb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa-solid fa-circle-check me-2"></i>
+                            <strong>SHIFT EN COURS</strong>
+                        </div>
+                        <span class="badge bg-success">
+                            ${shift.type_shift || "—"}
+                        </span>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Agent</strong><br>
+                            ${shift.agent_nom || "—"}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Date</strong><br>
+                            ${shift.date_shift || "—"}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Heure d'arrivée</strong><br>
+                            ${heureArrivee}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Statut</strong><br>
+                            ${shift.statut || "En cours"}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            zoneShift.classList.remove("d-none");
+        }
+
+        // EMPÊCHER DE DÉMARRER UN SECOND SHIFT
+        if (zoneDemarrage) {
+            zoneDemarrage.classList.add("d-none");
+        }
+
+    } catch (erreur) {
+        console.error("Erreur lors de l'affichage du Shift :", erreur);
     }
-
-
-    /*
-     * AFFICHAGE
-     */
-    zoneShift.innerHTML = `
-
-        <div class="alert alert-success mb-0">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <i class="fa-solid fa-circle-check me-2"></i>
-
-                    <strong>SHIFT EN COURS</strong>
-
-                </div>
-
-                <span class="badge bg-success">
-
-                    ${shift.type_shift || "—"}
-
-                </span>
-
-            </div>
-
-
-            <hr>
-
-
-            <div class="row">
-
-                <div class="col-md-3">
-
-                    <strong>Agent</strong><br>
-
-                    ${shift.agent_nom || "—"}
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <strong>Date</strong><br>
-
-                    ${shift.date_shift || "—"}
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <strong>Heure d'arrivée</strong><br>
-
-                    ${heureArrivee}
-
-                </div>
-
-
-                <div class="col-md-3">
-
-                    <strong>Statut</strong><br>
-
-                    ${shift.statut || "En cours"}
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    /*
-     * Afficher la zone
-     */
-    zoneShift.classList.remove("d-none");
-
-
-    /*
-     * Masquer la zone de démarrage
-     */
-    const zoneDemarrage =
-        document.getElementById("zoneDemarrageShiftElevage");
-
-    if (zoneDemarrage) {
-
-        zoneDemarrage.classList.add("d-none");
-
-    }
-
 }
+
 
 </script>
 
