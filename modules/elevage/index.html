@@ -663,13 +663,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
   <script>
 
+
+<script>
 /* =========================================================
    INTERFACE SHIFT ÉLEVAGE
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", async function () {
-
-    console.log("✓ Interface Shift Élevage initialisée.");
+    console.log("Interface Shift Elevage initialisée.");
 
     let typeShiftSelectionne = "Jour";
 
@@ -677,87 +678,69 @@ document.addEventListener("DOMContentLoaded", async function () {
     const btnNuit = document.getElementById("btnShiftNuit");
     const btnDemarrer = document.getElementById("btnDemarrerShiftElevage");
 
-    /*
-     * CHOIX SHIFT JOUR
-     */
+    // Sélection du shift de jour
     if (btnJour) {
-
         btnJour.addEventListener("click", function () {
-
             typeShiftSelectionne = "Jour";
-
             btnJour.classList.add("active");
-            btnNuit?.classList.remove("active");
 
+            if (btnNuit) {
+                btnNuit.classList.remove("active");
+            }
         });
-
     }
 
-
-    /*
-     * CHOIX SHIFT NUIT
-     */
+    // Sélection du shift de nuit
     if (btnNuit) {
-
         btnNuit.addEventListener("click", function () {
-
             typeShiftSelectionne = "Nuit";
-
             btnNuit.classList.add("active");
-            btnJour?.classList.remove("active");
 
+            if (btnJour) {
+                btnJour.classList.remove("active");
+            }
         });
-
     }
 
-
-    /*
-     * BOUTON DÉMARRER
-     */
+    // Démarrage du shift
     if (btnDemarrer) {
-
         btnDemarrer.addEventListener("click", async function () {
-
             console.log(
-                "Démarrage du Shift demandé :",
+                "Démarrage du shift demandé :",
                 typeShiftSelectionne
             );
 
             if (typeof window.demarrerShiftElevage !== "function") {
-
                 alert(
-                    "Erreur : la fonction de démarrage du Shift n'est pas disponible."
+                    "Erreur : la fonction de démarrage du shift n'est pas disponible."
+                );
+                return;
+            }
+
+            try {
+                const shift = await window.demarrerShiftElevage(
+                    typeShiftSelectionne
                 );
 
-                return;
+                if (shift) {
+                    await afficherShiftElevage();
+                }
+            } catch (erreur) {
+                console.error(
+                    "Erreur au démarrage du shift :",
+                    erreur
+                );
 
+                alert(
+                    "Impossible de démarrer le shift. Consultez la console."
+                );
             }
-
-            const shift = await window.demarrerShiftElevage(
-                typeShiftSelectionne
-            );
-
-            /*
-             * Si un nouveau Shift a été créé,
-             * on actualise immédiatement l'interface.
-             */
-            if (shift) {
-
-                await afficherShiftElevage();
-
-            }
-
         });
-
     }
 
-
-    /*
-     * AFFICHER LE SHIFT EXISTANT AU CHARGEMENT
-     */
+    // Chargement initial
     await afficherShiftElevage();
     await chargerBatimentsElevage();
-
 });
 
 
@@ -766,23 +749,35 @@ document.addEventListener("DOMContentLoaded", async function () {
    ========================================================= */
 
 async function afficherShiftElevage() {
-    const zoneShift = document.getElementById("zoneShiftEnCours");
-    const badgeStatut = document.getElementById("statutShiftElevage");
-    const zoneDemarrage = document.getElementById("zoneDemarrageShiftElevage");
+    const zoneShift =
+        document.getElementById("zoneShiftEnCours");
 
-    const champAgent = document.getElementById("agentShiftElevage");
-    const champDate = document.getElementById("dateShiftElevage");
-    const champHeure = document.getElementById("heureArriveeShiftElevage");
+    const badgeStatut =
+        document.getElementById("statutShiftElevage");
+
+    const zoneDemarrage =
+        document.getElementById("zoneDemarrageShiftElevage");
+
+    const champAgent =
+        document.getElementById("agentShiftElevage");
+
+    const champDate =
+        document.getElementById("dateShiftElevage");
+
+    const champHeure =
+        document.getElementById("heureArriveeShiftElevage");
 
     if (typeof window.obtenirShiftEnCours !== "function") {
-        console.error("obtenirShiftEnCours() n'est pas disponible.");
+        console.error(
+            "obtenirShiftEnCours() n'est pas disponible."
+        );
         return;
     }
 
     try {
         const shift = await window.obtenirShiftEnCours();
 
-        // AUCUN SHIFT EN COURS
+        // Aucun shift en cours
         if (!shift) {
             if (badgeStatut) {
                 badgeStatut.textContent = "Aucun shift";
@@ -793,27 +788,35 @@ async function afficherShiftElevage() {
             if (champDate) champDate.textContent = "—";
             if (champHeure) champHeure.textContent = "—";
 
-            if (zoneShift) zoneShift.classList.add("d-none");
-            if (zoneDemarrage) zoneDemarrage.classList.remove("d-none");
+            if (zoneShift) {
+                zoneShift.classList.add("d-none");
+            }
+
+            if (zoneDemarrage) {
+                zoneDemarrage.classList.remove("d-none");
+            }
 
             return;
         }
 
-        // FORMATAGE DE L'HEURE D'ARRIVÉE
+        // Formatage de l'heure d'arrivée
         let heureArrivee = "—";
 
         if (shift.heure_arrivee) {
             const dateArrivee = new Date(shift.heure_arrivee);
 
             if (!Number.isNaN(dateArrivee.getTime())) {
-                heureArrivee = dateArrivee.toLocaleTimeString("fr-FR", {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                });
+                heureArrivee = dateArrivee.toLocaleTimeString(
+                    "fr-FR",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
             }
         }
 
-        // ACTUALISER LES INFORMATIONS PRINCIPALES
+        // Informations principales
         if (champAgent) {
             champAgent.textContent = shift.agent_nom || "—";
         }
@@ -826,13 +829,13 @@ async function afficherShiftElevage() {
             champHeure.textContent = heureArrivee;
         }
 
-        // ACTUALISER LE BADGE SUPÉRIEUR
+        // Badge de statut
         if (badgeStatut) {
             badgeStatut.textContent = "Shift en cours";
             badgeStatut.className = "badge bg-success";
         }
 
-        // AFFICHER LE SHIFT ET SON TYPE
+        // Affichage du shift
         if (zoneShift) {
             zoneShift.innerHTML = `
                 <div class="alert alert-success mb-0">
@@ -841,6 +844,7 @@ async function afficherShiftElevage() {
                             <i class="fa-solid fa-circle-check me-2"></i>
                             <strong>SHIFT EN COURS</strong>
                         </div>
+
                         <span class="badge bg-success">
                             ${shift.type_shift || "—"}
                         </span>
@@ -875,22 +879,41 @@ async function afficherShiftElevage() {
             zoneShift.classList.remove("d-none");
         }
 
+        // Empêcher le démarrage d'un deuxième shift
+        if (zoneDemarrage) {
+            zoneDemarrage.classList.add("d-none");
+        }
+
+    } catch (erreur) {
+        console.error(
+            "Erreur lors de l'affichage du shift :",
+            erreur
+        );
+    }
+}
+
+
 /* =========================================================
-   CHARGER LES BATIMENTS DEPUIS SUPABASE
+   CHARGER LES BÂTIMENTS DEPUIS SUPABASE
    ========================================================= */
 
 async function chargerBatimentsElevage() {
-    const liste = document.getElementById("listeBatimentsElevage");
+    const liste =
+        document.getElementById("listeBatimentsElevage");
 
     if (!liste) {
-        console.error("Zone des bâtiments introuvable.");
+        console.error(
+            "Zone des bâtiments introuvable : listeBatimentsElevage."
+        );
         return;
     }
 
     const client = window.supabaseClient;
 
     if (!client) {
-        liste.textContent = "Erreur : connexion Supabase indisponible.";
+        liste.textContent =
+            "Erreur : connexion Supabase indisponible.";
+
         console.error("supabaseClient indisponible.");
         return;
     }
@@ -900,14 +923,22 @@ async function chargerBatimentsElevage() {
     try {
         const { data, error } = await client
             .from("batiments_elevage")
-            .select("id, nom, type_batiment, capacite_animaux, actif")
+            .select(
+                "id, nom, type_batiment, capacite_animaux, actif"
+            )
             .eq("actif", true)
             .order("nom", { ascending: true });
 
         if (error) {
-            console.error("Erreur de chargement des bâtiments :", error);
+            console.error(
+                "Erreur de chargement des bâtiments :",
+                error
+            );
+
             liste.textContent =
-                "Impossible de charger les bâtiments : " + error.message;
+                "Impossible de charger les bâtiments : " +
+                error.message;
+
             return;
         }
 
@@ -916,6 +947,7 @@ async function chargerBatimentsElevage() {
         if (!Array.isArray(data) || data.length === 0) {
             liste.textContent =
                 "Aucun bâtiment actif trouvé dans Supabase.";
+
             return;
         }
 
@@ -923,16 +955,21 @@ async function chargerBatimentsElevage() {
             const ligne = document.createElement("div");
             ligne.className = "form-check mb-2";
 
-            const caseBatiment = document.createElement("input");
+            const caseBatiment =
+                document.createElement("input");
+
             caseBatiment.type = "checkbox";
             caseBatiment.className = "form-check-input";
             caseBatiment.id = "batimentShift_" + batiment.id;
             caseBatiment.value = batiment.id;
 
-            const etiquette = document.createElement("label");
+            const etiquette =
+                document.createElement("label");
+
             etiquette.className = "form-check-label";
             etiquette.htmlFor = caseBatiment.id;
-            etiquette.textContent = batiment.nom || "Bâtiment sans nom";
+            etiquette.textContent =
+                batiment.nom || "Bâtiment sans nom";
 
             const details = [];
 
@@ -941,43 +978,49 @@ async function chargerBatimentsElevage() {
             }
 
             if (batiment.capacite_animaux != null) {
-                details.push("Capacité : " + batiment.capacite_animaux);
+                details.push(
+                    "Capacité : " +
+                    batiment.capacite_animaux +
+                    " animaux"
+                );
             }
 
             ligne.appendChild(caseBatiment);
             ligne.appendChild(etiquette);
 
             if (details.length > 0) {
-                const description = document.createElement("small");
-                description.className = "d-block text-muted ms-4";
-                description.textContent = details.join(" — ");
+                const description =
+                    document.createElement("small");
+
+                description.className =
+                    "d-block text-muted ms-4";
+
+                description.textContent =
+                    details.join(" — ");
+
                 ligne.appendChild(description);
             }
 
             liste.appendChild(ligne);
         });
 
-        console.log("Bâtiments affichés :", data.length);
+        console.log(
+            "Bâtiments affichés :",
+            data.length
+        );
 
     } catch (erreur) {
-        console.error("Erreur inattendue :", erreur);
+        console.error(
+            "Erreur inattendue lors du chargement des bâtiments :",
+            erreur
+        );
+
         liste.textContent =
-            "Erreur inattendue : " + (erreur.message || erreur);
+            "Erreur inattendue : " +
+            (erreur.message || erreur);
     }
 }
-```
-
-        // EMPÊCHER DE DÉMARRER UN SECOND SHIFT
-        if (zoneDemarrage) {
-            zoneDemarrage.classList.add("d-none");
-        }
-
-    } catch (erreur) {
-        console.error("Erreur lors de l'affichage du Shift :", erreur);
-    }
-}
-
-    });
 </script>
+
 </body>
 </html>
