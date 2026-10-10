@@ -895,6 +895,7 @@ async function afficherShiftElevage() {
    CHARGER LES BATIMENTS DEPUIS SUPABASE
    ========================================================= */
 
+```javascript
 async function chargerBatimentsElevage() {
     const liste = document.getElementById("listeBatimentsElevage");
 
@@ -906,8 +907,7 @@ async function chargerBatimentsElevage() {
     const client = window.supabaseClient;
 
     if (!client) {
-        liste.textContent =
-            "Erreur : connexion Supabase indisponible.";
+        liste.textContent = "Erreur : connexion Supabase indisponible.";
         console.error("supabaseClient indisponible.");
         return;
     }
@@ -917,26 +917,22 @@ async function chargerBatimentsElevage() {
     try {
         const { data, error } = await client
             .from("batiments_elevage")
-            .select("id, nom, type_batiment, capacite_animaux")
+            .select("id, nom, type_batiment, capacite_animaux, actif")
             .eq("actif", true)
             .order("nom", { ascending: true });
 
         if (error) {
-            console.error(
-                "Erreur de chargement des bâtiments :",
-                error
-            );
-
+            console.error("Erreur de chargement des bâtiments :", error);
             liste.textContent =
-                "Impossible de charger les bâtiments. Vérifiez les permissions Supabase.";
+                "Impossible de charger les bâtiments : " + error.message;
             return;
         }
 
         liste.replaceChildren();
 
-        if (!data || data.length === 0) {
+        if (!Array.isArray(data) || data.length === 0) {
             liste.textContent =
-                "Aucun bâtiment actif. Ajoutez d'abord un bâtiment dans Supabase.";
+                "Aucun bâtiment actif trouvé dans Supabase.";
             return;
         }
 
@@ -953,7 +949,7 @@ async function chargerBatimentsElevage() {
             const etiquette = document.createElement("label");
             etiquette.className = "form-check-label";
             etiquette.htmlFor = caseBatiment.id;
-            etiquette.textContent = batiment.nom;
+            etiquette.textContent = batiment.nom || "Bâtiment sans nom";
 
             const details = [];
 
@@ -962,36 +958,31 @@ async function chargerBatimentsElevage() {
             }
 
             if (batiment.capacite_animaux != null) {
-                details.push(
-                    "Capacité : " + batiment.capacite_animaux
-                );
-            }
-
-            if (details.length > 0) {
-                etiquette.textContent +=
-                    " (" + details.join(" — ") + ")";
+                details.push("Capacité : " + batiment.capacite_animaux);
             }
 
             ligne.appendChild(caseBatiment);
             ligne.appendChild(etiquette);
+
+            if (details.length > 0) {
+                const description = document.createElement("small");
+                description.className = "d-block text-muted ms-4";
+                description.textContent = details.join(" — ");
+                ligne.appendChild(description);
+            }
+
             liste.appendChild(ligne);
         });
 
-        console.log(
-            "Bâtiments actifs chargés :",
-            data.length
-        );
+        console.log("Bâtiments affichés :", data.length);
 
     } catch (erreur) {
-        console.error(
-            "Erreur inattendue :",
-            erreur
-        );
-
+        console.error("Erreur inattendue :", erreur);
         liste.textContent =
-            "Erreur inattendue lors du chargement des bâtiments.";
+            "Erreur inattendue : " + (erreur.message || erreur);
     }
 }
+```
 
         // EMPÊCHER DE DÉMARRER UN SECOND SHIFT
         if (zoneDemarrage) {
