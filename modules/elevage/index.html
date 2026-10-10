@@ -255,6 +255,22 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
        <!-- CHOIX DU SHIFT -->
 
+<!-- BATIMENTS A GERER PENDANT LE SHIFT -->
+<div id="zoneSelectionBatiments" class="mb-4">
+    <label class="form-label fw-bold">
+        <i class="fa-solid fa-warehouse text-success me-2"></i>
+        Bâtiments d'élevage
+    </label>
+
+    <p class="text-muted small">
+        Les bâtiments actifs seront chargés depuis Supabase.
+    </p>
+
+    <div id="listeBatimentsElevage" class="border rounded p-3">
+        Chargement des bâtiments...
+    </div>
+</div>
+
 <div id="zoneDemarrageShiftElevage">
 
     <label class="form-label fw-bold">
@@ -854,6 +870,108 @@ async function afficherShiftElevage() {
 
             zoneShift.classList.remove("d-none");
         }
+
+/* =========================================================
+   CHARGER LES BATIMENTS DEPUIS SUPABASE
+   ========================================================= */
+
+async function chargerBatimentsElevage() {
+    const liste = document.getElementById("listeBatimentsElevage");
+
+    if (!liste) {
+        console.error("Zone des bâtiments introuvable.");
+        return;
+    }
+
+    const client = window.supabaseClient;
+
+    if (!client) {
+        liste.textContent =
+            "Erreur : connexion Supabase indisponible.";
+        console.error("supabaseClient indisponible.");
+        return;
+    }
+
+    liste.textContent = "Chargement des bâtiments...";
+
+    try {
+        const { data, error } = await client
+            .from("batiments_elevage")
+            .select("id, nom, type_batiment, capacite_animaux")
+            .eq("actif", true)
+            .order("nom", { ascending: true });
+
+        if (error) {
+            console.error(
+                "Erreur de chargement des bâtiments :",
+                error
+            );
+
+            liste.textContent =
+                "Impossible de charger les bâtiments. Vérifiez les permissions Supabase.";
+            return;
+        }
+
+        liste.replaceChildren();
+
+        if (!data || data.length === 0) {
+            liste.textContent =
+                "Aucun bâtiment actif. Ajoutez d'abord un bâtiment dans Supabase.";
+            return;
+        }
+
+        data.forEach(function (batiment) {
+            const ligne = document.createElement("div");
+            ligne.className = "form-check mb-2";
+
+            const caseBatiment = document.createElement("input");
+            caseBatiment.type = "checkbox";
+            caseBatiment.className = "form-check-input";
+            caseBatiment.id = "batimentShift_" + batiment.id;
+            caseBatiment.value = batiment.id;
+
+            const etiquette = document.createElement("label");
+            etiquette.className = "form-check-label";
+            etiquette.htmlFor = caseBatiment.id;
+            etiquette.textContent = batiment.nom;
+
+            const details = [];
+
+            if (batiment.type_batiment) {
+                details.push(batiment.type_batiment);
+            }
+
+            if (batiment.capacite_animaux != null) {
+                details.push(
+                    "Capacité : " + batiment.capacite_animaux
+                );
+            }
+
+            if (details.length > 0) {
+                etiquette.textContent +=
+                    " (" + details.join(" — ") + ")";
+            }
+
+            ligne.appendChild(caseBatiment);
+            ligne.appendChild(etiquette);
+            liste.appendChild(ligne);
+        });
+
+        console.log(
+            "Bâtiments actifs chargés :",
+            data.length
+        );
+
+    } catch (erreur) {
+        console.error(
+            "Erreur inattendue :",
+            erreur
+        );
+
+        liste.textContent =
+            "Erreur inattendue lors du chargement des bâtiments.";
+    }
+}
 
         // EMPÊCHER DE DÉMARRER UN SECOND SHIFT
         if (zoneDemarrage) {
