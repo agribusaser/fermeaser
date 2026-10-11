@@ -5541,72 +5541,38 @@ async function chargerBatimentsElevage() {
                         );
 
 
-                    html += `
+               ```javascript
+html += `
+    <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value="${idBatiment}"
+                    id="batimentShift_${idBatiment}"
+                    data-batiment-id="${idBatiment}"
+                    ${estSelectionne ? "checked" : ""}
+                >
 
-                        <div class="col-md-6">
+                <label
+                    class="form-check-label w-100"
+                    for="batimentShift_${idBatiment}"
+                >
+                    <strong>
+                        ${batiment.nom || "Bâtiment sans nom"}
+                    </strong>
 
-                            <div class="border rounded p-3 h-100">
-
-                                <div class="form-check">
-
-                                   ```javascript
-<input
-    class="form-check-input"
-    type="checkbox"
-    value="${idBatiment}"
-    id="batimentShift_${idBatiment}"
-    data-batiment-id="${idBatiment}"
-    ${
-        estSelectionne
-            ? "checked"
-            : ""
-    }
->
+                    <div class="small text-muted mt-1">
+                        Type :
+                        ${batiment.type_batiment || "-"}
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+`;
 ```
-
-                                    <label
-                                        class="form-check-label w-100"
-                                        for="batimentShift_${idBatiment}"
-                                    >
-
-                                        <strong>
-                                            ${
-                                                batiment.nom ||
-                                                "Bâtiment sans nom"
-                                            }
-                                        </strong>
-
-                                        <div class="small text-muted mt-1">
-
-                                            Type :
-                                            ${
-                                                batiment.type_batiment ||
-                                                "-"
-                                            }
-
-                                            <br>
-
-                                            Capacité :
-                                            ${
-                                                batiment.capacite_animaux ??
-                                                0
-                                            }
-                                            animaux
-
-                                        </div>
-
-                                    </label>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }
-            );
 
 
             html += `
