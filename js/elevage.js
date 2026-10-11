@@ -5729,10 +5729,12 @@ async function enregistrerBatimentsDuShift() {
            2. RÉCUPÉRER LES CASES COCHÉES
         ================================================= */
 
-        const cases =
-            document.querySelectorAll(
-                '#zoneBatimentsElevage input[type="checkbox"]:checked'
-            );
+       const cases = Array.from(
+    document.querySelectorAll('input[type="checkbox"]')
+).filter(function (caseElement) {
+    return caseElement.checked &&
+        caseElement.dataset.batimentId;
+});
 
 
         const batimentIds =
