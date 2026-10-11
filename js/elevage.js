@@ -5540,9 +5540,7 @@ async function chargerBatimentsElevage() {
                             idBatiment
                         );
 
-
-               ```javascript
-html += `
+   html += `
     <div class="col-md-6">
         <div class="border rounded p-3 h-100">
             <div class="form-check">
@@ -5573,8 +5571,6 @@ html += `
     </div>
 `;
 ```
-
-
             html += `
 
                 </div>
