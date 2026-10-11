@@ -5549,17 +5549,20 @@ async function chargerBatimentsElevage() {
 
                                 <div class="form-check">
 
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        value="${idBatiment}"
-                                        id="batimentShift_${idBatiment}"
-                                        ${
-                                            estSelectionne
-                                                ? "checked"
-                                                : ""
-                                        }
-                                    >
+                                   ```javascript
+<input
+    class="form-check-input"
+    type="checkbox"
+    value="${idBatiment}"
+    id="batimentShift_${idBatiment}"
+    data-batiment-id="${idBatiment}"
+    ${
+        estSelectionne
+            ? "checked"
+            : ""
+    }
+>
+```
 
                                     <label
                                         class="form-check-label w-100"
