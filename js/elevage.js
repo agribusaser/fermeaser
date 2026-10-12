@@ -6157,8 +6157,17 @@ document.addEventListener(
             "✓ Incubation séparée dans incubation.js."
         );
 
+   
     }
 );
+
+
+/* =========================================================
+   FONCTIONS ACCESSIBLES DEPUIS INDEX.HTML
+========================================================= */
+
+window.enregistrerBatimentsDuShift =
+    enregistrerBatimentsDuShift;
 
 
 /* =========================================================
