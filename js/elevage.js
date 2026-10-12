@@ -5692,6 +5692,7 @@ async function enregistrerBatimentsDuShift() {
         }
 
 
+       
         /* =================================================
            2. RÉCUPÉRER LES CASES COCHÉES
         ================================================= */
@@ -5701,7 +5702,9 @@ async function enregistrerBatimentsDuShift() {
         );
 
         if (!zoneBatiments) {
-            alert("La zone des bâtiments du Shift est introuvable.");
+            alert(
+                "La zone des bâtiments du Shift est introuvable."
+            );
             return false;
         }
 
@@ -5717,10 +5720,6 @@ async function enregistrerBatimentsDuShift() {
             return caseElement.dataset.batimentId;
         });
 
-
-        /* =================================================
-           3. SUPPRIMER LES ANCIENNES AFFECTATIONS
-        ================================================= */
 
         /* =================================================
            3. SUPPRIMER LES ANCIENNES AFFECTATIONS
