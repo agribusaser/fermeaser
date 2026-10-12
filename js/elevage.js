@@ -6331,6 +6331,59 @@ async function afficherFormulaireRapportEntreeElevage() {
                                 >
                             </div>
 
+                  
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Nom ou référence du lot
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="lot_${index}"
+                                    placeholder="Ex. Cailles reproductrices A"
+                                    required
+                                >
+                            </div>
+
+                                <div class="mb-3">
+                                <label class="form-label">
+                                    Espèce animale
+                                </label>
+                                <select
+                                    class="form-select"
+                                    name="espece_${index}"
+                                    required
+                                >
+                                    <option value="">-- Sélectionner l'espèce --</option>
+                                    <option value="Caille">Caille</option>
+                                    <option value="Poulet">Poulet</option>
+                                    <option value="Poule locale">Poule locale</option>
+                                    <option value="Canard">Canard</option>
+                                    <option value="Pintade">Pintade</option>
+                                    <option value="Pigeon">Pigeon</option>
+                                    <option value="Porc">Porc</option>
+                                    <option value="Poisson">Poisson</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                        
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Effectif total présent
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="effectif_${index}"
+                                        min="0"
+                                        step="1"
+                                        required
+                                    >
+                                </div>
+
+
                             <div class="row g-3">
 
                                 <div class="col-md-4">
