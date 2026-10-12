@@ -6500,8 +6500,8 @@ async function afficherFormulaireRapportEntreeElevage() {
                     type="button"
                     class="btn btn-success"
                     id="btnEnregistrerRapportEntree"
-                    disabled
-                >
+                   
+               >
                     <i class="fa-solid fa-save me-2"></i>
                     Enregistrer le rapport
                 </button>
