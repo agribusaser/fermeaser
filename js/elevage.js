@@ -6515,7 +6515,197 @@ async function afficherFormulaireRapportEntreeElevage() {
 
         html += `</form>`;
 
-        contenuRapport.innerHTML = html;
+       
+       contenuRapport.innerHTML = html;
+       
+/* =========================================================
+   ENREGISTREMENT DU RAPPORT D'ENTRÉE DANS SUPABASE
+========================================================= */
+
+const boutonEnregistrer = document.getElementById(
+    "btnEnregistrerRapportEntree"
+);
+
+const formulaireRapport = document.getElementById(
+    "formRapportEntreeElevage"
+);
+
+if (boutonEnregistrer && formulaireRapport) {
+
+    boutonEnregistrer.addEventListener("click", async function () {
+
+        if (boutonEnregistrer.dataset.enregistrement === "oui") {
+            return;
+        }
+
+        if (!formulaireRapport.reportValidity()) {
+            return;
+        }
+
+        if (!window.supabaseClient) {
+            alert("Connexion Supabase indisponible.");
+            return;
+        }
+
+        boutonEnregistrer.dataset.enregistrement = "oui";
+        boutonEnregistrer.disabled = true;
+
+        const texteInitial = boutonEnregistrer.innerHTML;
+        boutonEnregistrer.innerHTML = "Enregistrement en cours...";
+
+        try {
+
+            const donneesFormulaire = new FormData(formulaireRapport);
+
+            // Un rapport est enregistré pour chaque bâtiment.
+            for (let index = 0; index < batiments.length; index++) {
+
+                const batimentId = donneesFormulaire.get(
+                    `batiment_id_${index}`
+                );
+
+                const nomLot = String(
+                    donneesFormulaire.get(`lot_${index}`) || ""
+                ).trim();
+
+                const espece = String(
+                    donneesFormulaire.get(`espece_${index}`) || ""
+                ).trim();
+
+                const convertirNombre = function (nom, defaut = 0) {
+                    const valeur = donneesFormulaire.get(nom);
+
+                    if (valeur === null || valeur === "") {
+                        return defaut;
+                    }
+
+                    const nombre = Number(valeur);
+
+                    if (!Number.isInteger(nombre) || nombre < 0) {
+                        throw new Error(
+                            `Valeur invalide pour le champ ${nom}.`
+                        );
+                    }
+
+                    return nombre;
+                };
+
+                const effectif = convertirNombre(
+                    `effectif_${index}`
+                );
+
+                const males = convertirNombre(`males_${index}`);
+                const femelles = convertirNombre(`femelles_${index}`);
+                const morts = convertirNombre(`morts_${index}`);
+                const malades = convertirNombre(`malades_${index}`);
+
+                if (!batimentId || !nomLot || !espece) {
+                    throw new Error(
+                        `Informations manquantes pour le bâtiment ${index + 1}.`
+                    );
+                }
+
+                const eau = donneesFormulaire.get(`eau_${index}`);
+                const aliments = donneesFormulaire.get(`aliments_${index}`);
+
+                const observations = String(
+                    donneesFormulaire.get(`observations_${index}`) || ""
+                ).trim();
+
+                // 1. Créer ou mettre à jour le rapport principal.
+                const { data: rapport, error: erreurRapport } =
+                    await window.supabaseClient
+                        .from("rapports_entree_elevage")
+                        .upsert(
+                            {
+                                shift_id: shift.id,
+                                batiment_id: batimentId,
+                                agent_nom: shift.agent_nom || null,
+                                eau_disponible: eau,
+                                aliments_disponibles: aliments,
+                                etat_general: observations || null,
+                                observations: observations || null,
+                                statut: "Brouillon",
+                                updated_at: new Date().toISOString()
+                            },
+                            {
+                                onConflict: "shift_id,batiment_id"
+                            }
+                        )
+                        .select("id")
+                        .single();
+
+                if (erreurRapport) {
+                    throw erreurRapport;
+                }
+
+                // 2. Préparer les données du lot.
+                const donneesLot = {
+                    rapport_id: rapport.id,
+                    lot_nom: nomLot,
+                    espece: espece,
+                    effectif_present: effectif,
+                    nombre_males: males,
+                    nombre_femelles: femelles,
+                    morts_constates: morts,
+                    animaux_malades: malades,
+                    observations: observations || null,
+                    updated_at: new Date().toISOString()
+                };
+
+                // 3. Remplacer les détails précédents de ce rapport.
+                const { error: erreurSuppression } =
+                    await window.supabaseClient
+                        .from("rapports_entree_elevage_lots")
+                        .delete()
+                        .eq("rapport_id", rapport.id);
+
+                if (erreurSuppression) {
+                    throw erreurSuppression;
+                }
+
+                // 4. Enregistrer le détail du lot.
+                const { error: erreurLot } =
+                    await window.supabaseClient
+                        .from("rapports_entree_elevage_lots")
+                        .insert(donneesLot);
+
+                if (erreurLot) {
+                    throw erreurLot;
+                }
+            }
+
+            console.log(
+                "Rapport d'entrée enregistré.",
+                "Shift :", shift.id,
+                "Bâtiments :", batiments.length
+            );
+
+            alert("Le rapport d'entrée a été enregistré avec succès.");
+
+        } catch (erreur) {
+
+            console.error(
+                "Erreur lors de l'enregistrement du rapport :",
+                erreur
+            );
+
+            alert(
+                "Échec de l'enregistrement : " +
+                (erreur.message || "Erreur inconnue") +
+                "\nConsulte la console pour plus de détails."
+            );
+
+        } finally {
+
+            boutonEnregistrer.disabled = false;
+            boutonEnregistrer.innerHTML = texteInitial;
+            delete boutonEnregistrer.dataset.enregistrement;
+        }
+
+    });
+}
+
         zoneRapport.classList.remove("d-none");
 
         console.log(
