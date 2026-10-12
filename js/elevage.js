@@ -5570,6 +5570,9 @@ async function chargerBatimentsElevage() {
         </div>
     </div>
 `;
+                }
+            );
+
             html += `
 
                 </div>
