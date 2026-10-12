@@ -6178,5 +6178,64 @@ window.enregistrerBatimentsDuShift =
 
 
 /* =========================================================
+   18. RAPPORT D'ENTRÉE — AFFICHAGE DU FORMULAIRE
+========================================================= */
+
+async function afficherFormulaireRapportEntreeElevage() {
+
+    const zoneRapport = document.getElementById(
+        "zoneRapportEntreeElevage"
+    );
+
+    const contenuRapport = document.getElementById(
+        "contenuRapportEntreeElevage"
+    );
+
+    if (!zoneRapport || !contenuRapport) {
+        console.warn(
+            "La zone du rapport d'entrée est introuvable dans index.html."
+        );
+        return false;
+    }
+
+    const shift = await obtenirShiftEnCours();
+
+    if (!shift) {
+        zoneRapport.classList.add("d-none");
+        console.warn(
+            "Aucun Shift en cours : le rapport d'entrée reste masqué."
+        );
+        return false;
+    }
+
+    contenuRapport.innerHTML = `
+        <div class="alert alert-info">
+            <strong>Shift en cours</strong><br>
+            Agent : ${String(shift.agent_nom || "Non renseigné")}
+            <br>
+            Date : ${String(shift.date_shift || "Non renseignée")}
+        </div>
+
+        <p class="text-muted mb-0">
+            Le formulaire détaillé sera ajouté après validation
+            de cet affichage.
+        </p>
+    `;
+
+    zoneRapport.classList.remove("d-none");
+
+    console.log(
+        "✓ Zone du rapport d'entrée affichée pour le Shift :",
+        shift.id
+    );
+
+    return true;
+}
+
+window.afficherFormulaireRapportEntreeElevage =
+    afficherFormulaireRapportEntreeElevage;
+
+
+/* =========================================================
    FIN ELEVAGE.JS
 ========================================================= */
