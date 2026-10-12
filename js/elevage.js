@@ -6164,7 +6164,7 @@ document.addEventListener(
             "✓ Incubation séparée dans incubation.js."
         );
 
-   
+           afficherFormulaireRapportEntreeElevage();
     }
 );
 
