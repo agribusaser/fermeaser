@@ -6370,23 +6370,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     >
                                 </div>
 
-
-                            <div class="row g-3">
-
-                                <div class="col-md-4">
-                                    <label class="form-label">
-                                        Effectif total présent
-                                    </label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        name="effectif_${index}"
-                                        min="0"
-                                        step="1"
-                                        required
-                                    >
-                                </div>
-
+                        
                                 <div class="col-md-4">
                                     <label class="form-label">
                                         Mâles
