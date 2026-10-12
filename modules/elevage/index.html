@@ -1021,12 +1021,55 @@ async function chargerBatimentsElevage() {
             liste.appendChild(ligne);
         });
 
+      
         console.log(
             "Bâtiments affichés :",
             data.length
         );
 
+        // Bouton d'enregistrement des bâtiments du Shift
+        let boutonEnregistrer =
+            document.getElementById(
+                "btnEnregistrerBatimentsShift"
+            );
+
+        if (!boutonEnregistrer) {
+            boutonEnregistrer =
+                document.createElement("button");
+
+            boutonEnregistrer.type = "button";
+            boutonEnregistrer.id =
+                "btnEnregistrerBatimentsShift";
+
+            boutonEnregistrer.className =
+                "btn btn-primary mt-3";
+
+            boutonEnregistrer.innerHTML =
+                '<i class="fa-solid fa-save me-2"></i>' +
+                "Enregistrer les bâtiments du Shift";
+
+            liste.insertAdjacentElement(
+                "afterend",
+                boutonEnregistrer
+            );
+        }
+
+        boutonEnregistrer.onclick = async function () {
+            if (
+                typeof window.enregistrerBatimentsDuShift !==
+                "function"
+            ) {
+                alert(
+                    "La fonction d'enregistrement n'est pas disponible."
+                );
+                return;
+            }
+
+            await window.enregistrerBatimentsDuShift();
+        };
+
     } catch (erreur) {
+
         console.error(
             "Erreur inattendue lors du chargement des bâtiments :",
             erreur
