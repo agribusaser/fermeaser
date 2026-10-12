@@ -975,10 +975,12 @@ async function chargerBatimentsElevage() {
             const caseBatiment =
                 document.createElement("input");
 
-            caseBatiment.type = "checkbox";
-            caseBatiment.className = "form-check-input";
-            caseBatiment.id = "batimentShift_" + batiment.id;
-            caseBatiment.value = batiment.id;
+           
+caseBatiment.type = "checkbox";
+caseBatiment.className = "form-check-input";
+caseBatiment.id = "batimentShift_" + batiment.id;
+caseBatiment.value = batiment.id;
+caseBatiment.dataset.batimentId = String(batiment.id);
 
             const etiquette =
                 document.createElement("label");
