@@ -5696,12 +5696,28 @@ async function enregistrerBatimentsDuShift() {
            2. RÉCUPÉRER LES CASES COCHÉES
         ================================================= */
 
-       const cases = Array.from(
-    document.querySelectorAll('input[type="checkbox"]')
+      ```javascript
+const zoneBatiments = document.getElementById(
+    "zoneBatimentsElevage"
+);
+
+if (!zoneBatiments) {
+    alert("La zone des bâtiments du Shift est introuvable.");
+    return false;
+}
+
+const cases = Array.from(
+    zoneBatiments.querySelectorAll(
+        'input[type="checkbox"][data-batiment-id]'
+    )
 ).filter(function (caseElement) {
-    return caseElement.checked &&
-        caseElement.dataset.batimentId;
+    return caseElement.checked;
 });
+
+const batimentIds = cases.map(function (caseElement) {
+    return caseElement.dataset.batimentId;
+});
+```
 
 
         const batimentIds =
