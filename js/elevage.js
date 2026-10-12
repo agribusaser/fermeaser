@@ -6181,6 +6181,7 @@ window.enregistrerBatimentsDuShift =
    18. RAPPORT D'ENTRÉE — AFFICHAGE DU FORMULAIRE
 ========================================================= */
 
+
 async function afficherFormulaireRapportEntreeElevage() {
 
     const zoneRapport = document.getElementById(
@@ -6193,7 +6194,7 @@ async function afficherFormulaireRapportEntreeElevage() {
 
     if (!zoneRapport || !contenuRapport) {
         console.warn(
-            "La zone du rapport d'entrée est introuvable dans index.html."
+            "La zone du rapport d'entrée est introuvable."
         );
         return false;
     }
@@ -6202,35 +6203,325 @@ async function afficherFormulaireRapportEntreeElevage() {
 
     if (!shift) {
         zoneRapport.classList.add("d-none");
-        console.warn(
-            "Aucun Shift en cours : le rapport d'entrée reste masqué."
-        );
         return false;
     }
 
-    contenuRapport.innerHTML = `
-        <div class="alert alert-info">
-            <strong>Shift en cours</strong><br>
-            Agent : ${String(shift.agent_nom || "Non renseigné")}
-            <br>
-            Date : ${String(shift.date_shift || "Non renseignée")}
-        </div>
+    if (!window.supabaseClient) {
+        console.error("Supabase n'est pas disponible.");
+        return false;
+    }
 
-        <p class="text-muted mb-0">
-            Le formulaire détaillé sera ajouté après validation
-            de cet affichage.
-        </p>
-    `;
+    try {
 
-    zoneRapport.classList.remove("d-none");
+        // 1. Charger les bâtiments affectés au Shift
+        const {
+            data: affectations,
+            error: erreurAffectations
+        } = await window.supabaseClient
+            .from("shifts_elevage_batiments")
+            .select("batiment_id")
+            .eq("shift_id", shift.id);
 
-    console.log(
-        "✓ Zone du rapport d'entrée affichée pour le Shift :",
-        shift.id
-    );
+        if (erreurAffectations) {
+            throw erreurAffectations;
+        }
 
-    return true;
+        const idsBatiments = (affectations || [])
+            .map(function (ligne) {
+                return ligne.batiment_id;
+            })
+            .filter(Boolean);
+
+        let batiments = [];
+
+        // 2. Charger les informations des bâtiments
+        if (idsBatiments.length > 0) {
+
+            const {
+                data,
+                error
+            } = await window.supabaseClient
+                .from("batiments_elevage")
+                .select("id, nom, type_batiment")
+                .in("id", idsBatiments);
+
+            if (error) {
+                throw error;
+            }
+
+            batiments = data || [];
+        }
+
+        // Éviter d'interpréter du texte de la base comme du HTML
+        function echapperHTML(valeur) {
+            return String(valeur ?? "").replace(
+                /[&<>"']/g,
+                function (caractere) {
+                    return {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#39;"
+                    }[caractere];
+                }
+            );
+        }
+
+        let html = `
+            <div class="alert alert-info">
+                <strong>Shift en cours</strong><br>
+                Agent : ${echapperHTML(shift.agent_nom || "Non renseigné")}<br>
+                Date : ${echapperHTML(shift.date_shift || "Non renseignée")}<br>
+                Type : ${echapperHTML(shift.type_shift || "Non renseigné")}
+            </div>
+
+            <form id="formRapportEntreeElevage">
+
+                <p class="fw-bold">
+                    État des animaux à l'arrivée de l'agent
+                </p>
+        `;
+
+        if (batiments.length === 0) {
+
+            html += `
+                <div class="alert alert-warning">
+                    Aucun bâtiment n'est affecté à ce Shift.
+                    Sélectionnez et enregistrez les bâtiments avant
+                    de préparer le rapport d'entrée.
+                </div>
+            `;
+
+        } else {
+
+            batiments.forEach(function (batiment, index) {
+
+                const id = echapperHTML(batiment.id);
+
+                html += `
+                    <div class="card border mb-4">
+                        <div class="card-header bg-light">
+                            <strong>
+                                ${echapperHTML(batiment.nom || "Bâtiment")}
+                            </strong>
+                            <div class="small text-muted">
+                                ${echapperHTML(batiment.type_batiment || "")}
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+
+                            <input
+                                type="hidden"
+                                name="batiment_id_${index}"
+                                value="${id}"
+                            >
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Nom ou référence du lot
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="lot_${index}"
+                                    placeholder="Ex. Cailles reproductrices A"
+                                    required
+                                >
+                            </div>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Effectif total présent
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="effectif_${index}"
+                                        min="0"
+                                        step="1"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Mâles
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="males_${index}"
+                                        min="0"
+                                        step="1"
+                                        value="0"
+                                    >
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        Femelles
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="femelles_${index}"
+                                        min="0"
+                                        step="1"
+                                        value="0"
+                                    >
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Morts constatés
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="morts_${index}"
+                                        min="0"
+                                        step="1"
+                                        value="0"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Animaux malades
+                                    </label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="malades_${index}"
+                                        min="0"
+                                        step="1"
+                                        value="0"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Disponibilité de l'eau
+                                    </label>
+                                    <select
+                                        class="form-select"
+                                        name="eau_${index}"
+                                        required
+                                    >
+                                        <option value="">
+                                            -- Sélectionner --
+                                        </option>
+                                        <option value="Disponible">
+                                            Disponible
+                                        </option>
+                                        <option value="Insuffisante">
+                                            Insuffisante
+                                        </option>
+                                        <option value="Indisponible">
+                                            Indisponible
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Disponibilité des aliments
+                                    </label>
+                                    <select
+                                        class="form-select"
+                                        name="aliments_${index}"
+                                        required
+                                    >
+                                        <option value="">
+                                            -- Sélectionner --
+                                        </option>
+                                        <option value="Disponible">
+                                            Disponible
+                                        </option>
+                                        <option value="Insuffisant">
+                                            Insuffisant
+                                        </option>
+                                        <option value="Indisponible">
+                                            Indisponible
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        État général et observations
+                                    </label>
+                                    <textarea
+                                        class="form-control"
+                                        name="observations_${index}"
+                                        rows="3"
+                                        placeholder="État des animaux, anomalies, besoins..."
+                                    ></textarea>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    id="btnEnregistrerRapportEntree"
+                    disabled
+                >
+                    <i class="fa-solid fa-save me-2"></i>
+                    Enregistrer le rapport
+                </button>
+
+                <p class="small text-muted mt-2 mb-0">
+                    L'enregistrement sera activé après validation
+                    des champs et raccordement aux tables Supabase.
+                </p>
+            `;
+        }
+
+        html += `</form>`;
+
+        contenuRapport.innerHTML = html;
+        zoneRapport.classList.remove("d-none");
+
+        console.log(
+            "✓ Formulaire du rapport d'entrée affiché.",
+            "Shift :", shift.id,
+            "Bâtiments :", batiments.length
+        );
+
+        return true;
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur affichage du rapport d'entrée :",
+            erreur
+        );
+
+        contenuRapport.innerHTML = `
+            <div class="alert alert-danger">
+                Impossible de charger les bâtiments du rapport.
+                Consultez la console pour identifier l'erreur.
+            </div>
+        `;
+
+        zoneRapport.classList.remove("d-none");
+
+        return false;
+    }
 }
+
 
 window.afficherFormulaireRapportEntreeElevage =
     afficherFormulaireRapportEntreeElevage;
