@@ -6332,19 +6332,6 @@ async function afficherFormulaireRapportEntreeElevage() {
                             </div>
 
                   
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    Nom ou référence du lot
-                                </label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="lot_${index}"
-                                    placeholder="Ex. Cailles reproductrices A"
-                                    required
-                                >
-                            </div>
-
                                 <div class="mb-3">
                                 <label class="form-label">
                                     Espèce animale
