@@ -5697,9 +5697,11 @@ async function enregistrerBatimentsDuShift() {
            2. RÉCUPÉRER LES CASES COCHÉES
         ================================================= */
    
- const zoneBatiments = document.getElementById(
-    "zoneBatimentsElevage"
-);
+
+        const zoneBatiments =
+            document.getElementById("zoneBatimentsElevage") ||
+            document.getElementById("listeBatimentsElevage");
+
 
         if (!zoneBatiments) {
             alert(
