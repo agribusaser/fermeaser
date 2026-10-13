@@ -6252,6 +6252,60 @@ async function afficherFormulaireRapportEntreeElevage() {
             batiments = data || [];
         }
 
+
+        // 1 bis. Récupérer les rapports déjà enregistrés pour ce Shift.
+        const {
+            data: rapportsExistantsData,
+            error: erreurRapportsExistants
+        } = await window.supabaseClient
+            .from("rapports_entree_elevage")
+            .select("*")
+            .eq("shift_id", shift.id);
+
+        if (erreurRapportsExistants) {
+            throw erreurRapportsExistants;
+        }
+
+        const rapportsExistants = rapportsExistantsData || [];
+
+        // 2 bis. Récupérer les détails des lots de ces rapports.
+        const idsRapports = rapportsExistants.map(
+            rapport => rapport.id
+        );
+
+        let lotsExistants = [];
+
+        if (idsRapports.length > 0) {
+            const {
+                data: lotsData,
+                error: erreurLots
+            } = await window.supabaseClient
+                .from("rapports_entree_elevage_lots")
+                .select("*")
+                .in("rapport_id", idsRapports);
+
+            if (erreurLots) {
+                throw erreurLots;
+            }
+
+            lotsExistants = lotsData || [];
+        }
+
+        // Convertir les disponibilités booléennes ou textuelles
+        // en valeurs utilisables par les listes déroulantes.
+        function normaliserDisponibilite(valeur) {
+            if (valeur === true || valeur === "true") {
+                return "Disponible";
+            }
+
+            if (valeur === false || valeur === "false") {
+                return "Indisponible";
+            }
+
+            return valeur || "";
+        }
+
+       
         // Éviter d'interpréter du texte de la base comme du HTML
         function echapperHTML(valeur) {
             return String(valeur ?? "").replace(
