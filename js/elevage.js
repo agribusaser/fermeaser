@@ -6467,7 +6467,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         class="form-control"
-                                        name="effectif_${index}"
+                                        value="${valeurEffectif}"
                                         min="0"
                                         step="1"
                                         required
@@ -6482,7 +6482,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         class="form-control"
-                                        name="males_${index}"
+                                        value="${valeurMales}"
                                         min="0"
                                         step="1"
                                         value="0"
@@ -6496,7 +6496,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         class="form-control"
-                                        name="femelles_${index}"
+                                       value="${valeurFemelles}"
                                         min="0"
                                         step="1"
                                         value="0"
@@ -6510,7 +6510,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         class="form-control"
-                                        name="morts_${index}"
+                                       value="${valeurMorts}"
                                         min="0"
                                         step="1"
                                         value="0"
@@ -6525,7 +6525,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         class="form-control"
-                                        name="malades_${index}"
+                                        value="${valeurMalades}"
                                         min="0"
                                         step="1"
                                         value="0"
@@ -6533,28 +6533,23 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     >
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        Disponibilité de l'eau
-                                    </label>
-                                    <select
-                                        class="form-select"
-                                        name="eau_${index}"
-                                        required
-                                    >
-                                        <option value="">
-                                            -- Sélectionner --
-                                        </option>
-                                        <option value="Disponible">
-                                            Disponible
-                                        </option>
-                                        <option value="Insuffisante">
-                                            Insuffisante
-                                        </option>
-                                        <option value="Indisponible">
-                                            Indisponible
-                                        </option>
-                                    </select>
+                              
+<div class="col-md-6">
+    <label class="form-label">
+        Disponibilité de l'eau
+    </label>
+    <select
+        class="form-select"
+        name="eau_${index}"
+        required
+    >
+        <option value="">-- Sélectionner --</option>
+        <option value="Disponible" ${valeurEau === "Disponible" ? "selected" : ""}>Disponible</option>
+        <option value="Insuffisante" ${valeurEau === "Insuffisante" ? "selected" : ""}>Insuffisante</option>
+        <option value="Indisponible" ${valeurEau === "Indisponible" ? "selected" : ""}>Indisponible</option>
+    </select>
+</div>
+
                                 </div>
 
                                 <div class="col-md-6">
@@ -6562,29 +6557,23 @@ async function afficherFormulaireRapportEntreeElevage() {
                                         Disponibilité des aliments
                                     </label>
                                     <select
-                                        class="form-select"
-                                        name="aliments_${index}"
-                                        required
-                                    >
-                                        <option value="">
-                                            -- Sélectionner --
-                                        </option>
-                                        <option value="Disponible">
-                                            Disponible
-                                        </option>
-                                        <option value="Insuffisant">
-                                            Insuffisant
-                                        </option>
-                                        <option value="Indisponible">
-                                            Indisponible
-                                        </option>
-                                    </select>
-                                </div>
 
-                                <div class="col-12">
-                                    <label class="form-label">
-                                        État général et observations
-                                    </label>
+<div class="col-md-6">
+    <label class="form-label">
+        Disponibilité des aliments
+    </label>
+    <select
+        class="form-select"
+        name="aliments_${index}"
+        required
+    >
+        <option value="">-- Sélectionner --</option>
+        <option value="Disponible" ${valeurAliments === "Disponible" ? "selected" : ""}>Disponible</option>
+        <option value="Insuffisant" ${valeurAliments === "Insuffisant" ? "selected" : ""}>Insuffisant</option>
+        <option value="Indisponible" ${valeurAliments === "Indisponible" ? "selected" : ""}>Indisponible</option>
+    </select>
+</div>
+
                                     <textarea
                                         class="form-control"
                                         name="observations_${index}"
@@ -6593,16 +6582,19 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     ></textarea>
                                 </div>
 
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+                          
+<div class="col-12">
+    <label class="form-label">
+        État général et observations
+    </label>
+    <textarea
+        class="form-control"
+        name="observations_${index}"
+        rows="3"
+        placeholder="État des animaux, anomalies, besoins..."
+    >${valeurObservations}</textarea>
+</div>
 
-            html += `
-                <button
-                    type="button"
-                    class="btn btn-success"
                     id="btnEnregistrerRapportEntree"
                    
                >
