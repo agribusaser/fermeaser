@@ -6422,8 +6422,9 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     type="text"
                                     class="form-control"
                                     name="lot_${index}"
+                                    value="${valeurLot}"
                                     placeholder="Ex. Cailles reproductrices A"
-                                    required
+                                 required
                                 >
                             </div>
 
