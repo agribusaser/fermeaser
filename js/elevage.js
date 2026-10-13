@@ -6349,9 +6349,51 @@ async function afficherFormulaireRapportEntreeElevage() {
 
         } else {
 
+           
             batiments.forEach(function (batiment, index) {
 
                 const id = echapperHTML(batiment.id);
+
+                // Retrouver le rapport de ce bâtiment pour le Shift.
+                const rapportExistant = rapportsExistants.find(
+                    rapport => rapport.batiment_id === batiment.id
+                );
+
+                // Retrouver le détail du lot associé à ce rapport.
+                const lotExistant = rapportExistant
+                    ? lotsExistants.find(
+                        lot => lot.rapport_id === rapportExistant.id
+                    )
+                    : null;
+
+                const valeurLot = echapperHTML(
+                    lotExistant?.lot_nom || ""
+                );
+
+                const valeurEspece = echapperHTML(
+                    lotExistant?.espece || ""
+                );
+
+                const valeurEffectif = lotExistant?.effectif_present ?? "";
+                const valeurMales = lotExistant?.nombre_males ?? 0;
+                const valeurFemelles = lotExistant?.nombre_femelles ?? 0;
+                const valeurMorts = lotExistant?.morts_constates ?? 0;
+                const valeurMalades = lotExistant?.animaux_malades ?? 0;
+
+                const valeurEau = normaliserDisponibilite(
+                    rapportExistant?.eau_disponible
+                );
+
+                const valeurAliments = normaliserDisponibilite(
+                    rapportExistant?.aliments_disponibles
+                );
+
+                const valeurObservations = echapperHTML(
+                    rapportExistant?.observations
+                    || lotExistant?.observations
+                    || ""
+                );
+
 
                 html += `
                     <div class="card border mb-4">
