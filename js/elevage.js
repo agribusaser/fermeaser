@@ -6595,12 +6595,16 @@ async function afficherFormulaireRapportEntreeElevage() {
     >${valeurObservations}</textarea>
 </div>
 
-                    id="btnEnregistrerRapportEntree"
                    
-               >
-                    <i class="fa-solid fa-save me-2"></i>
-                    Enregistrer le rapport
-                </button>
+<button
+    type="button"
+    id="btnEnregistrerRapportEntree"
+    class="btn btn-primary"
+>
+    <i class="fa-solid fa-floppy-disk me-2"></i>
+    Enregistrer le rapport
+</button>
+
 
                 <p class="small text-muted mt-2 mb-0">
                     L'enregistrement sera activé après validation
