@@ -6716,10 +6716,12 @@ if (boutonEnregistrer && formulaireRapport) {
                             {
                                 shift_id: shift.id,
                                 batiment_id: batimentId,
+                               
                                 agent_nom: shift.agent_nom || null,
-                               eau_disponible: eau === "Disponible",
-                     aliments_disponibles: aliments === "Disponible",
+                                eau_disponible: eau === "Disponible",
+                                aliments_disponibles: aliments === "Disponible",
                                 etat_general: observations || null,
+
                                 observations: observations || null,
                                 statut: "Brouillon",
                                 updated_at: new Date().toISOString()
