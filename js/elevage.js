@@ -6475,63 +6475,73 @@ async function afficherFormulaireRapportEntreeElevage() {
                                 </div>
 
                         
-                                <div class="col-md-4">
-                                    <label class="form-label">
-                                        Mâles
-                                    </label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        value="${valeurMales}"
-                                        min="0"
-                                        step="1"
-                                        value="0"
-                                    >
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">
-                                        Femelles
-                                    </label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                       value="${valeurFemelles}"
-                                        min="0"
-                                        step="1"
-                                        value="0"
-                                    >
-                                </div>
-
                                
-<div class="col-md-6">
+<div class="col-md-4">
     <label class="form-label">
-        Morts constatés
+        Mâles
     </label>
     <input
         type="number"
         class="form-control"
-        name="morts_${index}"
-        value="${valeurMorts}"
+        name="males_${index}"
+        value="${valeurMales}"
         min="0"
         step="1"
         required
     >
 </div>
 
-<div class="col-md-6">
+
+                                
+<div class="col-md-4">
     <label class="form-label">
-        Animaux malades
+        Femelles
     </label>
     <input
         type="number"
         class="form-control"
-        name="malades_${index}"
-        value="${valeurMalades}"
+        name="femelles_${index}"
+        value="${valeurFemelles}"
         min="0"
         step="1"
         required
     >
+</div>
+
+
+                               
+<div class="col-md-6">
+    <label class="form-label">
+        Morts constatés
+    </label>
+   
+<input
+    type="number"
+    class="form-control"
+    name="morts_${index}"
+    value="${valeurMorts}"
+    min="0"
+    step="1"
+    required
+>
+
+</div>
+
+<div class="col-md-6">
+    <label class="form-label">
+        Animaux malades
+    </label>
+   
+<input
+    type="number"
+    class="form-control"
+    name="malades_${index}"
+    value="${valeurMalades}"
+    min="0"
+    step="1"
+    required
+>
+
 </div>
 
                               
