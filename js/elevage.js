@@ -6429,34 +6429,29 @@ async function afficherFormulaireRapportEntreeElevage() {
                             </div>
 
                   
-                                <div class="mb-3">
-                                <label class="form-label">
-                                    Espèce animale
-                                </label>
-                                <select
-                                    class="form-select"
-                                    name="espece_${index}"
-                                    required
-                                >
-                                   
-<select
-    class="form-select"
-    name="espece_${index}"
-    required
->
-    <option value="">-- Sélectionner l'espèce --</option>
-    <option value="Caille" ${valeurEspece === "Caille" ? "selected" : ""}>Caille</option>
-    <option value="Poulet" ${valeurEspece === "Poulet" ? "selected" : ""}>Poulet</option>
-    <option value="Poule locale" ${valeurEspece === "Poule locale" ? "selected" : ""}>Poule locale</option>
-    <option value="Canard" ${valeurEspece === "Canard" ? "selected" : ""}>Canard</option>
-    <option value="Pintade" ${valeurEspece === "Pintade" ? "selected" : ""}>Pintade</option>
-    <option value="Pigeon" ${valeurEspece === "Pigeon" ? "selected" : ""}>Pigeon</option>
-    <option value="Porc" ${valeurEspece === "Porc" ? "selected" : ""}>Porc</option>
-    <option value="Poisson" ${valeurEspece === "Poisson" ? "selected" : ""}>Poisson</option>
-    <option value="Autre" ${valeurEspece === "Autre" ? "selected" : ""}>Autre</option>
-</select>
+<div class="mb-3">
+    <label class="form-label">
+        Espèce animale
+    </label>
+    <select
+        class="form-select"
+        name="espece_${index}"
+        required
+    >
+        <option value="">-- Sélectionner l'espèce --</option>
+        <option value="Caille" ${valeurEspece === "Caille" ? "selected" : ""}>Caille</option>
+        <option value="Poulet" ${valeurEspece === "Poulet" ? "selected" : ""}>Poulet</option>
+        <option value="Poule locale" ${valeurEspece === "Poule locale" ? "selected" : ""}>Poule locale</option>
+        <option value="Canard" ${valeurEspece === "Canard" ? "selected" : ""}>Canard</option>
+        <option value="Pintade" ${valeurEspece === "Pintade" ? "selected" : ""}>Pintade</option>
+        <option value="Pigeon" ${valeurEspece === "Pigeon" ? "selected" : ""}>Pigeon</option>
+        <option value="Porc" ${valeurEspece === "Porc" ? "selected" : ""}>Porc</option>
+        <option value="Poisson" ${valeurEspece === "Poisson" ? "selected" : ""}>Poisson</option>
+        <option value="Autre" ${valeurEspece === "Autre" ? "selected" : ""}>Autre</option>
+    </select>
+</div>
 
-                            </div>
+                                
                         
                             <div class="row g-3">
 
@@ -6466,12 +6461,17 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     </label>
                                     <input
                                         type="number"
-                                        class="form-control"
-                                        value="${valeurEffectif}"
-                                        min="0"
-                                        step="1"
-                                        required
-                                    >
+                                        
+<input
+    type="number"
+    class="form-control"
+    name="effectif_${index}"
+    value="${valeurEffectif}"
+    min="0"
+    step="1"
+    required
+>
+
                                 </div>
 
                         
