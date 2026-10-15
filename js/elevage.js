@@ -6462,6 +6462,7 @@ async function afficherFormulaireRapportEntreeElevage() {
                                     <input
                                         type="number"
                                         
+
 <input
     type="number"
     class="form-control"
@@ -6471,6 +6472,7 @@ async function afficherFormulaireRapportEntreeElevage() {
     step="1"
     required
 >
+
 
                                 </div>
 
@@ -6623,10 +6625,7 @@ async function afficherFormulaireRapportEntreeElevage() {
 
         html += `</form>`;
 
-        contenuRapport.innerHTML = html;
-
-
-       
+            
        contenuRapport.innerHTML = html;
        
 /* =========================================================
