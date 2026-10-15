@@ -6838,6 +6838,9 @@ if (boutonEnregistrer && formulaireRapport) {
 
             alert("Le rapport d'entrée a été enregistré avec succès.");
 
+// Actualiser l'historique après l'enregistrement.
+await chargerHistoriqueRapportsEntreeElevage();
+           
         } catch (erreur) {
 
             console.error(
