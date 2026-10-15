@@ -6592,24 +6592,39 @@ async function afficherFormulaireRapportEntreeElevage() {
 
 
                    
-<button
-    type="button"
-    id="btnEnregistrerRapportEntree"
-    class="btn btn-primary"
->
-    <i class="fa-solid fa-floppy-disk me-2"></i>
-    Enregistrer le rapport
-</button>
 
+                    </div>
+                </div>
+            </div>
+            `;
 
-                <p class="small text-muted mt-2 mb-0">
-                    L'enregistrement sera activé après validation
-                    des champs et raccordement aux tables Supabase.
-                </p>
+            }); // Fermer correctement batiments.forEach()
+        } // Fermer le bloc else
+
+        // Ajouter un seul bouton pour tout le rapport.
+        if (batiments.length > 0) {
+            html += `
+                <div class="mt-3">
+                    <button
+                        type="button"
+                        id="btnEnregistrerRapportEntree"
+                        class="btn btn-primary"
+                    >
+                        <i class="fa-solid fa-floppy-disk me-2"></i>
+                        Enregistrer le rapport
+                    </button>
+
+                    <p class="small text-muted mt-2 mb-0">
+                        Vérifiez les informations avant l'enregistrement.
+                    </p>
+                </div>
             `;
         }
 
         html += `</form>`;
+
+        contenuRapport.innerHTML = html;
+
 
        
        contenuRapport.innerHTML = html;
