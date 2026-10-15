@@ -6872,7 +6872,322 @@ if (boutonEnregistrer && formulaireRapport) {
     }
 }
 
+/* =========================================================
+   HISTORIQUE DES RAPPORTS D'ENTRÉE — ÉLEVAGE
+========================================================= */
 
+async function chargerHistoriqueRapportsEntreeElevage() {
+
+    const zone = document.getElementById(
+        "historiqueRapportsEntreeElevage"
+    );
+
+    if (!zone) {
+        console.warn(
+            "La zone de l'historique des rapports est introuvable."
+        );
+        return;
+    }
+
+    if (!window.supabaseClient) {
+        zone.innerHTML = `
+            <div class="alert alert-warning">
+                La connexion à Supabase est indisponible.
+            </div>
+        `;
+        return;
+    }
+
+    zone.innerHTML = `
+        <p class="text-muted">
+            Chargement des rapports...
+        </p>
+    `;
+
+    try {
+
+        // 1. Charger les rapports principaux.
+        const {
+            data: rapports,
+            error: erreurRapports
+        } = await window.supabaseClient
+            .from("rapports_entree_elevage")
+            .select("*")
+            .order("id", {
+                ascending: false
+            });
+
+        if (erreurRapports) {
+            throw erreurRapports;
+        }
+
+        if (!rapports || rapports.length === 0) {
+            zone.innerHTML = `
+                <div class="alert alert-info mb-0">
+                    Aucun rapport d'entrée n'a encore été enregistré.
+                </div>
+            `;
+            return;
+        }
+
+        // 2. Charger les détails des lots.
+        const idsRapports = rapports
+            .map(function (rapport) {
+                return rapport.id;
+            })
+            .filter(function (id) {
+                return id !== null && id !== undefined;
+            });
+
+        let lots = [];
+
+        if (idsRapports.length > 0) {
+
+            const {
+                data: donneesLots,
+                error: erreurLots
+            } = await window.supabaseClient
+                .from("rapports_entree_elevage_lots")
+                .select("*")
+                .in("rapport_id", idsRapports);
+
+            if (erreurLots) {
+                throw erreurLots;
+            }
+
+            lots = donneesLots || [];
+        }
+
+        // 3. Charger les noms des bâtiments.
+        const idsBatiments = [
+            ...new Set(
+                rapports
+                    .map(function (rapport) {
+                        return rapport.batiment_id;
+                    })
+                    .filter(Boolean)
+            )
+        ];
+
+        let batiments = [];
+
+        if (idsBatiments.length > 0) {
+
+            const {
+                data: donneesBatiments,
+                error: erreurBatiments
+            } = await window.supabaseClient
+                .from("batiments_elevage")
+                .select("id, nom")
+                .in("id", idsBatiments);
+
+            if (erreurBatiments) {
+                throw erreurBatiments;
+            }
+
+            batiments = donneesBatiments || [];
+        }
+
+        // 4. Empêcher l'injection de HTML.
+        function securiserTexte(valeur) {
+
+            return String(valeur ?? "").replace(
+                /[&<>"']/g,
+                function (caractere) {
+                    return {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#39;"
+                    }[caractere];
+                }
+            );
+        }
+
+        function afficherValeur(valeur) {
+            return valeur === null ||
+                valeur === undefined ||
+                valeur === ""
+                ? "-"
+                : securiserTexte(valeur);
+        }
+
+        function afficherDateRapport(rapport) {
+
+            const date = rapport.date_rapport ||
+                rapport.date_shift ||
+                rapport.created_at ||
+                rapport.updated_at;
+
+            if (!date) {
+                return "-";
+            }
+
+            const dateObjet = new Date(date);
+
+            if (Number.isNaN(dateObjet.getTime())) {
+                return securiserTexte(date);
+            }
+
+            return dateObjet.toLocaleString("fr-FR");
+        }
+
+        // 5. Construire le tableau.
+        let html = `
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Agent</th>
+                            <th>Bâtiment</th>
+                            <th>Lot</th>
+                            <th>Espèce</th>
+                            <th>Présents</th>
+                            <th>Mâles</th>
+                            <th>Femelles</th>
+                            <th>Morts</th>
+                            <th>Malades</th>
+                            <th>Eau</th>
+                            <th>Aliments</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        rapports.forEach(function (rapport) {
+
+            const batiment = batiments.find(
+                function (element) {
+                    return String(element.id) ===
+                        String(rapport.batiment_id);
+                }
+            );
+
+            const lotsDuRapport = lots.filter(
+                function (lot) {
+                    return String(lot.rapport_id) ===
+                        String(rapport.id);
+                }
+            );
+
+            const nomBatiment = batiment
+                ? batiment.nom
+                : rapport.batiment_id;
+
+            // Afficher une ligne même si aucun détail de lot n'existe.
+            const lignesLots = lotsDuRapport.length > 0
+                ? lotsDuRapport
+                : [null];
+
+            lignesLots.forEach(function (lot) {
+
+                html += `
+                    <tr>
+                        <td>${securiserTexte(
+                            afficherDateRapport(rapport)
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            rapport.agent_nom
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            nomBatiment
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.lot_nom : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.espece : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.effectif_present : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.nombre_males : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.nombre_femelles : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.morts_constates : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            lot ? lot.animaux_malades : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            rapport.eau_disponible === true
+                                ? "Disponible"
+                                : rapport.eau_disponible === false
+                                    ? "Indisponible"
+                                    : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            rapport.aliments_disponibles === true
+                                ? "Disponibles"
+                                : rapport.aliments_disponibles === false
+                                    ? "Indisponibles"
+                                    : ""
+                        )}</td>
+
+                        <td>${afficherValeur(
+                            rapport.statut
+                        )}</td>
+                    </tr>
+                `;
+
+            });
+
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="small text-muted mb-0">
+                Nombre de rapports : ${rapports.length}
+            </p>
+        `;
+
+        zone.innerHTML = html;
+
+    } catch (erreur) {
+
+        console.error(
+            "Erreur chargement historique des rapports d'entrée :",
+            erreur
+        );
+
+        zone.innerHTML = `
+            <div class="alert alert-danger">
+                Impossible de charger l'historique.
+                Vérifiez la connexion Supabase et les colonnes des tables.
+                Consultez la console pour le détail de l'erreur.
+            </div>
+        `;
+    }
+}
+
+
+/* =========================================================
+   ACCÈS À LA FONCTION DEPUIS LES AUTRES ÉCRANS
+========================================================= */
+
+window.chargerHistoriqueRapportsEntreeElevage =
+    chargerHistoriqueRapportsEntreeElevage;
 window.afficherFormulaireRapportEntreeElevage =
     afficherFormulaireRapportEntreeElevage;
 
