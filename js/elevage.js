@@ -6651,6 +6651,25 @@ html += `
 
             
        contenuRapport.innerHTML = html;
+
+       // Charger automatiquement l'historique.
+chargerHistoriqueRapportsEntreeElevage();
+
+// Activer le bouton d'actualisation.
+const boutonActualiserHistorique = document.getElementById(
+    "btnActualiserHistoriqueEntreeElevage"
+);
+
+if (boutonActualiserHistorique) {
+
+    boutonActualiserHistorique.addEventListener(
+        "click",
+        function () {
+            chargerHistoriqueRapportsEntreeElevage();
+        }
+    );
+
+}
        
 /* =========================================================
    ENREGISTREMENT DU RAPPORT D'ENTRÉE DANS SUPABASE
