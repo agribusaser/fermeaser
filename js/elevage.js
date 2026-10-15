@@ -6617,7 +6617,37 @@ async function afficherFormulaireRapportEntreeElevage() {
             `;
         }
 
-        html += `</form>`;
+        // Fermer le formulaire du rapport d'entrée.
+html += `</form>`;
+
+// Ajouter la zone d'affichage de l'historique.
+html += `
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-clock-rotate-left me-2"></i>
+                Historique des rapports d'entrée
+            </h5>
+
+            <button
+                type="button"
+                id="btnActualiserHistoriqueEntreeElevage"
+                class="btn btn-outline-primary btn-sm"
+            >
+                <i class="fa-solid fa-rotate me-1"></i>
+                Actualiser
+            </button>
+        </div>
+
+        <div class="card-body">
+            <div id="historiqueRapportsEntreeElevage">
+                <p class="text-muted mb-0">
+                    Chargement de l'historique...
+                </p>
+            </div>
+        </div>
+    </div>
+`;
 
             
        contenuRapport.innerHTML = html;
