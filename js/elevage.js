@@ -6453,6 +6453,7 @@ async function afficherFormulaireRapportEntreeElevage() {
 
                                 
                         
+
 <div class="col-md-4">
     <label class="form-label">
         Effectif total présent
@@ -6467,6 +6468,7 @@ async function afficherFormulaireRapportEntreeElevage() {
         required
     >
 </div>
+
 
                         
                                
